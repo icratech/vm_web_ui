@@ -16,6 +16,7 @@
 
     onMount( async( ) =>{
         try {
+            
             let auth = JSON.parse( window.sessionStorage.getItem( "auth_user" ) )  // console.log(`auth: ${ JSON.stringify( auth, null, 4 ) }`)
             if ( auth.id ) { 
                     auth_user.set( auth )
@@ -28,7 +29,7 @@
 
     const login = async( ) => { 
 
-        let payload = JSON.stringify( { email: email, password: password } )
+        let payload = JSON.stringify( { email, password } )
 
         let auth_res = await fetch( `${ SERVER }/api/auth/login`, { 
                 method: "POST",
@@ -39,7 +40,7 @@
         )
         let auth = await auth_res.json()
 
-        if (auth.status === "success") { // console.log(`LOGGED IN!\n${ JSON.stringify( auth, null, 4 ) }`)
+        if ( auth.status === "success" ) { // console.log(`LOGGED IN!\n${ JSON.stringify( auth, null, 4 ) }`)
 
             let user_res = await fetch( `${ SERVER }/user/me`, { 
                     method: "GET",
@@ -112,7 +113,7 @@
         <div class="flx-row login">
 
             { #if loggedIn }
-                <h4>{ $auth_user.name }, you are my favorite...</h4>
+                <h4>{ $auth_user.name }, you are a tolerable person.</h4>
             { :else }
                 <InputText 
                     bind:txt={ email }

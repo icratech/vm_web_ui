@@ -28,22 +28,67 @@ export class AuthorizedUser {
 const local = true
 export const SERVER = ( local ? "http://127.0.0.1:8007" : "https://des.leehayford.com" )
 
-export const API_URL_JOBS =  `${ SERVER }/api/jobs`
-// { 
-//     method: 'GET',
-//     headers: { 'Authorization': `Bearer ${ auth.token }`}, 
-//     credentials: "include"   
-// } 
-
-export const API_URL_DEVICES =  `${ SERVER }/api/device/list`
-// { 
-//     method: 'GET',
-//     headers: { 'Authorization': `Bearer ${ auth.token }`}, 
-//     credentials: "include"   
-// } 
 
 export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
+export const API_URL_GET_DEVICES = `${ SERVER }/api/device/list`
 
+
+export const load_get_devices = async( serverLoadEvent ) => {
+
+    let req = new Request( API_URL_GET_DEVICES, { 
+        method: 'GET',
+        credentials: "include",
+        headers: {
+            "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
+        },
+    } )
+
+    const { fetch } = serverLoadEvent
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    let resp = {
+        status: json.status,
+        message: json.message,
+        devices: [],
+    } 
+    if ( resp.status == "success") { 
+        resp.devices = json.data.devices 
+    }
+   
+    return { resp }
+}
+
+export const load_get_device_by_serial = async( serverLoadEvent ) => {
+
+    let req = new Request( `${ SERVER }/api/device/serial`, { 
+        method: 'POST',
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
+        },
+        body:  JSON.stringify( { serial: serverLoadEvent.params.slug } )
+    } )
+
+    const { fetch } = serverLoadEvent
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    let resp = {
+        status: json.status,
+        message: json.message,
+        device: { },
+    } 
+    if ( resp.status == "success") { 
+        resp.device = json.data.device 
+    }
+   
+    return { resp }
+}
+
+export const API_URL_REGISTER_JOB =  `${ SERVER }/api/job/register`
+export const API_URL_JOBS =  `${ SERVER }/api/job/list`
 
 
 

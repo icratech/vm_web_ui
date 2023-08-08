@@ -1,32 +1,51 @@
 
 <script>
+
+    import { goto } from '$app/navigation'
+    import DeviceCard from './DeviceCard.svelte'
+
     /* THIS ALSO WORKS */
     // import { page } from '$app/stores'
-    // $: devices = $page.data.devices
+    // $: device = $page.data.resp.device
+    // $: message = $page.data.resp.message
+    // $: status = $page.data.resp.status
 
     export let data
-    let devices = [ ]
-    // $: devices = data.devices
-    let titleText = 'Search and select...'  
-    $: { console.log( JSON.stringify( data, null, 4 ) ) }
-    if ( data.json.status === "success" ) {
-        devices = data.json.data.devices
-    }  
-    if ( data.json.status === "fail" ) {
-        console.log( data.json.message )
-        titleText = data.json.message
+    $: devices = data.resp.devices
+    $: message = data.resp.message
+    $: status = data.resp.status
+    $: { console.log( `./device: ${ status.toUpperCase() }\t${ message }` ) }
+    
+// on:go={ ( ) => { goto( `device/${device.des_dev_serial }` ) } }
+</script>
+<dvi class="flx-col container">
+
+    <h1>DEVICES PAGE</h1>
+    <p>STATUS: { status }</p>
+    <p>MESSAGE: { message }</p>
+
+    <div class="flx-col device-list">
+        { #each devices as device ( `device_page_${ device.des_dev_id }`  )  }
+            <DeviceCard 
+                bind:device={ device }
+                on:go={ ( ) => { goto( `device/${device.des_dev_serial }` ) } }
+            />
+        { /each }
+    </div>
+
+</dvi>  
+
+<style>
+
+    .container {
+        height: 100%;
+        gap: 1rem;
     }
 
-</script>
+    .device-list {
+        width: 100%;
+        overflow-y: auto;
+        padding: 1em;
+    }
 
-<h1>DEVICES PAGE</h1>
-<p>{ titleText }</p>
-<ul>
-    { #each devices as device }
-    <li>
-        <a href="/device/{ device.des_dev_serial }">
-            { device.des_dev_serial }
-        </a>
-    </li>
-    {/each}
-</ul>
+</style>
