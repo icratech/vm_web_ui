@@ -25,7 +25,7 @@ export class AuthorizedUser {
     }
 }
 
-const local = true
+const local = false
 export const SERVER = ( local ? "http://127.0.0.1:8007" : "https://des.leehayford.com" )
 
 

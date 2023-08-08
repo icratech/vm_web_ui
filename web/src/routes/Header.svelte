@@ -3,6 +3,7 @@
     import InputText from '$lib/common/input_text/InputText.svelte'
     import InputPw from '$lib/common/input_pw/InputPW.svelte'
     
+    import { goto } from '$app/navigation'
     import { onMount } from "svelte";
     import { SERVER, AuthorizedUser, auth_user } from '../lib/des_api'
 
@@ -16,7 +17,7 @@
 
     onMount( async( ) =>{
         try {
-            
+
             let auth = JSON.parse( window.sessionStorage.getItem( "auth_user" ) )  // console.log(`auth: ${ JSON.stringify( auth, null, 4 ) }`)
             if ( auth.id ) { 
                     auth_user.set( auth )
@@ -28,6 +29,8 @@
     } )
 
     const login = async( ) => { 
+
+        await goto( '/' )
 
         let payload = JSON.stringify( { email, password } )
 
@@ -59,7 +62,7 @@
                 usr.data.user.updated_at  
             ) )
             $auth_user.setToken( auth.token ) // console.log(`AUTHENTICATED USER DATA!\n${ JSON.stringify( $auth_user, null, 4 ) }`)
-            document.cookie = `des_token=${ auth.token }`
+            document.cookie = `des_token=${ auth.token };path='/'`
 
             window.sessionStorage.setItem( "auth_user", JSON.stringify( $auth_user ) ) 
             let sess = JSON.parse( window.sessionStorage.getItem( "auth_user" ) )  
@@ -72,6 +75,8 @@
         }
     }
     const logout = async( ) => {
+
+        await goto( '/' )
 
         let user_res = await fetch( `${ SERVER }/api/auth/logout`, { 
                 method: "GET",
@@ -88,7 +93,7 @@
         window.sessionStorage.setItem( "auth_user", JSON.stringify( $auth_user ) )
         // let sess = JSON.parse( window.sessionStorage.getItem( "auth_user" ) )
         // console.log(`LOGGED OUT USER SESSION DATA!\n${ JSON.stringify( sess, null, 4 ) }`)
-        document.cookie = `des_token=""`
+        document.cookie = `des_token="";path='/'`
         loggedIn = false
     }
 
