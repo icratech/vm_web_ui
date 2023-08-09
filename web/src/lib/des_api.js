@@ -25,9 +25,11 @@ export class AuthorizedUser {
     }
 }
 
-const local = false
+const local = true
 export const SERVER = ( local ? "http://127.0.0.1:8007" : "https://des.leehayford.com" )
 
+
+export const API_URL_REGISTER_C001_V001_DEVICE =  `${ SERVER }/api/001/001/device/register`
 
 export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
 export const API_URL_GET_DEVICES = `${ SERVER }/api/device/list`
