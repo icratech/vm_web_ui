@@ -1,11 +1,7 @@
 <script>
-    import { invalidateAll, goto } from '$app/navigation'
-    import PillButton from "$lib/common/button/PillButton.svelte"
-    import InputText from "$lib/common/input_text/InputText.svelte"
+    import { goto } from '$app/navigation'
+    import { auth_user } from '../../lib/des_api'
     import DeviceCard from '../device/DeviceCard.svelte'
-    
-    import { API_URL_REGISTER_DEVICE, DESRegistration } from "../../lib/des_api";
-    import { auth_user, demo_app } from '../../lib/des_api'
    
     /* THIS ALSO WORKS */
     // import { page } from '$app/stores'
@@ -13,37 +9,16 @@
     // $: message = $page.data.resp.message
     // $: status = $page.data.resp.status
 
+    /** @type {import('./$types').PageData} */
     export let data
     $: devices = data.resp.devices
     $: message = data.resp.message
     $: status = data.resp.status
     $: { console.log( `./demo: ${ status.toUpperCase() }\t${ message }` ) }
-    
-    let serial
-    const RegisterDevice = async(  ) => {
+    // $: { console.log( `./demo: auth_user\t${ JSON.stringify( $auth_user, null, 4 ) }` ) }
 
-        let des_reg = new DESRegistration( )
-        des_reg.des_dev_serial = serial
-        des_reg.des_dev_reg_user_id = $auth_user.id
-        des_reg.des_dev_reg_app = demo_app
-        // console.log("demo+page.svelte -> RegisterDevice -> REQUEST des_reg:\n", des_reg )
-
-        let res = await fetch(  API_URL_REGISTER_DEVICE, { 
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${ $auth_user.token }` 
-            },
-            body: JSON.stringify( des_reg )
-        } )
-        let txt = await res.text( )
-
-        des_reg = await JSON.parse( txt )
-        console.log("DemoDevicePage -> RegisterDevice -> RESPONSE des_reg:\n", des_reg )
-
-        invalidateAll( )
-    }
-
+    /** @type {import('./$types').ActionData} */
+    export let form
 
 </script>
 
@@ -53,20 +28,25 @@
     <p>STATUS: { status }</p>
     <p>MESSAGE: { message }</p>
 
-    <div class="flx-row new-device">
+    <form method="POST" action="?/registerDevice" class="flx-row new-device">
 
-        <PillButton
-            on:click={ RegisterDevice }
-        />
-        
-        <InputText 
-            bind:txt={ serial }
-            place={ "NEXTSERIAL" }
-            enabled={ true }
-            lbl={ "Enter a serial # and click the circle over there." }
-        />
+        <button class='pill-btn bg-accent'>
+            DO
+        </button>
+
+        <div class="flx-col input-container">
+            <label class="lbl">
+                Enter a serial # and click the circle over there.
+                <input name="serial"
+                    type="text" 
+                    value={ form?.serial ?? '' } 
+                />
+            </label>
+        </div>
+
+        <input type="hidden" value={ $auth_user.id } name="user_id"/>
     
-    </div>
+    </form>
 
     <div class="flx-col device-list">
         { #each devices as device ( `device_page_${ device.des_dev_id }`  )  }
@@ -79,7 +59,6 @@
 
 
 </dvi>
-
 
 
 <style>
@@ -96,5 +75,28 @@
         overflow-y: auto;
         padding: 1em;
     }
+
+    .input-container {
+        gap: 0.25rem;
+    }
+
+    .lbl {
+        font-size: 0.9rem;
+    }
+
+    input {
+        color: var(--light);
+        background-color: var(--dark);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.2rem;
+		border: 0.1rem solid var(--light_a);
+        width: 100%;
+    }
+
+    input:disabled {
+        color: var(--grey);
+		border: 0.1rem solid transparent;
+    }
+
 
 </style>

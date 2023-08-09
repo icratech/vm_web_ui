@@ -37,7 +37,7 @@ export const load_get_devices = async( serverLoadEvent ) => {
 
     let req = new Request( API_URL_GET_DEVICES, { 
         method: 'GET',
-        credentials: "include",
+        // credentials: "include",
         headers: {
             "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
         },

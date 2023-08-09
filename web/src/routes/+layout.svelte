@@ -1,11 +1,21 @@
 
 <script>
+    
     import Header from './Header.svelte'
+    
+    /** @type {import('./$types').LayoutData} */
+    export let data
+    $: user = data.user
+    $: { console.log( `LAYOUT PAGE DATA: \n${ JSON.stringify( user, null, 4 ) }\n` ) }
+
+    /** @type {import('./$types').ActionData} */
+    export let form
+
 </script>
 
 <div class="flx-col main">
 
-    <Header />
+    <Header bind:user={ user } bind:form={ form }/>
 
     <div class="flx-row layout">
 
@@ -16,7 +26,7 @@
             <a href='/demo'>DEMO</a>
         </div>
 
-        <div class="flx-col content">
+        <div class="flx-col page">
             <slot></slot>
         </div>
 
@@ -35,7 +45,8 @@
         width: 6em;
         gap:2em;
     }
-    .content {
+    .page {
         height: 100%;
     }
+
 </style>

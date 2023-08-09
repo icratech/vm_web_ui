@@ -1,101 +1,7 @@
 <script>
-    import PillButton from '$lib/common/button/PillButton.svelte'
-    import InputText from '$lib/common/input_text/InputText.svelte'
-    import InputPw from '$lib/common/input_pw/InputPW.svelte'
-    
-    import { goto } from '$app/navigation'
-    import { onMount } from "svelte";
-    import { SERVER, AuthorizedUser, auth_user } from '../lib/des_api'
 
-    $: loggedIn = false
-    $: loginButtonText = ( !loggedIn ? 'Login' : 'Logout' )
-    $: loginButtonColor = ( !loggedIn ? 'bg-green_a' : 'bg-purple' )
-    $: loginButtonFunc = ( !loggedIn ? login : logout ) 
-    
-    let email = ""
-    let password = ""
-
-    onMount( async( ) =>{
-        try {
-
-            let auth = JSON.parse( window.sessionStorage.getItem( "auth_user" ) )  // console.log(`auth: ${ JSON.stringify( auth, null, 4 ) }`)
-            if ( auth.id ) { 
-                    auth_user.set( auth )
-                    loggedIn = true
-            }
-        } catch {
-            loggedIn = false // console.log(`loggedIn: ${ loggedIn }`)
-        } // console.log( JSON.stringify( $auth_user, null, 4 ) )
-    } )
-
-    const login = async( ) => { 
-
-        await goto( '/' )
-
-        let payload = JSON.stringify( { email, password } )
-
-        let auth_res = await fetch( `${ SERVER }/api/auth/login`, { 
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                credentials: "include",
-                body: payload             
-            } 
-        )
-        let auth = await auth_res.json()
-
-        if ( auth.status === "success" ) { // console.log(`LOGGED IN!\n${ JSON.stringify( auth, null, 4 ) }`)
-
-            let user_res = await fetch( `${ SERVER }/user/me`, { 
-                    method: "GET",
-                    headers: { 'Authorization': `Bearer ${ auth.token }`}      
-                } 
-            )
-            let usr = await user_res.json() // console.log(`AUTHENTICATED USER DATA!\n${ JSON.stringify( usr, null, 4 ) }`)
-            
-            auth_user.set( new AuthorizedUser( 
-                usr.data.user.id, 
-                usr.data.user.name, 
-                usr.data.user.email, 
-                usr.data.user.role,
-                usr.data.user.provider, 
-                usr.data.user.created_at, 
-                usr.data.user.updated_at  
-            ) )
-            $auth_user.setToken( auth.token ) // console.log(`AUTHENTICATED USER DATA!\n${ JSON.stringify( $auth_user, null, 4 ) }`)
-            document.cookie = `des_token=${ auth.token };path='/'`
-
-            window.sessionStorage.setItem( "auth_user", JSON.stringify( $auth_user ) ) 
-            let sess = JSON.parse( window.sessionStorage.getItem( "auth_user" ) )  
-            console.log(`AUTHENTICATED USER SESSION DATA!\n${ JSON.stringify( sess, null, 4 ) }`)
-
-            loggedIn = true
-
-        } else {
-            console.log(`NOT LOGGED IN!\n${ JSON.stringify( auth, null, 4 ) }`)
-        }
-    }
-    const logout = async( ) => {
-
-        await goto( '/' )
-
-        let user_res = await fetch( `${ SERVER }/api/auth/logout`, { 
-                method: "GET",
-                headers: { 'Authorization': `Bearer ${ $auth_user.token }` }, 
-                credentials: "include"   
-            } 
-        )
-        let usr = await user_res.json( )
-        console.log( `LOGGED OUT!\n${ JSON.stringify( usr, null, 4 ) }` )
-        
-        auth_user.set( { } )
-        // console.log(`LOGGED OUT USER DATA!\n${ JSON.stringify( $auth_user, null, 4 ) }`)
-        
-        window.sessionStorage.setItem( "auth_user", JSON.stringify( $auth_user ) )
-        // let sess = JSON.parse( window.sessionStorage.getItem( "auth_user" ) )
-        // console.log(`LOGGED OUT USER SESSION DATA!\n${ JSON.stringify( sess, null, 4 ) }`)
-        document.cookie = `des_token="";path='/'`
-        loggedIn = false
-    }
+    export let user
+    export let form
 
 </script>
 
@@ -115,35 +21,40 @@
             
         </div>
 
-        <div class="flx-row login">
-
-            { #if loggedIn }
-                <h4>{ $auth_user.name }, you are a tolerable person.</h4>
+        <form method="POST" action="/?/login" class="flx-row login">
+        
+            { #if user.logged_in }
+            <h4>{ user.name }, you are a tolerable person.</h4>
+        
+                <button formaction="/?/logout" class='pill-btn bg-accent'>
+                    Logout
+                </button>
             { :else }
-                <InputText 
-                    bind:txt={ email }
-                    place={ "email" }
-                    enabled={ !loggedIn }
-                />
-                <InputPw
-                    bind:txt={ password }
-                    place={ "password" }
-                    enabled={ !loggedIn }
-                />
+                <div class="flx-col input-container">
+                    <label class="lbl">
+                        email
+                        <input name="email"  type="email" value={ form?.email ?? '' } />
+                    </label>
+                </div>
+                
+                <div class="flx-col input-container">
+                    <label class="lbl">
+                        password
+                        <input name="password" type="password"  value={ form?.password ?? '' } />
+                    </label>
+                </div>
+            
+                <button class='pill-btn bg-accent'>
+                    Login
+                </button>
             { /if }
-              
-            <div class="button">
-                <PillButton 
-                    on:click={ loginButtonFunc }
-                    bind:cls={ loginButtonColor }
-                > { loginButtonText }</PillButton>
-            </div>
 
-        </div>
+        </form>
 
-    </div>
+    </div>        
 
 </div>
+
 
 <style>
     .container {
@@ -198,8 +109,23 @@
         align-items: center;
         justify-content: flex-end;
     }
-    .button {
-        min-width: 5em;
-        max-width: 5em;
+
+    .input-container {
+        gap: 0.25rem;
+        width: 17em;
     }
+
+    .lbl {
+        font-size: 0.9rem;
+    }
+
+    input {
+        color: var(--light);
+        background-color: var(--dark);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.2rem;
+		border: 0.1rem solid var(--light_a);
+        width: 100%;
+    }
+
 </style>
