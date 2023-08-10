@@ -1,6 +1,6 @@
 
 <script>
-    
+  
     /* THIS ALSO WORKS */
     // import { page } from '$app/stores'
     // $: device = $page.data.resp.device
@@ -12,6 +12,7 @@
     $: message = data.resp.message
     $: status = data.resp.status
     $: { console.log( `./device/[slug]: ${ status.toUpperCase() }\t${ message }` ) }
+    $: { console.log( `./device/[slug]: ${ JSON.stringify( device, null, 4 ) }\n` ) }
 
 </script>
 

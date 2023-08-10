@@ -25,7 +25,7 @@ export class AuthorizedUser {
     }
 }
 
-const local = true
+const local = false
 export const SERVER = ( local ? "http://127.0.0.1:8007" : "https://des.leehayford.com" )
 
 
@@ -33,7 +33,7 @@ export const API_URL_REGISTER_C001_V001_DEVICE =  `${ SERVER }/api/001/001/devic
 
 export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
 export const API_URL_GET_DEVICES = `${ SERVER }/api/device/list`
-
+export const API_URL_GET_DEVICE_BY_SN = `${ SERVER }/api/device/serial` 
 
 export const load_get_devices = async( serverLoadEvent ) => {
 
@@ -63,14 +63,17 @@ export const load_get_devices = async( serverLoadEvent ) => {
 
 export const load_get_device_by_serial = async( serverLoadEvent ) => {
 
-    let req = new Request( `${ SERVER }/api/device/serial`, { 
+    let reg = new DESRegistration( )
+    reg.des_dev_serial = serverLoadEvent.params.slug
+
+    let req = new Request( API_URL_GET_DEVICE_BY_SN, { 
         method: 'POST',
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
             "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
         },
-        body:  JSON.stringify( { serial: serverLoadEvent.params.slug } )
+        body:  JSON.stringify( reg )
     } )
 
     const { fetch } = serverLoadEvent
@@ -89,9 +92,65 @@ export const load_get_device_by_serial = async( serverLoadEvent ) => {
     return { resp }
 }
 
-export const API_URL_REGISTER_JOB =  `${ SERVER }/api/job/register`
-export const API_URL_JOBS =  `${ SERVER }/api/job/list`
+// export const API_URL_REGISTER_JOB =  `${ SERVER }/api/job/register`
+export const API_URL_GET_JOBS =  `${ SERVER }/api/job/list`
+export const API_URL_GET_JOB_BY_NAME = `${ SERVER }/api/job/name` 
 
+export const load_get_jobs = async( serverLoadEvent ) => {
+
+    let req = new Request( API_URL_GET_JOBS, { 
+        method: 'GET',
+        headers: {
+            "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
+        },
+    } )
+
+    const { fetch } = serverLoadEvent
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    let resp = {
+        status: json.status,
+        message: json.message,
+        jobs: [],
+    } 
+    if ( resp.status == "success") { 
+        resp.jobs = json.data.jobs 
+    }
+   
+    return { resp }
+}
+
+export const load_get_job_by_name = async( serverLoadEvent ) => {
+
+    let reg = new DESRegistration( )
+    reg.des_job_name = serverLoadEvent.params.slug
+
+    let req = new Request( API_URL_GET_JOB_BY_NAME, { 
+        method: 'POST',
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
+        },
+        body:  JSON.stringify( reg )
+    } )
+
+    const { fetch } = serverLoadEvent
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    let resp = {
+        status: json.status,
+        message: json.message,
+        job: { },
+    } 
+    if ( resp.status == "success") { 
+        resp.job = json.data.job 
+    }
+   
+    return { resp }
+}
 
 
 export const device_class = "001"
@@ -127,7 +186,7 @@ export class DESRegistration {
         des_job_start = 0,
         des_job_end = 0,
         des_job_dev_id = 0
-     ) {
+    ) {
         /* DESDevice */
         this.des_dev_id = des_dev_id,
 

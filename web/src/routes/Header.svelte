@@ -26,8 +26,8 @@
             { #if user.logged_in }
             <h4>{ user.name }, you are a tolerable person.</h4>
         
-                <button formaction="/?/logout" class='pill-btn bg-accent'>
-                    Logout
+                <button formaction="/?/logout" class='pill-btn bg-purple'>
+                    LOGOUT
                 </button>
             { :else }
                 <div class="flx-col input-container">
@@ -44,8 +44,8 @@
                     </label>
                 </div>
             
-                <button class='pill-btn bg-accent'>
-                    Login
+                <button class='pill-btn bg-green_a'>
+                    LOGIN
                 </button>
             { /if }
 
@@ -64,7 +64,7 @@
         gap: 0;
     }
     .content {
-        padding-left: 1rem;
+        /* padding-left: 1rem; */
         justify-content: space-between;
     }
     .title-block {
@@ -106,8 +106,10 @@
     
 
     .login {
-        align-items: center;
         justify-content: flex-end;
+        align-items: flex-end;
+        padding-bottom: 1em;
+        margin-right: 1em;
     }
 
     .input-container {

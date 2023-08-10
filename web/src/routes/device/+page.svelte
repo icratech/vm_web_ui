@@ -15,9 +15,10 @@
     $: message = data.resp.message
     $: status = data.resp.status
     $: { console.log( `./device: ${ status.toUpperCase() }\t${ message }` ) }
+    $: { console.log( `./devices: ${ JSON.stringify( devices, null, 4 ) }\n` ) }
     
-// on:go={ ( ) => { goto( `device/${device.des_dev_serial }` ) } }
 </script>
+
 <dvi class="flx-col container">
 
     <h1>DEVICES PAGE</h1>

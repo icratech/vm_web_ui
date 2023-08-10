@@ -4,10 +4,10 @@
     import { createEventDispatcher } from "svelte"
     let dispatch = createEventDispatcher( )
 
-    export let device = {
-        des_dev_serial: "",
-        des_dev_version: "",
-        des_dev_class: "",
+    export let job = {
+        des_job_name: "",
+        des_job_start: 0,
+        des_job_end: 0,
     }
 
 </script>
@@ -16,21 +16,21 @@
 
     <PillButton on:click={ ( ) => { dispatch( 'go' ) } }/>
 
-<div class="flx-row device-reg-hdr">
+<div class="flx-row job-reg-hdr">
                         
-        <div class="device-ser">
-            <h4>SN: { device.des_dev_serial }</h4>
+        <div class="job-name">
+            <h4>DB: { job.des_job_name }</h4>
         </div>
-        <div class="flx-col device-reg-cv">
-            <p>CLASS: { device.des_dev_class }</p>
-            <p>VERSION: { device.des_dev_version }</p>
+        <div class="flx-col job-reg-se">
+            <p>START: { job.des_job_start }</p>
+            <p>END: { job.des_job_end }</p>
         </div>
 
     </div>
 </div>
 
 <style>
-    
+        
     .container{
         padding: 1em;
         background-color: var(--light_aa);
@@ -38,18 +38,18 @@
         gap: 1em;
     }
 
-     /* HEADER - DEVICE STATE - COL */
-     /* .device-state {
+     /* HEADER - JOB STATE - COL */
+     /* .job-state {
         width: 35%;
     } */
-    /* HEADER - DEVICE REG - COL */
-    .device-reg-hdr {
+    /* HEADER - JOB REG - COL */
+    .job-reg-hdr {
         height: 3em;
     }
-    .device-ser {
+    .job-name {
         width: 70%;
     }
-    .device-reg-cv {
+    .job-reg-se {
         width: 30%;
         align-items: flex-end;
         gap: 0;

@@ -65,6 +65,7 @@
     .container {
         height: 100%;
         gap: 1rem;
+        overflow: hidden;
     }
     .new-device {
         padding: 1em;
