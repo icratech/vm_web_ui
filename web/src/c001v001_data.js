@@ -1,34 +1,5 @@
 
 
-/* COLOR STUFF ******************************************************************************************/
-let dark = "40, 40, 40"
-let grey = "175, 175, 175"
-let light = "230, 230, 230"
-let red = "220, 25, 60"
-let orange = "245, 120, 0"
-let yellow = "230, 180, 20"
-let green = "60, 210, 0" 
-let aqua = "50, 230, 230"
-let blue = "10, 120, 230"
-let purple = "160, 70, 240"
-let pink = "250, 70, 200 "
-
-export const RGBA = ( rgb, a ) => { return `rgba( ${ rgb }, ${ a } )`  }
-
-export const BASE = {
-    DARK: dark,
-    GREY: grey,
-    LIGHT: light,
-    RED: red,
-    ORANGE: orange,
-    YELLOW: yellow,
-    GREEN: green,
-    AQUA: aqua,
-    BLUE: blue,
-    PURPLE: purple,
-    PINK: pink,
-}
-
 /* CHARTJS DATA STRUCTURES ***************************************************************************/
 export class LineChartModel {
     constructor( title, color ) {
@@ -257,31 +228,6 @@ export class LineChartScale {
     }
 }
 
-
-export const MODE_BUILD_CSS = 'fg-yellow'
-export const MODE_VENT_CSS = 'fg-red'
-export const MODE_HIGH_FLOW_CSS = 'fg-blue'
-export const MODE_LOW_FLOW_CSS = 'fg-aqua'
-export const MODE = [
-   'BUILD', // 0
-   'BUILD <-> VENT', // 1
-   'VENT', // 2
-   'VENT <-> HI FLOW', // 3
-   'HI FLOW', // 4
-   'HI FLOW <-> LO FLOW', // 5
-   'LO FLOW', // 6
-   'MANUAL >-<' // 7
-]
-
-export const COLORS = {
-    CH4: BASE.PINK,
-    HI_FLOW: BASE.BLUE,
-    LO_FLOW: BASE.AQUA,
-    PRESS: BASE.YELLOW,
-    BAT_AMP: BASE.RED,
-    BAT_VOLT: BASE.ORANGE,
-    MOT_VOLT: BASE.PURPLE
-}
 export const CHART_LINE_WIDTH = 1.5
 export const CHART_MARKER_RADIUS = 1
 

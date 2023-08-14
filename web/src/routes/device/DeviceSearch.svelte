@@ -22,9 +22,9 @@
         } )
     } )
 
-        $: filter = true
-        $: filterButtonText = ( filter ? "^" : "v" )
-        $: filterClass = ( filter ? "map-container-min" : "map-container-max" ) 
+    $: filter = true
+    $: filterButtonText = ( filter ? "^" : "v" )
+    $: filterClass = ( filter ? "map-container-min" : "map-container-max" ) 
 
 </script>
 

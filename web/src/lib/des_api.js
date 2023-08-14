@@ -34,7 +34,7 @@ export class AuthorizedUser {
     }
 }
 
-const local = false
+const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des.leehayford.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` )
@@ -62,11 +62,8 @@ export const get_event_types = async( ) => {
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
-export const API_URL_GET_RUN_DEMO_SIM = `${ WS_SERVER }/api/001/001/demo/sim` 
 
-// export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
-export const API_URL_GET_DEVICES = `${ HTTP_SERVER }/api/device/list`
-export const API_URL_GET_DEVICE_BY_SN = `${ HTTP_SERVER }/api/device/serial` 
+export const API_URL_GET_RUN_DEMO_SIM = `${ WS_SERVER }/api/001/001/demo/sim` 
 
 export const load_get_devices = async( serverLoadEvent ) => {
 
@@ -94,7 +91,13 @@ export const load_get_devices = async( serverLoadEvent ) => {
     return { resp }
 }
 
-export const load_get_device_by_serial = async( serverLoadEvent ) => {
+// export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
+// export const API_URL_GET_DEVICES = `${ HTTP_SERVER }/api/device/list`
+// export const API_URL_GET_DEVICE_BY_SN = `${ HTTP_SERVER }/api/device/serial` 
+export const API_URL_GET_JOBS =  `${ HTTP_SERVER }/api/job/list`
+export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name` 
+
+/* export const load_get_device_by_serial = async( serverLoadEvent ) => {
 
     let reg = new DESRegistration( )
     reg.des_dev_serial = serverLoadEvent.params.slug
@@ -121,13 +124,9 @@ export const load_get_device_by_serial = async( serverLoadEvent ) => {
     if ( resp.status == "success") { 
         resp.device = json.data.device 
     }
-   
+   console.log(  JSON.stringify( res, null, 4 ))
     return { resp }
-}
-
-// export const API_URL_REGISTER_JOB =  `${ SERVER }/api/job/register`
-export const API_URL_GET_JOBS =  `${ HTTP_SERVER }/api/job/list`
-export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name` 
+} */
 
 export const load_get_jobs = async( serverLoadEvent ) => {
 
@@ -152,7 +151,7 @@ export const load_get_jobs = async( serverLoadEvent ) => {
     }
    
     return { resp }
-}
+} 
 
 export const load_get_job_by_name = async( serverLoadEvent ) => {
 
@@ -183,7 +182,7 @@ export const load_get_job_by_name = async( serverLoadEvent ) => {
     }
    
     return { resp }
-}
+} 
 
 
 
@@ -355,24 +354,6 @@ export class Device {
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/
-
-export class Job {
-    constructor(
-        admins = [ ],
-        configs = [ ],
-        events = [ ],
-        samples = [ ],
-        xypoints = [ ],
-        reg = new DESRegistration( ),
-    ) {
-        this.admins = admins
-        this.configs = configs
-        this.events = events
-        this.samples = samples
-        this.xypoints = xypoints
-        this.reg = reg
-    }
-}
 
 /* 
 WEB CLIENT -> HTTP -> DES -> MQTT -> DEVICE  
@@ -625,6 +606,31 @@ export class DiagSample { /* NOT IMPLEMENTED */
     /* NOT IMPLEMENTED */
 }
 
+export class XYSampleData { 
+    constructor(
+        xy_smp = {
+            ch4: [ new XYPoint( ) ],
+            hi_flow: [ new XYPoint( ) ],
+            lo_flow: [ new XYPoint( ) ],
+            press: [ new XYPoint( ) ],
+            bat_amp: [ new XYPoint( ) ],
+            bat_volt: [ new XYPoint( ) ],
+            mot_volt: [ new XYPoint( ) ],
+            vlv_tgt: [ new XYPoint( ) ],
+            vlv_pos: [ new XYPoint( ) ],
+        }
+    ) {
+        this.ch4 = xy_smp.ch4
+        this.hi_flow = xy_smp.hi_flow
+        this.lo_flow = xy_smp.lo_flow
+        this.press = xy_smp.press
+        this.bat_amp = xy_smp.bat_amp
+        this.bat_volt = xy_smp.bat_volt
+        this.mot_volt = xy_smp.mot_volt
+        this.vlv_tgt = xy_smp.vlv_tgt
+        this.vlv_pos = xy_smp.vlv_pos
+    }
+ }
 
 /* 
 DEMO! - NOT FOR PRODUCTION 
@@ -693,4 +699,175 @@ export class Sim {
         this.fillQty = fillQty
         this.run = run
     }
+}
+
+
+export class Job {
+    constructor(
+        admins = [ ],
+        configs = [ ],
+        events = [ ],
+        samples = [ ],
+        xypoints = [ ],
+        reg = new DESRegistration( ),
+    ) {
+        this.admins = admins
+        this.configs = configs
+        this.events = events
+        this.samples = samples
+        this.xypoints = xypoints
+        this.reg = reg
+        
+        this.cht = NewChartData( )
+        this.cht_ch4 = this.cht.data.datasets[0]
+        this.cht_ch4.data = this.xypoints.ch4
+
+        this.cht_hi_flow = this.cht.data.datasets[1]
+        this.cht_hi_flow.data = this.xypoints.hi_flow
+        
+        this.cht_lo_flow = this.cht.data.datasets[2]
+        this.cht_lo_flow.data = this.xypoints.lo_flow
+        
+        this.cht_press = this.cht.data.datasets[3]
+        this.cht_press.data = this.xypoints.press
+        
+        this.cht_bat_amp = this.cht.data.datasets[4]
+        this.cht_bat_amp.data = this.xypoints.bat_amp
+        
+        this.cht_bat_volt = this.cht.data.datasets[5]
+        this.cht_bat_volt.data = this.xypoints.bat_volt
+        
+        this.cht_mot_volt = this.cht.data.datasets[6]
+        this.cht_mot_volt.data = this.xypoints.mot_volt
+
+        // this.cht_x_min = this.cht_ch4.data[0].x
+        // this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
+
+        this.cht_point_limit = 50
+        this.cht_scale_margin = 0.1
+    }
+
+}
+
+export const MODE_BUILD_CSS = 'fg-yellow'
+export const MODE_VENT_CSS = 'fg-red'
+export const MODE_HIGH_FLOW_CSS = 'fg-blue'
+export const MODE_LOW_FLOW_CSS = 'fg-aqua'
+export const MODE = [
+   'BUILD', // 0
+   'BUILD <-> VENT', // 1
+   'VENT', // 2
+   'VENT <-> HI FLOW', // 3
+   'HI FLOW', // 4
+   'HI FLOW <-> LO FLOW', // 5
+   'LO FLOW', // 6
+   'MANUAL >-<' // 7
+]
+
+/* CHART STUFF ******************************************************************************************/
+
+import { BASE, RGBA } from './common/colors'
+export const COLORS = {
+    CH4: BASE.PINK,
+    HI_FLOW: BASE.BLUE,
+    LO_FLOW: BASE.AQUA,
+    PRESS: BASE.YELLOW,
+    BAT_AMP: BASE.RED,
+    BAT_VOLT: BASE.ORANGE,
+    MOT_VOLT: BASE.PURPLE
+}
+
+import { LineChartModel, LineChartXScale, LineChartScale, LineChartDataSet, CHART_LINE_WIDTH, CHART_MARKER_RADIUS } from './common/chart/line_chart'
+const NewChartDataSets = ( ) => {
+    return [
+
+         /* 0 */
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Methane", "y_ch4",
+            CHART_LINE_WIDTH, RGBA( COLORS.CH4, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.CH4, 0.7 ) 
+        ),
+
+         /* 1 */
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "High Flow", "y_hi_flow", 
+            CHART_LINE_WIDTH, RGBA( COLORS.HI_FLOW, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.HI_FLOW, 0.7 ) 
+        ),  
+
+         /* 2 */
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Low Flow", "y_lo_flow", 
+            CHART_LINE_WIDTH,  RGBA( COLORS.LO_FLOW, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.LO_FLOW, 0.7 ) 
+        ),
+
+         /* 3 */
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Pressure", "y_press", 
+            CHART_LINE_WIDTH, RGBA( COLORS.PRESS, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.PRESS, 0.7 ) 
+        ),
+
+         /* 4 */
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Battery Amps", "y_bat_amp", 
+            CHART_LINE_WIDTH, RGBA( COLORS.BAT_AMP, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.BAT_AMP, 0.7 ) 
+        ),
+
+         /* 5 */
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Battery Volts", "y_bat_volt", 
+            CHART_LINE_WIDTH, RGBA( COLORS.BAT_VOLT, 0.3 ),  
+            CHART_MARKER_RADIUS, RGBA( COLORS.BAT_VOLT, 0.7 ) 
+        ),
+
+         /* 6 */
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Motor Volts", "y_mot_volt", 
+            CHART_LINE_WIDTH, RGBA( COLORS.MOT_VOLT, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.MOT_VOLT, 0.7 ) 
+        )
+
+    ]
+
+}
+
+const NewChartScales = ( ) => {
+
+    return {
+        
+        x: LineChartXScale,
+
+        y_ch4: new LineChartScale( "Ch4 ( % )", 3, 0, 100, "left", 
+            RGBA( COLORS.CH4, 1.0 ), RGBA( COLORS.CH4, 0.3 ), false 
+        ),
+        
+        y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 2,  2.5, 250, "left", 
+            RGBA( COLORS.HI_FLOW, 1.0 ), RGBA( COLORS.HI_FLOW, 0.4 ), false 
+        ),
+        
+        y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, 0.1, 2, "left",
+            RGBA( COLORS.LO_FLOW, 1.0 ), RGBA( COLORS.LO_FLOW, 0.2 ), true )
+         ,
+        
+        y_press: new LineChartScale( "Press ( psi )", 0, 0, 1500, "left", 
+            RGBA( COLORS.PRESS, 1.0 ), RGBA( COLORS.PRESS, 0.3 ), false 
+        ),
+        
+        y_bat_amp: new LineChartScale( "Bat ( A )", 0, 0, 1.5, "right", 
+            RGBA( COLORS.BAT_AMP, 1.0 ), RGBA( COLORS.BAT_AMP, 0.3 ), false 
+        ),
+        
+        y_bat_volt: new LineChartScale( "Bat ( V )", 1, 0, 15, "right", 
+            RGBA( COLORS.BAT_VOLT, 1.0 ), RGBA( COLORS.BAT_VOLT, 0.3 ), false 
+        ),
+        
+        y_mot_volt: new LineChartScale( "Mot ( V )", 2, 0, 15, "right", 
+            RGBA( COLORS.MOT_VOLT, 1.0 ), RGBA( COLORS.MOT_VOLT, 0.3 ), false 
+        )
+    }
+
+}
+export const NewChartData = ( ) => {
+    let cht = new LineChartModel( "", RGBA( BASE.LIGHT, 0.7 ) )
+    cht.data.datasets = NewChartDataSets( )
+    cht.options.scales = NewChartScales( )
+    // Object.assign( config.options.scales, { yCH }, { yHF }, { yLF }, { yP }, { yBC }, { yBV }, { yMV } ) 
+
+    return cht
 }

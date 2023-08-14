@@ -4,7 +4,7 @@
     import { onMount } from 'svelte'
 
     import { goto } from '$app/navigation'
-    import { Job, Device, DEVICES } from '../../lib/des_api'
+    import { Job } from '../../lib/des_api'
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
@@ -19,52 +19,55 @@
     $: message = data.resp.message
     $: status = data.resp.status
  
-    let ready = false
-    let devs = [ ]
+    let ready = true
+    // let devs = [ ]
     onMount( ( ) => {
 
         devices.forEach( ( dev ) => { 
-            console.log( dev.reg.des_dev_id )
-            devs.push( new Device( 
-                new Job(
+            // console.log( dev )
+            // devs.push( new Device( 
+            dev.job = new Job(
                     dev.job.admins,
                     dev.job.configs,
                     dev.job.events,
                     dev.job.samples,
-                    dev.job
-                ),
-                dev.reg
-             ) ) 
+                    dev.job.xypoints,
+                    dev.job.reg 
+                )
+            //     dev.reg
+            //  ) ) 
         
         } )
     
-        console.log( `Start $DEVICES.length: ${ $DEVICES.length }` )
-        let existing_devs = false
-        if ( $DEVICES[ 0 ] ) { 
+        // console.log( `Start $DEVICES.length: ${ $DEVICES.length }` )
+        // let existing_devs = false
+        // if ( $DEVICES[ 0 ] ) { 
 
-            existing_devs = false
+            // existing_devs = false
 
-            devs.forEach( dev => { 
-                
-                let stored = $DEVICES.filter( sd => sd.reg.des_dev_serial == dev.reg.des_dev_serial )[ 0 ]
-                if ( stored == undefined ) {
-                    console.log( `NEW DEVICE -> dev.reg.des_reg_serial: ${ dev.reg.des_dev_serial }` )
-                    $DEVICES = [ dev, ...$DEVICES ] 
-                } else {
-                    console.log( `Loop DEVICES.forEach( ) -> stored.reg.des_reg_serial: ${ stored.reg.des_dev_serial }` )
-                }
+            // devs.forEach( dev => { 
 
-             } )
+            //     // let stored = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == dev.reg.des_dev_serial } )[0]
+            //     // let stored
+            //     // $DEVICES.forEach( ( d ) => { if ( d.reg.des_dev_serial == dev.reg.des_dev_serial ) { stored = d } } )
+            //     // if ( stored == undefined ) {
+            //     //     console.log( `NEW DEVICE -> : ${ dev.reg.des_dev_serial }` )
+            //     //     $DEVICES = [ dev, ...$DEVICES ] 
+            //     // } else {
+            //     //     console.log( `EXISTING DEVICE -> : ${ stored.reg.des_dev_serial }` )
+            //     // }
 
-        } else {
+            //  } )
+
+        // } else {
             
-            devs.forEach( dev => console.log( `/device/+page make Devices -> dev.reg.des_dev_id: ${ dev.reg.des_dev_id }` ) )
+        //     devs.forEach( dev => console.log( `/device/+page Devices -> : ${ dev.reg.des_dev_id }` ) )
 
-            $DEVICES = [ ...devs ]
+        //     $DEVICES = [ ...devs ]
         
-        }
+        // }
         
-        console.log( `Start $DEVICES.length: ${ $DEVICES.length }` )
+        // console.log( `Start $DEVICES.length: ${ $DEVICES.length }` )
 
         ready = true
     } )
@@ -85,7 +88,7 @@
         <DeviceSearch />
         
         <div class="flx-col device-list">
-            { #each $DEVICES as device  }
+            { #each devices as device  }
                 <DeviceCard 
                     bind:dev={ device }
                     on:go={ ( ) => { goto( `device/${device.reg.des_dev_serial }` ) } }
