@@ -19,6 +19,7 @@
             h2 { font-size: 2.1em; font-weight: 300; }
             h3 { font-size: 1.8em; font-weight: 300; font-style: oblique; }
             h4 { font-size: 1.2em; font-weight: 300; font-style: oblique; }
+            .sml { font-size: 0.9em; color: var(--grey_a);  }
 
             p { 
                 color: var(--grey);
@@ -63,10 +64,11 @@
             .pill-btn {
                 display: flex;
                 flex-direction: row;
-
+                justify-content: center;
                 cursor: pointer;
                 border-radius: 1.25em;
-                border: 0.1rem solid var( --light_aa);
+                border-top: solid 0.05em var(--grey_aa);
+                border-right: solid 0.05em var(--grey_aa);
 
                 min-width: 2.5em;
                 width: 2.5em;
@@ -99,12 +101,45 @@
                 width: 100%; 
                 gap: 1rem;
             }
+            .flx-col.card {
+                gap:0.5em;
+                max-width: 30em;
+                padding: 1em;
+                max-height: 15em;
+                min-height: 15em;
+            }
+            .flx-col.card-content {
+                background-color: var(--dark);
+                border-bottom: solid 0.05em var(--grey_aa);
+                border-left: solid 0.05em var(--grey_aa);
+                padding: 1em;
+                border-radius: 0.5em;
+                gap:0.5em;
+                height: 100%;
+            }
 
             .flx-row {
                 display: flex;
                 flex-direction: row;
                 width: 100%; 
                 gap: 1rem;
+            }
+            .flx-row.bet {
+                justify-content: space-between;
+            }
+            .flx-row.mid {
+                justify-content: center;
+            }
+            .flx-row.page-title {
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 2em;
+            }
+            .flx-row.card-title {
+                justify-content: space-between;
+                align-items: flex-end;
+                padding-bottom: 0.5em;
+                /* margin-top: -1em; */
             }
 
             ::-webkit-scrollbar {
@@ -136,7 +171,7 @@
 
                 --light: rgb(230, 230, 230);
                 --light_a: rgb(230, 230, 230, 0.7);
-                --light_aa: rgb(230, 230, 230, 0.023);
+                --light_aa: rgb(230, 230, 230, 0.03);
 
                 --red: rgb(220, 25, 60);
                 --red_a: rgb(220, 25, 60, 0.7);
@@ -156,7 +191,8 @@
 
                 --aqua: rgb(50, 230, 230);
                 --aqua_a: rgb(50, 230, 230, 0.7);
-                --aqua_aa: rgb(50, 230, 230, 0.4);
+                --aqua_aa: rgb(50, 230, 230, 0.5);
+                --aqua_01: rgb(50, 230, 230, 0.1);
 
                 --blue: rgb(10, 120, 230);
                 --blue_a: rgba(110, 120, 230, 0.7);
@@ -165,6 +201,15 @@
                 --purple: rgb(160, 70, 240);
                 --purple_a: rgb(160, 70, 240, 0.7);
                 --purple_aa: rgb(160, 70, 240, 0.4);
+                --purple_09: rgb(160, 70, 240, 0.9);
+                --purple_08: rgb(160, 70, 240, 0.8);
+                --purple_07: rgb(160, 70, 240, 0.7);
+                --purple_06: rgb(160, 70, 240, 0.6);
+                --purple_05: rgb(160, 70, 240, 0.5);
+                --purple_04: rgb(160, 70, 240, 0.4);
+                --purple_03: rgb(160, 70, 240, 0.3);
+                --purple_02: rgb(160, 70, 240, 0.2);
+                --purple_01: rgb(160, 70, 240, 0.1);
 
                 --pink: rgb(250, 70, 200); /*rgb(245, 30, 230);*/
                 --pink_a: rgb(250, 70, 200, 0.7);
@@ -259,6 +304,10 @@
             .bg-aqua { background-color: var(--aqua_a); color: var(--dark) }
             .bg-aqua:hover { background-color: var(--aqua); }
             .bg-aqua:focus { outline: 0.1rem solid var(--aqua_a); outline-offset: 0.15rem; }
+
+            .bg-aqua_a { background-color: var(--aqua_aa); color: var(--dark) }
+            .bg-aqua_a:hover { background-color: var(--aqua_a); }
+            .bg-aqua_a:focus { outline: 0.1rem solid var(--aqua_aa); outline-offset: 0.15rem; }
 
             .bg-blue { background-color: var(--blue_a); color: var(--light) }
             .bg-blue:hover { background-color: var(--blue); }

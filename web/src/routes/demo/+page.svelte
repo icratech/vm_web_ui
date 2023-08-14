@@ -1,21 +1,58 @@
 <script>
+
+    import { onMount } from 'svelte'
+
     import { goto } from '$app/navigation'
-    import { auth_user } from '../../lib/des_api'
-    import DeviceCard from '../device/DeviceCard.svelte'
-   
+    import { DemoDevice, DEMO_DEVICES } from '../../lib/des_api'
+    import DemoDeviceCard from './DemoDeviceCard.svelte'
+
     /* THIS ALSO WORKS */
     // import { page } from '$app/stores'
     // $: device = $page.data.resp.device
     // $: message = $page.data.resp.message
     // $: status = $page.data.resp.status
 
-    /** @type {import('./$types').PageData} */
     export let data
     $: devices = data.resp.devices
     $: message = data.resp.message
     $: status = data.resp.status
-    $: { console.log( `./demo: ${ status.toUpperCase() }\t${ message }` ) }
-    // $: { console.log( `./demo: auth_user\t${ JSON.stringify( $auth_user, null, 4 ) }` ) }
+
+    let ready = false
+    let demos = [ ]
+    onMount( ( ) => {
+            
+        devices.forEach( dev => demos.push( new DemoDevice( dev ) ) )
+
+        console.log( `Start $DEMO_DEVICES.length: ${ $DEMO_DEVICES.length }` )
+        let existing_demos = false
+        if ( $DEMO_DEVICES[ 0 ] ) { 
+
+            existing_demos = true 
+
+            demos.forEach( demo => {
+
+                let stored = $DEMO_DEVICES.filter( sd => sd.dev.reg.des_dev_serial == demo.dev.reg.des_dev_serial )[ 0 ]
+                if ( stored == undefined ) {
+                    console.log( `NEW DEMO -> demo.dev.reg.des_reg_serial: ${ demo.dev.reg.des_dev_serial }` )
+                    $DEMO_DEVICES = [ demo, ...$DEMO_DEVICES ] 
+                } else {
+                    console.log( `Loop DEMOS.forEach( ) -> stored.dev.reg.des_reg_serial: ${ stored.dev.reg.des_dev_serial }` )
+                }
+
+            } )
+        
+        } else {
+
+            demos.forEach( demo => console.log( `/demo/+page make DemoDevices -> demo.dev.reg.des_dev_id: ${ demo.dev.reg.des_dev_id }` ) )
+        
+            $DEMO_DEVICES = [ ...demos ]
+
+        }
+
+        console.log( `End $DEMO_DEVICES.length: ${ $DEMO_DEVICES.length }` )
+
+        ready = true
+    } )
 
     /** @type {import('./$types').ActionData} */
     export let form
@@ -43,20 +80,19 @@
                 />
             </label>
         </div>
-
-        <input type="hidden" value={ $auth_user.id } name="user_id"/>
     
     </form>
 
+    { #if ready }
     <div class="flx-col device-list">
-        { #each devices as device ( `device_page_${ device.des_dev_id }`  )  }
-            <DeviceCard 
-                bind:device={ device }
-                on:go={ ( ) => { goto( `device/${device.des_dev_serial }` ) } }
+        { #each $DEMO_DEVICES as demo ( `demo_page_${ demo.dev.reg.des_dev_id }` ) }
+            <DemoDeviceCard 
+                bind:demo_device={ demo }
+                on:go={ ( ) => { goto( `device/${ demo.dev.reg.des_dev_serial }` ) } }
             />
         { /each }
     </div>
-
+    { /if }
 
 </dvi>
 

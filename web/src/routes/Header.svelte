@@ -59,7 +59,8 @@
 <style>
     .container {
         background-color: var(--light_aa);
-        padding: 0.3em 1em;
+        padding-left: 1em;
+        padding-right: 2em;
         justify-content: space-between;
         gap: 0;
     }

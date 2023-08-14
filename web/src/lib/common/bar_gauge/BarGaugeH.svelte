@@ -41,7 +41,6 @@
 <style>
     .container {
         width: 100%;
-        /* height: 3.5em; */
         gap: 0;
     }
 
@@ -69,19 +68,19 @@
     }
 
     .bar {
-        height: 0.2em;
+        height: 0.152em;
         border-radius: 0.1em;
     }
 
     .num {
-        font-size: 1.25em;
+        font-size: 1.125em;
         width: 6em;
         height: 1.6em;
         text-align: right;
     }
     .unit {
         text-align: left;
-        color: var(--light_a);
+        color: var(--grey_a);
         font-size: 0.9em;
         width: 3.5em;
     }

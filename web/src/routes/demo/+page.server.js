@@ -3,7 +3,7 @@ import { load_get_devices, demo_app } from "../../lib/des_api"
 
 export const load = load_get_devices
 
-import { API_URL_REGISTER_DEVICE, API_URL_REGISTER_C001_V001_DEVICE, DESRegistration } from "../../lib/des_api"
+import { API_URL_REGISTER_DEVICE, API_URL_C001_V001_DEVICE_REGISTER, DESRegistration } from "../../lib/des_api"
 
 /** @type {import('./$types').Actions} */
 export const actions = {
@@ -22,7 +22,7 @@ export const actions = {
         reg.des_dev_reg_app = demo_app
         console.log("FORM ACTION: registerDevice -> REQUEST reg:\n", reg )
 
-        let req = new Request( API_URL_REGISTER_C001_V001_DEVICE, { 
+        let req = new Request( API_URL_C001_V001_DEVICE_REGISTER, { 
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
@@ -34,4 +34,5 @@ export const actions = {
         reg = await res.json( )
         console.log("FORM ACTION: registerDevice ->  RESPONSE reg:\n", reg )
     }
+
 }

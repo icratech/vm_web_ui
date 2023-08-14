@@ -3,7 +3,7 @@
     export let num = 0
     export let lbl = null
     export let cls = "accent"
-    export let width = "5em"
+    export let width = "7em"
     export let right = false
     export let enabled = false
     export let is_integer = false
@@ -58,11 +58,14 @@
     }
 
     input {
-        color: var(--light_a);
-        background-color: var(--dark);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.2rem;
-		border: 0.1rem solid var(--grey_aa);
+        color: var(--light);
+        background-color: var(--aqua_01);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        border-top: solid 0.05em var(--grey_aa);
+        border-right: solid 0.05em var(--grey_aa);
+        border-bottom: solid 0.05em var(--dark);
+        border-left: solid 0.05em var(--dark);
     }
 
     input:disabled {

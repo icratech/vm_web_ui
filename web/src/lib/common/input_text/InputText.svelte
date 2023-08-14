@@ -41,9 +41,12 @@
     input {
         color: var(--light);
         background-color: var(--dark);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.2rem;
-		border: 0.1rem solid var(--light_a);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        border-top: solid 0.05em var(--dark);
+        border-right: solid 0.05em var(--dark);
+        border-bottom: solid 0.05em var(--grey_aa);
+        border-left: solid 0.05em var(--grey_aa);
         width: 100%;
     }
 

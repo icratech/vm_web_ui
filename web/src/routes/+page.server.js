@@ -1,5 +1,5 @@
 
-import { SERVER } from '../lib/des_api'
+import { HTTP_SERVER, AUTH } from '../lib/des_api'
 
 /** @type {import('./$types').Actions} */
 export const actions = {
@@ -10,7 +10,7 @@ export const actions = {
         const email = data.get( 'email' )
         const password = data.get( 'password' )
 
-        let req = new Request( `${ SERVER }/api/auth/login`, { 
+        let req = new Request( `${ HTTP_SERVER }/api/auth/login`, { 
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             credentials: "include",
@@ -31,7 +31,7 @@ export const actions = {
 
      logout: async( { cookies } ) => {
      
-        let req = new Request( `${ SERVER }/api/auth/logout`, { 
+        let req = new Request( `${ HTTP_SERVER }/api/auth/logout`, { 
             method: "GET",
             headers: { 'Authorization': `Bearer ${ cookies.get( `des_token` ) }` }, 
             credentials: "include"   
