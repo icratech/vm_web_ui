@@ -77,12 +77,8 @@ export const load_get_devices = async( serverLoadEvent ) => {
     const { fetch } = serverLoadEvent
     let res = await fetch( req )
     let json = await res.json( )
-
     let devices = [ ] 
-    if ( json.status == "success") { 
-        devices = json.data.devices 
-    } // console.log( `./devices: ${ JSON.stringify( devices, null, 4 ) }\n` )
-    devices.sort( ( a, b ) => b.reg.des_dev_id - a.reg.des_dev_id )
+    if ( json.status == "success") { devices = json.data.devices } // console.log( `./devices: ${ JSON.stringify( devices, null, 4 ) }\n` )
     return { devices }
 }
 
@@ -286,6 +282,7 @@ export class Device {
     /* WS CONNECTION */
     disconnectWS( ) { }
     connectWS( user ) {
+
         let reg = encodeURIComponent(JSON.stringify( this.reg ) )
         let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ user.token }&des_reg=${ reg }`
         const ws = new WebSocket( url )
@@ -333,16 +330,16 @@ export class Device {
             // console.log( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
             this.update( )
         } 
-        this.socket = true
-        
+
         this.disconnectWS =  ( ) => {
             ws.send( "close" )
             ws.close( ) 
-            this.socket = false
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
+            this.socket = false
             this.update( )
         }
 
+        this.socket = true
         this.update( )
     }
 

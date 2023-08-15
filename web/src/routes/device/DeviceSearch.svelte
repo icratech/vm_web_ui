@@ -24,7 +24,6 @@
 
     $: filter = true
     $: filterButtonText = ( filter ? "^" : "v" )
-    $: filterClass = ( filter ? "map-container-min" : "map-container-max" ) 
 
 </script>
 
@@ -45,15 +44,11 @@
 
     </div>
 
-    { #if filter }
-
     <div class="flx-row filters">
         FILTERS
     </div>
 
-    { /if }
-
-    <div class={ filterClass } id="map"></div>
+    <div class="map-container" id="map"></div>
 
 </div>
 
@@ -76,21 +71,13 @@
         align-items: center;
     }
 
-    .map-container-max {
-        height: 100%;
-        border-top: solid 0.05em var(--dark_a);
-        border-right: solid 0.05em var(--dark_a);
-        background-color: var(--aqua_a);
-        border-radius: 0.5em;
-        position:relative;
-    }
-    .map-container-min {
+    .map-container {
         height: 65%;
         border-top: solid 0.05em var(--dark_a);
         border-right: solid 0.05em var(--dark_a);
         background-color: var(--aqua_a);
         border-radius: 0.5em;
-        position:relative;
+        position: relative;
     }
 
     .filters {

@@ -8,40 +8,12 @@
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
-    /* THIS ALSO WORKS */
-    // import { page } from '$app/stores'
-    // $: device = $page.data.resp.device
-    // $: message = $page.data.resp.message
-    // $: status = $page.data.resp.status
-
     export let data 
- 
     onMount( ( ) => {
-
-        if ( $DEVICES[ 0 ] ) {
-
-            data.devices.forEach( dev => {
-
-                if ( $DEVICES.filter( d => { return d.reg.des_dev_serial == dev.reg.des_dev_serial } ) == undefined ) {
-                    let device  = new Device (
-                        new Job(
-                            dev.job.admins,
-                            dev.job.configs,
-                            dev.job.events,
-                            dev.job.samples,
-                            dev.job.xypoints,
-                            dev.job.reg 
-                        ),
-                        dev.reg
-                    )
-                    $DEVICES = [ device, ...$DEVICES ]
-                }
-            } ) 
-
-        } else {
-            let devices = [ ]
-            data.devices.forEach( ( dev ) => { 
-                devices.push( new Device (
+        data.devices.forEach( dev => {
+            if ( $DEVICES.filter( d => { return d.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+                // console.log( "New $DEVICE: ", dev.reg.des_dev_serial )
+                let device  = new Device (
                     new Job(
                         dev.job.admins,
                         dev.job.configs,
@@ -51,11 +23,12 @@
                         dev.job.reg 
                     ),
                     dev.reg
-                ) )
-            } )
-            $DEVICES = [ ...devices ]
-        }
-
+                )
+                console.log( "Devices Load ", device )
+                $DEVICES = [ ...$DEVICES, device ]
+            }
+        } ) 
+        $DEVICES.sort( ( a, b ) => b.reg.des_dev_id - a.reg.des_dev_id )
     } )
 
 </script>
@@ -88,6 +61,7 @@
     }
 
     .content {
+        height: 100%;
         overflow-y: auto;
     }
 

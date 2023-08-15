@@ -23,7 +23,6 @@
     } )
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
 
-
     export let device = new Device( )
     let event = new Event( )
     let config = new Config( )
@@ -127,7 +126,7 @@
         border-right: solid 0.05em var(--dark_a);
         background-color: var(--aqua_a);
         border-radius: 0.5em;
-        position:relative;
+        position: relative;
     }
 
 </style>

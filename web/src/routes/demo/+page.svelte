@@ -7,33 +7,18 @@
     import { DemoDevice, DEMO_DEVICES } from '../../lib/des_api'
     import DemoDeviceCard from './DemoDeviceCard.svelte'
 
-    /* THIS ALSO WORKS */
-    // import { page } from '$app/stores'
-    // $: device = $page.data.resp.device
-    // $: message = $page.data.resp.message
-    // $: status = $page.data.resp.status
-
     export let data
-
-    onMount( ( ) => {
-            
-        let demos = [ ]
-        data.devices.forEach( dev => demos.push( new DemoDevice( dev ) ) )
-
-        if ( $DEMO_DEVICES[ 0 ] ) { 
-            demos.forEach( demo => {
-                if ( $DEMO_DEVICES.filter( sd => { return sd.dev.reg.des_dev_serial == demo.dev.reg.des_dev_serial } ) == undefined ) {
-                    $DEMO_DEVICES = [ demo, ...$DEMO_DEVICES ] 
-                }
-            } )
-        
-        } else {
-            $DEMO_DEVICES = [ ...demos ]
-        }
-        console.log( `End $DEMO_DEVICES.length: ${ $DEMO_DEVICES.length }` )
+    onMount( ( ) => { 
+        data.devices.forEach( dev =>{
+            if ( $DEMO_DEVICES.filter( sd => { return sd.dev.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+                console.log( `New $DEMO_DEVICE: ${ dev.reg.des_dev_serial }` )
+                let demo = new DemoDevice( dev )
+                $DEMO_DEVICES = [ ...$DEMO_DEVICES, demo ]
+            }  
+        } )
+        $DEMO_DEVICES.sort( ( a, b ) => b.dev.reg.des_dev_id - a.dev.reg.des_dev_id )
     } )
 
-    // /** @type {import('./$types').ActionData} */
     export let form
 
 </script>

@@ -56,7 +56,6 @@
     </div>
 
 </div>
-
 <style>
     .main {
         background-color: var(--dark);

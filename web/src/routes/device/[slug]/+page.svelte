@@ -6,17 +6,43 @@
     import BarGaugeCard from "../../../lib/components/gauge/BarGaugeCard.svelte"
     import EventCard from "../../../lib/components/event/EventCard.svelte"
     import ConfigCard from "../../../lib/components/config/ConfigCard.svelte"
-
-    export let data
     
+    import { DEVICES, Device } from '../../../lib/des_api'
+    export let data
+
+    // let device
+    // const getStoredDevice = async( ) => {
+    //     console.log( "data.device.reg.des_dev_serial ", data.device.reg.des_dev_serial )
+    //     device = await $DEVICES.filter( d => { return d.reg.des_dev_serial == data.device.reg.des_dev_serial } )[0]
+    //     console.log( "Device Page ", device )
+    //     return true
+    // }
 </script>
 
+<!-- { #await getStoredDevice( ) }
+    Retrieving device data...
+{ :then whatever } -->
 
 <dvi class="flx-col container">
 
-    <h3>SN: { data.device.reg.des_dev_serial }</h3>
-    <!-- <p>CLASS: { device.reg.des_dev_class }</p>
-    <p>VERSION: { device.reg.des_dev_version }</p> -->
+    <div class="flx-row title">     
+   
+        <div class="flx-row sn">
+            <h3 class="g">SN:</h3>
+            <h3>{ data.device.reg.des_dev_serial }</h3>
+        </div>  
+        <div class="flx-col cv">
+            <div class="flx-row" style="justify-content: flex-end;">
+                <div class="sml">class</div>
+                <div class="g">{ data.device.reg.des_dev_class }</div>
+            </div>
+            <div class="flx-row" style="justify-content: flex-end;">
+                <div class="sml">version</div>
+                <div class="g">{ data.device.reg.des_dev_version }</div>
+            </div>
+        </div>
+    </div>
+
     <div class="flx-row layout">
 
         <DeviceControls bind:device={ data.device }/>
@@ -63,7 +89,7 @@
     </div>
 
 </dvi>
-
+<!-- { /await } -->
 <style>
 
     .container {
@@ -76,6 +102,22 @@
         height: 100%;
         overflow-y: auto;
     }
+    .title {
+        justify-content: space-between;
+        padding-bottom: 0.5em;
+        width: 20em;
+    }
+    .sn {
+        padding-top: 0;
+    }
+    .cv {
+        width: auto;
+        align-items: flex-start;
+        justify-content: flex-end;
+        gap: 0em;
+    }
+    .g { color: var(--green_a); }
+
 
     .content {
         border-top: solid 0.05em var(--grey_aa);
