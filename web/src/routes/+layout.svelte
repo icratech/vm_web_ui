@@ -4,7 +4,7 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
-    import { AUTH, get_users, get_event_types } from '../lib/des_api';
+    import { AUTH, get_users, get_event_types, DEVICES, DEMO_DEVICES } from '../lib/des_api';
     import Header from './Header.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
     
@@ -24,6 +24,12 @@
         let event_types = await get_event_types( ) // console.log( `layout.svelte -> onMount( ):  get_event_types( ): event_types\n${ JSON.stringify( event_types, null, 4 ) }` )
         sessionStorage.setItem( "event_types", JSON.stringify( event_types ) ) // event_types = JSON.parse( sessionStorage.event_types ) // console.log( `layout.svelte -> sessionStorage: event_types\n${  JSON.stringify( event_types, null, 4 )  }` )
 
+        /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
+        CAUSES THE SERVER TO UNSUBSCRIBE THIS DEVICE USER'S MQTT CLIENT FROM ALL TOPICS */
+        window.onbeforeunload = ( ) => { 
+            $DEVICES.forEach( dev => { dev.disconnectWS( ) } )
+            $DEMO_DEVICES.forEach( dev => { dev.disconnectSIM( ) } ) 
+        } 
     } )
 
 </script>
