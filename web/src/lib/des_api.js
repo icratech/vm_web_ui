@@ -78,17 +78,12 @@ export const load_get_devices = async( serverLoadEvent ) => {
     let res = await fetch( req )
     let json = await res.json( )
 
-    let resp = {
-        status: json.status,
-        message: json.message,
-        devices: [],
-    } 
-    if ( resp.status == "success") { 
-        resp.devices = json.data.devices 
-    } 
-    // console.log( `./devices: ${ JSON.stringify( resp.devices, null, 4 ) }\n` )
-    resp.devices.sort( ( a, b ) => b.reg.des_dev_id - a.reg.des_dev_id )
-    return { resp }
+    let devices = [ ] 
+    if ( json.status == "success") { 
+        devices = json.data.devices 
+    } // console.log( `./devices: ${ JSON.stringify( devices, null, 4 ) }\n` )
+    devices.sort( ( a, b ) => b.reg.des_dev_id - a.reg.des_dev_id )
+    return { devices }
 }
 
 // export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`

@@ -1,9 +1,9 @@
 <script>
 
-    import Chart from "chart.js/auto"
+    import { Chart, registerables } from "chart.js/auto"
     import 'chartjs-adapter-moment'// npm install moment chartjs-adapter-moment
-    // import zoomPlugin from 'chartjs-plugin-zoom'; // npm install chartjs-plugin-zoom
-    // Chart.register(zoomPlugin);
+    import zoomPlugin from 'chartjs-plugin-zoom'; // npm install chartjs-plugin-zoom
+    Chart.register(zoomPlugin);
 
     const makeConfig = ( data ) => { return data }
 
@@ -20,7 +20,7 @@
                     console.log( "wheel click" )
                     break
                 case 2: // right
-                    // chart.resetZoom( )
+                    chart.resetZoom( )
                     break
             }
         } )

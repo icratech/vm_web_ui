@@ -1,3 +1,4 @@
+
 <script>
 
     import { onMount } from 'svelte'
@@ -13,48 +14,26 @@
     // $: status = $page.data.resp.status
 
     export let data
-    $: devices = data.resp.devices
-    $: message = data.resp.message
-    $: status = data.resp.status
 
-    let ready = false
-    let demos = [ ]
     onMount( ( ) => {
             
-        devices.forEach( dev => demos.push( new DemoDevice( dev ) ) )
+        let demos = [ ]
+        data.devices.forEach( dev => demos.push( new DemoDevice( dev ) ) )
 
-        console.log( `Start $DEMO_DEVICES.length: ${ $DEMO_DEVICES.length }` )
-        let existing_demos = false
         if ( $DEMO_DEVICES[ 0 ] ) { 
-
-            existing_demos = true 
-
             demos.forEach( demo => {
-
-                let stored = $DEMO_DEVICES.filter( sd => sd.dev.reg.des_dev_serial == demo.dev.reg.des_dev_serial )[ 0 ]
-                if ( stored == undefined ) {
-                    console.log( `NEW DEMO -> demo.dev.reg.des_reg_serial: ${ demo.dev.reg.des_dev_serial }` )
+                if ( $DEMO_DEVICES.filter( sd => { return sd.dev.reg.des_dev_serial == demo.dev.reg.des_dev_serial } ) == undefined ) {
                     $DEMO_DEVICES = [ demo, ...$DEMO_DEVICES ] 
-                } else {
-                    console.log( `Loop DEMOS.forEach( ) -> stored.dev.reg.des_reg_serial: ${ stored.dev.reg.des_dev_serial }` )
                 }
-
             } )
         
         } else {
-
-            demos.forEach( demo => console.log( `/demo/+page make DemoDevices -> demo.dev.reg.des_dev_id: ${ demo.dev.reg.des_dev_id }` ) )
-        
             $DEMO_DEVICES = [ ...demos ]
-
         }
-
         console.log( `End $DEMO_DEVICES.length: ${ $DEMO_DEVICES.length }` )
-
-        ready = true
     } )
 
-    /** @type {import('./$types').ActionData} */
+    // /** @type {import('./$types').ActionData} */
     export let form
 
 </script>
@@ -62,8 +41,6 @@
 <dvi class="flx-col container">
 
     <h1>DEMO PAGE</h1>
-    <p>STATUS: { status }</p>
-    <p>MESSAGE: { message }</p>
 
     <form method="POST" action="?/registerDevice" class="flx-row new-device">
 
@@ -83,7 +60,6 @@
     
     </form>
 
-    { #if ready }
     <div class="flx-col device-list">
         { #each $DEMO_DEVICES as demo ( `demo_page_${ demo.dev.reg.des_dev_id }` ) }
             <DemoDeviceCard 
@@ -92,7 +68,6 @@
             />
         { /each }
     </div>
-    { /if }
 
 </dvi>
 
