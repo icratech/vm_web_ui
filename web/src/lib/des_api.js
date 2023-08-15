@@ -732,8 +732,15 @@ export class Job {
         this.cht_mot_volt = this.cht.data.datasets[6]
         this.cht_mot_volt.data = this.xypoints.mot_volt
 
-        // this.cht_x_min = this.cht_ch4.data[0].x
-        // this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
+        if ( this.cht_ch4.data ) {
+            this.cht_x_min = this.cht_ch4.data[0].x
+            this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
+        } else {
+            this.cht_x_max = Date.now( )/1000
+            console.log( "this.cht_x_max", this.cht_x_max )
+            this.cht_x_min = this.cht_x_max - 60 
+            console.log( "this.cht_x_min", this.cht_x_min )
+        }
 
         this.cht_point_limit = 50
         this.cht_scale_margin = 0.1

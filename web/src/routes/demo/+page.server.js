@@ -3,7 +3,7 @@ import { load_get_devices, demo_app } from "../../lib/des_api"
 
 export const load = load_get_devices
 
-import { API_URL_REGISTER_DEVICE, API_URL_C001_V001_DEVICE_REGISTER, DESRegistration } from "../../lib/des_api"
+import { API_URL_C001_V001_DEVICE_REGISTER, DESRegistration } from "../../lib/des_api"
 
 /** @type {import('./$types').Actions} */
 export const actions = {

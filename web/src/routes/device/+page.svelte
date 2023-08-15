@@ -41,10 +41,7 @@
         
         <div class="flx-col device-list">
             { #each $DEVICES as device  }
-                <DeviceCard 
-                    bind:dev={ device }
-                    on:go={ ( ) => { goto( `device/${device.reg.des_dev_serial }` ) } }
-                />
+            <DeviceCard bind:device={ device } />
             { /each }
         </div>
 

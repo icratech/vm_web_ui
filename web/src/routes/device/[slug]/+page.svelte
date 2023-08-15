@@ -2,31 +2,17 @@
 
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import PillButton from '../../../lib/common/button/PillButton.svelte'
-    import DeviceControls from './DeviceControls.svelte'
+    import DeviceControls from '../../device/DeviceControls.svelte'
     import BarGaugeCard from "../../../lib/components/gauge/BarGaugeCard.svelte"
     import EventCard from "../../../lib/components/event/EventCard.svelte"
     import ConfigCard from "../../../lib/components/config/ConfigCard.svelte"
     
-    import { DEVICES, Device } from '../../../lib/des_api'
     export let data
-
-    // let device
-    // const getStoredDevice = async( ) => {
-    //     console.log( "data.device.reg.des_dev_serial ", data.device.reg.des_dev_serial )
-    //     device = await $DEVICES.filter( d => { return d.reg.des_dev_serial == data.device.reg.des_dev_serial } )[0]
-    //     console.log( "Device Page ", device )
-    //     return true
-    // }
 </script>
-
-<!-- { #await getStoredDevice( ) }
-    Retrieving device data...
-{ :then whatever } -->
 
 <dvi class="flx-col container">
 
     <div class="flx-row title">     
-   
         <div class="flx-row sn">
             <h3 class="g">SN:</h3>
             <h3>{ data.device.reg.des_dev_serial }</h3>
@@ -62,11 +48,13 @@
             <div class="flx-row tabs">
         
                 <PillButton 
-                    cls={ 'bg-orange' }
+                    cls={ 'bg-blue' }
+                    on:click={ ( ) => { data.device.job.cht.options.scales.y_hi_flow.display = !data.device.job.cht.options.scales.y_hi_flow.display } }
                 >?</PillButton>
         
                 <PillButton
                     cls={ 'bg-purple_a' }
+                    on:click={ ( ) => { data.device.job.cht.options.scales.y_mot_volt.display = !data.device.job.cht.options.scales.y_mot_volt.display } }
                 >?</PillButton>
         
                 <PillButton
@@ -74,7 +62,8 @@
                 >?</PillButton>
         
                 <PillButton
-                    cls={ 'bg-orange_a' }
+                    cls={ 'bg-red' }
+                    on:click={ ( ) => { data.device.job.cht.options.scales.y_bat_amp.display = !data.device.job.cht.options.scales.y_bat_amp.display } }
                 >?</PillButton>
         
             </div>
@@ -89,7 +78,7 @@
     </div>
 
 </dvi>
-<!-- { /await } -->
+
 <style>
 
     .container {

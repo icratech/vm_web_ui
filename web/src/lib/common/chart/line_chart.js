@@ -29,7 +29,7 @@ export class LineChartModel {
                 }
             },
             interaction: { 
-                mode: "index", 
+                mode: "time", 
                 intersection: false 
             },
             scales: { 
@@ -63,7 +63,7 @@ export class LineChartModel {
                     zoom: {
                         mode: "xy",
                         scaleMode: "xy",
-                        wheel: { enabled: true, speed: 0.125, },
+                        wheel: { enabled: true, speed: 0.05, },
                         drag: { enabled: true },
                     },
                     pan: { enabled: false }
@@ -94,12 +94,11 @@ export let LineChartXScale = {
     time: {
         // unit: 'day',
         displayFormats: {
-            day: "d-MMM HH:mm",
+            day: "MMM-d HH:mm",
+            hour: 'MMM-d HH:mm',
+            minute: 'HH:mm:ss',
+            second: 'HH:mm:ss',
             millisecond: "HH:mm:ss.SSS",
-            // day: 'MMM DD',
-            hour: 'd-MMM HH:mm',
-            minute: 'HH:mm',
-            second: 'HH:mm:ss'
         }
     },
     grid: { 
@@ -114,7 +113,6 @@ export let LineChartXScale = {
     },
     title: {
         display: false,
-        // align: "end",
         font: {
             size: 15,
         },
@@ -183,7 +181,6 @@ export class XYPoint {
         this.y = point.y 
     } 
 }
-
 export class LineChartScale {
     constructor( 
         title, 

@@ -5,11 +5,6 @@
     import { Sample } from '../../des_api'
 
     export let smp = new Sample( )
-    // $: sample = smp
-    // export let ch4 = 100
-    // export let high_flow = 250
-    // export let low_flow = 2
-    // export let pressure = 1000
 
 </script>
 

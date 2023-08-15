@@ -6,37 +6,41 @@
     import EventCard from "../../lib/components/event/EventCard.svelte"
     import ConfigCard from "../../lib/components/config/ConfigCard.svelte"
 
-    import { createEventDispatcher } from "svelte"
-    let dispatch = createEventDispatcher( )
+    import { goto } from '$app/navigation'
+    // import { createEventDispatcher } from 'svelte'
+    // const dispatch = createEventDispatcher( )
 
-    export let dev = new Device( )
-    $: device = dev
+    export let device = new Device( )
+    // $: device = dev
     $: event = device.job.events[0]  
     $: config = device.job.configs[0]
     $: active = ( config.cfg_job_end == 0 )
     $: socketButtonColor = ( device.socket ? 'bg-pink' : 'bg-green' )
     $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
     // $: { console.log( `smp: ${ JSON.stringify( smp, null, 4 ) }` ) }
-
+    // $: {
+    //     console.log( "smp.smp_time: ", smp.smp_time )
+    //  }
 </script>
 
 <div class="flx-row container">
 
     <div class="flx-col btns">
 
+        <!-- <PillButton 
+            on:click={ ( ) => { dispatch( 'go') } }
+            cls={ 'bg-purple_a' }
+        >PAGE</PillButton> -->
+
         <PillButton 
-            on:click={ ( ) => { dispatch( 'go' ) } }
+            on:click={ ( ) => { goto( `device/${device.reg.des_dev_serial }` ) } }
             cls={ 'bg-purple_a' }
         >PAGE</PillButton>
 
         { #if active }
-        <!-- <PillButton 
-            cls={ sseButtonColor }
-            on:click={ ( ) => { ( device.sse ? device.disconnectSSE( ) : device.connectSSE( ) ) } }
-        /> -->
         <PillButton 
             cls={ socketButtonColor }
-            on:click={ ( ) => {  ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
+            on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
         />
         { /if }
 
@@ -75,8 +79,6 @@
         justify-content: space-between;
         background-color: var(--light_aa);
         border-radius: 0.5em;
-        /* border-top-left-radius: 2em;
-        border-bottom-left-radius: 2em; */
         padding: 0 1em;
         gap: 1em;
         border-top: solid 0.05em var(--grey_aa);
