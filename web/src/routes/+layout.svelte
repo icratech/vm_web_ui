@@ -43,14 +43,14 @@
         <div class="flx-col nav">
 
             <div class="flx-col">
-                <PillButton on:click={ ( ) => { goto( '/' ) } } cls='bg-green_a'>HOM</PillButton>
-                <PillButton on:click={ ( ) => { goto( '/device' ) } } cls='bg-green_a'>DEVS</PillButton>
-                <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-green_a'>JOBS</PillButton>
+                <PillButton on:click={ ( ) => { goto( '/' ) } } cls='bg-green_a'>H</PillButton>
+                <PillButton on:click={ ( ) => { goto( '/device' ) } } cls='bg-green_a'>D</PillButton>
+                <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-green_a'>J</PillButton>
             </div>
 
             { #if user.role == "admin" }
             <div class="flx-col">
-                <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple_a'>ADM</PillButton>
+                <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple_a'>A</PillButton>
             </div>
             { /if }
         </div>

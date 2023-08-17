@@ -78,7 +78,8 @@ export const load_get_devices = async( serverLoadEvent ) => {
     let res = await fetch( req )
     let json = await res.json( )
     let devices = [ ] 
-    if ( json.status == "success") { devices = json.data.devices } // console.log( `./devices: ${ JSON.stringify( devices, null, 4 ) }\n` )
+    if ( json.status == "success") { devices = json.data.devices } 
+    console.log( "./devices -> load_get_devices( ): ", JSON.stringify( devices, null, 4 ) )
     return { devices }
 }
 
@@ -205,6 +206,12 @@ export class User {
 }
 /* 
 HTTP DEVICE DATA STRUCTURE 
+
+Longitude: -115.000000
+Latitude: 55.000000
+-114.75 > LNG < -110.15
+51.85 > LAT < 54.35
+
 */
 export class DESRegistration {
     constructor( 
@@ -231,31 +238,35 @@ export class DESRegistration {
         des_job_name = "",
         des_job_start = 0,
         des_job_end = 0,
+        des_job_lng = -15.000000,
+        des_job_lat = 55.000000,
         des_job_dev_id = 0
     ) {
         /* DESDevice */
-        this.des_dev_id = des_dev_id,
+        this.des_dev_id = des_dev_id
 
-        this.des_dev_reg_time = des_dev_reg_time,
-        this.des_dev_reg_addr = des_dev_reg_addr,
-        this.des_dev_reg_user_id = des_dev_reg_user_id,
-        this.des_dev_reg_app = des_dev_reg_app,
+        this.des_dev_reg_time = des_dev_reg_time
+        this.des_dev_reg_addr = des_dev_reg_addr
+        this.des_dev_reg_user_id = des_dev_reg_user_id
+        this.des_dev_reg_app = des_dev_reg_app
 
-        this.des_dev_serial = des_dev_serial,
-        this.des_dev_version = des_dev_version,
-        this.des_dev_class = des_dev_class,
+        this.des_dev_serial = des_dev_serial
+        this.des_dev_version = des_dev_version
+        this.des_dev_class = des_dev_class
 
         /* DESJob */
-        this.des_job_id = des_job_id,
+        this.des_job_id = des_job_id
 
-        this.des_job_reg_time = des_job_reg_time,
-        this.des_job_reg_addr = des_job_reg_addr,
-        this.des_job_reg_user_id = des_job_reg_user_id,
-        this.des_job_reg_app = des_job_reg_app,
+        this.des_job_reg_time = des_job_reg_time
+        this.des_job_reg_addr = des_job_reg_addr
+        this.des_job_reg_user_id = des_job_reg_user_id
+        this.des_job_reg_app = des_job_reg_app
 
-        this.des_job_name = des_job_name,
-        this.des_job_start = des_job_start,
-        this.des_job_end = des_job_end,
+        this.des_job_name = des_job_name
+        this.des_job_start = des_job_start
+        this.des_job_end = des_job_end
+        this.des_job_lng = des_job_lng
+        this.des_job_lat = des_job_lat
         this.des_job_dev_id = des_job_dev_id
     }
 
@@ -446,6 +457,44 @@ export class Admin {
         this.adm_lfs_diff = adm_lfs_diff, // psi
         this.adm_lfs_diff_min = adm_lfs_diff_min, // psi
         this.adm_lfs_diff_max = adm_lfs_diff_max // psi
+    }
+}
+
+export class Header {
+    constructor(
+        hdr_id = 0, // Set by DES upon database write
+
+        hdr_time = 0, 
+        hdr_addr = "",  
+        hdr_user_id = "",
+        hdr_app = "",
+    
+        /*WELL INFORMATION*/
+        hdr_well_co = "", 
+        hdr_well_name = "",
+        hdr_well_sf_loc = "",
+        hdr_well_bh_loc = "",
+        hdr_well_lic = "",
+
+        /*GEO LOCATION - USED TO POPULATE A GeoJSON OBJECT */
+        hdr_geo_lng = -115.000000,
+        hdr_geo_lat = 55.000000
+    ) {
+        this.hdr_id = hdr_id
+        
+        this.hdr_time = hdr_time
+        this.hdr_addr = hdr_addr
+        this.hdr_user_id = hdr_user_id
+        this.hdr_app = hdr_app
+
+        this.hdr_well_co = hdr_well_co
+        this.hdr_well_name = hdr_well_name
+        this.hdr_well_sf_loc = hdr_well_sf_loc
+        this.hdr_well_bh_loc = hdr_well_bh_loc
+        this.hdr_well_lic = hdr_well_lic
+
+        this.hdr_geo_lng = hdr_geo_lng
+        this.hdr_geo_lat = hdr_geo_lat
     }
 }
 
@@ -697,6 +746,7 @@ export class Sim {
 export class Job {
     constructor(
         admins = [ ],
+        headers = [ ],
         configs = [ ],
         events = [ ],
         samples = [ ],
@@ -704,12 +754,19 @@ export class Job {
         reg = new DESRegistration( ),
     ) {
         this.admins = admins
+        this.headers = headers
         this.configs = configs
         this.events = events
         this.samples = samples
         this.xypoints = xypoints
         this.reg = reg
         
+        this.geo = new GeoJSONFeature(
+            new GeoJSONGeometry( [ this.reg.des_job_lng, this.reg.des_job_lat ] ),
+            this.headers[0].hdr_well_name
+        )
+        this.geo.geometry.coordinates = [ this.reg.des_job_lng, this.reg.des_job_lat ]
+
         this.cht = NewChartData( )
         this.cht_ch4 = this.cht.data.datasets[0]
         this.cht_ch4.data = this.xypoints.ch4
@@ -762,6 +819,38 @@ export const MODE = [
    'LO FLOW', // 6
    'MANUAL >-<' // 7
 ]
+
+
+/* MAP STUFF ********************************************************************************************/
+export class GeoJSONFeatureCollection {
+    constructor (
+        features = [ ]
+    ) {
+        this.type = "FeatureCollection"
+        this.features = features
+    }
+}
+
+export class GeoJSONFeature {
+    constructor(
+        geometry = new GeoJSONGeometry( ),
+        well_name = ""
+    ) {
+        this.type = "Feature"
+        this.geometry = geometry
+        this.well_name = well_name
+    }
+}
+
+export class GeoJSONGeometry {
+    constructor( 
+        coordinates = [ -115.000000, 55.000000 ]
+    ) {
+        this.type = "Point"
+        this.coordinates = coordinates
+    }
+}
+
 
 /* CHART STUFF ******************************************************************************************/
 

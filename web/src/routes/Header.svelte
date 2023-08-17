@@ -27,7 +27,7 @@
             <h4>{ user.name }, you are a tolerable person.</h4>
         
                 <button formaction="/?/logout" class='pill-btn bg-purple'>
-                    LOGOUT
+                    out
                 </button>
             { :else }
                 <div class="flx-col input-container">
@@ -45,7 +45,7 @@
                 </div>
             
                 <button class='pill-btn bg-green_a'>
-                    LOGIN
+                    in
                 </button>
             { /if }
 

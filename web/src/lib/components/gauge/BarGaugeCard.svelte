@@ -46,7 +46,7 @@
     .container {
         background-color: var(--dark);
         justify-content: center;
-        padding: 0 1em;
+        padding: 2em 1em;
         border-radius: 0.5em;
         gap: 0;
         height: 100%;

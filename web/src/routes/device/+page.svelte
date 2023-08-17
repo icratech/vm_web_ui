@@ -3,19 +3,21 @@
 
     import { onMount } from 'svelte'
 
-    import { goto } from '$app/navigation'
-    import { DEVICES, Device, Job } from '../../lib/des_api'
+    import { DEVICES, Device, Job, GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONGeometry } from '../../lib/des_api'
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
-    export let data 
-    onMount( ( ) => {
+    export let data
+    let loaded = false
+    const loadJobData = async( ) => { 
+
         data.devices.forEach( dev => {
             if ( $DEVICES.filter( d => { return d.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
                 // console.log( "New $DEVICE: ", dev.reg.des_dev_serial )
                 let device  = new Device (
                     new Job(
                         dev.job.admins,
+                        dev.job.headers,
                         dev.job.configs,
                         dev.job.events,
                         dev.job.samples,
@@ -24,12 +26,14 @@
                     ),
                     dev.reg
                 )
-                console.log( "Devices Load ", device )
                 $DEVICES = [ ...$DEVICES, device ]
             }
         } ) 
         $DEVICES.sort( ( a, b ) => b.reg.des_dev_id - a.reg.des_dev_id )
-    } )
+        loaded = true
+    }
+
+    onMount( async( ) => { await loadJobData( ) } )
 
 </script>
 
@@ -37,7 +41,9 @@
 
     <div class="flx-row content">
 
-        <DeviceSearch />
+        { #if loaded }
+        <DeviceSearch bind:devices={ $DEVICES } />
+        { /if }
         
         <div class="flx-col device-list">
             { #each $DEVICES as device  }

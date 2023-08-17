@@ -5,29 +5,31 @@
 
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
     import 'mapbox-gl/dist/mapbox-gl.css'
-
-    import { onMount } from 'svelte'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
 
-    let lat = 52.2690 
-    let lng = -113.8115
-    let zoom = 5
-    let map
-    onMount( ( ) => { 
-        map = new mapboxgl.Map( {
-            container: "map",
+   export let devices
+    const makeMap = ( ctx ) => {
+        let map = new mapboxgl.Map(  {
+            container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
-            center: [ lng, lat ],
-            zoom : zoom
+            center: [ -113.811, 52.269 ],
+            zoom : 5
         } )
-    } )
+        
+        devices.forEach( dev => {
+            const el = document.createElement('div')
+            el.className = 'marker'
+            new mapboxgl.Marker( el ).setLngLat( dev.job.geo.geometry.coordinates ).addTo( map )
+        } )
+
+    }
 
     $: filter = true
     $: filterButtonText = ( filter ? "^" : "v" )
 
 </script>
 
-<div class="flx-col container">
+<div class="flx-col search-panel">
 
     <div class="flx-row search">
 
@@ -48,13 +50,14 @@
         FILTERS
     </div>
 
-    <div class="map-container" id="map"></div>
+    <!-- <div class="map-container" id="map"></div> -->
+    <div class="map-container" use:makeMap></div>
 
 </div>
 
 <style>
 
-    .container {
+    .search-panel {
         border-top: solid 0.05em var(--grey_aa);
         border-right: solid 0.05em var(--grey_aa);
         background-color: var(--light_aa);
@@ -71,22 +74,12 @@
         align-items: center;
     }
 
-    .map-container {
-        height: 65%;
-        border-top: solid 0.05em var(--dark_a);
-        border-right: solid 0.05em var(--dark_a);
-        background-color: var(--aqua_a);
-        border-radius: 0.5em;
-        position: relative;
-    }
-
     .filters {
-        height: 35%;
+        height: 35em;
         background-color: var(--dark);
         padding: 0.5rem;
         border-radius: 0.5em;
         border-bottom: solid 0.05em var(--grey_aa);
         border-left: solid 0.05em var(--grey_aa);
     }
-
 </style>

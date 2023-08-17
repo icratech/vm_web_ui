@@ -3,6 +3,7 @@
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import PillButton from '../../../lib/common/button/PillButton.svelte'
     import DeviceControls from '../../device/DeviceControls.svelte'
+    import DeviceCard from '../DeviceCard.svelte'
     import BarGaugeCard from "../../../lib/components/gauge/BarGaugeCard.svelte"
     import EventCard from "../../../lib/components/event/EventCard.svelte"
     import ConfigCard from "../../../lib/components/config/ConfigCard.svelte"
@@ -12,39 +13,28 @@
 
 <dvi class="flx-col container">
 
-    <div class="flx-row title">     
-        <div class="flx-row sn">
-            <h3 class="g">SN:</h3>
-            <h3>{ data.device.reg.des_dev_serial }</h3>
-        </div>  
-        <div class="flx-col cv">
-            <div class="flx-row" style="justify-content: flex-end;">
-                <div class="sml">class</div>
-                <div class="g">{ data.device.reg.des_dev_class }</div>
-            </div>
-            <div class="flx-row" style="justify-content: flex-end;">
-                <div class="sml">version</div>
-                <div class="g">{ data.device.reg.des_dev_version }</div>
-            </div>
-        </div>
-    </div>
-
     <div class="flx-row layout">
 
         <DeviceControls bind:device={ data.device }/>
 
-        <div class="flx-col content">
+        
 
-            <div class="flx-row panel">
-                <div class="flx-col card">
-                    <BarGaugeCard />
-                </div>
+        <div class="flx-col content">
+        
+            <div class="flx-col card-content chart">
+                <LineChart bind:chartdata={ data.device.job.cht } />
+            </div>
+            
+
+            <!-- <DeviceCard bind:device={ data.device }/> -->
+            <div class="flx-col card-content panel">
+
+                <!-- <EventCard bind:event={ data.device.job.events[0]  } />
                 
                 <ConfigCard bind:config={ data.device.job.configs[0] } />
                 
-                <EventCard bind:event={ data.device.job.events[0]  } />
-            </div>
-        
+                <EventCard bind:event={ data.device.job.events[0]  } /> -->
+                
             <div class="flx-row tabs">
         
                 <PillButton 
@@ -67,12 +57,9 @@
                 >?</PillButton>
         
             </div>
-            
-            <div class="flx-col card-content chart">
-                <LineChart bind:chartdata={ data.device.job.cht } />
             </div>
-            
-
+        
+    
         </div>
     
     </div>
@@ -91,22 +78,6 @@
         height: 100%;
         overflow-y: auto;
     }
-    .title {
-        justify-content: space-between;
-        padding-bottom: 0.5em;
-        width: 20em;
-    }
-    .sn {
-        padding-top: 0;
-    }
-    .cv {
-        width: auto;
-        align-items: flex-start;
-        justify-content: flex-end;
-        gap: 0em;
-    }
-    .g { color: var(--green_a); }
-
 
     .content {
         border-top: solid 0.05em var(--grey_aa);
@@ -119,11 +90,11 @@
     }
 
     .chart {
-        height: 70%;
+        height: 65%;
     }
     .panel {
         justify-content: space-between;
-        height: 30%;
+        height: 35%;
     }
 
 </style>

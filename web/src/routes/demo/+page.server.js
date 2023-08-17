@@ -20,6 +20,8 @@ export const actions = {
         reg.des_dev_serial = serial
         reg.des_dev_reg_user_id = user.id
         reg.des_dev_reg_app = demo_app
+        reg.des_job_lng = -114.75 + ( Math.random() * ( -110.15 - -114.75 ) )
+        reg.des_job_lat = 51.85 + ( Math.random() * ( 54.35 - 51.85 ) )
         console.log("FORM ACTION: registerDevice -> REQUEST reg:\n", reg )
 
         let req = new Request( API_URL_C001_V001_DEVICE_REGISTER, { 

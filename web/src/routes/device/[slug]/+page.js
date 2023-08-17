@@ -18,6 +18,7 @@ export const load = async( loadEvent ) => {
     
     device.job = new Job(
         device.job.admins,
+        device.job.headers,
         device.job.configs,
         device.job.events,
         device.job.samples,
@@ -26,6 +27,11 @@ export const load = async( loadEvent ) => {
     )
     
     console.log( "Device Page Load ", device )
+    // console.log( "Device Page Load -> header\n", JSON.stringify( device.job.headers[0], null, 4 ) )
+    // console.log( "Device Page Load -> admin\n", JSON.stringify( device.job.admins[0], null, 4 ) )
+    // console.log( "Device Page Load -> config\n", JSON.stringify( device.job.configs[0], null, 4 ) )
+    // console.log( "Device Page Load -> event\n",  JSON.stringify( device.job.events[0], null, 4 ) )
+    // console.log( "Device Page Load -> sample\n",  JSON.stringify( device.job.samples[0], null, 4 ) )
     return { device }
 
 }
