@@ -7,38 +7,25 @@
     import ConfigCard from "../../lib/components/config/ConfigCard.svelte"
 
     import { goto } from '$app/navigation'
-    // import { createEventDispatcher } from 'svelte'
-    // const dispatch = createEventDispatcher( )
 
-    export let showLink = true
     export let device = new Device( )
-    // $: device = dev
+
     $: event = device.job.events[0]  
     $: config = device.job.configs[0]
     $: active = ( config.cfg_job_end == 0 )
     $: socketButtonColor = ( device.socket ? 'bg-pink' : 'bg-green_a' )
     $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
-    // $: { console.log( `smp: ${ JSON.stringify( smp, null, 4 ) }` ) }
-    // $: {
-    //     console.log( "smp.smp_time: ", smp.smp_time )
-    //  }
+
 </script>
 
 <div class="flx-row container">
 
     <div class="flx-col btns">
 
-        <!-- <PillButton 
-            on:click={ ( ) => { dispatch( 'go') } }
-            cls={ 'bg-purple_a' }
-        >PAGE</PillButton> -->
-
-        { #if showLink }
         <PillButton 
             on:click={ ( ) => { goto( `device/${device.reg.des_dev_serial }` ) } }
             cls={ 'bg-purple_a' }
         >J</PillButton>
-        { /if }
 
         { #if active }
         <PillButton 
@@ -65,7 +52,6 @@
 
             </div>
             
-            <!-- <BarGaugeCard bind:smp={ device.sample }/> -->
             <BarGaugeCard bind:smp={ smp }/>
             
     </div>

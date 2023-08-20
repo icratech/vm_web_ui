@@ -14,7 +14,7 @@
     $: event = device.job.events[0]  
     $: config = device.job.configs[0]
     $: active = ( config.cfg_job_end == 0 )
-    let socketButtonColor = ( device.socket ? 'bg-pink' : 'bg-green' ) 
+    $: socketButtonColor = ( device.socket ? 'bg-pink' : 'bg-green' ) 
     $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
 
     
@@ -39,6 +39,17 @@
 <div class="flx-col container">
 
     <div class="flx-row title">     
+                
+        { #if active }
+        <PillButton 
+            cls={ socketButtonColor }
+            on:click={ ( ) => {  
+                ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) 
+                console.log( "device.socket: ", device.socket )
+            } }
+        />
+        { /if }
+
         <div class="flx-row">
             <h3 class="g">SN:</h3>
             <h3>{ device.reg.des_dev_serial }</h3>
@@ -56,16 +67,6 @@
     </div>
 
     <div class="flx-row tabs">
-        
-        <!-- { #if active }
-        <PillButton 
-            cls={ socketButtonColor }
-            on:click={ ( ) => {  
-                ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) 
-                console.log( "device.socket: ", device.socket )
-            } }
-        />
-        { /if } -->
 
         <PillButton
             cls={ 'bg-purple_a' }
@@ -99,9 +100,9 @@
 
     <div class="flx-col cards">
 
-        <!-- <div class="flx-col card"> -->
-            <!-- <BarGaugeCard bind:smp={ smp }/> -->
-        <!-- </div> -->
+        <div class="flx-col card">
+            <BarGaugeCard bind:smp={ smp }/>
+        </div>
 
         <!-- <ConfigCard bind:config={config} /> -->
     
@@ -109,7 +110,6 @@
 
     </div>
 
-    <!-- <div class="map-container" id="map"></div> -->
     <div class="map-container" use:makeMap></div>
 
 </div>

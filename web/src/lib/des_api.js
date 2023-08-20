@@ -1,51 +1,97 @@
-import { writable } from 'svelte/store'
-
-export const DEVICES = writable( [ ])
-
-export const DEMO_DEVICES = writable( [ ] )
+import { writable, get } from 'svelte/store'
+import mapboxgl from 'mapbox-gl'
 
 export const AUTH = writable( { } )
 export const USERS = writable( [ ] )
 export const EVENT_TYPES = writable( [ ] )
-
-
-export class AuthorizedUser {
-    constructor(
-        id = "",
-        name = "",
-        email = "",
-        role = "",
-        provider = "",
-        created_at = Date.now( ),
-        updated_at = Date.now( )
-    ) {
-        this.id = id,
-        this.name = name
-        this.email = email
-        this.role = role
-        this.provider = provider
-        this.created_at = created_at
-        this.updated_at = updated_at
-        this.token = ""
-        this.logged_in = false
-    }
-    setToken = ( token ) => {
-        this.token = token
-    }
-}
+export const DEVICES = writable( [ ] )
+export const DEVICE_MAP_MARKERS = writable( [ ] )
+export const DEVICES_LOADED = writable( false )
+export const DEMO_DEVICES = writable( [ ] )
 
 const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des.leehayford.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` )
 
+export const login = async( email, password ) => {
+
+    let req = new Request( `${ HTTP_SERVER }/api/auth/login`, { 
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
+        body: JSON.stringify( { email, password } ) 
+    } )
+    let res = await fetch( req )
+    let auth = await res.json( )
+    console.log(`"\nAppHeader: login -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
+
+    if ( auth.status === "success" ) { 
+        console.log(`\nAppHeader: login -> SUCCESS:\n${ auth.token }\n` )
+        sessionStorage.setItem( 'des_token', auth.token, { path: '/' } )
+    }
+    await get_user( )
+
+    if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  }
+}
+export const logout = async( ) => {
+
+    let req = new Request( `${ HTTP_SERVER }/api/auth/logout`, { 
+        method: "GET",
+        headers: { 'Authorization': `Bearer ${ sessionStorage.getItem( 'des_token' ) }` }, 
+        credentials: "include"   
+    } )
+    let res = await fetch( req )
+    let logout_res = await res.json( ) 
+    console.log( `des_api.js -> logout( ) -> RESPONSE -> logout_res:\n${ JSON.stringify( logout_res, null, 4 ) }` )
+
+    sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
+    AUTH.set( new User( ) ) 
+
+    console.log(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
+}
+export const get_user = async( ) => {
+
+    let token = sessionStorage.getItem( 'des_token' )
+
+    let user_res = await fetch( `${ HTTP_SERVER }/user/me`, { 
+            method: "GET",
+            headers: { 'Authorization': `Bearer ${ token }`}      
+        } 
+    )
+    let usr = await user_res.json() 
+
+    if ( usr.status == "success" ) {
+
+        AUTH.set( new User(
+            usr.data.user.id, 
+            usr.data.user.name, 
+            usr.data.user.email, 
+            usr.data.user.role,
+            usr.data.user.provider, 
+            usr.data.user.created_at, 
+            usr.data.user.updated_at,
+            token,
+            true
+        ) )
+       console.log("\ndes_api.js -> get_user( ) -> AUTHENTICATION SUCCESS!\n" )
+    } 
+    else {
+
+        AUTH.set( new User( ) )
+        sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
+        console.log("\ndes_api.js -> get_user( ) -> AUTHENTICATION FAILED!\n" ) 
+    }
+    
+    console.log("\ndes_api.js -> get_user( ) -> AUTH: \n", get( AUTH ) )
+}
+
 export const API_URL_USER_LIST =  `${ HTTP_SERVER }/user`
 export const get_users = async( ) => {
 
     let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
     let res = await fetch( req )
-    let json = await res.json( ) 
-    console.log( `${ API_URL_USER_LIST }: ${ JSON.stringify( json, null, 4 ) }\n` )
+    let json = await res.json( )
     return json.data.users
 }
 
@@ -54,8 +100,7 @@ export const get_event_types = async( ) => {
     
     let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
     let res = await fetch( req )
-    let json = await res.json( ) // console.log( `${ API_URL_C001_V001_JOB_EVENT_TYPE_LIST }: ${ JSON.stringify( json, null, 4 ) }\n` )
-
+    let json = await res.json( )
     return json.data.event_types
 }
 
@@ -64,9 +109,81 @@ export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/devi
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
 export const API_URL_GET_RUN_DEMO_SIM = `${ WS_SERVER }/api/001/001/demo/sim` 
+export const get_devices = async( ) => {
 
+    let token = sessionStorage.getItem( 'des_token' )
+
+    DEVICES_LOADED.set( false )
+    let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
+        method: 'GET',
+        headers: {
+            "Authorization":  `Bearer ${ token }`, 
+        },
+    } )
+
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    if ( json.status == "success") { 
+
+        let store = get( DEVICES )
+        let devs = json.data.devices 
+        
+        devs.forEach( dev => {
+            if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+                let device = new Device(
+                    new Job(
+                        dev.job.admins,
+                        dev.job.headers,
+                        dev.job.configs,
+                        dev.job.events,
+                        dev.job.samples,
+                        dev.job.xypoints,
+                        dev.job.reg 
+                    ),
+                    dev.reg
+                )
+                DEVICES.update( d => { return [ ...d, device ] } )
+                
+                const el = document.createElement('div')
+                el.className = 'marker'
+                let mrkr = new mapboxgl.Marker( el ).setLngLat( device.job.geo.geometry.coordinates ) 
+                DEVICE_MAP_MARKERS.update( m => { return [ ...m, mrkr ] } )
+            }        
+        } )
+    } 
+    get( DEVICES ).sort( ( a, b ) => b.reg.des_job_start - a.reg.des_job_start )
+    DEVICES_LOADED.set( true )
+    console.log( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
+    console.log( "des_api.js -> get_devices( ) -> DEVICES_LOADED: ", get( DEVICES_LOADED ) )
+
+}
+export const register_device = async( serial ) => {
+    let au = get( AUTH )
+    let reg = new DESRegistration( )
+    reg.des_dev_serial = serial
+    reg.des_dev_reg_user_id = au.id
+    reg.des_dev_reg_app = demo_app
+    reg.des_job_lng = -114.75 + ( Math.random() * ( -110.15 - -114.75 ) )
+    reg.des_job_lat = 51.85 + ( Math.random() * ( 54.35 - 51.85 ) )
+    console.log("des_api.js -> register_device( ) -> REQUEST reg:\n", reg )
+
+    let req = new Request( API_URL_C001_V001_DEVICE_REGISTER, { 
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${ au.token }` 
+        },
+        body: JSON.stringify( reg )
+    } )
+    let res = await fetch( req )
+    reg = await res.json( )
+    console.log("des_api.js -> register_device( ) ->  RESPONSE reg:\n", reg )
+    await get_devices( )
+}
 export const load_get_devices = async( serverLoadEvent ) => {
 
+    console.log( "load_get_devices( )" )
     let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
         method: 'GET',
         headers: {
@@ -76,11 +193,43 @@ export const load_get_devices = async( serverLoadEvent ) => {
 
     const { fetch } = serverLoadEvent
     let res = await fetch( req )
+    // let json = await res.json( )
+    // let devices = [ ] 
+    // if ( json.status == "success") { devices = json.data.devices } 
+    // console.log( "./devices -> load_get_devices( ): ", JSON.stringify( devices, null, 4 ) )
+    // return { devices }
+    
     let json = await res.json( )
-    let devices = [ ] 
-    if ( json.status == "success") { devices = json.data.devices } 
-    console.log( "./devices -> load_get_devices( ): ", JSON.stringify( devices, null, 4 ) )
-    return { devices }
+
+    if ( json.status == "success") { 
+
+        let store = get( DEVICES )
+        let devs = json.data.devices 
+        devs.forEach( dev => {
+            if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+                let device = new Device(
+                    new Job(
+                        dev.job.admins,
+                        dev.job.headers,
+                        dev.job.configs,
+                        dev.job.events,
+                        dev.job.samples,
+                        dev.job.xypoints,
+                        dev.job.reg 
+                    ),
+                    dev.reg
+                )
+                DEVICES.update( d => { return [ ...d, device ] } )
+                
+                const el = document.createElement('div')
+                el.className = 'marker'
+                let mrkr = new mapboxgl.Marker( el ).setLngLat( device.job.geo.geometry.coordinates ) 
+                DEVICE_MAP_MARKERS.update( m => { return [ ...m, mrkr ] } )
+            }        
+        } )
+    } 
+    
+    DEVICES_LOADED.set( true )
 }
 
 // export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
@@ -190,18 +339,22 @@ export class User {
         email = "",
         role = "",
         provider = "",
-        photo = "",
+        // photo = "",
         created_at = 1691762552703,
-        updated_at = 1691762552703
+        updated_at = 1691762552703,
+        token = "none",
+        logged_in = false
     ) {
         this.id  = id
         this.name = name
         this.email = email
         this.role = role,
         this.provider = provider
-        this.photo = photo
+        // this.photo = photo
         this.created_at = created_at
         this.updated_at = updated_at
+        this.token = token
+        this.logged_in = logged_in
     }
 }
 /* 
@@ -280,15 +433,9 @@ export class Device {
         this.job = job
         this.reg = reg 
         this.socket = false
-        this.sample = new Sample( )
     }
     
-    update( ) {
-        let devices
-        const unsub = DEVICES.subscribe( ( v ) => { devices = v } )
-        unsub( )
-        DEVICES.update( ( ) => { return [ ...devices ] } )
-    }
+    update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
     /* WS CONNECTION */
     disconnectWS( ) { }
@@ -307,7 +454,6 @@ export class Device {
         ws.onmessage = ( e ) => {
 
             let msg = JSON.parse( JSON.parse( e.data ) )
-            // console.log( msg )
             switch ( msg.type ) {
 
                 case "sample":
@@ -316,9 +462,7 @@ export class Device {
                     } else {
                         this.job.samples = [ msg.data ]
                     }
-                    this.sample = msg.data
-                    // console.log( `msg.data.sample:\n${ msg.data }` )
-                    // this.updateChartData()
+                    this.job.updateChartData()
                     break
 
                 case "event":
@@ -730,8 +874,8 @@ export class DemoDevice {
 
 export class Sim {
     constructor(
-	    qty = 10,
-	    dur = 2000,
+	    qty = 1000,
+	    dur = 500,
 	    fillQty = 1,
         run = false,
     ) {
@@ -763,7 +907,8 @@ export class Job {
         
         this.geo = new GeoJSONFeature(
             new GeoJSONGeometry( [ this.reg.des_job_lng, this.reg.des_job_lat ] ),
-            this.headers[0].hdr_well_name
+            // this.headers[0].hdr_well_name
+            "whatever"
         )
         this.geo.geometry.coordinates = [ this.reg.des_job_lng, this.reg.des_job_lat ]
 
@@ -793,15 +938,85 @@ export class Job {
             this.cht_x_min = this.cht_ch4.data[0].x
             this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
         } else {
-            this.cht_x_max = Date.now( )/1000
-            console.log( "this.cht_x_max", this.cht_x_max )
-            this.cht_x_min = this.cht_x_max - 60 
-            console.log( "this.cht_x_min", this.cht_x_min )
+            this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
+            this.cht_x_min = this.cht_x_max - 60  // console.log( "this.cht_x_min", this.cht_x_min )
         }
 
         this.cht_point_limit = 50
         this.cht_scale_margin = 0.1
+        // this.sample = new Sample( )
     }
+    
+    /* CHART DATA */
+    updateChartData( ) {
+
+        // if ( this.cht_ch4.data.length > this.cht_point_limit ) {
+        //     this.cht.options.scales.x.min = this.cht_ch4.data[  this.cht_ch4.data.length - this.cht_point_limit ].x
+        // // } else {
+        // //     this.cht.options.scales.x.min = this.sample.smp_time
+        // }
+
+        // this.sample = this.samples[ this.samples.length - 1 ]
+        let sample = this.samples[ this.samples.length - 1 ]
+
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_ch4 },
+            { x: sample.smp_time, y: sample.smp_ch4 },
+            this.cht_ch4, this.cht.options.scales.y_ch4,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_hi_flow },
+            { x: sample.smp_time, y: sample.smp_hi_flow },
+            this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_lo_flow },
+            { x: sample.smp_time, y: sample.smp_lo_flow },
+            this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_press },
+            { x: sample.smp_time, y: sample.smp_press },
+            this.cht_press, this.cht.options.scales.y_press,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_bat_amp },
+            { x: sample.smp_time, y: sample.smp_bat_amp },
+            this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_bat_volt },
+            { x: sample.smp_time, y: sample.smp_bat_volt },
+            this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_mot_volt },
+            { x: sample.smp_time, y: sample.smp_mot_volt },
+            this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+    }
+
 
 }
 

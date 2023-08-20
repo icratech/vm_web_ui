@@ -2,25 +2,23 @@
 
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
+    import { DEVICES, DEVICE_MAP_MARKERS, DEVICES_LOADED } from "../../lib/des_api";
 
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
     import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
 
-   export let devices
+   let map
     const makeMap = ( ctx ) => {
-        let map = new mapboxgl.Map(  {
+        map = new mapboxgl.Map(  {
             container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
             center: [ -113.811, 52.269 ],
             zoom : 5
         } )
-        
-        devices.forEach( dev => {
-            const el = document.createElement('div')
-            el.className = 'marker'
-            new mapboxgl.Marker( el ).setLngLat( dev.job.geo.geometry.coordinates ).addTo( map )
-        } )
+        console.log( "DeviceSearch -> makeMap( ) -> DEVIECS: ", $DEVICES )
+        console.log( "DeviceSearch -> makeMap( ) -> $DEVICE_MAP_MARKERS: ", $DEVICE_MAP_MARKERS )
+        $DEVICE_MAP_MARKERS.forEach( m => m.addTo( map )) 
 
     }
 
@@ -50,8 +48,9 @@
         FILTERS
     </div>
 
-    <!-- <div class="map-container" id="map"></div> -->
+    { #if $DEVICES_LOADED }
     <div class="map-container" use:makeMap></div>
+    { /if }
 
 </div>
 

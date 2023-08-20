@@ -9,23 +9,24 @@
     import ConfigCard from "../../../lib/components/config/ConfigCard.svelte"
     
     export let data
+    import { DEVICES } from '../../../lib/des_api'
+    $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
+    // $: console.log( "/device/[slug]/+page.svelte -> $DEVICES", $DEVICES )
+
 </script>
 
 <dvi class="flx-col container">
 
     <div class="flx-row layout">
 
-        <DeviceControls bind:device={ data.device }/>
-
-        
+        <DeviceControls bind:device={ device }/>
 
         <div class="flx-col content">
         
             <div class="flx-col card-content chart">
-                <LineChart bind:chartdata={ data.device.job.cht } />
+                <LineChart bind:chartdata={ device.job.cht } />
             </div>
-            
-
+    
             <!-- <DeviceCard bind:device={ data.device }/> -->
             <div class="flx-col card-content panel">
 
@@ -39,12 +40,12 @@
         
                 <PillButton 
                     cls={ 'bg-blue' }
-                    on:click={ ( ) => { data.device.job.cht.options.scales.y_hi_flow.display = !data.device.job.cht.options.scales.y_hi_flow.display } }
+                    on:click={ ( ) => { device.job.cht.options.scales.y_hi_flow.display = !device.job.cht.options.scales.y_hi_flow.display } }
                 >?</PillButton>
         
                 <PillButton
                     cls={ 'bg-purple_a' }
-                    on:click={ ( ) => { data.device.job.cht.options.scales.y_mot_volt.display = !data.device.job.cht.options.scales.y_mot_volt.display } }
+                    on:click={ ( ) => { device.job.cht.options.scales.y_mot_volt.display = !device.job.cht.options.scales.y_mot_volt.display } }
                 >?</PillButton>
         
                 <PillButton
@@ -53,7 +54,7 @@
         
                 <PillButton
                     cls={ 'bg-red' }
-                    on:click={ ( ) => { data.device.job.cht.options.scales.y_bat_amp.display = !data.device.job.cht.options.scales.y_bat_amp.display } }
+                    on:click={ ( ) => { device.job.cht.options.scales.y_bat_amp.display = !device.job.cht.options.scales.y_bat_amp.display } }
                 >?</PillButton>
         
             </div>

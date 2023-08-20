@@ -4,25 +4,28 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
-    import { AUTH, get_users, get_event_types, DEVICES, DEMO_DEVICES } from '../lib/des_api';
+    import { AUTH, get_user, get_users, get_event_types, DEVICES, DEMO_DEVICES, USERS, EVENT_TYPES } from '../lib/des_api';
     import Header from './Header.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
-    
-    /** @type {import('./$types').LayoutData} */
-    export let data
-    $: user = data.user // $: { console.log( `LAYOUT PAGE DATA: \n${ JSON.stringify( user, null, 4 ) }\n` ) }
-    /** @type {import('./$types').ActionData} */
-    export let form
 
     onMount( async( ) => {
 
-        $AUTH = user // console.log( `layout.svelte ->  onMount( ) -> $AUTH:\n${ JSON.stringify( $AUTH ) }\n` )
+        if ( sessionStorage.getItem( 'des_token') != 'none' ) { // console.log( "Current des_token: ", token )
+            await get_user( ) 
+        } else {
+            // await get_users( ) 
+            // console.log( '+layout.svelte -> onMount( ):  get_users( ): $USERS\n', $USERS )
+            let users = await get_users( ) 
+            console.log( `layout.svelte -> onMount( ):  get_users( ): users\n${ JSON.stringify( users, null, 4 ) }` )
+            sessionStorage.setItem( "users", JSON.stringify( users ) ) // users = JSON.parse( sessionStorage.users )  // console.log( `layout.svelte -> sessionStorage: users\n${  JSON.stringify( users, null, 4 )  }` )
 
-        let users = await get_users( ) // console.log( `layout.svelte -> onMount( ):  get_users( ): users\n${ JSON.stringify( users, null, 4 ) }` )
-        sessionStorage.setItem( "users", JSON.stringify( users ) ) // users = JSON.parse( sessionStorage.users )  // console.log( `layout.svelte -> sessionStorage: users\n${  JSON.stringify( users, null, 4 )  }` )
+            // await get_event_types( ) 
+            // console.log( '+layout.svelte -> onMount( ):  get_event_types( ): $EVENT_TYPES\n', $EVENT_TYPES )
+            let event_types = await get_event_types( )
+            console.log( `layout.svelte -> onMount( ):  get_event_types( ): event_types\n${ JSON.stringify( event_types, null, 4 ) }` )
+            sessionStorage.setItem( "event_types", JSON.stringify( event_types ) ) // event_types = JSON.parse( sessionStorage.event_types ) // console.log( `layout.svelte -> sessionStorage: event_types\n${  JSON.stringify( event_types, null, 4 )  }` )
 
-        let event_types = await get_event_types( ) // console.log( `layout.svelte -> onMount( ):  get_event_types( ): event_types\n${ JSON.stringify( event_types, null, 4 ) }` )
-        sessionStorage.setItem( "event_types", JSON.stringify( event_types ) ) // event_types = JSON.parse( sessionStorage.event_types ) // console.log( `layout.svelte -> sessionStorage: event_types\n${  JSON.stringify( event_types, null, 4 )  }` )
+        }
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
         CAUSES THE SERVER TO UNSUBSCRIBE THIS DEVICE USER'S MQTT CLIENT FROM ALL TOPICS */
@@ -36,7 +39,8 @@
 
 <div class="flx-col main">
 
-    <Header bind:user={ user } bind:form={ form }/>
+    <Header />
+    <!-- <Header bind:user={ user } bind:form={ form }/> -->
 
     <div class="flx-row layout">
 
@@ -48,7 +52,7 @@
                 <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-green_a'>J</PillButton>
             </div>
 
-            { #if user.role == "admin" }
+            { #if $AUTH.role == "admin" }
             <div class="flx-col">
                 <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple_a'>A</PillButton>
             </div>

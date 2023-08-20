@@ -88,66 +88,14 @@ export class LineChartModel {
         this.options.scales.x.max = point.x
     }
 }
-
-export let LineChartXScale = {
-    type: 'time',
-    time: {
-        // unit: 'day',
-        displayFormats: {
-            day: "MMM-d HH:mm",
-            hour: 'MMM-d HH:mm',
-            minute: 'HH:mm:ss',
-            second: 'HH:mm:ss',
-            millisecond: "HH:mm:ss.SSS",
-        }
-    },
-    grid: { 
-        color: RGBA( BASE.LIGHT, 0.2 ),
-        display: true
-    },
-    position: 'bottom',
-    border: {
-        display: true,
-        color: RGBA( BASE.LIGHT, 0.2 ),
-        width: 1,
-    },
-    title: {
-        display: false,
-        font: {
-            size: 15,
-        },
-        padding: {
-            top: 13,
-            bottom: 13,
-        },
-        color: RGBA( BASE.LIGHT, 0.7 ),
-        text: "Time",
-    },
-    ticks: {
-        autoSkip: true,
-        autoSkipPadding: 50,
-        maxRotation: 0,
-        color: RGBA( BASE.LIGHT, 0.7 ),
-        padding: 15,
-    }
-}
-
 export class LineChartDataSet {
-    data = [ ]
-    label = "Unknown"
-    yAxisID = "y"
-    lineWidth = 1.5
-    lineColor = RGBA( BASE.LIGHT, 0.3 )
-    markerRadius = 1
-    markerColor = RGBA( BASE.LIGHT, 0.7 )
-    backgroundColor =  RGBA( BASE.LIGHT, 0.7 )
     constructor( 
         data = [ ],
         label = "Unknown",
         yAxisID = "y",
-        lineWidth = 1.5,
+        lineWidth = CHART_LINE_WIDTH,
         lineColor = RGBA( BASE.LIGHT, 0.3 ),
-        markerRadius = 1,
+        markerRadius = CHART_MARKER_RADIUS,
         markerColor = RGBA( BASE.LIGHT, 0.7 )
     ) {
         this.data = data
@@ -172,14 +120,6 @@ export class LineChartDataSet {
         }
         return this.data[0].x
     }
-}
-export class XYPoint { 
-    constructor( 
-        point = { x: 0, y: 0.0 } 
-    ) { 
-        this.x = point.x, 
-        this.y = point.y 
-    } 
 }
 export class LineChartScale {
     constructor( 
@@ -229,3 +169,54 @@ export class LineChartScale {
     }
 }
 
+export let LineChartXScale = {
+    type: 'time',
+    time: {
+        // unit: 'day',
+        displayFormats: {
+            day: "MMM-d HH:mm",
+            hour: 'MMM-d HH:mm',
+            minute: 'HH:mm:ss',
+            second: 'HH:mm:ss',
+            millisecond: "HH:mm:ss.SSS",
+        }
+    },
+    grid: { 
+        color: RGBA( BASE.LIGHT, 0.2 ),
+        display: true
+    },
+    position: 'bottom',
+    border: {
+        display: true,
+        color: RGBA( BASE.LIGHT, 0.2 ),
+        width: 1,
+    },
+    title: {
+        display: false,
+        font: {
+            size: 15,
+        },
+        padding: {
+            top: 13,
+            bottom: 13,
+        },
+        color: RGBA( BASE.LIGHT, 0.7 ),
+        text: "Time",
+    },
+    ticks: {
+        autoSkip: true,
+        autoSkipPadding: 50,
+        maxRotation: 0,
+        color: RGBA( BASE.LIGHT, 0.7 ),
+        padding: 15,
+    }
+}
+
+export class XYPoint { 
+    constructor( 
+        point = { x: 0, y: 0.0 } 
+    ) { 
+        this.x = point.x, 
+        this.y = point.y 
+    } 
+}

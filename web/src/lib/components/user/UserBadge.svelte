@@ -1,11 +1,12 @@
 <script>
 
     import { onMount } from "svelte"
-    import { User } from "../../des_api"
+    import { User, USERS, get_users } from "../../des_api"
+    import { get } from 'svelte/store'
 
     export let uid
     export let user = new User( )
-    onMount( ( ) => { 
+    onMount( async( ) => { 
         if ( uid ) { user = JSON.parse( sessionStorage.users ).filter( u => u.id == uid )[0] }
     } )
 

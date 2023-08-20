@@ -5,7 +5,7 @@
     import DateTimeDisplay from "../../common/date_time/DateTimeDisplay.svelte"
     import UserBadge from "../user/UserBadge.svelte"
 
-    import { Event, EventType } from "../../des_api"
+    import { Event, EventType, EVENT_TYPES } from "../../des_api"
     
     export let event = new Event( )
     export let title = event.evt_title

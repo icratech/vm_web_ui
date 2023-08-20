@@ -1,7 +1,16 @@
 <script>
 
-    export let user
-    export let form
+    // export let user
+    // export let form
+
+    import { AUTH, login, logout } from '../lib/des_api'
+    import PillButton from '../lib/common/button/PillButton.svelte'
+
+    let email = ""
+    let password = ""
+    $: loginButtonColor = ( $AUTH.logged_in ? 'bg-purple' : 'bg-green_a' )
+    $: loginButtonText = ( $AUTH.logged_in ? 'out' : 'in' )
+    $: loginButtonFunc = ( $AUTH.logged_in ? logout : ( ) => { login( email, password ) } )
 
 </script>
 
@@ -21,7 +30,7 @@
             
         </div>
 
-        <form method="POST" action="/?/login" class="flx-row login">
+        <!-- <form method="POST" action="/?/login" class="flx-row login">
         
             { #if user.logged_in }
             <h4>{ user.name }, you are a tolerable person.</h4>
@@ -49,7 +58,34 @@
                 </button>
             { /if }
 
-        </form>
+        </form> -->
+
+        
+        <div class="flx-row login">
+        
+            { #if $AUTH.logged_in }
+            <h4>{ $AUTH.name }, you are a tolerable person.</h4>
+            { :else }
+            <div class="flx-col input-container">
+                <label class="lbl">
+                    email
+                    <input name="email"  type="email" bind:value={ email } />
+                </label>
+            </div>
+            
+            <div class="flx-col input-container">
+                <label class="lbl">
+                    password
+                    <input name="password" type="password"  bind:value={ password } />
+                </label>
+            </div>
+            { /if }
+            <PillButton 
+                cls={ loginButtonColor }
+                on:click={ loginButtonFunc }
+            >{ loginButtonText }</PillButton>
+        </div>
+
 
     </div>        
 
