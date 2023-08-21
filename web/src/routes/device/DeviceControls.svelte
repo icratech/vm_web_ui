@@ -13,7 +13,8 @@
     export let device = new Device( )
     $: event = device.job.events[0]  
     $: config = device.job.configs[0]
-    $: active = ( config.cfg_job_end == 0 )
+    $: header = device.job.headers[0]
+    $: active = ( header.hdr_job_end == 0 )
     $: socketButtonColor = ( device.socket ? 'bg-pink' : 'bg-green' ) 
     $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
 

@@ -482,7 +482,7 @@ export class Device {
                     break
             }
             
-            // console.log( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
+            console.log( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
             this.update( )
         } 
 
@@ -604,6 +604,12 @@ export class Admin {
     }
 }
 
+/* 
+WEB CLIENT -> HTTP -> DES ( LOG ) -> MQTT -> DEVICE  
+  - Device updates its header settings
+  - Device returns new header settings
+WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE  
+*/
 export class Header {
     constructor(
         hdr_id = 0, // Set by DES upon database write
@@ -619,6 +625,11 @@ export class Header {
         hdr_well_sf_loc = "",
         hdr_well_bh_loc = "",
         hdr_well_lic = "",
+
+        /* JOB NAME, START & STOP */
+        hdr_job_name = "",
+        hdr_job_start = 0,
+        hdr_job_end = 0,
 
         /*GEO LOCATION - USED TO POPULATE A GeoJSON OBJECT */
         hdr_geo_lng = -115.000000,
@@ -637,6 +648,9 @@ export class Header {
         this.hdr_well_bh_loc = hdr_well_bh_loc
         this.hdr_well_lic = hdr_well_lic
 
+        this.hdr_job_name = hdr_job_name
+        this.hdr_job_start = hdr_job_start
+        this.hdr_job_end = hdr_job_end
         this.hdr_geo_lng = hdr_geo_lng
         this.hdr_geo_lat = hdr_geo_lat
     }
@@ -657,9 +671,6 @@ export class Config {
         cfg_user_id = "",
         cfg_app = "",
     
-        cfg_job_name = "",
-        cfg_job_start = 0,
-        cfg_job_end = 0, 
         cfg_scvd = 596.8, // m
         cfg_scvd_mult = 10.5, // kPa / m
         cfg_ssp_rate = 1.95, // kPa / hour
@@ -685,9 +696,6 @@ export class Config {
         this.cfg_user_id = cfg_user_id
         this.cfg_app = cfg_app
     
-        this.cfg_job_name = cfg_job_name
-        this.cfg_job_start = cfg_job_start
-        this.cfg_job_end = cfg_job_end 
         this.cfg_scvd = cfg_scvd // m
         this.cfg_scvd_mult = cfg_scvd_mult // kPa / m
         this.cfg_ssp_rate = cfg_ssp_rate // kPa / hour
