@@ -76,14 +76,14 @@ export class LineChartModel {
     pushPoint( point, set = [ ], scale, limit, scale_margin ) {
 
         let x_min = set.pushSample( limit, point )
-        let filt = set.data.filter( x => x.x >= x_min )
-        let Ys = filt.map( p => p.y )
-        let min = Math.min( ...Ys ) // console.log( min )
-        let max = Math.max( ...Ys ) // console.log( max )
-        if ( max - min > 0 ) {
-            scale.min = min - ( ( max - min ) * scale_margin )
-            scale.max = max +  ( ( max - min ) * scale_margin )
-        }    
+        // let filt = set.data.filter( x => x.x >= x_min )
+        // let Ys = filt.map( p => p.y )
+        // let min = Math.min( ...Ys ) // console.log( min )
+        // let max = Math.max( ...Ys ) // console.log( max )
+        // if ( max - min > 0 ) {
+        //     scale.min = min - ( ( max - min ) * scale_margin )
+        //     scale.max = max +  ( ( max - min ) * scale_margin )
+        // }    
         this.options.scales.x.min = x_min
         this.options.scales.x.max = point.x
     }
@@ -93,16 +93,17 @@ export class LineChartDataSet {
         data = [ ],
         label = "Unknown",
         yAxisID = "y",
+        show = true,
         lineWidth = CHART_LINE_WIDTH,
         lineColor = RGBA( BASE.LIGHT, 0.3 ),
         markerRadius = CHART_MARKER_RADIUS,
-        markerColor = RGBA( BASE.LIGHT, 0.7 )
+        markerColor = RGBA( BASE.LIGHT, 0.7 ),
     ) {
         this.data = data
         this.label = label
-        this.hidden = false
         this.xAxisID = "x" // xAxisID
         this.yAxisID = yAxisID
+        this.hidden = !show
         this.borderWidth = lineWidth
         this.borderColor = lineColor
         this.radius = markerRadius
@@ -110,7 +111,7 @@ export class LineChartDataSet {
     }
     
     pushSample( limit, point = { x: 0, y: 0.0 } ) {
-        if ( this.data[0].x == 0 )  { this.data.shift( ) }
+        if ( this.data[0] && this.data[0].x == 0 )  { this.data.shift( ) }
         let len = this.data.push( point ) 
         
         if ( limit > 0 ) {

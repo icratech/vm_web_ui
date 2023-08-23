@@ -894,7 +894,6 @@ export class Sim {
     }
 }
 
-
 export class Job {
     constructor(
         admins = [ ],
@@ -948,9 +947,11 @@ export class Job {
         } else {
             this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
             this.cht_x_min = this.cht_x_max - 60  // console.log( "this.cht_x_min", this.cht_x_min )
-        }
+        }            
+        // this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
+        // this.cht_x_min = this.cht_x_max  // console.log( "this.cht_x_min", this.cht_x_min )
 
-        this.cht_point_limit = 50
+        this.cht_point_limit = 300
         this.cht_scale_margin = 0.1
         // this.sample = new Sample( )
     }
@@ -1025,7 +1026,6 @@ export class Job {
         
     }
 
-
 }
 
 export const MODE_BUILD_CSS = 'fg-yellow'
@@ -1093,43 +1093,43 @@ const NewChartDataSets = ( ) => {
     return [
 
          /* 0 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Methane", "y_ch4",
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Methane", "y_ch4", true,
             CHART_LINE_WIDTH, RGBA( COLORS.CH4, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.CH4, 0.7 ) 
         ),
 
          /* 1 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "High Flow", "y_hi_flow", 
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "High Flow", "y_hi_flow", true, 
             CHART_LINE_WIDTH, RGBA( COLORS.HI_FLOW, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.HI_FLOW, 0.7 ) 
         ),  
 
          /* 2 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Low Flow", "y_lo_flow", 
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Low Flow", "y_lo_flow", true,
             CHART_LINE_WIDTH,  RGBA( COLORS.LO_FLOW, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.LO_FLOW, 0.7 ) 
         ),
 
          /* 3 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Pressure", "y_press", 
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Pressure", "y_press", true,
             CHART_LINE_WIDTH, RGBA( COLORS.PRESS, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.PRESS, 0.7 ) 
         ),
 
          /* 4 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Battery Amps", "y_bat_amp", 
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Battery Amps", "y_bat_amp", true, 
             CHART_LINE_WIDTH, RGBA( COLORS.BAT_AMP, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.BAT_AMP, 0.7 ) 
         ),
 
          /* 5 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Battery Volts", "y_bat_volt", 
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Battery Volts", "y_bat_volt", true,
             CHART_LINE_WIDTH, RGBA( COLORS.BAT_VOLT, 0.3 ),  
             CHART_MARKER_RADIUS, RGBA( COLORS.BAT_VOLT, 0.7 ) 
         ),
 
          /* 6 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Motor Volts", "y_mot_volt", 
+        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Motor Volts", "y_mot_volt", true,
             CHART_LINE_WIDTH, RGBA( COLORS.MOT_VOLT, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.MOT_VOLT, 0.7 ) 
         )
@@ -1144,19 +1144,19 @@ const NewChartScales = ( ) => {
         
         x: LineChartXScale,
 
-        y_ch4: new LineChartScale( "Ch4 ( % )", 3, 0, 100, "left", 
+        y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
             RGBA( COLORS.CH4, 1.0 ), RGBA( COLORS.CH4, 0.3 ), false 
         ),
         
-        y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 2,  2.5, 250, "left", 
+        y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75,  2.5, 250, "left", 
             RGBA( COLORS.HI_FLOW, 1.0 ), RGBA( COLORS.HI_FLOW, 0.4 ), false 
         ),
         
-        y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, 0.1, 2, "left",
+        y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, -0.1, 2, "left",
             RGBA( COLORS.LO_FLOW, 1.0 ), RGBA( COLORS.LO_FLOW, 0.2 ), true )
          ,
         
-        y_press: new LineChartScale( "Press ( psi )", 0, 0, 1500, "left", 
+        y_press: new LineChartScale( "Press ( psi )", 0, 0, 1000, "left", 
             RGBA( COLORS.PRESS, 1.0 ), RGBA( COLORS.PRESS, 0.3 ), false 
         ),
         
