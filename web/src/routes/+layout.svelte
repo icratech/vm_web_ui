@@ -63,7 +63,7 @@
 <style>
     .main {
         background-color: var(--dark);
-        color: var(--accent);
+        color: var(--grey);
         height: 100vh;
     }
     .layout {

@@ -1,7 +1,7 @@
 <script>
 
     import PillButton from "$lib/common/button/PillButton.svelte"
-    import { Device, AUTH, Sample } from "../../lib/des_api"
+    import { Device, AUTH, Sample, newJob } from "../../lib/des_api"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
     import EventCard from "../../lib/components/event/EventCard.svelte"
     import ConfigCard from "../../lib/components/config/ConfigCard.svelte"
@@ -13,8 +13,14 @@
     $: event = device.job.events[0]  
     $: config = device.job.configs[0]
     $: header = device.job.headers[0]
-    $: active = ( header.hdr_job_end == 0 )
+
+    $: available = header.hdr_job_start == 0
+    $: newJobButtonColor = 'bg-orange'
+    $: newJobButtonText = 'Start'
+
+    $: active = ( header.hdr_job_start > 0 && header.hdr_job_end == 0 )
     $: socketButtonColor = ( device.socket ? 'bg-pink' : 'bg-green_a' )
+
     $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
 
 </script>
@@ -27,6 +33,13 @@
             on:click={ ( ) => { goto( `device/${device.reg.des_dev_serial }` ) } }
             cls={ 'bg-purple_a' }
         >J</PillButton>
+                
+        { #if available }
+        <PillButton 
+            cls={ newJobButtonColor }
+            on:click={ ( ) => { newJob( device ) } }
+        >{ newJobButtonText }</PillButton>
+        { /if }
 
         { #if active }
         <PillButton 

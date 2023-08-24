@@ -13,18 +13,18 @@
 <div class="flx-row container">
 
     <div class="flx-row seg">
-        <dvi >{ ye }</dvi>
+        <div >{ ye }</div>
         <div>-</div>
-        <div class="g">{ mo }</div>
+        <div class="fg-accent">{ mo }</div>
         <div>-</div>
-        <dvi >{ da }</dvi>
+        <div >{ da }</div>
     </div>
     
     <div class="flx-row seg">
         <div >{ hr }</div>
-        <div class="o">:</div>
+        <div class="fg-accent">:</div>
         <div>{ mn }</div>
-        <div class="o">:</div>
+        <div class="fg-accent">:</div>
         <div >{ sc }</div>
     </div>
     
@@ -40,6 +40,4 @@
         justify-content: flex-end;
         gap: 0.15em;
     }
-    .g { color: var(--green_a); }
-    .o { color: var(--green_a); }
 </style>

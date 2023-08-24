@@ -152,7 +152,7 @@ export const get_devices = async( ) => {
             }        
         } )
     } 
-    get( DEVICES ).sort( ( a, b ) => b.reg.des_job_start - a.reg.des_job_start )
+    get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
     DEVICES_LOADED.set( true )
     console.log( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
     console.log( "des_api.js -> get_devices( ) -> DEVICES_LOADED: ", get( DEVICES_LOADED ) )
@@ -268,6 +268,12 @@ export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name`
    console.log(  JSON.stringify( res, null, 4 ))
     return { resp }
 } */
+
+export  const newJob = ( device ) => {
+    console.log( "new job for device: ", device ) 
+    console.log( "send job header: ", device.job.headers[0]) 
+    console.log( "request job data: " ) 
+}
 
 export const load_get_jobs = async( serverLoadEvent ) => {
 
@@ -501,6 +507,140 @@ export class Device {
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/
+
+export class Job {
+    constructor(
+        admins = [ ],
+        headers = [ ],
+        configs = [ ],
+        events = [ ],
+        samples = [ ],
+        xypoints = [ ],
+        reg = new DESRegistration( ),
+    ) {
+        this.admins = admins
+        this.headers = headers
+        this.configs = configs
+        this.events = events
+        this.samples = samples
+        this.xypoints = xypoints
+        this.reg = reg
+        
+        this.geo = new GeoJSONFeature(
+            new GeoJSONGeometry( [ this.reg.des_job_lng, this.reg.des_job_lat ] ),
+            // this.headers[0].hdr_well_name
+            "whatever"
+        )
+        this.geo.geometry.coordinates = [ this.reg.des_job_lng, this.reg.des_job_lat ]
+
+        this.cht = NewChartData( )
+        this.cht_ch4 = this.cht.data.datasets[0]
+        this.cht_ch4.data = this.xypoints.ch4
+
+        this.cht_hi_flow = this.cht.data.datasets[1]
+        this.cht_hi_flow.data = this.xypoints.hi_flow
+        
+        this.cht_lo_flow = this.cht.data.datasets[2]
+        this.cht_lo_flow.data = this.xypoints.lo_flow
+        
+        this.cht_press = this.cht.data.datasets[3]
+        this.cht_press.data = this.xypoints.press
+        
+        this.cht_bat_amp = this.cht.data.datasets[4]
+        this.cht_bat_amp.data = this.xypoints.bat_amp
+        
+        this.cht_bat_volt = this.cht.data.datasets[5]
+        this.cht_bat_volt.data = this.xypoints.bat_volt
+        
+        this.cht_mot_volt = this.cht.data.datasets[6]
+        this.cht_mot_volt.data = this.xypoints.mot_volt
+
+        if ( this.cht_ch4.data ) {
+            this.cht_x_min = this.cht_ch4.data[0].x
+            this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
+        } else {
+            this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
+            this.cht_x_min = this.cht_x_max - 60  // console.log( "this.cht_x_min", this.cht_x_min )
+        }            
+        // this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
+        // this.cht_x_min = this.cht_x_max  // console.log( "this.cht_x_min", this.cht_x_min )
+
+        this.cht_point_limit = 300
+        this.cht_scale_margin = 0.1
+        // this.sample = new Sample( )
+    }
+    
+    /* CHART DATA */
+    updateChartData( ) {
+
+        // if ( this.cht_ch4.data.length > this.cht_point_limit ) {
+        //     this.cht.options.scales.x.min = this.cht_ch4.data[  this.cht_ch4.data.length - this.cht_point_limit ].x
+        // // } else {
+        // //     this.cht.options.scales.x.min = this.sample.smp_time
+        // }
+
+        // this.sample = this.samples[ this.samples.length - 1 ]
+        let sample = this.samples[ this.samples.length - 1 ]
+
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_ch4 },
+            { x: sample.smp_time, y: sample.smp_ch4 },
+            this.cht_ch4, this.cht.options.scales.y_ch4,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_hi_flow },
+            { x: sample.smp_time, y: sample.smp_hi_flow },
+            this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_lo_flow },
+            { x: sample.smp_time, y: sample.smp_lo_flow },
+            this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_press },
+            { x: sample.smp_time, y: sample.smp_press },
+            this.cht_press, this.cht.options.scales.y_press,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_bat_amp },
+            { x: sample.smp_time, y: sample.smp_bat_amp },
+            this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_bat_volt },
+            { x: sample.smp_time, y: sample.smp_bat_volt },
+            this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            // { x: this.sample.smp_time, y: this.sample.smp_mot_volt },
+            { x: sample.smp_time, y: sample.smp_mot_volt },
+            this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+    }
+
+}
 
 /* 
 WEB CLIENT -> HTTP -> DES -> MQTT -> DEVICE  
@@ -885,147 +1025,59 @@ export class Sim {
 	    qty = 1000,
 	    dur = 500,
 	    fillQty = 1,
+        max_ch4 = 92.1 + Math.random( ) * 7.9,
+        max_flow = 0.199 + Math.random( ) * 248.799,
         run = false,
     ) {
         this.qty = qty
         this.dur = dur
         this.fillQty = fillQty
         this.run = run
+        this.max_ch4 = max_ch4
+        this.max_flow = max_flow
+        this.max_press = ( this.max_flow / 250 ) * 1000
+
+        this.modeVent( )
     }
+
+    modeVent( ) {
+        this.mtx_ch4 = new DemoModeTransition( this.max_ch4, 0, 600000, 600000 )
+        this.mtx_hi_flow = new DemoModeTransition( this.max_flow, 0, 600000, 500000 )
+        this.mtx_lo_flow = new DemoModeTransition( ( this.max_flow > 2 ? 2 : this.max_flow ), 0, 600000, 500000 )
+        this.mtx_press = new DemoModeTransition( this.pax_press, 0, 600000, 600000 )
+        // console.log( "modeVent( ):\n", this )
+    }
+
+    modeFlow( ) {
+        this.mtx_ch4 = new DemoModeTransition( 0, this.max_ch4, 600000, 600000 )
+        this.mtx_hi_flow = new DemoModeTransition( 0, this.max_flow, 600000, 500000 )
+        this.mtx_lo_flow = new DemoModeTransition( 0, ( this.max_flow > 2 ? 2 : this.max_flow ), 600000, 500000 )
+        this.mtx_press = new DemoModeTransition( this.pax_press, 0, 600000, 600000 )
+        // console.log( "modeFlow( ):\n", this )
+    }
+
+    modeBuild( ) {
+        this.mtx_ch4 = new DemoModeTransition( this.max_ch4, 0, 600000, 600000 )
+        this.mtx_hi_flow = new DemoModeTransition( this.max_flow, 0, 600000, 500000 )
+        this.mtx_lo_flow = new DemoModeTransition( ( this.max_flow > 2 ? 2 : this.max_flow ), 600000, 500000 )
+        this.mtx_press = new DemoModeTransition( 0, this.pax_press, 600000, 600000 )
+        // console.log( "modeBuild( ):\n", this )
+    }
+
 }
 
-export class Job {
+export class DemoModeTransition {
     constructor(
-        admins = [ ],
-        headers = [ ],
-        configs = [ ],
-        events = [ ],
-        samples = [ ],
-        xypoints = [ ],
-        reg = new DESRegistration( ),
+        v_min = 0,
+        v_max = 0,
+        span_up = 10000,
+        span_dn = 10000,
     ) {
-        this.admins = admins
-        this.headers = headers
-        this.configs = configs
-        this.events = events
-        this.samples = samples
-        this.xypoints = xypoints
-        this.reg = reg
-        
-        this.geo = new GeoJSONFeature(
-            new GeoJSONGeometry( [ this.reg.des_job_lng, this.reg.des_job_lat ] ),
-            // this.headers[0].hdr_well_name
-            "whatever"
-        )
-        this.geo.geometry.coordinates = [ this.reg.des_job_lng, this.reg.des_job_lat ]
-
-        this.cht = NewChartData( )
-        this.cht_ch4 = this.cht.data.datasets[0]
-        this.cht_ch4.data = this.xypoints.ch4
-
-        this.cht_hi_flow = this.cht.data.datasets[1]
-        this.cht_hi_flow.data = this.xypoints.hi_flow
-        
-        this.cht_lo_flow = this.cht.data.datasets[2]
-        this.cht_lo_flow.data = this.xypoints.lo_flow
-        
-        this.cht_press = this.cht.data.datasets[3]
-        this.cht_press.data = this.xypoints.press
-        
-        this.cht_bat_amp = this.cht.data.datasets[4]
-        this.cht_bat_amp.data = this.xypoints.bat_amp
-        
-        this.cht_bat_volt = this.cht.data.datasets[5]
-        this.cht_bat_volt.data = this.xypoints.bat_volt
-        
-        this.cht_mot_volt = this.cht.data.datasets[6]
-        this.cht_mot_volt.data = this.xypoints.mot_volt
-
-        if ( this.cht_ch4.data ) {
-            this.cht_x_min = this.cht_ch4.data[0].x
-            this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
-        } else {
-            this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
-            this.cht_x_min = this.cht_x_max - 60  // console.log( "this.cht_x_min", this.cht_x_min )
-        }            
-        // this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
-        // this.cht_x_min = this.cht_x_max  // console.log( "this.cht_x_min", this.cht_x_min )
-
-        this.cht_point_limit = 300
-        this.cht_scale_margin = 0.1
-        // this.sample = new Sample( )
+        this.v_min = v_min
+        this.v_max = v_max
+        this.span_up = span_up
+        this.span_dn = span_dn
     }
-    
-    /* CHART DATA */
-    updateChartData( ) {
-
-        // if ( this.cht_ch4.data.length > this.cht_point_limit ) {
-        //     this.cht.options.scales.x.min = this.cht_ch4.data[  this.cht_ch4.data.length - this.cht_point_limit ].x
-        // // } else {
-        // //     this.cht.options.scales.x.min = this.sample.smp_time
-        // }
-
-        // this.sample = this.samples[ this.samples.length - 1 ]
-        let sample = this.samples[ this.samples.length - 1 ]
-
-        this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_ch4 },
-            { x: sample.smp_time, y: sample.smp_ch4 },
-            this.cht_ch4, this.cht.options.scales.y_ch4,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_hi_flow },
-            { x: sample.smp_time, y: sample.smp_hi_flow },
-            this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_lo_flow },
-            { x: sample.smp_time, y: sample.smp_lo_flow },
-            this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_press },
-            { x: sample.smp_time, y: sample.smp_press },
-            this.cht_press, this.cht.options.scales.y_press,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_bat_amp },
-            { x: sample.smp_time, y: sample.smp_bat_amp },
-            this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_bat_volt },
-            { x: sample.smp_time, y: sample.smp_bat_volt },
-            this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_mot_volt },
-            { x: sample.smp_time, y: sample.smp_mot_volt },
-            this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-    }
-
 }
 
 export const MODE_BUILD_CSS = 'fg-yellow'

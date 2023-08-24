@@ -34,7 +34,7 @@
         <div class="flx-row card-title">        
             <div class="flx-row seg">
                 <h4 class="g">SN:</h4>
-                <h4>SN: { demo.dev.reg.des_dev_serial }</h4>
+                <h4>{ demo.dev.reg.des_dev_serial }</h4>
             </div>
 
             <div class="flx-row seg">
@@ -75,7 +75,24 @@
 
     </div>
 
-    <div class="flx-col"></div>
+    <div class="flx-col card">
+
+        <PillButton 
+            cls={ 'bg-red' }
+            on:click={ ( ) => { demo.sim.modeVent( ) } }
+        >V</PillButton>
+
+        <PillButton 
+            cls={ 'bg-aqua' }
+            on:click={ ( ) => { demo.sim.modeFlow( ) } }
+        >F</PillButton>
+
+        <PillButton 
+            cls={ 'bg-yellow' }
+            on:click={ ( ) => { demo.sim.modeBuild( ) } }
+        >B</PillButton>
+
+    </div>
 
 </div>
 
