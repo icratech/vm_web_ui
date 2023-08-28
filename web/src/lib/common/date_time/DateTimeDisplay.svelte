@@ -1,10 +1,10 @@
 
 <script>
     export let date = 0
-    export let d = new Date(date)
+    $: d = new Date( date )
     $: ye = d.getFullYear()
     $: mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(date);
-    $: da = d.getDay()
+    $: da = d.getDate()
     $: hr =  String(d. getHours()). padStart(2, "0")
     $: mn = String(d. getMinutes()). padStart(2, "0")
     $: sc = String(d. getSeconds()). padStart(2, "0")

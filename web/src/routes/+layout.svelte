@@ -7,6 +7,8 @@
     import { AUTH, get_user, get_users, get_event_types, DEVICES, DEMO_DEVICES, USERS, EVENT_TYPES } from '../lib/des_api';
     import Header from './Header.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
+    import btn_img_home from "$lib/images/btn-img-home.svg"
+    import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
 
     onMount( async( ) => {
 
@@ -15,11 +17,11 @@
         }
 
         let users = await get_users( ) 
-        console.log( `layout.svelte -> onMount( ):  get_users( ): users\n${ JSON.stringify( users, null, 4 ) }` )
+        // console.log( `layout.svelte -> onMount( ):  get_users( ): users\n${ JSON.stringify( users, null, 4 ) }` )
         sessionStorage.setItem( "users", JSON.stringify( users ) ) // users = JSON.parse( sessionStorage.users )  // console.log( `layout.svelte -> sessionStorage: users\n${  JSON.stringify( users, null, 4 )  }` )
 
         let event_types = await get_event_types( )
-        console.log( `layout.svelte -> onMount( ):  get_event_types( ): event_types\n${ JSON.stringify( event_types, null, 4 ) }` )
+        // console.log( `layout.svelte -> onMount( ):  get_event_types( ): event_types\n${ JSON.stringify( event_types, null, 4 ) }` )
         sessionStorage.setItem( "event_types", JSON.stringify( event_types ) ) // event_types = JSON.parse( sessionStorage.event_types ) // console.log( `layout.svelte -> sessionStorage: event_types\n${  JSON.stringify( event_types, null, 4 )  }` )
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
@@ -30,6 +32,7 @@
         } 
     } )
 
+    const src = '$lib/space.jpg'
 </script>
 
 <div class="flx-col main">
@@ -41,14 +44,14 @@
         <div class="flx-col nav">
 
             <div class="flx-col">
-                <PillButton on:click={ ( ) => { goto( '/' ) } } cls='bg-green_a'>H</PillButton>
-                <PillButton on:click={ ( ) => { goto( '/device' ) } } cls='bg-green_a'>D</PillButton>
-                <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-green_a'>J</PillButton>
+                <PillButton on:click={ ( ) => { goto( '/' ) } } cls='bg-accent' img={ btn_img_home } hint={ null } />
+                <PillButton on:click={ ( ) => { goto( '/device' ) } } cls='bg-accent' img={ btn_img_gauge } hint={ 'Device list' }  />
+                <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-accent'  hint={ 'Job list' } />
             </div>
 
             { #if $AUTH.role == "admin" }
             <div class="flx-col">
-                <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple_a'>A</PillButton>
+                <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple'  hint={ "If you don't know..." } />
             </div>
             { /if }
         </div>
@@ -62,7 +65,18 @@
 </div>
 <style>
     .main {
-        background-color: var(--dark);
+        /* background-color: var(--dark); */
+        background-image: url( "$lib/images/bg-img-light.png" );
+        /* background-image: url( "$lib/images/bg-img-red.png" ); */
+        /* background-image: url( "$lib/images/bg-img-orange.png" ); */
+        /* background-image: url( "$lib/images/bg-img-yellow.png" ); */
+        /* background-image: url( "$lib/images/bg-img-green.png" ); */
+        /* background-image: url( "$lib/images/bg-img-aqua.png" ); */
+        background-image: url( "$lib/images/bg-img-blue.png" );
+        /* background-image: url( "$lib/images/bg-img-purple.png" ); */
+        /* background-image: url( "$lib/images/bg-img-pink.png" ); */
+        /* background-image: url( "$lib/images/bug.jpg" );
+        background-size: cover; */
         color: var(--grey);
         height: 100vh;
     }

@@ -25,6 +25,8 @@
     $: filter = true
     $: filterButtonText = ( filter ? "^" : "v" )
 
+
+
 </script>
 
 <div class="flx-col search-panel">
@@ -32,15 +34,17 @@
     <div class="flx-row search">
 
         <PillButton
-            cls={ 'bg-purple_a' }
-        >?</PillButton>
+            cls={ 'bg-purple' }
+            hint={ 'More filters' } 
+        />
 
         <InputText 
             enabled={ true }
         />
         <PillButton
-            cls={ 'bg-aqua_a' }
-        >{ filterButtonText }</PillButton>
+            cls={ 'bg-grey' }
+            hint={ 'Reset filters' } 
+        />
 
     </div>
 
@@ -57,15 +61,15 @@
 <style>
 
     .search-panel {
-        border-top: solid 0.05em var(--grey_aa);
-        border-right: solid 0.05em var(--grey_aa);
-        background-color: var(--light_aa);
         border-radius: 0.5em;
         padding: 1em;
         max-width: 38em;
         min-width: 38em;
         height:100%;
-        overflow: hidden;
+        /* overflow-y: hidden; */
+        background-color: var(--light_aa);
+        border-bottom: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01);
     }
 
     .search {
@@ -75,10 +79,10 @@
 
     .filters {
         height: 35em;
-        background-color: var(--dark);
         padding: 0.5rem;
         border-radius: 0.5em;
-        border-bottom: solid 0.05em var(--grey_aa);
-        border-left: solid 0.05em var(--grey_aa);
+        background-color: var(--light_aa);
+        border-bottom: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01);
     }
 </style>

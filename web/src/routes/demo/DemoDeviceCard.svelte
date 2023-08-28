@@ -11,7 +11,7 @@
 
     export let demo_device = new DemoDevice( )
     $: demo = demo_device
-    $: simButtonColor = ( demo.sim.run ? 'bg-pink' : 'bg-green' )
+    $: simButtonColor = ( demo.sim.run ? 'bg-pink' : 'bg-accent' )
 
 </script>
 
@@ -33,22 +33,22 @@
                         
         <div class="flx-row card-title">        
             <div class="flx-row seg">
-                <h4 class="g">SN:</h4>
+                <h4 class="fg-accent">SN:</h4>
                 <h4>{ demo.dev.reg.des_dev_serial }</h4>
             </div>
 
             <div class="flx-row seg">
                 <div class="sml">class</div>
-                <div class="g">{ demo.dev.reg.des_dev_class }</div>
+                <div class="fg-accent">{ demo.dev.reg.des_dev_class }</div>
                 <div class="sml">version</div>
-                <div class="g">{ demo.dev.reg.des_dev_version }</div>
+                <div class="fg-accent">{ demo.dev.reg.des_dev_version }</div>
             </div>
         </div>
 
         <div class="flx-col card-content">
 
             <InputNum lbl="How many samples are we simulating?"
-                cls={ 'fg-aqua'}
+                cls={ 'fg-accent'}
                 right={true}
                 enabled={true}
                 is_integer={true}
@@ -56,7 +56,7 @@
             />
 
             <InputNum lbl="How many milliseconds between samples?"
-                cls={ 'fg-aqua'}
+                cls={ 'fg-accent'}
                 right={true}
                 enabled={true}
                 is_integer={true}
@@ -64,7 +64,7 @@
             />
 
             <InputNum lbl="How many samples do we want interpolated between each sample?"
-                cls={ 'fg-aqua'}
+                cls={ 'fg-accent'}
                 right={true}
                 enabled={true}
                 is_integer={true}
@@ -80,17 +80,17 @@
         <PillButton 
             cls={ 'bg-red' }
             on:click={ ( ) => { demo.sim.modeVent( ) } }
-        >V</PillButton>
+            />
 
         <PillButton 
             cls={ 'bg-aqua' }
             on:click={ ( ) => { demo.sim.modeFlow( ) } }
-        >F</PillButton>
+            />
 
         <PillButton 
             cls={ 'bg-yellow' }
             on:click={ ( ) => { demo.sim.modeBuild( ) } }
-        >B</PillButton>
+            />
 
     </div>
 
@@ -101,14 +101,14 @@
     
     .container{
         justify-content: space-between;
-        background-color: var(--light_aa);
         border-radius: 0.5em;
         /* border-top-left-radius: 2em;
         border-bottom-left-radius: 2em; */
         padding: 0 1em;
         gap: 1em;
-        border-top: solid 0.05em var(--grey_aa);
-        border-right: solid 0.05em var(--grey_aa);
+        background-color: var(--light_aa);
+        border-bottom: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01);
     }
     .btns {
         width: 3.5em;
@@ -120,9 +120,6 @@
         justify-content: flex-end;
         gap: 1em;
     }
-    .g { color: var(--aqua_aa); }
-
-
 </style>
 
 

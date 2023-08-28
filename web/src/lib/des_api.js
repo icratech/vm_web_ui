@@ -1,6 +1,18 @@
 import { writable, get } from 'svelte/store'
 import mapboxgl from 'mapbox-gl'
 
+export const openModals = ( initial ) => {
+    const isOpen = writable( initial )
+    const { set, update } = isOpen
+    return {
+        isOpen,
+        open: ( ) => set( true ),
+        close: ( ) => set( false ),
+        toggle: ( ) => update( ( n ) => !n ),
+    }
+}
+
+
 export const AUTH = writable( { } )
 export const USERS = writable( [ ] )
 export const EVENT_TYPES = writable( [ ] )
@@ -105,6 +117,7 @@ export const get_event_types = async( ) => {
 }
 
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
+export const API_URL_C001_V001_DEVICE_START =  `${ HTTP_SERVER }/api/001/001/device/start`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
@@ -268,12 +281,6 @@ export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name`
    console.log(  JSON.stringify( res, null, 4 ))
     return { resp }
 } */
-
-export  const newJob = ( device ) => {
-    console.log( "new job for device: ", device ) 
-    console.log( "send job header: ", device.job.headers[0]) 
-    console.log( "request job data: " ) 
-}
 
 export const load_get_jobs = async( serverLoadEvent ) => {
 
@@ -504,6 +511,43 @@ export class Device {
         this.update( )
     }
 
+    startJob = async( adm, hdr, cfg ) => {
+        console.log( "Start new job for device: ", this.reg.des_dev_serial ) 
+
+        let au = get( AUTH )
+
+        let job = {
+            admins: [ adm ],
+            headers: [ hdr ],
+            configs: [ cfg ],
+            reg: this.reg
+        }
+        console.log( job ) 
+
+        console.log( "Send Job..." ) 
+        let req = new Request( API_URL_C001_V001_DEVICE_START, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( job )
+        } )
+        let res = await fetch( req )
+        reg = await res.json( )
+        console.log("des_api.js -> device.startJob( ) ->  RESPONSE reg:\n", reg )
+
+        console.log( "Get job data..." ) 
+        await get_devices( )
+    }
+
+    endJob = ( user ) => {
+        console.log( "ending current job: ", this.reg ) 
+        console.log( "send job header: ", this.job.headers[0]) 
+        console.log( "update job data: " ) 
+        return true
+    }
+
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/
@@ -655,7 +699,7 @@ export class Admin {
         adm_time = 0,
         adm_addr = "",
         adm_user_id = "",
-        adm_app =client_app,
+        adm_app = client_app,
     
         adm_def_host = "",
         adm_def_port = 0,
@@ -757,7 +801,7 @@ export class Header {
         hdr_time = 0, 
         hdr_addr = "",  
         hdr_user_id = "",
-        hdr_app = "",
+        hdr_app =  client_app,
     
         /*WELL INFORMATION*/
         hdr_well_co = "", 
@@ -809,14 +853,14 @@ export class Config {
         cfg_time = 0, 
         cfg_addr = "",  
         cfg_user_id = "",
-        cfg_app = "",
+        cfg_app =  client_app,
     
         cfg_scvd = 596.8, // m
         cfg_scvd_mult = 10.5, // kPa / m
         cfg_ssp_rate = 1.95, // kPa / hour
         cfg_ssp_dur = 6.0, // hour
         cfg_hi_scvf = 201.4, //  L/min ( 290 m3/day )
-        cfg_flow_tog = 1.75, //  L/min 
+        cfg_flow_tog = 1.85, //  L/min 
     
         cfg_vlv_tgt = 2, // vent
         cfg_vlv_pos = 2, // vent

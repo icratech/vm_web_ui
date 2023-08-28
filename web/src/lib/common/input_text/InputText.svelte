@@ -56,13 +56,13 @@
 
     input {
         color: var(--light);
-        background-color: var(--dark);
+        background-color: var(--aqua_01);
         padding: 0.5rem;
         border-radius: 0.5rem;
-        border-top: solid 0.05em var(--dark);
-        border-right: solid 0.05em var(--dark);
-        border-bottom: solid 0.05em var(--grey_aa);
-        border-left: solid 0.05em var(--grey_aa);
+        /* border-top: solid 0.05em var(--dark); */
+        border-right: solid 0.05em var(--light_01);
+        border-bottom: solid 0.05em var(--light_01);
+        /* border-left: solid 0.05em var(--dark); */
         width: 100%;
     }
 

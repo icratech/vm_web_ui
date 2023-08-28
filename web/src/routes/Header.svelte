@@ -83,7 +83,8 @@
             <PillButton 
                 cls={ loginButtonColor }
                 on:click={ loginButtonFunc }
-            >{ loginButtonText }</PillButton>
+                hint={ null } 
+            />
         </div>
 
 
@@ -95,6 +96,8 @@
 <style>
     .container {
         background-color: var(--light_aa);
+        border-bottom: solid 0.05em var(--light_01);
+        /* border-right: solid 0.05em var(--light_01); */
         padding-left: 1em;
         padding-right: 2em;
         justify-content: space-between;
@@ -117,16 +120,16 @@
     }
 	.wat {
         font-size: 1.8rem;
-        color: var(--light);
+        color: var(--grey);
     }
     .ch {
         font-size: 1.8rem;
-        color: var(--accent);
+        color: var(--accent_a);
     }
 	.four {
 		font-size: 0.6em;
         font-weight: 300;
-        color: var(--accent);
+        color: var(--accent_a);
 	}
 
     .subtitle {
@@ -160,10 +163,13 @@
 
     input {
         color: var(--light);
-        background-color: var(--dark);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.2rem;
-		border: 0.1rem solid var(--light_a);
+        background-color: var(--light_aa);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        /* border-top: solid 0.05em var(--dark); */
+        border-right: solid 0.05em var(--light_01);
+        border-bottom: solid 0.05em var(--light_01);
+        /* border-left: solid 0.05em var(--dark); */
         width: 100%;
     }
 

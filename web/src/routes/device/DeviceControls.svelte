@@ -1,12 +1,22 @@
 <script>
 
     import { onMount } from 'svelte'
-    import { DEVICES, Device, AUTH, Sample, Config, Event, newJob } from "../../lib/des_api"
+    import { createEventDispatcher } from 'svelte'
+    const dispatch = createEventDispatcher( )
+
+
+    import { DEVICES, Device, AUTH, Sample, Config, Event } from "../../lib/des_api"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
-    import HeaderPanel from '../../lib/components/header/HeaderPanel.svelte'
+    import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
     import EventCard from "../../lib/components/event/EventCard.svelte"
     import ConfigCard from "../../lib/components/config/ConfigCard.svelte"
+    
     import PillButton from '../../lib/common/button/PillButton.svelte'
+    import btn_img_start from "$lib/images/btn-img-start.svg"
+    import btn_img_config from "$lib/images/btn-img-config.svg"
+    import btn_img_stop from "$lib/images/btn-img-stop.svg"
+    import btn_img_watch from "$lib/images/btn-img-view.svg"
+    
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
     import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
@@ -18,11 +28,16 @@
     $: header = device.job.headers[0]
 
     $: available = header.hdr_job_start == 0
-    $: newJobButtonColor = 'bg-orange'
-    $: newJobButtonText = 'Start'
+    $: pending = header.hdr_job_start == -1
+    $: jobStartColor = ( pending ? 'bg-yellow' : 'bg-green' )
+    $: jobStartText = ( pending ? 'Pending Job' : 'Start Job' )
+    $: jobStartIcon = ( pending ? null : btn_img_config )
+    // $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connecte ws if not connected?") : device.startJob( $AUTH ) ) }
+    $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connecte ws if not connected?") : dispatch( 'start' ) ) }
 
     $: active = ( header.hdr_job_start > 0 && header.hdr_job_end == 0 )
-    $: socketButtonColor = ( device.socket ? 'bg-pink' : 'bg-accent' ) 
+    $: socketButtonColor = ( device.socket ? 'bg-green' : 'bg-purple' )
+    $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
     $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
 
@@ -48,23 +63,6 @@
 <div class="flx-col container">
 
     <div class="flx-row title">     
-                
-        { #if available }
-        <PillButton 
-            cls={ newJobButtonColor }
-            on:click={ ( ) => { newJob( device ) } }
-        >{ newJobButtonText }</PillButton>
-        { /if }
-
-        { #if active }
-        <PillButton 
-            cls={ socketButtonColor }
-            on:click={ ( ) => {  
-                ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) 
-                console.log( "device.socket: ", device.socket )
-            } }
-        >Live</PillButton>
-        { /if }
 
         <div class="flx-row">
             <h3 class="fg-accent">SN:</h3>
@@ -80,57 +78,45 @@
                 <div class="fg-accent">{ device.reg.des_dev_version }</div>
             </div>
         </div>
-    </div>
 
-    <!-- <div class="flx-row"> -->
+        <div class="flx-row btns">
 
-        <div class="flx-row tabs">
-
-            <PillButton
-                cls={ 'bg-purple_a' }
-            >?</PillButton>
-    
-            <PillButton
-                cls={ 'bg-blue' }
-            >?</PillButton>
-    
-            <PillButton
-                cls={ 'bg-aqua_a' }
-            >?</PillButton>
-    
-            <PillButton
-                cls={ 'bg-green' }
-            >?</PillButton>
-    
-            <PillButton
-                cls={ 'bg-yellow' }
-            >?</PillButton>
-    
-            <PillButton
-                cls={ 'bg-orange' }
-            >?</PillButton>
-    
-            <PillButton
-                cls={ 'bg-red' }
-            >?</PillButton>
-    
-        </div>
-    
-        <div class="flx-col cards">
-
-            <!-- <div class="flx-col card">
-                <BarGaugeCard bind:smp={ smp }/>
-            </div> -->
-    
-            <HeaderPanel bind:header={ header } />
-            <!-- <ConfigCard bind:config={config} /> -->
+            { #if available || pending }
+            <PillButton 
+                cls={ jobStartColor }
+                on:click={ jobStartFunc }
+                img={ jobStartIcon }
+                hint={ jobStartText }
+            />
+            { /if }
         
-            <!-- <EventCard bind:event={event} title="Last event" /> -->
-    
-        </div>
-    
-    <!-- </div> -->
+            { #if active }
+            <PillButton 
+                cls={ 'bg-red' }
+                on:click={ ( ) => { device.endJob( $AUTH ) } }
+                img={ btn_img_stop }
+                hint={ 'End Job' } 
+            />
+            <PillButton 
+                cls={ socketButtonColor }
+                on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
+                img={ btn_img_watch }
+                hint={ socketButtonText } 
+            />
+            { /if }  
 
+        </div> 
+
+    </div>
+                
+    <div class="flx-col cards">
+
+        <BarGaugeCard bind:smp={ smp }/>
+
+        <HeaderCard bind:header={ header } />
+
+    </div>
+    
     <div class="map-container" use:makeMap></div>
 
 </div>
@@ -138,21 +124,18 @@
 <style>
 
     .container {
-        border-top: solid 0.05em var(--grey_aa);
-        border-right: solid 0.05em var(--grey_aa);
-        background-color: var(--light_aa);
         border-radius: 0.5em;
         padding: 1em;
         max-width: 38em;
         min-width: 38em;
         height:100%;
-        overflow: hidden;
+        background-color: var(--light_aa);
+        border-bottom: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01);
     }
 
     .title {
         justify-content: space-between;
-        padding: 0;
-        width: 18em;
     }
     .cv {
         width: auto;
@@ -161,11 +144,10 @@
         gap: 0em;
     }
 
-    .tabs {
-        /* justify-content: flex-end; */
+    .btns {
+        
         align-items: center;
-        width: 2.5em;
-        padding: 0;
+        justify-content: flex-end;
     }
 
 </style>

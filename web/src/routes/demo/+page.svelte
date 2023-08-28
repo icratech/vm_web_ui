@@ -38,7 +38,8 @@
         <PillButton 
             cls='bg-accent'
             on:click={ async( ) => { await register_device( serial ); $DEVICES_LOADED= false } }
-        >GO</PillButton>
+            hint={ null } 
+        />
 
         <div class="flx-col input-container">
             <label class="lbl">
@@ -90,10 +91,13 @@
 
     input {
         color: var(--light);
-        background-color: var(--dark);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.2rem;
-		border: 0.1rem solid var(--light_a);
+        background-color: var(--aqua_01);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        /* border-top: solid 0.05em var(--dark); */
+        border-right: solid 0.05em var(--light_01);
+        border-bottom: solid 0.05em var(--light_01);
+        /* border-left: solid 0.05em var(--dark); */
         width: 100%;
     }
 

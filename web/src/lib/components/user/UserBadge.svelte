@@ -30,8 +30,8 @@
         padding: 0.25em 1.5em;
         border-radius: 2em;
         gap: 3em;
-        background-color: var(--dark);
-        border-bottom: solid 0.05em var(--grey_aa);
-        border-left: solid 0.05em var(--grey_aa);
+        background-color: var(--light_aa);
+        border-bottom: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01);
     }
 </style>

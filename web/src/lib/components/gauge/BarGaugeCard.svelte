@@ -44,13 +44,13 @@
 
 <style>
     .container {
-        background-color: var(--dark);
         justify-content: center;
         padding: 2em 1em;
         border-radius: 0.5em;
         gap: 0;
         height: 100%;
-        border-bottom: solid 0.05em var(--grey_aa);
-        border-left: solid 0.05em var(--grey_aa);
+        background-color: var(--light_aa);
+        border-bottom: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01);
     }
 </style>

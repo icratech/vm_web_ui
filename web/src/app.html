@@ -50,17 +50,14 @@
                 padding: 1em;
             }
 
-            input:focus { outline: 0.1rem solid var(--accent_a); outline-offset: 0.15rem; }
+            input:focus { outline: 0.05rem solid var(--accent_aa); outline-offset: 0.15rem; }
 
             .radio:focus { outline: 0.0rem solid transparent; outline-offset: 0.15rem; }
 
             
             .map-container {
                 height: 100%;
-                /* border-bottom: solid 0.05em var(--dark_a);
-                border-left: solid 0.05em var(--dark_a); */
-                border: solid 0.05em var(--dark_a);
-                background-color: var(--aqua_aa);
+                background-color: var(--aqua_a);
                 border-radius: 0.5em;
                 position: relative;
             }
@@ -87,8 +84,8 @@
                 justify-content: center;
                 cursor: pointer;
                 border-radius: 1.25em;
-                border-top: solid 0.15em var(--grey_aa);
-                border-right: solid 0.15em var(--grey_aa);
+                border-bottom: solid 0.15em var(--light_01);
+                border-right: solid 0.15em var(--light_01);
 
                 min-width: 2.5em;
                 width: 2.5em;
@@ -125,9 +122,9 @@
                 padding: 1em 0;
             }
             .flx-col.card-content {
-                background-color: var(--dark);
-                border-bottom: solid 0.05em var(--grey_aa);
-                border-left: solid 0.05em var(--grey_aa);
+                background-color: var(--light_002);
+                border-bottom: solid 0.05em var(--light_01);
+                border-right: solid 0.05em var(--light_01);
                 padding: 1em;
                 border-radius: 0.5em;
                 gap: 0.5em;
@@ -178,9 +175,19 @@
 
             :root {
                 --gap: 1.5em;
-                --dark: rgb(40, 40, 40);
-                --dark_a: rgb(40, 40, 40, 0.7);
-                --dark_aa: rgb(40, 40, 40, 0.4);
+
+                --dark: rgb(30, 30, 30);
+                --dark_a: rgb(30, 30, 30, 0.7);
+                --dark_aa: rgb(30, 30, 30, 0.4);
+                --dark_09: rgb(30, 30, 30, 0.9);
+                --dark_08: rgb(30, 30, 30, 0.8);
+                --dark_07: rgb(30, 30, 30, 0.7);
+                --dark_06: rgb(30, 30, 30, 0.6);
+                --dark_05: rgb(30, 30, 30, 0.5);
+                --dark_04: rgb(30, 30, 30, 0.4);
+                --dark_03: rgb(30, 30, 30, 0.3);
+                --dark_02: rgb(30, 30, 30, 0.2);
+                --dark_01: rgb(30, 30, 30, 0.1);
 
                 --grey: rgb(175, 175, 175);
                 --grey_a: rgb(175, 175, 175, 0.7);
@@ -188,7 +195,13 @@
 
                 --light: rgb(230, 230, 230);
                 --light_a: rgb(230, 230, 230, 0.7);
-                --light_aa: rgb(230, 230, 230, 0.03);
+                --light_aa: rgb(230, 230, 230, 0.015);
+                --light_02: rgb(230, 230, 230, 0.2);
+                --light_01: rgb(230, 230, 230, 0.1);
+                --light_005: rgb(230, 230, 230, 0.05);
+                --light_004: rgb(230, 230, 230, 0.04);
+                --light_003: rgb(230, 230, 230, 0.03);
+                --light_002: rgb(230, 230, 230, 0.02);
 
                 --red: rgb(220, 25, 60);
                 --red_a: rgb(220, 25, 60, 0.7);
@@ -209,10 +222,10 @@
                 --aqua: rgb(50, 230, 230);
                 --aqua_a: rgb(50, 230, 230, 0.7);
                 --aqua_aa: rgb(50, 230, 230, 0.5);
-                --aqua_01: rgb(50, 230, 230, 0.1);
+                --aqua_01: rgb(50, 230, 230, 0.075);
 
                 --blue: rgb(10, 120, 230);
-                --blue_a: rgba(110, 120, 230, 0.7);
+                --blue_a: rgba(10, 120, 230, 0.7);
                 --blue_aa: rgba(10, 120, 230, 0.4);
 
                 --purple: rgb(160, 70, 240);
@@ -237,15 +250,20 @@
                 --accent_aa: var(--aqua_aa);
                 --accent_fg: var(--dark);
 
-                --accent: var(--green);
+                /* --accent: var(--green);
                 --accent_a: var(--green_a);
                 --accent_aa: var(--green_aa);
-                --accent_fg: var(--dark);
+                --accent_fg: var(--light_a);
+                 */
+                /* --accent: var(--orange);
+                --accent_a: var(--orange_a);
+                --accent_aa: var(--orange_aa);
+                --accent_fg: var(--light_a); */
                 
                 /* --accent: var(--grey);
                 --accent_a: var(--grey_a);
                 --accent_aa: var(--grey_aa);
-                --accent_fg: var(--dark); */
+                --accent_fg: var(--light_a); */
 
             }
 
