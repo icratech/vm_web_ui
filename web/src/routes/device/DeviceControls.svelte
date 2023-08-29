@@ -28,15 +28,15 @@
     $: header = device.job.headers[0]
 
     $: available = header.hdr_job_start == 0
-    $: pending = header.hdr_job_start == -1
+    $: pending = header.hdr_job_end == -1
     $: jobStartColor = ( pending ? 'bg-yellow' : 'bg-green' )
     $: jobStartText = ( pending ? 'Pending Job' : 'Start Job' )
     $: jobStartIcon = ( pending ? null : btn_img_config )
-    // $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connecte ws if not connected?") : device.startJob( $AUTH ) ) }
-    $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connecte ws if not connected?") : dispatch( 'start' ) ) }
+    // $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connect ws if not connected?") : device.startJob( $AUTH ) ) }
+    $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connect ws if not connected?") : dispatch( 'start' ) ) }
 
     $: active = ( header.hdr_job_start > 0 && header.hdr_job_end == 0 )
-    $: socketButtonColor = ( device.socket ? 'bg-green' : 'bg-purple' )
+    $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
     $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
@@ -48,7 +48,7 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
             center: device.job.geo.geometry.coordinates,
-            zoom : 5.5
+            zoom : ( active ? 5.5 : 1 )
         } )
         
         const el = document.createElement('div')

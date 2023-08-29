@@ -516,6 +516,11 @@ export class Device {
 
         let au = get( AUTH )
 
+        this.reg.des_job_reg_app = client_app
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_lng = -180
+        this.reg.des_job_lat = 90
+
         let job = {
             admins: [ adm ],
             headers: [ hdr ],
@@ -816,8 +821,8 @@ export class Header {
         hdr_job_end = 0,
 
         /*GEO LOCATION - USED TO POPULATE A GeoJSON OBJECT */
-        hdr_geo_lng = -115.000000,
-        hdr_geo_lat = 55.000000
+        hdr_geo_lng = 0,
+        hdr_geo_lat = 0
     ) {
         this.hdr_id = hdr_id
         
