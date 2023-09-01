@@ -533,15 +533,26 @@ export class Device {
         console.log( "Start new job for device: ", this.reg.des_dev_serial ) 
 
         let au = get( AUTH )
-        this.reg.des_job_reg_app = client_app
+
+        this.adm.adm_user_id = au.id
+        this.adm.adm_app = client_app
+
+        this.cfg.cfg_user_id = au.id
+        this.cfg.cfg_app = client_app
+
+        this.hdr.hdr_user_id = au.id
+        this.hdr.hdr_app = client_app
+
         this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+
         let dev = {
             adm: this.adm,
             hdr: this.hdr,
             cfg: this.cfg,
             reg: this.reg
         }
-        console.log( "Send Start Job Request:\n", dev ) 
+        console.log( "Send START JOB Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_START, { 
             method: "POST",
@@ -552,7 +563,7 @@ export class Device {
             body: JSON.stringify( dev )
         } )
         let res = await fetch( req )
-        reg = await res.json( )
+        let reg = await res.json( )
         console.log("des_api.js -> device.startJob( ) ->  RESPONSE reg:\n", reg )
     }
 
@@ -562,7 +573,7 @@ export class Device {
         let au = get( AUTH )
         this.reg.des_job_reg_app = client_app
         this.reg.des_job_reg_user_id = au.id
-        console.log( "Send Start Job Request:\n", this.reg ) 
+        console.log( "Send END JOB Request:\n", this.reg ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_END, { 
             method: "POST",
@@ -573,10 +584,30 @@ export class Device {
             body: JSON.stringify( this.reg )
         } )
         let res = await fetch( req )
-        reg = await res.json( )
-        console.log("des_api.js -> device.endJob( ) ->  RESPONSE reg:\n", reg )
+        let reg = await res.json( )
+        console.log(`des_api.js -> device.endJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
     }
 
+    getJob = async( job_name = this.hdr.hdr_job_name ) => {
+        console.log( `Get job: ${ job_name } for device: ${ this.reg.des_dev_serial }`, ) 
+        let au = get( AUTH )
+        this.reg.des_job_reg_app = client_app
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_name = job_name 
+        console.log( "Send GET JOB Request:\n", this.reg ) 
+
+        let req = new Request( "", {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( this.reg )
+        } )
+        let res = await fetch( req )
+        let reg = await res.json( )
+        console.log(`des_api.js -> device.getJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
+    }
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/
