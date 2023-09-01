@@ -12,15 +12,14 @@
 
     export let device = new Device( )
 
-    $: event = device.job.events[0]  
-    $: config = device.job.configs[0]
-    $: header = device.job.headers[0]
+    $: event = device.evt  
+    $: config = device.cfg
+    $: header = device.hdr
+    $: smp = ( device.smp ? device.smp : new Sample( ) )
 
     $: active = ( header.hdr_job_start > 0 && header.hdr_job_end == 0 )
-    $: socketButtonColor = ( device.socket ? 'bg-green' : 'bg-purple' )
-    $: socketButtonText = ( device.socket ? 'Disconnect' : 'Connect' )
-
-    $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
+    $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
+    $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
 </script>
 

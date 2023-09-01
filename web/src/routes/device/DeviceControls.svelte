@@ -22,10 +22,10 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
     export let device = new Device( )
-    $: event = device.job.events[0]  
-    $: config = device.job.configs[0]
-
-    $: header = device.job.headers[0]
+    $: event = device.evt 
+    $: config = device.cfg
+    $: header = device.hdr
+    $: smp = ( device.smp ? device.smp : new Sample( ) )
 
     $: available = header.hdr_job_start == 0
     $: pending = header.hdr_job_end == -1
@@ -39,9 +39,6 @@
     $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
-    $: smp = ( device.job.samples ? device.job.samples[device.job.samples.length - 1] : new Sample( ) )
-
-    
     const makeMap = ( ctx ) => {
 
         let map = new mapboxgl.Map(  {

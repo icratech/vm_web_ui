@@ -118,6 +118,7 @@ export const get_event_types = async( ) => {
 
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
 export const API_URL_C001_V001_DEVICE_START =  `${ HTTP_SERVER }/api/001/001/device/start`
+export const API_URL_C001_V001_DEVICE_END =  `${ HTTP_SERVER }/api/001/001/device/end`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
@@ -141,19 +142,26 @@ export const get_devices = async( ) => {
 
         let store = get( DEVICES )
         let devs = json.data.devices 
+        console.log( "get_devices( ) -> response:\n", devs )
         
         devs.forEach( dev => {
             if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
                 let device = new Device(
-                    new Job(
-                        dev.job.admins,
-                        dev.job.headers,
-                        dev.job.configs,
-                        dev.job.events,
-                        dev.job.samples,
-                        dev.job.xypoints,
-                        dev.job.reg 
-                    ),
+                    dev.adm,
+                    dev.hdr,
+                    dev.cfg,
+                    dev.evt,
+                    dev.smp,
+                    new Job( ),
+                    // new Job(
+                    //     dev.job.admins,
+                    //     dev.job.headers,
+                    //     dev.job.configs,
+                    //     dev.job.events,
+                    //     dev.job.samples,
+                    //     dev.job.xypoints,
+                    //     dev.job.reg 
+                    // ),
                     dev.reg
                 )
                 DEVICES.update( d => { return [ ...d, device ] } )
@@ -440,9 +448,19 @@ export class DESRegistration {
 
 export class Device {
     constructor( 
+        adm = new Admin( ),
+        hdr = new Header( ),
+        cfg = new Config( ),
+        evt = new Event( ),
+        smp = new Sample( ),
         job = new Job( ),
         reg = new DESRegistration( ), 
     ) { 
+        this.adm = adm
+        this.hdr = hdr
+        this.cfg = cfg
+        this.evt = evt
+        this.smp = smp
         this.job = job
         this.reg = reg 
         this.socket = false
@@ -511,46 +529,52 @@ export class Device {
         this.update( )
     }
 
-    startJob = async( adm, hdr, cfg ) => {
+    startJob = async( ) => {
         console.log( "Start new job for device: ", this.reg.des_dev_serial ) 
 
         let au = get( AUTH )
-
         this.reg.des_job_reg_app = client_app
         this.reg.des_job_reg_user_id = au.id
-        this.reg.des_job_lng = -180
-        this.reg.des_job_lat = 90
-
-        let job = {
-            admins: [ adm ],
-            headers: [ hdr ],
-            configs: [ cfg ],
+        let dev = {
+            adm: this.adm,
+            hdr: this.hdr,
+            cfg: this.cfg,
             reg: this.reg
         }
-        console.log( job ) 
-
-        console.log( "Send Job..." ) 
+        console.log( "Send Start Job Request:\n", dev ) 
+        
         let req = new Request( API_URL_C001_V001_DEVICE_START, { 
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${ au.token }` 
             },
-            body: JSON.stringify( job )
+            body: JSON.stringify( dev )
         } )
         let res = await fetch( req )
         reg = await res.json( )
         console.log("des_api.js -> device.startJob( ) ->  RESPONSE reg:\n", reg )
-
-        console.log( "Get job data..." ) 
-        await get_devices( )
     }
 
-    endJob = ( user ) => {
-        console.log( "ending current job: ", this.reg ) 
-        console.log( "send job header: ", this.job.headers[0]) 
-        console.log( "update job data: " ) 
-        return true
+    endJob = async( ) => {
+        console.log( "End current job for device: ", this.reg.des_dev_serial ) 
+
+        let au = get( AUTH )
+        this.reg.des_job_reg_app = client_app
+        this.reg.des_job_reg_user_id = au.id
+        console.log( "Send Start Job Request:\n", this.reg ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_END, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( this.reg )
+        } )
+        let res = await fetch( req )
+        reg = await res.json( )
+        console.log("des_api.js -> device.endJob( ) ->  RESPONSE reg:\n", reg )
     }
 
 }
@@ -915,11 +939,12 @@ WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE
 export class Event {
     constructor( 
         evt_id = 0, // Set by DES upon database write
+
         evt_time = 0,
         evt_addr = "",
         evt_user_id = "",
-        evt_app = "",
-        evt_type_id = 0,
+        evt_app = client_app,
+        evt_code = 0,
         evt_title = "",
         evt_msg = "" 
     ) {
@@ -928,7 +953,7 @@ export class Event {
         this.evt_addr = evt_addr
         this.evt_user_id = evt_user_id
         this.evt_app = evt_app
-        this.evt_type_id = evt_type_id
+        this.evt_code = evt_code
         this.evt_title = evt_title
         this.evt_msg = evt_msg
     }

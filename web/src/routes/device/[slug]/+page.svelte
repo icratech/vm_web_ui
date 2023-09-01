@@ -27,15 +27,15 @@
 
     <div class="flx-row layout">
 
-        <Modal bind:open on:confirm={ ( ) => { device.startJob( adm, hdr, cfg ) } }>
+        <Modal bind:open on:confirm={ ( ) => { device.startJob( ) } }>
             <h3 class='fg-accent' slot="title">Start a new job</h3>
             <div slot="content" class="flx-row">
-                <DeviceStartPanel bind:adm bind:hdr bind:cfg />
+                <DeviceStartPanel bind:device />
             </div>
             <div slot="footer">Send command</div>
         </Modal>
      
-        <DeviceControls bind:device={ device } on:start={ ( ) =>{ open( ) } }/>
+        <DeviceControls bind:device on:start={ ( ) =>{ open( ) } }/>
             
         <div class="flx-col content">
 
