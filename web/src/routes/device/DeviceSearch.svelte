@@ -14,7 +14,7 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
             center: [ -113.811, 52.269 ],
-            zoom : 1
+            zoom : 2
         } )
         console.log( "DeviceSearch -> makeMap( ) -> DEVIECS: ", $DEVICES )
         console.log( "DeviceSearch -> makeMap( ) -> $DEVICE_MAP_MARKERS: ", $DEVICE_MAP_MARKERS )

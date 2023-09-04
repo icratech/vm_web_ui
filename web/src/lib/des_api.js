@@ -152,23 +152,20 @@ export const get_devices = async( ) => {
                     dev.cfg,
                     dev.evt,
                     dev.smp,
-                    new Job( ),
-                    // new Job(
-                    //     dev.job.admins,
-                    //     dev.job.headers,
-                    //     dev.job.configs,
-                    //     dev.job.events,
-                    //     dev.job.samples,
-                    //     dev.job.xypoints,
-                    //     dev.job.reg 
-                    // ),
+                    new Job(
+                        [ dev.adm ],
+                        [ dev.hdr ],
+                        [ dev.cfg ],
+                        [ dev.evt ],
+                        [ dev.smp ],
+                     ),
                     dev.reg
                 )
                 DEVICES.update( d => { return [ ...d, device ] } )
                 
                 const el = document.createElement('div')
                 el.className = 'marker'
-                let mrkr = new mapboxgl.Marker( el ).setLngLat( device.job.geo.geometry.coordinates ) 
+                let mrkr = new mapboxgl.Marker( el ).setLngLat( [ device.reg.des_job_lng, device.reg.des_job_lat ] ) 
                 DEVICE_MAP_MARKERS.update( m => { return [ ...m, mrkr ] } )
             }        
         } )
@@ -201,56 +198,6 @@ export const register_device = async( serial ) => {
     reg = await res.json( )
     console.log("des_api.js -> register_device( ) ->  RESPONSE reg:\n", reg )
     await get_devices( )
-}
-export const load_get_devices = async( serverLoadEvent ) => {
-
-    console.log( "load_get_devices( )" )
-    let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
-        method: 'GET',
-        headers: {
-            "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
-        },
-    } )
-
-    const { fetch } = serverLoadEvent
-    let res = await fetch( req )
-    // let json = await res.json( )
-    // let devices = [ ] 
-    // if ( json.status == "success") { devices = json.data.devices } 
-    // console.log( "./devices -> load_get_devices( ): ", JSON.stringify( devices, null, 4 ) )
-    // return { devices }
-    
-    let json = await res.json( )
-
-    if ( json.status == "success") { 
-
-        let store = get( DEVICES )
-        let devs = json.data.devices 
-        devs.forEach( dev => {
-            if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
-                let device = new Device(
-                    new Job(
-                        dev.job.admins,
-                        dev.job.headers,
-                        dev.job.configs,
-                        dev.job.events,
-                        dev.job.samples,
-                        dev.job.xypoints,
-                        dev.job.reg 
-                    ),
-                    dev.reg
-                )
-                DEVICES.update( d => { return [ ...d, device ] } )
-                
-                const el = document.createElement('div')
-                el.className = 'marker'
-                let mrkr = new mapboxgl.Marker( el ).setLngLat( device.job.geo.geometry.coordinates ) 
-                DEVICE_MAP_MARKERS.update( m => { return [ ...m, mrkr ] } )
-            }        
-        } )
-    } 
-    
-    DEVICES_LOADED.set( true )
 }
 
 // export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
@@ -486,34 +433,41 @@ export class Device {
 
             let msg = JSON.parse( JSON.parse( e.data ) )
             switch ( msg.type ) {
+            
+                case "admin":
+                    this.adm = msg.data
+                    break
 
+                case "header":
+                    this.hdr = msg.data
+                    break
+
+                case "config":
+                    this.cfg = msg.data
+                    break
+                
+                case "event":
+                    this.evt = msg.data
+                    break
+    
                 case "sample":
+                    this.smp = msg.data
+                    // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.smp )
                     if ( this.job.samples ) {
                         this.job.samples.push( msg.data )
                     } else {
                         this.job.samples = [ msg.data ]
                     }
+                    // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.job )
                     this.job.updateChartData()
                     break
 
-                case "event":
-                    this.event = msg.data
-                    break
-    
-                case "config":
-                    this.config = msg.data
-                    break
-            
-                case "admin":
-                    this.admin = msg.data
-                    break
-            
                 default: 
                     console.log( `Type unknown:\n${ e.data }\n` )
                     break
             }
             
-            console.log( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
+            // console.log( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
             this.update( )
         } 
 
@@ -542,6 +496,7 @@ export class Device {
 
         this.hdr.hdr_user_id = au.id
         this.hdr.hdr_app = client_app
+        this.hdr.hdr_job_end = -1
 
         this.reg.des_job_reg_user_id = au.id
         this.reg.des_job_reg_app = client_app
@@ -565,6 +520,13 @@ export class Device {
         let res = await fetch( req )
         let reg = await res.json( )
         console.log("des_api.js -> device.startJob( ) ->  RESPONSE reg:\n", reg )
+
+        if ( reg.status === "success" ) { 
+            console.log("Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            if ( !this.socket ) {
+                this.connectWS( au )
+            }
+        }
     }
 
     endJob = async( ) => {
@@ -573,7 +535,10 @@ export class Device {
         let au = get( AUTH )
         this.reg.des_job_reg_app = client_app
         this.reg.des_job_reg_user_id = au.id
-        console.log( "Send END JOB Request:\n", this.reg ) 
+        let dev = {
+            reg: this.reg
+        }
+        console.log( "Send END JOB Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_END, { 
             method: "POST",
@@ -581,11 +546,18 @@ export class Device {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${ au.token }` 
             },
-            body: JSON.stringify( this.reg )
+            body: JSON.stringify( dev )
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log(`des_api.js -> device.endJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
+        console.log(`des_api.js -> device.endJob( ${ this.reg.des_job_name } ) ->  RESPONSE reg:\n`, reg )
+        
+        if ( reg.status === "success" ) { 
+            console.log("End Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            if ( !this.socket ) {
+                this.connectWS( au )
+            }
+        }
     }
 
     getJob = async( job_name = this.hdr.hdr_job_name ) => {
@@ -639,25 +611,25 @@ export class Job {
 
         this.cht = NewChartData( )
         this.cht_ch4 = this.cht.data.datasets[0]
-        this.cht_ch4.data = this.xypoints.ch4
+        this.cht_ch4.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_ch4 } ] // this.xypoints.ch4
 
         this.cht_hi_flow = this.cht.data.datasets[1]
-        this.cht_hi_flow.data = this.xypoints.hi_flow
+        this.cht_hi_flow.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_hi_flow } ] // this.xypoints.hi_flow
         
         this.cht_lo_flow = this.cht.data.datasets[2]
-        this.cht_lo_flow.data = this.xypoints.lo_flow
+        this.cht_lo_flow.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_lo_flow } ] // this.xypoints.lo_flow
         
         this.cht_press = this.cht.data.datasets[3]
-        this.cht_press.data = this.xypoints.press
+        this.cht_press.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_press } ] // this.xypoints.press
         
         this.cht_bat_amp = this.cht.data.datasets[4]
-        this.cht_bat_amp.data = this.xypoints.bat_amp
+        this.cht_bat_amp.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_bat_amp } ] // this.xypoints.bat_amp
         
         this.cht_bat_volt = this.cht.data.datasets[5]
-        this.cht_bat_volt.data = this.xypoints.bat_volt
+        this.cht_bat_volt.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_bat_volt } ] // this.xypoints.bat_volt
         
         this.cht_mot_volt = this.cht.data.datasets[6]
-        this.cht_mot_volt.data = this.xypoints.mot_volt
+        this.cht_mot_volt.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_mot_volt } ] // this.xypoints.mot_volt
 
         if ( this.cht_ch4.data ) {
             this.cht_x_min = this.cht_ch4.data[0].x
@@ -685,6 +657,7 @@ export class Job {
 
         // this.sample = this.samples[ this.samples.length - 1 ]
         let sample = this.samples[ this.samples.length - 1 ]
+        // let sample = this.smp
 
         this.cht.pushPoint( 
             // { x: this.sample.smp_time, y: this.sample.smp_ch4 },

@@ -23,7 +23,7 @@
     
     export let device = new Device( )
     $: event = device.evt 
-    $: config = device.cfg
+    $: cfg = device.cfg
     $: header = device.hdr
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
@@ -44,13 +44,13 @@
         let map = new mapboxgl.Map(  {
             container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
-            center: device.job.geo.geometry.coordinates,
+            center: [ device.reg.des_job_lng, device.reg.des_job_lat ],
             zoom : ( active ? 5.5 : 1 )
         } )
         
         const el = document.createElement('div')
         el.className = 'marker'
-        new mapboxgl.Marker( el ).setLngLat( device.job.geo.geometry.coordinates ).addTo( map )
+        new mapboxgl.Marker( el ).setLngLat( [ device.reg.des_job_lng, device.reg.des_job_lat ] ).addTo( map )
 
     }
 
@@ -108,9 +108,11 @@
                 
     <div class="flx-col cards">
 
-        <BarGaugeCard bind:smp={ smp }/>
+        <BarGaugeCard bind:smp bind:cfg />
 
-        <HeaderCard bind:header={ header } />
+        <div class="flx-col card">
+            <HeaderCard bind:header />
+        </div>
 
     </div>
     

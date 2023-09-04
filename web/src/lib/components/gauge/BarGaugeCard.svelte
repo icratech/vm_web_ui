@@ -2,9 +2,10 @@
 
     import BarGaugeH from '../../common/bar_gauge/BarGaugeH.svelte'
     import { BASE } from '../../common/colors'
-    import { Sample } from '../../des_api'
+    import { Sample, Config } from '../../des_api'
 
     export let smp = new Sample( )
+    export let cfg = new Config( )
 
 </script>
 
@@ -19,19 +20,21 @@
         unit={ "%" }
     />
     
+    { #if smp.hi_flow > cfg.flow_tog }
     <BarGaugeH title="H-Flow"
         base_color={ BASE.BLUE }
         bind:num={ smp.smp_hi_flow }
         max={ 250 }
         unit={ "L/min" }
     />
-    
+    { :else }
     <BarGaugeH title="L-Flow"
         base_color={ BASE.AQUA }
         bind:num={ smp.smp_lo_flow }
         max={ 2 }
         unit={ "L/min" }
     />
+    { /if }
     
     <BarGaugeH title="Pressure"
         base_color={ BASE.YELLOW }

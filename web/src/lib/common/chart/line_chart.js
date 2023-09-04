@@ -111,9 +111,12 @@ export class LineChartDataSet {
     }
     
     pushSample( limit, point = { x: 0, y: 0.0 } ) {
-        if ( this.data[0] && this.data[0].x == 0 )  { this.data.shift( ) }
+        // if ( this.data && this.data[0] && this.data[0].x == 0 )  { this.data.shift( ) }
+        while ( this.data[0].x === 0 ) {
+            this.data.shift( )
+        }
         let len = this.data.push( point ) 
-        
+
         if ( limit > 0 ) {
             for ( len; len > limit; len-- ) {
                 this.data.shift( )

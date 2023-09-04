@@ -3,6 +3,7 @@
     import PillButton from "$lib/common/button/PillButton.svelte"
     import { Device, AUTH, Sample } from "../../lib/des_api"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
+    import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
     import EventCard from "../../lib/components/event/EventCard.svelte"
     import ConfigCard from "../../lib/components/config/ConfigCard.svelte"
     import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
@@ -61,13 +62,15 @@
 
             </div>
             
-            <BarGaugeCard bind:smp={ smp }/>
+            <BarGaugeCard bind:smp />
             
     </div>
-
-    <ConfigCard bind:config={config} />
+    <div class="flx-col card">
+        <HeaderCard bind:header />
+    </div>
+    <!-- <ConfigCard bind:config /> -->
     
-    <EventCard bind:event={event} title="Last event" />
+    <EventCard bind:event title="Last event" />
 
 </div>
 
