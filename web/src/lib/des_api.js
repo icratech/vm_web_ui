@@ -158,6 +158,8 @@ export const get_devices = async( ) => {
                         [ dev.cfg ],
                         [ dev.evt ],
                         [ dev.smp ],
+                        [ ],
+                        dev.reg
                      ),
                     dev.reg
                 )
@@ -641,7 +643,7 @@ export class Job {
         // this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
         // this.cht_x_min = this.cht_x_max  // console.log( "this.cht_x_min", this.cht_x_min )
 
-        this.cht_point_limit = 300
+        this.cht_point_limit = 50
         this.cht_scale_margin = 0.1
         // this.sample = new Sample( )
     }
