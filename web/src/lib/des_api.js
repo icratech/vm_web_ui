@@ -442,6 +442,12 @@ export class Device {
 
                 case "header":
                     this.hdr = msg.data
+                    console.log("new header received from device: ", this.hdr)
+                    this.reg.des_job_name = this.hdr.hdr_job_name
+                    this.reg.des_job_start = this.hdr.hdr_job_start
+                    this.reg.des_job_end = this.hdr.hdr_job_end
+                    this.reg.des_job_lng = this.hdr.hdr_geo_lng
+                    this.reg.des_job_lat = this.hdr.hdr_geo_lat
                     break
 
                 case "config":
@@ -450,6 +456,7 @@ export class Device {
                 
                 case "event":
                     this.evt = msg.data
+                    console.log("new event received from device: ", this.evt)
                     break
     
                 case "sample":
@@ -490,6 +497,10 @@ export class Device {
 
         let au = get( AUTH )
 
+        if ( !this.socket ) {
+            this.connectWS( au )
+        }
+
         this.adm.adm_user_id = au.id
         this.adm.adm_app = client_app
 
@@ -525,9 +536,6 @@ export class Device {
 
         if ( reg.status === "success" ) { 
             console.log("Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
-            if ( !this.socket ) {
-                this.connectWS( au )
-            }
         }
     }
 
@@ -535,6 +543,11 @@ export class Device {
         console.log( "End current job for device: ", this.reg.des_dev_serial ) 
 
         let au = get( AUTH )
+
+        if ( !this.socket ) {
+            this.connectWS( au )
+        }
+
         this.reg.des_job_reg_app = client_app
         this.reg.des_job_reg_user_id = au.id
         let dev = {
@@ -556,9 +569,6 @@ export class Device {
         
         if ( reg.status === "success" ) { 
             console.log("End Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
-            if ( !this.socket ) {
-                this.connectWS( au )
-            }
         }
     }
 

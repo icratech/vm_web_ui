@@ -33,7 +33,7 @@
     $: jobStartText = ( pending ? 'Pending Job' : 'Start Job' )
     $: jobStartIcon = ( pending ? null : btn_img_config )
     // $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connect ws if not connected?") : device.startJob( $AUTH ) ) }
-    $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connect ws if not connected?") : dispatch( 'start' ) ) }
+    $: jobStartFunc = ( ) => { ( pending ? device.connectWS( $AUTH ) : dispatch( 'start' ) ) }
 
     $: active = ( header.hdr_job_start > 0 && header.hdr_job_end == 0 )
     $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
