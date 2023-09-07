@@ -413,10 +413,12 @@ export class Device {
         this.job = job
         this.reg = reg 
         this.socket = false
+        this.mark = new mapboxgl.Marker( )
     }
     
     update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
+    updateMap( ) { }
     /* WS CONNECTION */
     disconnectWS( ) { }
     connectWS( user ) {
@@ -449,6 +451,7 @@ export class Device {
                     this.reg.des_job_end = this.hdr.hdr_job_end
                     this.reg.des_job_lng = this.hdr.hdr_geo_lng
                     this.reg.des_job_lat = this.hdr.hdr_geo_lat
+                    this.updateMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                     break
 
                 case "config":
@@ -596,7 +599,7 @@ export class Device {
         console.log(`des_api.js -> device.getJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
     }
 
-    
+
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/

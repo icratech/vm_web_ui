@@ -39,14 +39,6 @@
     $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
-    // $: map = new mapboxgl.Map( { container: "x" } )
-    $: mark = new mapboxgl.Marker( )
-    $: { 
-        mark.setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] ) 
-        resetMap( )
-    }
-
-    $: resetMap = ( ) => { }
     const makeMap = ( ctx ) => {
 
         let map = new mapboxgl.Map(  {
@@ -56,15 +48,20 @@
             zoom : ( active ? 5.5 : 1 )
         } )
 
-        resetMap = ( ) => { 
-            map.setZoom( ( active ? 5.5 : 1 ) ) 
-            map.setCenter( [ header.hdr_geo_lng, header.hdr_geo_lat ] ) 
-        }
-
         const el = document.createElement('div')
         el.className = 'marker'
-        mark = new mapboxgl.Marker( el ).setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] )
-        mark.addTo( map )
+        device.mark = new mapboxgl.Marker( el ).setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] )
+        device.mark.addTo( map )
+
+        device.updateMap = ( act, lng, lat ) => { 
+            device.mark.setLngLat( [ lng, lat ] )
+            // map.setCenter( [ lng, lat ] )
+            // map.setZoom( ( act ? 5.5 : 1 ) )
+            // map.panTo( [ lng, lat ], { duration: 2000 } ) 
+            // map.zoomTo( ( act ? 5.5 : 1 ), { duration: 2000 } ) 
+            map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 2000 } ) 
+
+        }
 
     }
 
