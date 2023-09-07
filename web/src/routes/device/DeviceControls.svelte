@@ -28,10 +28,10 @@
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
     $: available = header.hdr_job_start == 0
-    $: pending = header.hdr_job_end == -1
-    $: jobStartColor = ( pending ? 'bg-yellow' : 'bg-green' )
+    $: pending = header.hdr_job_end != 0
+    $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
     $: jobStartText = ( pending ? 'Pending Job' : 'Start Job' )
-    $: jobStartIcon = ( pending ? null : btn_img_config )
+    $: jobStartIcon = btn_img_config // ( pending ? null : btn_img_config )
     // $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connect ws if not connected?") : device.startJob( $AUTH ) ) }
     $: jobStartFunc = ( ) => { ( pending ? device.connectWS( $AUTH ) : dispatch( 'start' ) ) }
 
@@ -39,18 +39,32 @@
     $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
+    // $: map = new mapboxgl.Map( { container: "x" } )
+    $: mark = new mapboxgl.Marker( )
+    $: { 
+        mark.setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] ) 
+        resetMap( )
+    }
+
+    $: resetMap = ( ) => { }
     const makeMap = ( ctx ) => {
 
         let map = new mapboxgl.Map(  {
             container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
-            center: [ device.reg.des_job_lng, device.reg.des_job_lat ],
+            center: [ header.hdr_geo_lng, header.hdr_geo_lat ],
             zoom : ( active ? 5.5 : 1 )
         } )
-        
+
+        resetMap = ( ) => { 
+            map.setZoom( ( active ? 5.5 : 1 ) ) 
+            map.setCenter( [ header.hdr_geo_lng, header.hdr_geo_lat ] ) 
+        }
+
         const el = document.createElement('div')
         el.className = 'marker'
-        new mapboxgl.Marker( el ).setLngLat( [ device.reg.des_job_lng, device.reg.des_job_lat ] ).addTo( map )
+        mark = new mapboxgl.Marker( el ).setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] )
+        mark.addTo( map )
 
     }
 
@@ -116,7 +130,7 @@
 
     </div>
     
-    <div class="map-container" use:makeMap></div>
+    <div class="map-container" use:makeMap ></div>
 
 </div>
 

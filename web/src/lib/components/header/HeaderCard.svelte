@@ -5,13 +5,15 @@
 
     export let header = new Header( )
 
+    $: displayDate = ( header.hdr_job_start == 0 ? header.hdr_time : header.hdr_job_start )
+
 </script>
 
 <div class="flx-col card-content">
     
     <div class="flx-row card-title">
         <div class="job"><span style="color: var(--aqua_aa); padding-right:0.5em;">Job ID:</span> { header.hdr_job_name }</div> 
-        <div><DateTimeDisplay date={ header.hdr_job_start } /></div>
+        <div><DateTimeDisplay date={ displayDate } /></div>
     </div>
 
     <div class="flx-col card info">

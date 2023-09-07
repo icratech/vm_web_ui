@@ -438,6 +438,7 @@ export class Device {
             
                 case "admin":
                     this.adm = msg.data
+                    console.log("new admin received from device: ", this.adm)
                     break
 
                 case "header":
@@ -452,6 +453,7 @@ export class Device {
 
                 case "config":
                     this.cfg = msg.data
+                    console.log("new event received from device: ", this.evt)
                     break
                 
                 case "event":
@@ -548,6 +550,7 @@ export class Device {
             this.connectWS( au )
         }
 
+        this.hdr.hdr_job_end = -1
         this.reg.des_job_reg_app = client_app
         this.reg.des_job_reg_user_id = au.id
         let dev = {
@@ -592,6 +595,8 @@ export class Device {
         let reg = await res.json( )
         console.log(`des_api.js -> device.getJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
     }
+
+    
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/
