@@ -20,7 +20,7 @@ export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
 export const DEMO_DEVICES = writable( [ ] )
 
-const local = false
+const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des.leehayford.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` )
@@ -118,6 +118,9 @@ export const get_event_types = async( ) => {
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
 export const API_URL_C001_V001_DEVICE_START =  `${ HTTP_SERVER }/api/001/001/device/start`
 export const API_URL_C001_V001_DEVICE_END =  `${ HTTP_SERVER }/api/001/001/device/end`
+export const API_URL_C001_V001_DEVICE_ADM =  `${ HTTP_SERVER }/api/001/001/device/admin`
+export const API_URL_C001_V001_DEVICE_HDR =  `${ HTTP_SERVER }/api/001/001/device/header`
+export const API_URL_C001_V001_DEVICE_CFG =  `${ HTTP_SERVER }/api/001/001/device/config`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
@@ -605,6 +608,114 @@ export class Device {
         
         if ( reg.status === "success" ) { 
             console.log("End Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+        }
+    }
+
+    setAdmin = async( ) => {
+        console.log( "Set Admin for device: ", this.reg.des_dev_serial ) 
+        
+        let au = get( AUTH )
+        
+        if ( !this.socket ) { this.connectWS( au ) }
+        
+        this.adm.adm_user_id = au.id
+        this.adm.adm_app = client_app
+
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+
+        let dev = {
+            adm: this.adm,
+            reg: this.reg
+        }
+        console.log( "Send SET ADMIN Request:\n", dev ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_ADM, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let reg = await res.json( )
+        console.log("des_api.js -> device.setAdmin( ) ->  RESPONSE reg:\n", reg )
+
+        if ( reg.status === "success" ) { 
+            console.log("SET ADMIN Request -> SUCCESS:\n", this.reg.des_dev_serial )
+        }
+    }
+
+    setHeader = async( ) => {
+        console.log( "Set Header for device: ", this.reg.des_dev_serial ) 
+        
+        let au = get( AUTH )
+        
+        if ( !this.socket ) { this.connectWS( au ) }
+        
+        this.hdr.hdr_user_id = au.id
+        this.hdr.hdr_app = client_app
+
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+
+        let dev = {
+            hdr: this.hdr,
+            reg: this.reg
+        }
+        console.log( "Send SET HEADER Request:\n", dev ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_HDR, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let reg = await res.json( )
+        console.log("des_api.js -> device.setHeader( ) ->  RESPONSE reg:\n", reg )
+
+        if ( reg.status === "success" ) { 
+            console.log("SET HEADER Request -> SUCCESS:\n", this.reg.des_dev_serial )
+        }
+    }
+    
+    setConfig = async( ) => { 
+        console.log( "Set Config for device: ", this.reg.des_dev_serial ) 
+        
+        let au = get( AUTH )
+        
+        if ( !this.socket ) { this.connectWS( au ) }
+        
+        this.cfg.cfg_user_id = au.id
+        this.cfg.cfg_app = client_app
+
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+        
+        let dev = {
+            cfg: this.cfg,
+            reg: this.reg
+        }
+        console.log( "Send SET CONFIG Request:\n", dev ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_CFG, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let reg = await res.json( )
+        console.log("des_api.js -> device.setConfig( ) ->  RESPONSE reg:\n", reg )
+
+        if ( reg.status === "success" ) { 
+            console.log("SET CONFIG Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
 
@@ -1222,6 +1333,7 @@ export const MODE = [
    'LO FLOW', // 6
    'MANUAL >-<' // 7
 ]
+
 
 
 /* MAP STUFF ********************************************************************************************/

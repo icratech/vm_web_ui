@@ -4,13 +4,11 @@
     import PillButton from '../../../lib/common/button/PillButton.svelte'
     import DeviceControls from '../../device/DeviceControls.svelte'
 
-    import DeviceCard from '../DeviceCard.svelte'
-    import BarGaugeCard from "../../../lib/components/gauge/BarGaugeCard.svelte"
-    import EventCard from "../../../lib/components/event/EventCard.svelte"
-    import ConfigCard from "../../../lib/components/config/ConfigCard.svelte"
+    import HeaderPanel from '../../../lib/components/header/HeaderPanel.svelte'
+    import ConfigPanel from '../../../lib/components/config/ConfigPanel.svelte'
     
     export let data
-    import { DEVICES, Admin, Header, Config } from '../../../lib/des_api'
+    import { DEVICES, Admin, Header, Config, MODE } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
  
     import Modal from '../../../lib/common/modal/Modal.svelte'
@@ -21,6 +19,10 @@
     $: hdr = new Header( )
     $: cfg  = new Config( )
 
+    const setMode = ( mode ) => {
+        device.cfg.cfg_vlv_tgt = mode
+        device.setConfig()
+    }
 </script>
 
 <dvi class="flx-col container">
@@ -48,68 +50,79 @@
                 <EventCard bind:event={ data.device.job.events[0]  } /> -->
                 
                 <div class="flx-row">
-            
-
 
                     <div class="flx-col tabs">
 
                         <PillButton
                             cls={ 'bg-blue' } 
-                            hint={ null } 
+                            on:click={ device.setAdmin }
+                            hint='ADM'
                             />
                 
                         <PillButton
                             cls={ 'bg-aqua' }
-                            hint={ null } 
+                            on:click={ device.setHeader }
+                            hint='HDR'
                             />
                 
                         <PillButton
                             cls={ 'bg-green' }
-                            hint={ null } 
+                            on:click={ device.setConfig }
+                            hint='CFG'
                             />
                 
                         <PillButton
                             cls={ 'bg-yellow' }
-                            hint={ null } 
+                            on:click={ ( ) => { setMode( 0 ) } }
+                            hint='BUILD'
                             />
                 
                         <PillButton
                             cls={ 'bg-orange' }
-                            hint={ null } 
+                            on:click={ ( ) => { setMode( 4 ) } }
+                            hint='FLOW'
                             />
                 
                         <PillButton
                             cls={ 'bg-red' }
-                            hint={ null } 
+                            on:click={ ( ) => { setMode( 2 ) } }
+                            hint='VENT'
                         />
                 
                     </div>
                 
+                    <div class="flx-row">
 
+                        <HeaderPanel bind:header={ device.hdr }/>
 
+                        <ConfigPanel bind:config={ device.cfg }/>
 
-                    <PillButton 
-                        cls={ 'bg-blue' }
-                        on:click={ ( ) => { device.job.cht.options.scales.y_hi_flow.display = !device.job.cht.options.scales.y_hi_flow.display } }
-                        hint={ null } 
-                    />
-            
-                    <PillButton
-                        cls={ 'bg-purple' }
-                        on:click={ ( ) => { device.job.cht.options.scales.y_mot_volt.display = !device.job.cht.options.scales.y_mot_volt.display } }
-                        hint={ null } 
-                    />
-            
-                    <PillButton
-                        cls={ 'bg-aqua' }
-                        hint={ null } 
-                    />
-            
-                    <PillButton
-                        cls={ 'bg-red' }
-                        on:click={ ( ) => { device.job.cht.options.scales.y_bat_amp.display = !device.job.cht.options.scales.y_bat_amp.display } }
-                        hint={ null } 
-                    />
+                    </div>
+
+                    <div class="flx-col tabs">
+                        <PillButton 
+                            cls={ 'bg-blue' }
+                            on:click={ ( ) => { device.job.cht.options.scales.y_hi_flow.display = !device.job.cht.options.scales.y_hi_flow.display } }
+                            hint={ null } 
+                        />
+                
+                        <PillButton
+                            cls={ 'bg-purple' }
+                            on:click={ ( ) => { device.job.cht.options.scales.y_mot_volt.display = !device.job.cht.options.scales.y_mot_volt.display } }
+                            hint={ null } 
+                        />
+                
+                        <PillButton
+                            cls={ 'bg-aqua' }
+                            hint={ null } 
+                        />
+                
+                        <PillButton
+                            cls={ 'bg-red' }
+                            on:click={ ( ) => { device.job.cht.options.scales.y_bat_amp.display = !device.job.cht.options.scales.y_bat_amp.display } }
+                            hint={ null } 
+                        />
+                    </div>
             
                 </div>
 
