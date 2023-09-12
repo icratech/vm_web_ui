@@ -48,21 +48,15 @@
             zoom : ( active ? 5.5 : 1 )
         } )
 
-        const el = document.createElement('div')
-        el.className = 'marker'
-        device.mark = new mapboxgl.Marker( el ).setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] )
+        // const el = document.createElement('div')
+        // el.className = 'marker'
+        // device.mark = new mapboxgl.Marker( el ).setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] )
         device.mark.addTo( map )
 
-        device.updateMap = ( act, lng, lat ) => { 
+        device.updateDveicePageMap = ( act, lng, lat ) => { 
             device.mark.setLngLat( [ lng, lat ] )
-            // map.setCenter( [ lng, lat ] )
-            // map.setZoom( ( act ? 5.5 : 1 ) )
-            // map.panTo( [ lng, lat ], { duration: 2000 } ) 
-            // map.zoomTo( ( act ? 5.5 : 1 ), { duration: 2000 } ) 
-            map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 2000 } ) 
-
+            map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 3500 } ) 
         }
-
     }
 
 </script>
@@ -105,13 +99,13 @@
                 img={ btn_img_stop }
                 hint={ 'End Job' } 
             />
+            { /if }  
             <PillButton 
                 cls={ socketButtonColor }
                 on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
                 img={ btn_img_watch }
                 hint={ socketButtonText } 
             />
-            { /if }  
 
         </div> 
 

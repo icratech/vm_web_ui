@@ -19,6 +19,8 @@
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
     $: active = ( header.hdr_job_start > 0 && header.hdr_job_end == 0 )
+
+    
     $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
@@ -35,14 +37,14 @@
             hint={ 'Device Controls' } 
         />
                 
-        { #if active }
+        <!-- { #if active } -->
         <PillButton 
             cls={ socketButtonColor }
             on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
             img={ btn_img_watch }
             hint={ socketButtonText } 
         />
-        { /if }
+        <!-- { /if } -->
 
     </div>
 

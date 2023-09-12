@@ -12,16 +12,15 @@ export const openModals = ( initial ) => {
     }
 }
 
-
 export const AUTH = writable( { } )
 export const USERS = writable( [ ] )
 export const EVENT_TYPES = writable( [ ] )
 export const DEVICES = writable( [ ] )
-export const DEVICE_MAP_MARKERS = writable( [ ] )
+// export const DEVICE_MAP_MARKERS = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
 export const DEMO_DEVICES = writable( [ ] )
 
-const local = true
+const local = false
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des.leehayford.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` )
@@ -152,23 +151,18 @@ export const get_devices = async( ) => {
                     dev.cfg,
                     dev.evt,
                     dev.smp,
-                    new Job(
-                        [ dev.adm ],
-                        [ dev.hdr ],
-                        [ dev.cfg ],
-                        [ dev.evt ],
-                        [ dev.smp ],
-                        [ ],
-                        dev.reg
-                     ),
+                    new Job( ),
                     dev.reg
                 )
-                DEVICES.update( d => { return [ ...d, device ] } )
                 
-                const el = document.createElement('div')
-                el.className = 'marker'
-                let mrkr = new mapboxgl.Marker( el ).setLngLat( [ device.reg.des_job_lng, device.reg.des_job_lat ] ) 
-                DEVICE_MAP_MARKERS.update( m => { return [ ...m, mrkr ] } )
+                // const el = document.createElement('div')
+                device.mark_el.className = 'marker_vent'
+                device.mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
+                device.s_mark_el.className = 'marker_vent'
+                device.s_mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
+                // DEVICE_MAP_MARKERS.update( m => { return [ ...m, mrkr ] } )
+
+                DEVICES.update( d => { return [ ...d, device ] } )
             }        
         } )
     } 
@@ -414,11 +408,16 @@ export class Device {
         this.reg = reg 
         this.socket = false
         this.mark = new mapboxgl.Marker( )
+        this.mark_el = document.createElement('div')
+        this.s_mark = new mapboxgl.Marker( )
+        this.s_mark_el = document.createElement('div')
+
     }
     
     update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
-    updateMap( ) { }
+    updateDveiceSearchMap( ) { }
+    updateDveicePageMap( ) { }
     /* WS CONNECTION */
     disconnectWS( ) { }
     connectWS( user ) {
@@ -428,8 +427,9 @@ export class Device {
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => { console.log( "class Device -> WebSocket OPEN" )  }
         ws.onerror = ( e ) => { 
+            ws.send( "close" )
             ws.close( )
-            this.socket = true
+            this.socket = false
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket ERROR\n${ JSON.stringify( e )  }\n` ) 
             this.update( ) 
         }
@@ -451,12 +451,20 @@ export class Device {
                     this.reg.des_job_end = this.hdr.hdr_job_end
                     this.reg.des_job_lng = this.hdr.hdr_geo_lng
                     this.reg.des_job_lat = this.hdr.hdr_geo_lat
-                    this.updateMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                    this.updateDveiceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                    this.updateDveicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                     break
 
                 case "config":
                     this.cfg = msg.data
-                    console.log("new event received from device: ", this.evt)
+                    // this.updateDveicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                    console.log("new config received from device: ", this.cfg)
+                    switch ( this.cfg.cfg_vlv_tgt ) {
+                        case 0: this.mark_el.className = 'marker_build'; break
+                        case 2: this.mark_el.className = 'marker_vent'; break
+                        case 4: this.mark_el.className = 'marker_hi_flow'; break
+                        case 6: this.mark_el.className = 'marker_lo_flow'; break
+                    }
                     break
                 
                 case "event":
@@ -466,6 +474,24 @@ export class Device {
     
                 case "sample":
                     this.smp = msg.data
+                    switch ( this.smp.smp_vlv_tgt ) {
+                        case 0: 
+                            this.mark_el.className = 'marker_build'; 
+                            this.s_mark_el.className = 'marker_build'; 
+                            break;
+                        case 2: 
+                            this.mark_el.className = 'marker_vent'; 
+                            this.s_mark_el.className = 'marker_vent'; 
+                            break
+                        case 4: 
+                            this.mark_el.className = 'marker_hi_flow'; 
+                            this.s_mark_el.className = 'marker_hi_flow'; 
+                            break
+                        case 6: 
+                            this.mark_el.className = 'marker_lo_flow'; 
+                            this.s_mark_el.className = 'marker_lo_flow'; 
+                            break
+                    }
                     // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.smp )
                     if ( this.job.samples ) {
                         this.job.samples.push( msg.data )
@@ -475,6 +501,8 @@ export class Device {
                     // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.job )
                     this.job.updateChartData()
                     break
+
+                case "live": break
 
                 default: 
                     console.log( `Type unknown:\n${ e.data }\n` )
@@ -499,6 +527,8 @@ export class Device {
 
     startJob = async( ) => {
         console.log( "Start new job for device: ", this.reg.des_dev_serial ) 
+
+        this.job = new Job( )
 
         let au = get( AUTH )
 
@@ -622,46 +652,46 @@ export class Job {
         this.xypoints = xypoints
         this.reg = reg
         
-        this.geo = new GeoJSONFeature(
-            new GeoJSONGeometry( [ this.reg.des_job_lng, this.reg.des_job_lat ] ),
-            // this.headers[0].hdr_well_name
-            "whatever"
-        )
-        this.geo.geometry.coordinates = [ this.reg.des_job_lng, this.reg.des_job_lat ]
+        // this.geo = new GeoJSONFeature(
+        //     new GeoJSONGeometry( [ this.reg.des_job_lng, this.reg.des_job_lat ] ),
+        //     // this.headers[0].hdr_well_name
+        //     "whatever"
+        // )
+        // this.geo.geometry.coordinates = [ this.reg.des_job_lng, this.reg.des_job_lat ]
 
         this.cht = NewChartData( )
         this.cht_ch4 = this.cht.data.datasets[0]
-        this.cht_ch4.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_ch4 } ] // this.xypoints.ch4
+        // this.cht_ch4.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_ch4 } ] // this.xypoints.ch4
 
         this.cht_hi_flow = this.cht.data.datasets[1]
-        this.cht_hi_flow.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_hi_flow } ] // this.xypoints.hi_flow
+        // this.cht_hi_flow.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_hi_flow } ] // this.xypoints.hi_flow
         
         this.cht_lo_flow = this.cht.data.datasets[2]
-        this.cht_lo_flow.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_lo_flow } ] // this.xypoints.lo_flow
+        // this.cht_lo_flow.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_lo_flow } ] // this.xypoints.lo_flow
         
         this.cht_press = this.cht.data.datasets[3]
-        this.cht_press.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_press } ] // this.xypoints.press
+        // this.cht_press.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_press } ] // this.xypoints.press
         
         this.cht_bat_amp = this.cht.data.datasets[4]
-        this.cht_bat_amp.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_bat_amp } ] // this.xypoints.bat_amp
+        // this.cht_bat_amp.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_bat_amp } ] // this.xypoints.bat_amp
         
         this.cht_bat_volt = this.cht.data.datasets[5]
-        this.cht_bat_volt.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_bat_volt } ] // this.xypoints.bat_volt
+        // this.cht_bat_volt.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_bat_volt } ] // this.xypoints.bat_volt
         
         this.cht_mot_volt = this.cht.data.datasets[6]
-        this.cht_mot_volt.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_mot_volt } ] // this.xypoints.mot_volt
+        // this.cht_mot_volt.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_mot_volt } ] // this.xypoints.mot_volt
 
-        if ( this.cht_ch4.data ) {
-            this.cht_x_min = this.cht_ch4.data[0].x
-            this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
-        } else {
-            this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
-            this.cht_x_min = this.cht_x_max - 60  // console.log( "this.cht_x_min", this.cht_x_min )
-        }            
-        // this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
-        // this.cht_x_min = this.cht_x_max  // console.log( "this.cht_x_min", this.cht_x_min )
+        // if ( this.cht_ch4.data ) {
+        //     this.cht_x_min = this.cht_ch4.data[0].x
+        //     this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
+        // } else {
+        //     this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
+        //     this.cht_x_min = this.cht_x_max - 60  // console.log( "this.cht_x_min", this.cht_x_min )
+        // }            
+        // // this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
+        // // this.cht_x_min = this.cht_x_max  // console.log( "this.cht_x_min", this.cht_x_min )
 
-        this.cht_point_limit = 50
+        this.cht_point_limit = 100
         this.cht_scale_margin = 0.1
         // this.sample = new Sample( )
     }
@@ -1195,34 +1225,34 @@ export const MODE = [
 
 
 /* MAP STUFF ********************************************************************************************/
-export class GeoJSONFeatureCollection {
-    constructor (
-        features = [ ]
-    ) {
-        this.type = "FeatureCollection"
-        this.features = features
-    }
-}
+// export class GeoJSONFeatureCollection {
+//     constructor (
+//         features = [ ]
+//     ) {
+//         this.type = "FeatureCollection"
+//         this.features = features
+//     }
+// }
 
-export class GeoJSONFeature {
-    constructor(
-        geometry = new GeoJSONGeometry( ),
-        well_name = ""
-    ) {
-        this.type = "Feature"
-        this.geometry = geometry
-        this.well_name = well_name
-    }
-}
+// export class GeoJSONFeature {
+//     constructor(
+//         geometry = new GeoJSONGeometry( ),
+//         well_name = ""
+//     ) {
+//         this.type = "Feature"
+//         this.geometry = geometry
+//         this.well_name = well_name
+//     }
+// }
 
-export class GeoJSONGeometry {
-    constructor( 
-        coordinates = [ -115.000000, 55.000000 ]
-    ) {
-        this.type = "Point"
-        this.coordinates = coordinates
-    }
-}
+// export class GeoJSONGeometry {
+//     constructor( 
+//         coordinates = [ -115.000000, 55.000000 ]
+//     ) {
+//         this.type = "Point"
+//         this.coordinates = coordinates
+//     }
+// }
 
 
 /* CHART STUFF ******************************************************************************************/
@@ -1243,43 +1273,43 @@ const NewChartDataSets = ( ) => {
     return [
 
          /* 0 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Methane", "y_ch4", true,
+        new LineChartDataSet( [ ], "Methane", "y_ch4", true,
             CHART_LINE_WIDTH, RGBA( COLORS.CH4, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.CH4, 0.7 ) 
         ),
 
          /* 1 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "High Flow", "y_hi_flow", true, 
+        new LineChartDataSet( [ ], "High Flow", "y_hi_flow", true, 
             CHART_LINE_WIDTH, RGBA( COLORS.HI_FLOW, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.HI_FLOW, 0.7 ) 
         ),  
 
          /* 2 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Low Flow", "y_lo_flow", true,
+        new LineChartDataSet( [ ], "Low Flow", "y_lo_flow", true,
             CHART_LINE_WIDTH,  RGBA( COLORS.LO_FLOW, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.LO_FLOW, 0.7 ) 
         ),
 
          /* 3 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Pressure", "y_press", true,
+        new LineChartDataSet( [ ], "Pressure", "y_press", true,
             CHART_LINE_WIDTH, RGBA( COLORS.PRESS, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.PRESS, 0.7 ) 
         ),
 
          /* 4 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Battery Amps", "y_bat_amp", true, 
+        new LineChartDataSet( [ ], "Battery Amps", "y_bat_amp", true, 
             CHART_LINE_WIDTH, RGBA( COLORS.BAT_AMP, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.BAT_AMP, 0.7 ) 
         ),
 
          /* 5 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Battery Volts", "y_bat_volt", true,
+        new LineChartDataSet( [ ], "Battery Volts", "y_bat_volt", true,
             CHART_LINE_WIDTH, RGBA( COLORS.BAT_VOLT, 0.3 ),  
             CHART_MARKER_RADIUS, RGBA( COLORS.BAT_VOLT, 0.7 ) 
         ),
 
          /* 6 */
-        new LineChartDataSet( [ { x: 0, y: 0.0 } ], "Motor Volts", "y_mot_volt", true,
+        new LineChartDataSet( [ ], "Motor Volts", "y_mot_volt", true,
             CHART_LINE_WIDTH, RGBA( COLORS.MOT_VOLT, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.MOT_VOLT, 0.7 ) 
         )

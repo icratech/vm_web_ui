@@ -1,19 +1,27 @@
-<script context="module">
-    const modalList = [ ]
-</script>
+<script context="module"> const modalList = [ ]; </script>
+
 <script>
+
     import PillButton from "../button/PillButton.svelte";
     import { openModals } from "../../des_api"
+
     const store = openModals( false ) 
-    export const { isOpen, open, close, fuckyou } = store
+    // export const { isOpen, open, close } = store
+
+    let isOpen = store.isOpen
+    export const open = store.open
+    export const close = store.close
+
     const keydown = ( e ) => {
         e.stopPropagation( ) 
         if ( e.key === 'Escape' ) { close( ) }
     }
+
     const transitioned = ( e ) => {
         const node = e.target 
         node.focus( )
     }
+
     const modalAction = ( node ) => {
         const returnFn = [ ]
         if( document.body.style.overflow !== 'hidden' ) {
@@ -31,9 +39,11 @@
             modalList.pop( )
             // modalList[ modalList.length - 1 ]?.focus( )
         } )
+
         return {
             destroy: ( ) => returnFn.forEach( ( fn ) => fn( ) ),
         }
+
     }
 
     import { createEventDispatcher } from "svelte"

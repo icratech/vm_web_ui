@@ -2,7 +2,7 @@
 
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
-    import { DEVICES, DEVICE_MAP_MARKERS, DEVICES_LOADED } from "../../lib/des_api";
+    import { DEVICES, DEVICES_LOADED } from "../../lib/des_api";
 
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
     import 'mapbox-gl/dist/mapbox-gl.css'
@@ -17,9 +17,13 @@
             zoom : 2
         } )
         console.log( "DeviceSearch -> makeMap( ) -> DEVIECS: ", $DEVICES )
-        console.log( "DeviceSearch -> makeMap( ) -> $DEVICE_MAP_MARKERS: ", $DEVICE_MAP_MARKERS )
-        $DEVICE_MAP_MARKERS.forEach( m => m.addTo( map )) 
-
+        // console.log( "DeviceSearch -> makeMap( ) -> $DEVICE_MAP_MARKERS: ", $DEVICE_MAP_MARKERS )
+        // $DEVICE_MAP_MARKERS.forEach( m => m.addTo( map )) 
+        $DEVICES.forEach( d =>{
+             d.s_mark.addTo( map )
+             d.updateDveiceSearchMap = ( lng, lat ) => { d.s_mark.setLngLat( [ lng, lat ] ) }
+            }
+        ) 
     }
 
     $: filter = true

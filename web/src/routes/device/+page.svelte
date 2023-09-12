@@ -3,7 +3,7 @@
 
     import { onMount } from 'svelte'
 
-    import { DEVICES, DEVICES_LOADED, get_devices, Device, Job, GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONGeometry } from '../../lib/des_api'
+    import { DEVICES, DEVICES_LOADED, get_devices } from '../../lib/des_api'
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
