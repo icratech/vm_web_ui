@@ -24,18 +24,18 @@
     export let device = new Device( )
     $: event = device.evt 
     $: cfg = device.cfg
-    $: header = device.hdr
+    $: hdr = device.hdr
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    $: available = header.hdr_job_start == 0
-    $: pending = header.hdr_job_end != 0
+    $: available = hdr.hdr_job_start == 0
+    $: pending = hdr.hdr_job_end != 0
     $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
     $: jobStartText = ( pending ? 'Pending Job' : 'Start Job' )
     $: jobStartIcon = btn_img_config // ( pending ? null : btn_img_config )
     // $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connect ws if not connected?") : device.startJob( $AUTH ) ) }
     $: jobStartFunc = ( ) => { ( pending ? device.connectWS( $AUTH ) : dispatch( 'start' ) ) }
 
-    $: active = ( header.hdr_job_start > 0 && header.hdr_job_end == 0 )
+    $: active = ( hdr.hdr_job_start > 0 && hdr.hdr_job_end == 0 )
     $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
@@ -44,7 +44,7 @@
         let map = new mapboxgl.Map(  {
             container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
-            center: [ header.hdr_geo_lng, header.hdr_geo_lat ],
+            center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
             zoom : ( active ? 5.5 : 1 )
         } )
 
@@ -54,8 +54,8 @@
         device.mark.addTo( map )
 
         device.updateDveicePageMap = ( act, lng, lat ) => { 
-            device.mark.setLngLat( [ lng, lat ] )
             map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 3500 } ) 
+            device.mark.setLngLat( [ lng, lat ] )
         }
     }
 
@@ -116,7 +116,7 @@
         <BarGaugeCard bind:smp bind:cfg />
 
         <div class="flx-col card">
-            <HeaderCard bind:header />
+            <HeaderCard bind:header={hdr} />
         </div>
 
     </div>

@@ -8,7 +8,7 @@
     import ConfigPanel from '../../../lib/components/config/ConfigPanel.svelte'
     
     export let data
-    import { DEVICES, Admin, Header, Config, MODE } from '../../../lib/des_api'
+    import { DEVICES, Admin, Header, Config, AUTH, MODE } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
  
     import Modal from '../../../lib/common/modal/Modal.svelte'
@@ -29,7 +29,8 @@
 
     <div class="flx-row layout">
 
-        <Modal bind:open on:confirm={ ( ) => { device.startJob( ) } }>
+        <Modal bind:open on:confirm={ async( ) => { device.startJob( ) 
+            } }>
             <h3 class='fg-accent' slot="title">Start a new job</h3>
             <div slot="content" class="flx-row">
                 <DeviceStartPanel bind:device />
@@ -37,7 +38,10 @@
             <div slot="footer">Send command</div>
         </Modal>
      
-        <DeviceControls bind:device on:start={ ( ) =>{ open( ) } }/>
+        <DeviceControls bind:device on:start={ async( ) => {     
+            // if ( !device.socket ) { await device.connectWS( $AUTH ) }
+            open( ) 
+        } }/>
             
         <div class="flx-col content">
 

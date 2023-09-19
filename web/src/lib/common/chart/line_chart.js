@@ -172,7 +172,6 @@ export class LineChartScale {
 export let LineChartXScale = {
     type: 'time',
     time: {
-        // unit: 'day',
         displayFormats: {
             day: "MMM-d HH:mm",
             hour: 'MMM-d HH:mm',

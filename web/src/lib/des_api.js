@@ -11,6 +11,7 @@ export const openModals = ( initial ) => {
         toggle: ( ) => update( ( n ) => !n ),
     }
 }
+export const waitMilli = ( ms ) => new Promise( ( res ) => setTimeout( res, ms ) )
 
 export const AUTH = writable( { } )
 export const USERS = writable( [ ] )
@@ -20,7 +21,7 @@ export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
 export const DEMO_DEVICES = writable( [ ] )
 
-const local = true
+const local = false
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des.leehayford.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` )
@@ -125,6 +126,7 @@ export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/devi
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
 export const API_URL_GET_RUN_DEMO_SIM = `${ WS_SERVER }/api/001/001/demo/sim` 
+
 export const get_devices = async( ) => {
 
     let token = sessionStorage.getItem( 'des_token' )
@@ -324,15 +326,7 @@ export class User {
         this.logged_in = logged_in
     }
 }
-/* 
-HTTP DEVICE DATA STRUCTURE 
-
-Longitude: -115.000000
-Latitude: 55.000000
--114.75 > LNG < -110.15
-51.85 > LAT < 54.35
-
-*/
+/* DEVICE DATA STRUCTURE  *****************************************************************************/
 export class DESRegistration {
     constructor( 
         /* DESDevice */
@@ -421,20 +415,25 @@ export class Device {
 
     updateDveiceSearchMap( ) { }
     updateDveicePageMap( ) { }
+    
     /* WS CONNECTION */
     disconnectWS( ) { }
-    connectWS( user ) {
+    connectWS = async( user ) => {
 
         let reg = encodeURIComponent(JSON.stringify( this.reg ) )
         let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ user.token }&des_reg=${ reg }`
         const ws = new WebSocket( url )
-        ws.onopen = ( e ) => { console.log( "class Device -> WebSocket OPEN" )  }
+        ws.onopen = ( e ) => { 
+            this.socket = true
+            this.update( ) 
+            console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
+        }
         ws.onerror = ( e ) => { 
             ws.send( "close" )
             ws.close( )
             this.socket = false
-            console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket ERROR\n${ JSON.stringify( e )  }\n` ) 
             this.update( ) 
+            console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket ERROR\n${ JSON.stringify( e )  }\n` ) 
         }
         ws.onmessage = ( e ) => {
 
@@ -515,7 +514,6 @@ export class Device {
             // console.log( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
             this.update( )
         } 
-
         this.disconnectWS =  ( ) => {
             ws.send( "close" )
             ws.close( ) 
@@ -523,9 +521,7 @@ export class Device {
             this.socket = false
             this.update( )
         }
-
-        this.socket = true
-        this.update( )
+        await waitMilli(1000)
     }
 
     startJob = async( ) => {
@@ -535,19 +531,17 @@ export class Device {
 
         let au = get( AUTH )
 
-        if ( !this.socket ) {
-            this.connectWS( au )
-        }
+        if ( !this.socket ) { await this.connectWS( au ) }
 
         this.adm.adm_user_id = au.id
         this.adm.adm_app = client_app
 
-        this.cfg.cfg_user_id = au.id
-        this.cfg.cfg_app = client_app
-
         this.hdr.hdr_user_id = au.id
         this.hdr.hdr_app = client_app
         this.hdr.hdr_job_end = -1
+
+        this.cfg.cfg_user_id = au.id
+        this.cfg.cfg_app = client_app
 
         this.reg.des_job_reg_user_id = au.id
         this.reg.des_job_reg_app = client_app
@@ -558,8 +552,8 @@ export class Device {
             cfg: this.cfg,
             reg: this.reg
         }
+
         console.log( "Send START JOB Request:\n", dev ) 
-        
         let req = new Request( API_URL_C001_V001_DEVICE_START, { 
             method: "POST",
             headers: { 
@@ -582,9 +576,7 @@ export class Device {
 
         let au = get( AUTH )
 
-        if ( !this.socket ) {
-            this.connectWS( au )
-        }
+        if ( !this.socket ) { await this.connectWS( au ) }
 
         this.hdr.hdr_job_end = -1
         this.reg.des_job_reg_app = client_app
@@ -592,8 +584,8 @@ export class Device {
         let dev = {
             reg: this.reg
         }
-        console.log( "Send END JOB Request:\n", dev ) 
-        
+
+        console.log( "Send END JOB Request:\n", dev )  
         let req = new Request( API_URL_C001_V001_DEVICE_END, { 
             method: "POST",
             headers: { 
@@ -744,7 +736,6 @@ export class Device {
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/
-
 export class Job {
     constructor(
         admins = [ ],
@@ -763,65 +754,31 @@ export class Job {
         this.xypoints = xypoints
         this.reg = reg
         
-        // this.geo = new GeoJSONFeature(
-        //     new GeoJSONGeometry( [ this.reg.des_job_lng, this.reg.des_job_lat ] ),
-        //     // this.headers[0].hdr_well_name
-        //     "whatever"
-        // )
-        // this.geo.geometry.coordinates = [ this.reg.des_job_lng, this.reg.des_job_lat ]
-
         this.cht = NewChartData( )
         this.cht_ch4 = this.cht.data.datasets[0]
-        // this.cht_ch4.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_ch4 } ] // this.xypoints.ch4
 
         this.cht_hi_flow = this.cht.data.datasets[1]
-        // this.cht_hi_flow.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_hi_flow } ] // this.xypoints.hi_flow
         
         this.cht_lo_flow = this.cht.data.datasets[2]
-        // this.cht_lo_flow.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_lo_flow } ] // this.xypoints.lo_flow
         
         this.cht_press = this.cht.data.datasets[3]
-        // this.cht_press.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_press } ] // this.xypoints.press
         
         this.cht_bat_amp = this.cht.data.datasets[4]
-        // this.cht_bat_amp.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_bat_amp } ] // this.xypoints.bat_amp
         
         this.cht_bat_volt = this.cht.data.datasets[5]
-        // this.cht_bat_volt.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_bat_volt } ] // this.xypoints.bat_volt
         
         this.cht_mot_volt = this.cht.data.datasets[6]
-        // this.cht_mot_volt.data = [ { x: this.samples[0].smp_time, y: this.samples[0].smp_mot_volt } ] // this.xypoints.mot_volt
-
-        // if ( this.cht_ch4.data ) {
-        //     this.cht_x_min = this.cht_ch4.data[0].x
-        //     this.cht_x_max = this.cht_ch4.data[ this.cht_ch4.data.length - 1 ].x
-        // } else {
-        //     this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
-        //     this.cht_x_min = this.cht_x_max - 60  // console.log( "this.cht_x_min", this.cht_x_min )
-        // }            
-        // // this.cht_x_max = Date.now( ) // console.log( "this.cht_x_max", this.cht_x_max )
-        // // this.cht_x_min = this.cht_x_max  // console.log( "this.cht_x_min", this.cht_x_min )
 
         this.cht_point_limit = 100
         this.cht_scale_margin = 0.1
-        // this.sample = new Sample( )
     }
     
     /* CHART DATA */
     updateChartData( ) {
 
-        // if ( this.cht_ch4.data.length > this.cht_point_limit ) {
-        //     this.cht.options.scales.x.min = this.cht_ch4.data[  this.cht_ch4.data.length - this.cht_point_limit ].x
-        // // } else {
-        // //     this.cht.options.scales.x.min = this.sample.smp_time
-        // }
-
-        // this.sample = this.samples[ this.samples.length - 1 ]
         let sample = this.samples[ this.samples.length - 1 ]
-        // let sample = this.smp
 
         this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_ch4 },
             { x: sample.smp_time, y: sample.smp_ch4 },
             this.cht_ch4, this.cht.options.scales.y_ch4,
             this.cht_point_limit,
@@ -829,7 +786,6 @@ export class Job {
         )
         
         this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_hi_flow },
             { x: sample.smp_time, y: sample.smp_hi_flow },
             this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
             this.cht_point_limit,
@@ -837,7 +793,6 @@ export class Job {
         )
         
         this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_lo_flow },
             { x: sample.smp_time, y: sample.smp_lo_flow },
             this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
             this.cht_point_limit,
@@ -845,7 +800,6 @@ export class Job {
         )
         
         this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_press },
             { x: sample.smp_time, y: sample.smp_press },
             this.cht_press, this.cht.options.scales.y_press,
             this.cht_point_limit,
@@ -853,7 +807,6 @@ export class Job {
         )
         
         this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_bat_amp },
             { x: sample.smp_time, y: sample.smp_bat_amp },
             this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
             this.cht_point_limit,
@@ -861,7 +814,6 @@ export class Job {
         )
         
         this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_bat_volt },
             { x: sample.smp_time, y: sample.smp_bat_volt },
             this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
             this.cht_point_limit,
@@ -869,7 +821,6 @@ export class Job {
         )
         
         this.cht.pushPoint( 
-            // { x: this.sample.smp_time, y: this.sample.smp_mot_volt },
             { x: sample.smp_time, y: sample.smp_mot_volt },
             this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
             this.cht_point_limit,
@@ -1009,7 +960,7 @@ export class Header {
         hdr_job_start = 0,
         hdr_job_end = 0,
 
-        /*GEO LOCATION - USED TO POPULATE A GeoJSON OBJECT */
+        /*GEO LOCATION */
         hdr_geo_lng = 0,
         hdr_geo_lat = 0
     ) {
@@ -1429,7 +1380,6 @@ const NewChartDataSets = ( ) => {
     ]
 
 }
-
 const NewChartScales = ( ) => {
 
     return {
