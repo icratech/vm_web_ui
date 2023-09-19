@@ -75,7 +75,7 @@
                 <PillButton 
                     cls={ 'bg-red' }
                     on:click={ close }
-                    hint={ 'Close' } 
+                    hint={ 'Cancel' } 
                 />
             </div>
 
@@ -123,18 +123,23 @@
         align-items: center;
         opacity: 1;
         z-index: 3;
-        opacity: 0.9;
+        /* opacity: 0.9; */
     }
     /* div.modal:not( :focus-within ) {
         transition: opacity 0.5ms;
         opacity: 0.9;
     } */
     div.backdrop {
-        background-image: url( "$lib/images/bg-img-blue.png" );
+        background-image: url( "$lib/images/bg-img-blue.svg" );
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
         position: absolute;
         width: 100%;
         height: 100%;
         z-index: 4;
+        opacity: 0.9;
     }
     .flx-col.content-wrapper {
         z-index: 11;
@@ -147,7 +152,11 @@
         border-right: solid 0.05em var(--light_01);
     }
     div.content {
-        background-image: url( "$lib/images/bg-img-blue.png" );
+        background-image: url( "$lib/images/bg-img-blue.svg" );
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
         /* max-height: 50vh; */
@@ -155,5 +164,6 @@
         padding:1.5em;
         gap: 1.5em;
         overflow: hidden;
+        opacity: 0.7;
     }
 </style>

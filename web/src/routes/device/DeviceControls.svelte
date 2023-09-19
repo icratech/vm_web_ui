@@ -45,7 +45,8 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
             center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
-            zoom : ( active ? 5.5 : 1 )
+            zoom : ( active ? 5.5 : 1 ),
+            interactive: true
         } )
 
         // const el = document.createElement('div')

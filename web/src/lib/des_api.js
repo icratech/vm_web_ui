@@ -21,7 +21,7 @@ export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
 export const DEMO_DEVICES = writable( [ ] )
 
-const local = false
+const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des.leehayford.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` )

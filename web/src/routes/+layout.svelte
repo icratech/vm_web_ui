@@ -66,17 +66,21 @@
 <style>
     .main {
         /* background-color: var(--dark); */
-        background-image: url( "$lib/images/bg-img-light.png" );
-        /* background-image: url( "$lib/images/bg-img-red.png" ); */
-        /* background-image: url( "$lib/images/bg-img-orange.png" ); */
-        /* background-image: url( "$lib/images/bg-img-yellow.png" ); */
-        /* background-image: url( "$lib/images/bg-img-green.png" ); */
-        /* background-image: url( "$lib/images/bg-img-aqua.png" ); */
-        background-image: url( "$lib/images/bg-img-blue.png" );
-        /* background-image: url( "$lib/images/bg-img-purple.png" ); */
-        /* background-image: url( "$lib/images/bg-img-pink.png" ); */
+        /* background-image: url( "$lib/images/bg-img-light.svg" ); */
+        /* background-image: url( "$lib/images/bg-img-red.svg" ); */
+        /* background-image: url( "$lib/images/bg-img-orange.svg" ); */
+        /* background-image: url( "$lib/images/bg-img-yellow.svg" ); */
+        /* background-image: url( "$lib/images/bg-img-green.svg" ); */
+        /* background-image: url( "$lib/images/bg-img-aqua.svg" ); */
+        background-image: url( "$lib/images/bg-img-blue.svg" );
+        /* background-image: url( "$lib/images/bg-img-purple.svg" ); */
+        /* background-image: url( "$lib/images/bg-img-pink.svg" ); */
         /* background-image: url( "$lib/images/bug.jpg" );
         background-size: cover; */
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
         color: var(--grey);
         height: 100vh;
     }
