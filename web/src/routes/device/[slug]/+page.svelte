@@ -21,6 +21,7 @@
 
     const setMode = ( mode ) => {
         device.cfg.cfg_vlv_tgt = mode
+        device.cfg.cfg_vlv_pos = mode
         device.setConfig()
     }
 </script>
@@ -58,41 +59,41 @@
                     <div class="flx-col tabs">
 
                         <PillButton
-                            cls={ 'bg-blue' } 
+                            cls={ 'bg-light' } 
                             on:click={ device.setAdmin }
                             hint='ADM'
-                            />
-                
-                        <PillButton
-                            cls={ 'bg-aqua' }
-                            on:click={ device.setHeader }
-                            hint='HDR'
-                            />
-                
-                        <PillButton
-                            cls={ 'bg-green' }
-                            on:click={ device.setConfig }
-                            hint='CFG'
-                            />
-                
-                        <PillButton
-                            cls={ 'bg-yellow' }
-                            on:click={ ( ) => { setMode( 0 ) } }
-                            hint='BUILD'
-                            />
-                
-                        <PillButton
-                            cls={ 'bg-orange' }
-                            on:click={ ( ) => { setMode( 4 ) } }
-                            hint='FLOW'
-                            />
-                
-                        <PillButton
-                            cls={ 'bg-red' }
-                            on:click={ ( ) => { setMode( 2 ) } }
-                            hint='VENT'
                         />
                 
+                        <PillButton
+                            cls={ 'bg-light' }
+                            on:click={ device.setHeader }
+                            hint='HDR'
+                        />
+                
+                        <PillButton
+                            cls={ 'bg-light' }
+                            on:click={ device.setConfig }
+                            hint='CFG'
+                        />
+            
+                        <PillButton
+                            cls={ 'bg-aqua' }
+                            on:click={ ( ) => { setMode( 2 ) } }
+                            hint='VENT'
+                        />    
+
+                        <PillButton
+                            cls={ 'bg-green' }
+                            on:click={ ( ) => { setMode( 4 ) } }
+                            hint='FLOW'
+                        />
+            
+                        <PillButton
+                            cls={ 'bg-orange' }
+                            on:click={ ( ) => { setMode( 0 ) } }
+                            hint='BUILD'
+                        />
+            
                     </div>
                 
                     <div class="flx-row">

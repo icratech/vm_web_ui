@@ -5,6 +5,20 @@ import { BASE, RGBA } from "../colors"
 export const CHART_LINE_WIDTH = 1.5
 export const CHART_MARKER_RADIUS = 1
 
+const chartAreaBorder = {
+    id: 'chartAreaBorder',
+    beforeDraw(chart, args, options) {
+      const {ctx, chartArea: {left, top, width, height}} = chart
+      ctx.save()
+      ctx.strokeStyle = options.borderColor
+      ctx.lineWidth = options.borderWidth
+      ctx.setLineDash(options.borderDash || [])
+      ctx.lineDashOffset = options.borderDashOffset
+      ctx.strokeRect(left, top, width, height)
+      ctx.restore()
+    }
+}
+
 export class LineChartModel {
     constructor( title, color ) {
 
@@ -36,6 +50,7 @@ export class LineChartModel {
                 x: LineChartXScale 
             },
             plugins: { 
+                chartAreaBorder: { borderColor: RGBA( BASE.LIGHT, 0.1 ), borderWidth: 1 },
                 title: { 
                     text: title, 
                     fontSize: 16,
@@ -71,6 +86,8 @@ export class LineChartModel {
         //         // tooltip: { position: "fixed" }
             }
         }
+
+        this.plugins = [ chartAreaBorder ]
     }
 
     pushPoint( point, set = [ ], scale, limit, scale_margin ) {
@@ -131,33 +148,31 @@ export class LineChartScale {
         color,
         gridColor,
         showGrid,
+        display = true,
     ) {
         this.type = "linear"
         this.min = min
         this.max = max
         this.position = position
-        this.weight = weight,
-        this.display = true
+        this.weight = weight
+        this.display = display
         this.border = {
-            display: true,
+            display: false,
             color: gridColor,
             width: 1,
         }
         this.title = {
             display: true,
             align: "end",
-            font: {
-                size: 15,
-            },
-            padding: {
-                top: 13,
-                bottom: 3,
-            },
+            font: { size: 14 },
+            padding: { top: 10 },
             color: color,
             text: title,
         }
         this.ticks = { 
-            color: color ,
+            // count: 5,
+            color: color,
+            padding: 5,
             callback: function( value ) {
                 return value.toFixed( 1 )
             }
@@ -165,7 +180,14 @@ export class LineChartScale {
         this.grid = { 
             display: showGrid,
             color: gridColor,
+
+            drawTicks: false,
         }
+        // this.border = {
+        //     display: true,
+        //     color: RGBA( BASE.LIGHT, 0.2 ),
+        //     width: 1,
+        // }
     }
 }
 
@@ -181,27 +203,19 @@ export let LineChartXScale = {
         }
     },
     grid: { 
-        color: RGBA( BASE.LIGHT, 0.2 ),
+        tickLength: 10,
+        drawTicks: false,
+        color: RGBA( BASE.LIGHT, 0.1 ),
         display: true
     },
     position: 'bottom',
-    border: {
-        display: true,
-        color: RGBA( BASE.LIGHT, 0.2 ),
-        width: 1,
-    },
-    title: {
-        display: false,
-        font: {
-            size: 15,
-        },
-        padding: {
-            top: 13,
-            bottom: 13,
-        },
-        color: RGBA( BASE.LIGHT, 0.7 ),
-        text: "Time",
-    },
+    // title: {
+    //     display: true,
+    //     font: { size: 15 },
+    //     padding: { top: 13, bottom: 13 },
+    //     color: RGBA( BASE.LIGHT, 0.7 ),
+    //     text: "Time",
+    // },
     ticks: {
         autoSkip: true,
         autoSkipPadding: 50,

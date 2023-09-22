@@ -500,6 +500,22 @@ export class Device {
                     } else {
                         this.job.samples = [ msg.data ]
                     }
+                    
+                    if ( this.smp.smp_lo_flow < this.cfg.cfg_flow_tog ) {
+                        this.job.cht.options.scales.y_lo_flow.display = true
+                        this.job.cht_lo_flow.hidden = false
+
+                        this.job.cht.options.scales.y_hi_flow.display = false
+                        this.job.cht_hi_flow.hidden = true
+
+                    } else {
+                        this.job.cht.options.scales.y_lo_flow.display = false
+                        this.job.cht_lo_flow.hidden = true
+
+                        this.job.cht.options.scales.y_hi_flow.display = true
+                        this.job.cht_hi_flow.hidden = false
+
+                    }
                     // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.job )
                     this.job.updateChartData()
                     break
@@ -1322,12 +1338,12 @@ export const MODE = [
 
 import { BASE, RGBA } from './common/colors'
 export const COLORS = {
-    CH4: BASE.PINK,
-    HI_FLOW: BASE.BLUE,
-    LO_FLOW: BASE.AQUA,
-    PRESS: BASE.YELLOW,
+    CH4: BASE.AQUA,
+    HI_FLOW: BASE.GREEN,
+    LO_FLOW: BASE.GREEN,
+    PRESS: BASE.ORANGE,
     BAT_AMP: BASE.RED,
-    BAT_VOLT: BASE.ORANGE,
+    BAT_VOLT: BASE.PINK,
     MOT_VOLT: BASE.PURPLE
 }
 
@@ -1360,19 +1376,19 @@ const NewChartDataSets = ( ) => {
         ),
 
          /* 4 */
-        new LineChartDataSet( [ ], "Battery Amps", "y_bat_amp", true, 
+        new LineChartDataSet( [ ], "Battery Amps", "y_bat_amp", false, 
             CHART_LINE_WIDTH, RGBA( COLORS.BAT_AMP, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.BAT_AMP, 0.7 ) 
         ),
 
          /* 5 */
-        new LineChartDataSet( [ ], "Battery Volts", "y_bat_volt", true,
+        new LineChartDataSet( [ ], "Battery Volts", "y_bat_volt", false,
             CHART_LINE_WIDTH, RGBA( COLORS.BAT_VOLT, 0.3 ),  
             CHART_MARKER_RADIUS, RGBA( COLORS.BAT_VOLT, 0.7 ) 
         ),
 
          /* 6 */
-        new LineChartDataSet( [ ], "Motor Volts", "y_mot_volt", true,
+        new LineChartDataSet( [ ], "Motor Volts", "y_mot_volt", false,
             CHART_LINE_WIDTH, RGBA( COLORS.MOT_VOLT, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.MOT_VOLT, 0.7 ) 
         )
@@ -1387,31 +1403,35 @@ const NewChartScales = ( ) => {
         x: LineChartXScale,
 
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
-            RGBA( COLORS.CH4, 1.0 ), RGBA( COLORS.CH4, 0.3 ), false 
+            RGBA( COLORS.CH4, 0.7 ), RGBA( BASE.LIGHT, 0.1 ), false 
         ),
         
         y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75,  2.5, 250, "left", 
-            RGBA( COLORS.HI_FLOW, 1.0 ), RGBA( COLORS.HI_FLOW, 0.4 ), false 
+            RGBA( COLORS.HI_FLOW, 0.7 ), RGBA( BASE.LIGHT, 0.1 ), true,
+            false 
         ),
         
         y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, -0.1, 2, "left",
-            RGBA( COLORS.LO_FLOW, 1.0 ), RGBA( COLORS.LO_FLOW, 0.2 ), true )
-         ,
+            RGBA( COLORS.LO_FLOW, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true, 
+        ),
         
-        y_press: new LineChartScale( "Press ( psi )", 0, 0, 1000, "left", 
-            RGBA( COLORS.PRESS, 1.0 ), RGBA( COLORS.PRESS, 0.3 ), false 
+        y_press: new LineChartScale( "Press ( kPa )", 0, 0, 7000, "right", 
+            RGBA( COLORS.PRESS, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false 
         ),
         
         y_bat_amp: new LineChartScale( "Bat ( A )", 0, 0, 1.5, "right", 
-            RGBA( COLORS.BAT_AMP, 1.0 ), RGBA( COLORS.BAT_AMP, 0.3 ), false 
+            RGBA( COLORS.BAT_AMP, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
+            false  
         ),
         
         y_bat_volt: new LineChartScale( "Bat ( V )", 1, 0, 15, "right", 
-            RGBA( COLORS.BAT_VOLT, 1.0 ), RGBA( COLORS.BAT_VOLT, 0.3 ), false 
+            RGBA( COLORS.BAT_VOLT, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
+            false 
         ),
         
         y_mot_volt: new LineChartScale( "Mot ( V )", 2, 0, 15, "right", 
-            RGBA( COLORS.MOT_VOLT, 1.0 ), RGBA( COLORS.MOT_VOLT, 0.3 ), false 
+            RGBA( COLORS.MOT_VOLT, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
+            false  
         )
     }
 

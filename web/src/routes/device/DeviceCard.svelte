@@ -13,12 +13,12 @@
 
     export let device = new Device( )
 
-    $: event = device.evt  
-    $: config = device.cfg
-    $: header = device.hdr
+    $: evt = device.evt  
+    $: cfg = device.cfg
+    $: hdr = device.hdr
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    $: active = ( header.hdr_job_start > 0 && header.hdr_job_end == 0 )
+    $: active = ( hdr.hdr_job_start > 0 && hdr.hdr_job_end == 0 )
 
     
     $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
@@ -64,15 +64,15 @@
 
             </div>
             
-            <BarGaugeCard bind:smp />
+            <BarGaugeCard bind:smp bind:cfg/>
             
     </div>
     <div class="flx-col card">
-        <HeaderCard bind:header />
+        <HeaderCard bind:header={hdr} />
     </div>
     <!-- <ConfigCard bind:config /> -->
     
-    <EventCard bind:event title="Last event" />
+    <EventCard bind:event={evt} title="Last event" />
 
 </div>
 
