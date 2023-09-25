@@ -163,8 +163,8 @@ export const get_devices = async( ) => {
                 // const el = document.createElement('div')
                 device.mark_el.className = 'marker_vent'
                 device.mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
-                device.s_mark_el.className = 'marker_vent'
-                device.s_mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
+                // device.s_mark_el.className = 'marker_vent'
+                // device.s_mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
                 // DEVICE_MAP_MARKERS.update( m => { return [ ...m, mrkr ] } )
 
                 DEVICES.update( d => { return [ ...d, device ] } )
@@ -406,15 +406,20 @@ export class Device {
         this.socket = false
         this.mark = new mapboxgl.Marker( )
         this.mark_el = document.createElement('div')
-        this.s_mark = new mapboxgl.Marker( )
-        this.s_mark_el = document.createElement('div')
+        this.mark_el.addEventListener('click', ( ) => { 
+            console.log( this.mark.getOffset() ) 
+            console.log( this.mark.getLngLat() ) 
+            console.log ( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ] )
+        })
+        // this.s_mark = new mapboxgl.Marker( )
+        // this.s_mark_el = document.createElement('div')
 
     }
     
     update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
-    updateDveiceSearchMap( ) { }
-    updateDveicePageMap( ) { }
+    updateDeviceSearchMap( ) { }
+    updateDevicePageMap( ) { }
     
     /* WS CONNECTION */
     disconnectWS( ) { }
@@ -453,13 +458,13 @@ export class Device {
                     this.reg.des_job_end = this.hdr.hdr_job_end
                     this.reg.des_job_lng = this.hdr.hdr_geo_lng
                     this.reg.des_job_lat = this.hdr.hdr_geo_lat
-                    this.updateDveiceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
-                    this.updateDveicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                    this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                    this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                     break
 
                 case "config":
                     this.cfg = msg.data
-                    // this.updateDveicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                    // this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                     console.log("new config received from device: ", this.cfg)
                     switch ( this.cfg.cfg_vlv_tgt ) {
                         case 0: this.mark_el.className = 'marker_build'; break
@@ -479,19 +484,21 @@ export class Device {
                     switch ( this.smp.smp_vlv_tgt ) {
                         case 0: 
                             this.mark_el.className = 'marker_build'; 
-                            this.s_mark_el.className = 'marker_build'; 
+                            // this.s_mark_el.className = 'marker_build'; 
                             break;
                         case 2: 
                             this.mark_el.className = 'marker_vent'; 
-                            this.s_mark_el.className = 'marker_vent'; 
+                            // this.s_mark_el.className = 'marker_vent'; 
                             break
                         case 4: 
-                            this.mark_el.className = 'marker_hi_flow'; 
-                            this.s_mark_el.className = 'marker_hi_flow'; 
-                            break
                         case 6: 
-                            this.mark_el.className = 'marker_lo_flow'; 
-                            this.s_mark_el.className = 'marker_lo_flow'; 
+                            if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) {
+                                this.mark_el.className = 'marker_hi_flow'; 
+                                // this.s_mark_el.className = 'marker_hi_flow'; 
+                            } else {
+                                this.mark_el.className = 'marker_lo_flow'; 
+                                // this.s_mark_el.className = 'marker_lo_flow'; 
+                            }
                             break
                     }
                     // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.smp )
@@ -1338,13 +1345,13 @@ export const MODE = [
 
 import { BASE, RGBA } from './common/colors'
 export const COLORS = {
-    CH4: BASE.AQUA,
-    HI_FLOW: BASE.GREEN,
-    LO_FLOW: BASE.GREEN,
-    PRESS: BASE.ORANGE,
-    BAT_AMP: BASE.RED,
-    BAT_VOLT: BASE.PINK,
-    MOT_VOLT: BASE.PURPLE
+    CH4: BASE.PINK,
+    HI_FLOW: BASE.ORANGE,
+    LO_FLOW: BASE.YELLOW,
+    PRESS: BASE.GREEN,
+    BAT_AMP: BASE.BLUE,
+    BAT_VOLT: BASE.PURPLE,
+    MOT_VOLT: BASE.RED
 }
 
 import { LineChartModel, LineChartXScale, LineChartScale, LineChartDataSet, CHART_LINE_WIDTH, CHART_MARKER_RADIUS } from './common/chart/line_chart'
@@ -1403,15 +1410,15 @@ const NewChartScales = ( ) => {
         x: LineChartXScale,
 
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
-            RGBA( COLORS.CH4, 0.7 ), RGBA( BASE.LIGHT, 0.1 ), false 
+            RGBA( COLORS.CH4, 0.8 ), RGBA( BASE.LIGHT, 0.1 ), false 
         ),
         
-        y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75,  2.5, 250, "left", 
+        y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75, -5.0, 250, "left", 
             RGBA( COLORS.HI_FLOW, 0.7 ), RGBA( BASE.LIGHT, 0.1 ), true,
             false 
         ),
         
-        y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, -0.1, 2, "left",
+        y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, -0.1, 2.5, "left",
             RGBA( COLORS.LO_FLOW, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true, 
         ),
         

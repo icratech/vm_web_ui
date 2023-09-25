@@ -1,5 +1,6 @@
 <script>
 
+    export let name = "not-a-password" // without a name, chrome sometimes thinks it should suggest a password...
     export let txt = null
     export let place = ""
     export let lbl = null
@@ -17,6 +18,7 @@
     { /if }
 
     <input 
+        name = { name }
         type="text" 
         bind:value={ txt }
         spellcheck=value

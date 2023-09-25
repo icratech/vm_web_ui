@@ -2,7 +2,7 @@
 import { BASE, RGBA } from "../colors"
 
 
-export const CHART_LINE_WIDTH = 1.5
+export const CHART_LINE_WIDTH = 2.5
 export const CHART_MARKER_RADIUS = 1
 
 const chartAreaBorder = {

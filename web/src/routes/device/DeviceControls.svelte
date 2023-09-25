@@ -54,7 +54,7 @@
         // device.mark = new mapboxgl.Marker( el ).setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] )
         device.mark.addTo( map )
 
-        device.updateDveicePageMap = ( act, lng, lat ) => { 
+        device.updateDevicePageMap = ( act, lng, lat ) => { 
             map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 3500 } ) 
             device.mark.setLngLat( [ lng, lat ] )
         }

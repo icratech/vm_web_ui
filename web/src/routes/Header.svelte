@@ -30,37 +30,6 @@
             
         </div>
 
-        <!-- <form method="POST" action="/?/login" class="flx-row login">
-        
-            { #if user.logged_in }
-            <h4>{ user.name }, you are a tolerable person.</h4>
-        
-                <button formaction="/?/logout" class='pill-btn bg-purple'>
-                    out
-                </button>
-            { :else }
-                <div class="flx-col input-container">
-                    <label class="lbl">
-                        email
-                        <input name="email"  type="email" value={ form?.email ?? '' } />
-                    </label>
-                </div>
-                
-                <div class="flx-col input-container">
-                    <label class="lbl">
-                        password
-                        <input name="password" type="password"  value={ form?.password ?? '' } />
-                    </label>
-                </div>
-            
-                <button class='pill-btn bg-green_a'>
-                    in
-                </button>
-            { /if }
-
-        </form> -->
-
-        
         <div class="flx-row login">
         
             { #if $AUTH.logged_in }
@@ -69,14 +38,14 @@
             <div class="flx-col input-container">
                 <label class="lbl">
                     email
-                    <input name="email"  type="email" bind:value={ email } />
+                    <input name="email"  type="email" bind:value={ email } id="usr"/>
                 </label>
             </div>
             
             <div class="flx-col input-container">
                 <label class="lbl">
                     password
-                    <input name="password" type="password"  bind:value={ password } />
+                    <input name="password" type="password"  bind:value={ password } id="pw"/>
                 </label>
             </div>
             { /if }

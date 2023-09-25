@@ -7,21 +7,25 @@
     export let smp = new Sample( )
     export let cfg = new Config( )
 
-    let color_code = RGBA(BASE.LIGHT, 0.5)
+    let color_code = RGBA(BASE.LIGHT, 0.6)
     $: {
-        switch ( cfg.cfg_vlv_pos ) {
-            case 0: 
+        switch ( cfg.cfg_vlv_tgt ) {
+            case 0: // BUILD
                 color_code = RGBA(COLORS.PRESS, 0.7)
                 break
-            case 2: 
-                color_code = RGBA(COLORS.CH4, 0.7)
+            case 2: // VENT
+                color_code = RGBA(BASE.AQUA, 0.8)
                 break
-            case 4: 
-                color_code = RGBA(COLORS.HI_FLOW, 0.7)
+            case 4: // HI FLOW
+            case 6: // LO FLOW
+                if ( smp.smp_lo_flow > cfg.cfg_flow_tog ) {
+                    color_code = RGBA(COLORS.HI_FLOW, 0.8)
+                } else {
+                    color_code = RGBA(COLORS.LO_FLOW, 0.8)
+                }
                 break
-            case 6: 
-                color_code = RGBA(COLORS.LO_FLOW, 0.7)
-                break
+            default:
+                color_code = RGBA(BASE.LIGHT, 0.6)
         }
     }
 
@@ -30,15 +34,11 @@
 
 <div class="flx-col container">
     <div class="flx-row mode">
-        <!-- { #if cfg.cfg_vlv_tgt == 0 } <h4 class="lbl build">BUILD</h4> { /if }
-        { #if cfg.cfg_vlv_tgt == 2 } <h4 class="lbl vent">VENT</h4> { /if }
-        { #if cfg.cfg_vlv_tgt == 4 } <h3 class="lbl hi-flow">HI FLOW</h3> { /if }
-        { #if cfg.cfg_vlv_tgt == 6 } <h4 class="lbl lo-flow">LO FLOW</h4> { /if }  -->
-        
-        { #if cfg.cfg_vlv_tgt == 0 } <h4 class="lbl" style="background-color: { color_code };">BUILD</h4> { /if }
-        { #if cfg.cfg_vlv_tgt == 2 } <h4 class="lbl" style="background-color: { color_code };">VENT</h4> { /if }
-        { #if cfg.cfg_vlv_tgt == 4 } <h3 class="lbl" style="background-color: { color_code };">HI FLOW</h3> { /if }
-        { #if cfg.cfg_vlv_tgt == 6 } <h4 class="lbl" style="background-color: { color_code };">LO FLOW</h4> { /if } 
+        <h4 class="lbl" style="background-color: { color_code };">
+            { #if cfg.cfg_vlv_tgt == 0 } BUILD { /if }
+            { #if cfg.cfg_vlv_tgt == 2 } VENT { /if }
+            { #if cfg.cfg_vlv_tgt > 3 } FLOW { /if }
+        </h4>
     </div>
 
     <BarGaugeH title="CH4"
@@ -89,8 +89,4 @@
         padding-bottom: 1em;
     }
     .lbl { color: var(--dark); padding: 0 1em; border-radius: 1em; font-size: 1.3em; font-weight: 400;}
-    /* .build { background-color: var(--orange_a); }
-    .vent { background-color: var(--aqua_a); }
-    .hi-flow { background-color: var(--green_a); }
-    .lo-flow { background-color: var(--yellow_a); } */
 </style>

@@ -8,8 +8,8 @@
     export let num
     $: width = num / ( max - min ) * 100
 
-    const bar_color = RGBA(base_color, 0.5)
-    const title_color = RGBA(base_color, 0.7)
+    const bar_color = RGBA(base_color, 0.7)
+    const title_color = RGBA(base_color, 0.8)
 
 </script>
 

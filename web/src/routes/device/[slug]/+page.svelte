@@ -83,13 +83,13 @@
                         />    
 
                         <PillButton
-                            cls={ 'bg-green' }
+                            cls={ 'bg-orange' }
                             on:click={ ( ) => { setMode( 4 ) } }
                             hint='FLOW'
                         />
             
                         <PillButton
-                            cls={ 'bg-orange' }
+                            cls={ 'bg-green' }
                             on:click={ ( ) => { setMode( 0 ) } }
                             hint='BUILD'
                         />
@@ -134,7 +134,7 @@
             </div>
     
             <div class="flx-col chart">
-                <LineChart bind:chartdata={ device.job.cht } />
+                <LineChart bind:chartdata={ device.job.cht } id={ device.des_dev_serial }/>
             </div>
     
         </div>

@@ -8,22 +8,28 @@
     import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
 
-   let map
+    let origin = [ -113.811, 52.269 ]
+    let map
     const makeMap = ( ctx ) => {
         map = new mapboxgl.Map(  {
             container: ctx,
             style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
-            center: [ -113.811, 52.269 ],
+            center: origin,
             zoom : 2
         } )
         console.log( "DeviceSearch -> makeMap( ) -> DEVIECS: ", $DEVICES )
         // console.log( "DeviceSearch -> makeMap( ) -> $DEVICE_MAP_MARKERS: ", $DEVICE_MAP_MARKERS )
         // $DEVICE_MAP_MARKERS.forEach( m => m.addTo( map )) 
         $DEVICES.forEach( d =>{
-             d.s_mark.addTo( map )
-             d.updateDveiceSearchMap = ( lng, lat ) => { d.s_mark.setLngLat( [ lng, lat ] ) }
+             d.mark.addTo( map )
+             d.updateDeviceSearchMap = ( lng, lat ) => { 
+                // map.setCenter( origin )
+                d.mark.setLngLat( [ lng, lat ] ) 
+                console.log("Search Map: Marker Offset: ", d.mark.getOffset())
             }
-        ) 
+            //  d.s_mark.addTo( map )
+            //  d.updateDeviceSearchMap = ( lng, lat ) => { d.s_mark.setLngLat( [ lng, lat ] ) }
+        } ) 
     }
 
     $: filter = true
