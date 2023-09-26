@@ -5,7 +5,7 @@
     import { DEVICES, DEVICES_LOADED } from "../../lib/des_api";
 
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
-    import 'mapbox-gl/dist/mapbox-gl.css'
+    // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
 
     let origin = [ -113.811, 52.269 ]
@@ -17,18 +17,21 @@
             center: origin,
             zoom : 2
         } )
+        map.on( 'load', ( ) => { 
+            map.resize( ) 
+            $DEVICES.forEach( d =>{ d.updateMarkerMode( ) } )
+            console.log( "DeviceSearch -> map.on( load )" )
+        } )
         console.log( "DeviceSearch -> makeMap( ) -> DEVIECS: ", $DEVICES )
-        // console.log( "DeviceSearch -> makeMap( ) -> $DEVICE_MAP_MARKERS: ", $DEVICE_MAP_MARKERS )
-        // $DEVICE_MAP_MARKERS.forEach( m => m.addTo( map )) 
+        let i = 0
         $DEVICES.forEach( d =>{
-             d.mark.addTo( map )
+             d.s_mark.addTo( map )
              d.updateDeviceSearchMap = ( lng, lat ) => { 
-                // map.setCenter( origin )
-                d.mark.setLngLat( [ lng, lat ] ) 
-                console.log("Search Map: Marker Offset: ", d.mark.getOffset())
+                d.s_mark.setLngLat( [ lng, lat ] ) 
+                d.updateMarkerMode( )
+                console.log( "updateDeviceSearchMap( ): ", d.s_mark.getOffset( ) )
             }
-            //  d.s_mark.addTo( map )
-            //  d.updateDeviceSearchMap = ( lng, lat ) => { d.s_mark.setLngLat( [ lng, lat ] ) }
+            i++
         } ) 
     }
 

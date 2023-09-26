@@ -160,12 +160,11 @@ export const get_devices = async( ) => {
                     dev.reg
                 )
                 
-                // const el = document.createElement('div')
-                device.mark_el.className = 'marker_vent'
+                // device.mark = new mapboxgl.Marker( device.mark_el, { anchor: 'center', offset: [0, 0] } ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
+                // device.s_mark = new mapboxgl.Marker( device.s_mark_el, { anchor: 'center', offset: [0, 0] } ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat ] ) 
                 device.mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
-                // device.s_mark_el.className = 'marker_vent'
-                // device.s_mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
-                // DEVICE_MAP_MARKERS.update( m => { return [ ...m, mrkr ] } )
+                device.s_mark = new mapboxgl.Marker( device.s_mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat ] ) 
+                device.updateMarkerMode( )
 
                 DEVICES.update( d => { return [ ...d, device ] } )
             }        
@@ -206,37 +205,6 @@ export const register_device = async( serial ) => {
 // export const API_URL_GET_DEVICE_BY_SN = `${ HTTP_SERVER }/api/device/serial` 
 export const API_URL_GET_JOBS =  `${ HTTP_SERVER }/api/job/list`
 export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name` 
-
-/* export const load_get_device_by_serial = async( serverLoadEvent ) => {
-
-    let reg = new DESRegistration( )
-    reg.des_dev_serial = serverLoadEvent.params.slug
-
-    let req = new Request( API_URL_GET_DEVICE_BY_SN, { 
-        method: 'POST',
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
-        },
-        body:  JSON.stringify( reg )
-    } )
-
-    const { fetch } = serverLoadEvent
-    let res = await fetch( req )
-    let json = await res.json( )
-
-    let resp = {
-        status: json.status,
-        message: json.message,
-        device: { },
-    } 
-    if ( resp.status == "success") { 
-        resp.device = json.data.device 
-    }
-   console.log(  JSON.stringify( res, null, 4 ))
-    return { resp }
-} */
 
 export const load_get_jobs = async( serverLoadEvent ) => {
 
@@ -386,6 +354,7 @@ export class DESRegistration {
 
 }
 
+import { goto } from '$app/navigation'
 export class Device {
     constructor( 
         adm = new Admin( ),
@@ -404,15 +373,30 @@ export class Device {
         this.job = job
         this.reg = reg 
         this.socket = false
-        this.mark = new mapboxgl.Marker( )
+        
+        this.highlight = false
+
+        // /* DEVICE PAGE MARKER */
         this.mark_el = document.createElement('div')
         this.mark_el.addEventListener('click', ( ) => { 
-            console.log( this.mark.getOffset() ) 
-            console.log( this.mark.getLngLat() ) 
-            console.log ( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ] )
-        })
-        // this.s_mark = new mapboxgl.Marker( )
-        // this.s_mark_el = document.createElement('div')
+            console.log( "Device PAGE Marker" ) 
+        } )
+
+        // /* DEVICE SEARCH PAGE MARKER */
+        this.s_mark_el = document.createElement('div')
+        this.s_mark_el.addEventListener('click', ( ) => { 
+            console.log( this.s_mark.getLngLat() ) 
+            // goto( '/device/' + this.reg.des_dev_serial )
+        } )
+        this.s_mark_el.addEventListener('mouseover', ( ) => { 
+            this.highlight = true //console.log( "this.highlight = ", this.highlight ) 
+            this.update( )
+            
+        } )
+        this.s_mark_el.addEventListener('mouseleave', ( ) => { 
+            this.highlight = false // console.log( "this.highlight = ", this.highlight ) 
+            this.update( )
+        } )
 
     }
     
@@ -464,14 +448,8 @@ export class Device {
 
                 case "config":
                     this.cfg = msg.data
-                    // this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                    this.updateMarkerMode( )
                     console.log("new config received from device: ", this.cfg)
-                    switch ( this.cfg.cfg_vlv_tgt ) {
-                        case 0: this.mark_el.className = 'marker_build'; break
-                        case 2: this.mark_el.className = 'marker_vent'; break
-                        case 4: this.mark_el.className = 'marker_hi_flow'; break
-                        case 6: this.mark_el.className = 'marker_lo_flow'; break
-                    }
                     break
                 
                 case "event":
@@ -481,27 +459,7 @@ export class Device {
     
                 case "sample":
                     this.smp = msg.data
-                    switch ( this.smp.smp_vlv_tgt ) {
-                        case 0: 
-                            this.mark_el.className = 'marker_build'; 
-                            // this.s_mark_el.className = 'marker_build'; 
-                            break;
-                        case 2: 
-                            this.mark_el.className = 'marker_vent'; 
-                            // this.s_mark_el.className = 'marker_vent'; 
-                            break
-                        case 4: 
-                        case 6: 
-                            if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) {
-                                this.mark_el.className = 'marker_hi_flow'; 
-                                // this.s_mark_el.className = 'marker_hi_flow'; 
-                            } else {
-                                this.mark_el.className = 'marker_lo_flow'; 
-                                // this.s_mark_el.className = 'marker_lo_flow'; 
-                            }
-                            break
-                    }
-                    // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.smp )
+                    this.updateMarkerMode( )
                     if ( this.job.samples ) {
                         this.job.samples.push( msg.data )
                     } else {
@@ -623,6 +581,8 @@ export class Device {
         
         if ( reg.status === "success" ) { 
             console.log("End Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            this.smp = new Sample( )
+            this.job = new Job( )
         }
     }
 
@@ -755,6 +715,29 @@ export class Device {
         console.log(`des_api.js -> device.getJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
     }
 
+    updateMarkerMode = ( ) => {
+        console.log( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt )
+        switch ( this.cfg.cfg_vlv_tgt ) {
+            case 0: 
+                this.mark_el.className = 'marker_build'; 
+                this.s_mark_el.className = 'marker_build'; 
+                break;
+            case 2: 
+                this.mark_el.className = 'marker_vent'; 
+                this.s_mark_el.className = 'marker_vent'; 
+                break
+            case 4: 
+            case 6: 
+                if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) {
+                    this.mark_el.className = 'marker_hi_flow'; 
+                    this.s_mark_el.className = 'marker_hi_flow'; 
+                } else {
+                    this.mark_el.className = 'marker_lo_flow'; 
+                    this.s_mark_el.className = 'marker_lo_flow'; 
+                }
+                break
+        }
+    }
 
 }
 
@@ -1121,7 +1104,7 @@ export class Sample {
         smp_ch4 = 100.0,
         smp_hi_flow = 250.0,
         smp_lo_flow = 2.0,
-        smp_press = 1500.0,
+        smp_press = 7000.0,
         smp_bat_amp = 0.35,
         smp_bat_volt = 12.5,
         smp_mot_volt = 12.0,
@@ -1410,11 +1393,11 @@ const NewChartScales = ( ) => {
         x: LineChartXScale,
 
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
-            RGBA( COLORS.CH4, 0.8 ), RGBA( BASE.LIGHT, 0.1 ), false 
+            RGBA( COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false 
         ),
         
         y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75, -5.0, 250, "left", 
-            RGBA( COLORS.HI_FLOW, 0.7 ), RGBA( BASE.LIGHT, 0.1 ), true,
+            RGBA( COLORS.HI_FLOW, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), true,
             false 
         ),
         

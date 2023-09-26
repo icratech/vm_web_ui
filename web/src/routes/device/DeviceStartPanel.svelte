@@ -12,6 +12,7 @@
 
     onMount( ( ) => {
 
+        /* UPDATES THE TIME... I'M SURE I HAD A REASON AT SOME POINT... */
         const interval = setInterval( ( ) => { 
             let time = Date.now( ) //  console.log( "T: ", header.hdr_time )
             device.adm.adm_time = time

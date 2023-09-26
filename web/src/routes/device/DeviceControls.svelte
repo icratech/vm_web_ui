@@ -18,7 +18,7 @@
     import btn_img_watch from "$lib/images/btn-img-view.svg"
     
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
-    import 'mapbox-gl/dist/mapbox-gl.css'
+    // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
     export let device = new Device( )
@@ -31,8 +31,7 @@
     $: pending = hdr.hdr_job_end != 0
     $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
     $: jobStartText = ( pending ? 'Pending Job' : 'Start Job' )
-    $: jobStartIcon = btn_img_config // ( pending ? null : btn_img_config )
-    // $: jobStartFunc = ( ) => { ( pending ? console.log("get device data... connect ws if not connected?") : device.startJob( $AUTH ) ) }
+    $: jobStartIcon = btn_img_config 
     $: jobStartFunc = ( ) => { ( pending ? device.connectWS( $AUTH ) : dispatch( 'start' ) ) }
 
     $: active = ( hdr.hdr_job_start > 0 && hdr.hdr_job_end == 0 )
@@ -49,11 +48,7 @@
             interactive: true
         } )
 
-        // const el = document.createElement('div')
-        // el.className = 'marker'
-        // device.mark = new mapboxgl.Marker( el ).setLngLat( [ header.hdr_geo_lng, header.hdr_geo_lat ] )
         device.mark.addTo( map )
-
         device.updateDevicePageMap = ( act, lng, lat ) => { 
             map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 3500 } ) 
             device.mark.setLngLat( [ lng, lat ] )

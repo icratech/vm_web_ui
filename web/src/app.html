@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
 		<meta name="viewport" content="width=device-width" />
 		<title>D2D</title>
         <style>
@@ -65,38 +66,42 @@
             .marker_vent {
                 background-color: var(--aqua_aa);
                 border: solid 0.2em var(--aqua);
-                background-size: cover;
-                width: 1.75em;
-                height: 1.75em;
+                /* background-size: cover; */
+                width: 20px;
+                height: 20px;
                 border-radius: 50%;
                 cursor: pointer;
+                position: relative;
             }
             .marker_build {
                 background-color: var(--green_aa);
                 border: solid 0.2em var(--green);
                 background-size: cover;
-                width: 1.75em;
-                height: 1.75em;
+                width: 20px;
+                height: 20px;
                 border-radius: 50%;
                 cursor: pointer;
+                position: relative;
             }
             .marker_hi_flow {
                 background-color: var(--orange_aa);
                 border: solid 0.2em var(--orange);
-                background-size: cover;
-                width: 1.75em;
-                height: 1.75em;
+                /* background-size: cover; */
+                width: 20px;
+                height: 20px;;
                 border-radius: 50%;
                 cursor: pointer;
+                position: relative;
             }
             .marker_lo_flow {
                 background-color: var(--yellow_aa);
                 border: solid 0.2em var(--yellow);
-                background-size: cover;
-                width: 1.75em;
-                height: 1.75em;
+                /* background-size: cover; */
+                width: 20px;
+                height: 20px;
                 border-radius: 50%;
                 cursor: pointer;
+                position: relative;
             }
 
             .sqr-btn {
@@ -227,6 +232,10 @@
                 --light_03: rgb(230, 230, 230, 0.3);
                 --light_02: rgb(230, 230, 230, 0.2);
                 --light_01: rgb(230, 230, 230, 0.1);
+                --light_009: rgb(230, 230, 230, 0.09);
+                --light_008: rgb(230, 230, 230, 0.08);
+                --light_007: rgb(230, 230, 230, 0.07);
+                --light_006: rgb(230, 230, 230, 0.06);
                 --light_005: rgb(230, 230, 230, 0.05);
                 --light_004: rgb(230, 230, 230, 0.04);
                 --light_003: rgb(230, 230, 230, 0.03);

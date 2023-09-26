@@ -10,7 +10,7 @@
     export let data
     import { DEVICES, Admin, Header, Config, AUTH, MODE } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
- 
+
     import Modal from '../../../lib/common/modal/Modal.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
 
