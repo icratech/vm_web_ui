@@ -4,26 +4,20 @@
     import PillButton from '../../../lib/common/button/PillButton.svelte'
     import DeviceControls from '../../device/DeviceControls.svelte'
 
+    import Modal from '../../../lib/common/modal/Modal.svelte'
+    import DeviceStartPanel from '../DeviceStartPanel.svelte'
     import HeaderPanel from '../../../lib/components/header/HeaderPanel.svelte'
     import ConfigPanel from '../../../lib/components/config/ConfigPanel.svelte'
     
     export let data
-    import { DEVICES, Admin, Header, Config, AUTH, MODE } from '../../../lib/des_api'
+    import { DEVICES } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
-    import Modal from '../../../lib/common/modal/Modal.svelte'
-    import DeviceStartPanel from '../DeviceStartPanel.svelte'
-
+    /* TODO: REVISE 
+    THIS EXPOSES THE MODAL'S OPEN( ) METHOD SO IT CAN BE CALLED FROM OTHER COMPONENTS
+    IT'S UGLY; I'M NOT PROUD; IT DOES WORK... */
     $: open = ( ) => { }
-    $: adm = new Admin( )
-    $: hdr = new Header( )
-    $: cfg  = new Config( )
 
-    const setMode = ( mode ) => {
-        device.cfg.cfg_vlv_tgt = mode
-        device.cfg.cfg_vlv_pos = mode
-        device.setConfig()
-    }
 </script>
 
 <dvi class="flx-col container">
@@ -39,21 +33,12 @@
             <div slot="footer">Send command</div>
         </Modal>
      
-        <DeviceControls bind:device on:start={ async( ) => {     
-            // if ( !device.socket ) { await device.connectWS( $AUTH ) }
-            open( ) 
-        } }/>
+        <DeviceControls bind:device on:start={ async( ) => { open( ) } }/>
             
         <div class="flx-col content">
 
             <div class="flx-col panel">
 
-                <!-- <EventCard bind:event={ data.device.job.events[0]  } />
-                
-                <ConfigCard bind:config={ data.device.job.configs[0] } />
-                
-                <EventCard bind:event={ data.device.job.events[0]  } /> -->
-                
                 <div class="flx-row">
 
                     <div class="flx-col tabs">
@@ -78,19 +63,19 @@
             
                         <PillButton
                             cls={ 'bg-aqua' }
-                            on:click={ ( ) => { setMode( 2 ) } }
+                            on:click={ ( ) => { device.setMode( 2 ) } }
                             hint='VENT'
                         />    
 
                         <PillButton
                             cls={ 'bg-orange' }
-                            on:click={ ( ) => { setMode( 4 ) } }
+                            on:click={ ( ) => { device.setMode( 4 ) } }
                             hint='FLOW'
                         />
             
                         <PillButton
                             cls={ 'bg-green' }
-                            on:click={ ( ) => { setMode( 0 ) } }
+                            on:click={ ( ) => { device.setMode( 0 ) } }
                             hint='BUILD'
                         />
             
@@ -104,37 +89,12 @@
 
                     </div>
 
-                    <div class="flx-col tabs">
-                        <PillButton 
-                            cls={ 'bg-blue' }
-                            on:click={ ( ) => { device.job.cht.options.scales.y_hi_flow.display = !device.job.cht.options.scales.y_hi_flow.display } }
-                            hint={ null } 
-                        />
-                
-                        <PillButton
-                            cls={ 'bg-purple' }
-                            on:click={ ( ) => { device.job.cht.options.scales.y_mot_volt.display = !device.job.cht.options.scales.y_mot_volt.display } }
-                            hint={ null } 
-                        />
-                
-                        <PillButton
-                            cls={ 'bg-aqua' }
-                            hint={ null } 
-                        />
-                
-                        <PillButton
-                            cls={ 'bg-red' }
-                            on:click={ ( ) => { device.job.cht.options.scales.y_bat_amp.display = !device.job.cht.options.scales.y_bat_amp.display } }
-                            hint={ null } 
-                        />
-                    </div>
-            
                 </div>
 
             </div>
     
             <div class="flx-col chart">
-                <LineChart bind:chartdata={ device.job.cht } id={ device.des_dev_serial }/>
+                <LineChart bind:chartdata={ device.cht } id={ device.des_dev_serial }/>
             </div>
     
         </div>

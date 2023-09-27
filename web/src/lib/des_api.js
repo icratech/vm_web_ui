@@ -156,12 +156,8 @@ export const get_devices = async( ) => {
                     dev.cfg,
                     dev.evt,
                     dev.smp,
-                    new Job( ),
                     dev.reg
                 )
-                
-                // device.mark = new mapboxgl.Marker( device.mark_el, { anchor: 'center', offset: [0, 0] } ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
-                // device.s_mark = new mapboxgl.Marker( device.s_mark_el, { anchor: 'center', offset: [0, 0] } ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat ] ) 
                 device.mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
                 device.s_mark = new mapboxgl.Marker( device.s_mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat ] ) 
                 device.updateMarkerMode( )
@@ -276,7 +272,6 @@ export class User {
         email = "",
         role = "",
         provider = "",
-        // photo = "",
         created_at = 1691762552703,
         updated_at = 1691762552703,
         token = "none",
@@ -287,7 +282,6 @@ export class User {
         this.email = email
         this.role = role,
         this.provider = provider
-        // this.photo = photo
         this.created_at = created_at
         this.updated_at = updated_at
         this.token = token
@@ -362,7 +356,6 @@ export class Device {
         cfg = new Config( ),
         evt = new Event( ),
         smp = new Sample( ),
-        job = new Job( ),
         reg = new DESRegistration( ), 
     ) { 
         this.adm = adm
@@ -370,23 +363,23 @@ export class Device {
         this.cfg = cfg
         this.evt = evt
         this.smp = smp
-        this.job = job
         this.reg = reg 
+
+        /* WEB SOCKET */
         this.socket = false
         
         this.highlight = false
 
-        // /* DEVICE PAGE MARKER */
+        /* MAP DATA ( LIVE ) *****************************************************************/
+        /* DEVICE PAGE MAP MARKER */
         this.mark_el = document.createElement('div')
-        this.mark_el.addEventListener('click', ( ) => { 
-            console.log( "Device PAGE Marker" ) 
-        } )
+        // this.mark_el.addEventListener('click', ( ) => { console.log( "Device PAGE Marker" ) } )
 
-        // /* DEVICE SEARCH PAGE MARKER */
+        /* DEVICE SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
         this.s_mark_el.addEventListener('click', ( ) => { 
             console.log( this.s_mark.getLngLat() ) 
-            // goto( '/device/' + this.reg.des_dev_serial )
+            goto( '/device/' + this.reg.des_dev_serial )
         } )
         this.s_mark_el.addEventListener('mouseover', ( ) => { 
             this.highlight = true //console.log( "this.highlight = ", this.highlight ) 
@@ -398,14 +391,105 @@ export class Device {
             this.update( )
         } )
 
+        /* CHART DATA ( LIVE ) **************************************************************/
+        this.cht = NewChartData( )
+        this.cht_ch4 = this.cht.data.datasets[0]
+        this.cht_hi_flow = this.cht.data.datasets[1]
+        this.cht_lo_flow = this.cht.data.datasets[2]
+        this.cht_press = this.cht.data.datasets[3]
+        this.cht_bat_amp = this.cht.data.datasets[4]
+        this.cht_bat_volt = this.cht.data.datasets[5]
+        this.cht_mot_volt = this.cht.data.datasets[6]
+        this.cht_point_limit = 200
+        this.cht_scale_margin = 0.2
+
     }
     
+    /* TODO: ? MOVE THIS OUTSIDE OF THE DEVICE CLASS ? */
     update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
+    /* MAP METHODS ( LIVE ) **************************************************************/
     updateDeviceSearchMap( ) { }
     updateDevicePageMap( ) { }
-    
-    /* WS CONNECTION */
+    updateMarkerMode = ( ) => {
+        // console.log( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt )
+        switch ( this.cfg.cfg_vlv_tgt ) {
+            case 0: 
+                this.mark_el.className = 'marker_build'; 
+                this.s_mark_el.className = 'marker_build'; 
+                break;
+            case 2: 
+                this.mark_el.className = 'marker_vent'; 
+                this.s_mark_el.className = 'marker_vent'; 
+                break
+            case 4: 
+            case 6: 
+                if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) {
+                    this.mark_el.className = 'marker_hi_flow'; 
+                    this.s_mark_el.className = 'marker_hi_flow'; 
+                } else {
+                    this.mark_el.className = 'marker_lo_flow'; 
+                    this.s_mark_el.className = 'marker_lo_flow'; 
+                }
+                break
+        }
+    }
+
+    /* CHART METHODS ( LIVE ) ************************************************************/
+    updateChartData( ) {
+
+        this.cht.pushPoint( 
+            { x: this.smp.smp_time, y: this.smp.smp_ch4 },
+            this.cht_ch4, this.cht.options.scales.y_ch4,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            { x: this.smp.smp_time, y: this.smp.smp_hi_flow },
+            this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            { x: this.smp.smp_time, y: this.smp.smp_lo_flow },
+            this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            { x: this.smp.smp_time, y: this.smp.smp_press },
+            this.cht_press, this.cht.options.scales.y_press,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            { x: this.smp.smp_time, y: this.smp.smp_bat_amp },
+            this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            { x: this.smp.smp_time, y: this.smp.smp_bat_volt },
+            this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+        this.cht.pushPoint( 
+            { x: this.smp.smp_time, y: this.smp.smp_mot_volt },
+            this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
+            this.cht_point_limit,
+            this.cht_scale_margin
+        )
+        
+    }
+
+    /* WEBSOCKET METHODS **************************************************************/
     disconnectWS( ) { }
     connectWS = async( user ) => {
 
@@ -460,29 +544,28 @@ export class Device {
                 case "sample":
                     this.smp = msg.data
                     this.updateMarkerMode( )
-                    if ( this.job.samples ) {
-                        this.job.samples.push( msg.data )
-                    } else {
-                        this.job.samples = [ msg.data ]
-                    }
-                    
+                    // if ( this.job.samples ) {
+                    //     this.job.samples.push( msg.data )
+                    // } else {
+                    //     this.job.samples = [ msg.data ]
+                    // }
                     if ( this.smp.smp_lo_flow < this.cfg.cfg_flow_tog ) {
-                        this.job.cht.options.scales.y_lo_flow.display = true
-                        this.job.cht_lo_flow.hidden = false
+                        this.cht.options.scales.y_lo_flow.display = true
+                        this.cht_lo_flow.hidden = false
 
-                        this.job.cht.options.scales.y_hi_flow.display = false
-                        this.job.cht_hi_flow.hidden = true
+                        this.cht.options.scales.y_hi_flow.display = false
+                        this.cht_hi_flow.hidden = true
 
                     } else {
-                        this.job.cht.options.scales.y_lo_flow.display = false
-                        this.job.cht_lo_flow.hidden = true
+                        this.cht.options.scales.y_lo_flow.display = false
+                        this.cht_lo_flow.hidden = true
 
-                        this.job.cht.options.scales.y_hi_flow.display = true
-                        this.job.cht_hi_flow.hidden = false
+                        this.cht.options.scales.y_hi_flow.display = true
+                        this.cht_hi_flow.hidden = false
 
                     }
                     // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.job )
-                    this.job.updateChartData()
+                    this.updateChartData()
                     break
 
                 case "live": break
@@ -500,11 +583,13 @@ export class Device {
             ws.close( ) 
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
             this.socket = false
+            this.highlight = false
             this.update( )
         }
         await waitMilli(1000)
     }
 
+    /* HTTP METHODS **********************************************************************/
     startJob = async( ) => {
         console.log( "Start new job for device: ", this.reg.des_dev_serial ) 
 
@@ -693,51 +778,32 @@ export class Device {
             console.log("SET CONFIG Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
-
-    getJob = async( job_name = this.hdr.hdr_job_name ) => {
-        console.log( `Get job: ${ job_name } for device: ${ this.reg.des_dev_serial }`, ) 
-        let au = get( AUTH )
-        this.reg.des_job_reg_app = client_app
-        this.reg.des_job_reg_user_id = au.id
-        this.reg.des_job_name = job_name 
-        console.log( "Send GET JOB Request:\n", this.reg ) 
-
-        let req = new Request( "", {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
-            },
-            body: JSON.stringify( this.reg )
-        } )
-        let res = await fetch( req )
-        let reg = await res.json( )
-        console.log(`des_api.js -> device.getJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
+    setMode = ( mode ) => {
+        this.cfg.cfg_vlv_tgt = mode
+        this.cfg.cfg_vlv_pos = mode
+        this.setConfig()
     }
 
-    updateMarkerMode = ( ) => {
-        console.log( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt )
-        switch ( this.cfg.cfg_vlv_tgt ) {
-            case 0: 
-                this.mark_el.className = 'marker_build'; 
-                this.s_mark_el.className = 'marker_build'; 
-                break;
-            case 2: 
-                this.mark_el.className = 'marker_vent'; 
-                this.s_mark_el.className = 'marker_vent'; 
-                break
-            case 4: 
-            case 6: 
-                if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) {
-                    this.mark_el.className = 'marker_hi_flow'; 
-                    this.s_mark_el.className = 'marker_hi_flow'; 
-                } else {
-                    this.mark_el.className = 'marker_lo_flow'; 
-                    this.s_mark_el.className = 'marker_lo_flow'; 
-                }
-                break
-        }
-    }
+    // getJob = async( job_name = this.hdr.hdr_job_name ) => {
+    //     console.log( `Get job: ${ job_name } for device: ${ this.reg.des_dev_serial }`, ) 
+    //     let au = get( AUTH )
+    //     this.reg.des_job_reg_app = client_app
+    //     this.reg.des_job_reg_user_id = au.id
+    //     this.reg.des_job_name = job_name 
+    //     console.log( "Send GET JOB Request:\n", this.reg ) 
+
+    //     let req = new Request( "", {
+    //         method: "POST",
+    //         headers: { 
+    //             "Content-Type": "application/json",
+    //             "Authorization": `Bearer ${ au.token }` 
+    //         },
+    //         body: JSON.stringify( this.reg )
+    //     } )
+    //     let res = await fetch( req )
+    //     let reg = await res.json( )
+    //     console.log(`des_api.js -> device.getJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
+    // }
 
 }
 
@@ -845,8 +911,6 @@ WEB CLIENT <- HTTP <- DES <- MQTT <- DEVICE
 */
 export class Admin {
     constructor( 
-        adm_id = 0, // Set by DES upon database write
-
         adm_time = 0,
         adm_addr = "",
         adm_user_id = "",
@@ -891,8 +955,6 @@ export class Admin {
         adm_lfs_diff_min = 2.0, // psi
         adm_lfs_diff_max = 10.0, // psi
      ) {
-        this.adm_id = adm_id, // Set by DES upon database write
-
         this.adm_time = adm_time,
         this.adm_addr = adm_addr,
         this.adm_user_id = adm_user_id,
@@ -947,8 +1009,6 @@ WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE
 */
 export class Header {
     constructor(
-        hdr_id = 0, // Set by DES upon database write
-
         hdr_time = 0, 
         hdr_addr = "",  
         hdr_user_id = "",
@@ -970,8 +1030,6 @@ export class Header {
         hdr_geo_lng = 0,
         hdr_geo_lat = 0
     ) {
-        this.hdr_id = hdr_id
-        
         this.hdr_time = hdr_time
         this.hdr_addr = hdr_addr
         this.hdr_user_id = hdr_user_id
@@ -999,8 +1057,6 @@ WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE
 */
 export class Config {
     constructor( 
-        cfg_id = 0, // Set by DES upon database write
-
         cfg_time = 0, 
         cfg_addr = "",  
         cfg_user_id = "",
@@ -1024,8 +1080,6 @@ export class Config {
         cfg_diag_log = 100000, // milliseconds
         cfg_diag_trans = 600000, // milliseconds
      ) {
-        this.cfg_id = cfg_id // Set by DES upon database write
-    
         this.cfg_time = cfg_time
         this.cfg_addr = cfg_addr
         this.cfg_user_id = cfg_user_id
@@ -1060,8 +1114,6 @@ WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE
 */
 export class Event {
     constructor( 
-        evt_id = 0, // Set by DES upon database write
-
         evt_time = 0,
         evt_addr = "",
         evt_user_id = "",
@@ -1082,7 +1134,7 @@ export class Event {
 }
 export class EventType {
     constructor(
-        evt_type_id = 0,
+        evt_type_id = 0, /* THIS IS THE ONLY JOB MODEL WITH AN ACTUAL ID */
         evt_type_code = 0,
         evt_typ_name = "",
         evt_typ_desc = "",
@@ -1099,20 +1151,18 @@ WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE
 */
 export class Sample {
     constructor ( 
-        smp_id = 0,
         smp_time = 0,
-        smp_ch4 = 100.0,
-        smp_hi_flow = 250.0,
-        smp_lo_flow = 2.0,
-        smp_press = 7000.0,
-        smp_bat_amp = 0.35,
-        smp_bat_volt = 12.5,
-        smp_mot_volt = 12.0,
+        smp_ch4 = 0,
+        smp_hi_flow = 0,
+        smp_lo_flow = 0,
+        smp_press = 0,
+        smp_bat_amp = 0,
+        smp_bat_volt = 0,
+        smp_mot_volt = 0,
         smp_vlv_tgt = 2,
         smp_vlv_pos = 2,
         smp_job_name =""
     ) { 
-        this.smp_id = smp_id
         this.smp_time = smp_time
         this.smp_ch4 = smp_ch4
         this.smp_hi_flow = smp_hi_flow
@@ -1126,15 +1176,7 @@ export class Sample {
         this.smp_job_name =smp_job_name
     }
 }
-
-/* 
-WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE  
-  - Device has transmitted a diagnostic sample
-*/
-export class DiagSample { /* NOT IMPLEMENTED */
-    /* NOT IMPLEMENTED */
-}
-
+/* USED FOR SERVER ASSEMBLED SAMPLE DATA */
 export class XYSampleData { 
     constructor(
         xy_smp = {
@@ -1160,6 +1202,14 @@ export class XYSampleData {
         this.vlv_pos = xy_smp.vlv_pos
     }
  }
+
+/* 
+WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE  
+  - Device has transmitted a diagnostic sample
+*/
+export class DiagSample { /* NOT IMPLEMENTED */
+    /* NOT IMPLEMENTED */
+}
 
 /* 
 DEMO! - NOT FOR PRODUCTION 
@@ -1276,20 +1326,20 @@ export class DemoModeTransition {
     }
 }
 
-export const MODE_BUILD_CSS = 'fg-yellow'
-export const MODE_VENT_CSS = 'fg-red'
-export const MODE_HIGH_FLOW_CSS = 'fg-blue'
-export const MODE_LOW_FLOW_CSS = 'fg-aqua'
-export const MODE = [
-   'BUILD', // 0
-   'BUILD <-> VENT', // 1
-   'VENT', // 2
-   'VENT <-> HI FLOW', // 3
-   'HI FLOW', // 4
-   'HI FLOW <-> LO FLOW', // 5
-   'LO FLOW', // 6
-   'MANUAL >-<' // 7
-]
+// export const MODE_BUILD_CSS = 'fg-yellow'
+// export const MODE_VENT_CSS = 'fg-red'
+// export const MODE_HIGH_FLOW_CSS = 'fg-blue'
+// export const MODE_LOW_FLOW_CSS = 'fg-aqua'
+// export const MODE = [
+//    'BUILD', // 0
+//    'BUILD <-> VENT', // 1
+//    'VENT', // 2
+//    'VENT <-> HI FLOW', // 3
+//    'HI FLOW', // 4
+//    'HI FLOW <-> LO FLOW', // 5
+//    'LO FLOW', // 6
+//    'MANUAL >-<' // 7
+// ]
 
 
 
@@ -1430,7 +1480,6 @@ export const NewChartData = ( ) => {
     let cht = new LineChartModel( "", RGBA( BASE.LIGHT, 0.7 ) )
     cht.data.datasets = NewChartDataSets( )
     cht.options.scales = NewChartScales( )
-    // Object.assign( config.options.scales, { yCH }, { yHF }, { yLF }, { yP }, { yBC }, { yBV }, { yMV } ) 
 
     return cht
 }
