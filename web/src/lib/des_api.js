@@ -365,7 +365,7 @@ export class Device {
         this.smp = smp
         this.reg = reg 
 
-        /* WEB SOCKET */
+        /* WEB SOCKET CONNECTION STATUS */
         this.socket = false
         
         this.highlight = false
@@ -377,32 +377,17 @@ export class Device {
 
         /* DEVICE SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
-        this.s_mark_el.addEventListener('click', ( ) => { 
-            console.log( this.s_mark.getLngLat() ) 
-            goto( '/device/' + this.reg.des_dev_serial )
-        } )
+        this.s_mark_el.addEventListener('click', ( ) => { goto( '/device/' + this.reg.des_dev_serial ) } )
         this.s_mark_el.addEventListener('mouseover', ( ) => { 
             this.highlight = true //console.log( "this.highlight = ", this.highlight ) 
             this.update( )
-            
         } )
         this.s_mark_el.addEventListener('mouseleave', ( ) => { 
             this.highlight = false // console.log( "this.highlight = ", this.highlight ) 
             this.update( )
         } )
 
-        /* CHART DATA ( LIVE ) **************************************************************/
-        this.cht = NewChartData( )
-        this.cht_ch4 = this.cht.data.datasets[0]
-        this.cht_hi_flow = this.cht.data.datasets[1]
-        this.cht_lo_flow = this.cht.data.datasets[2]
-        this.cht_press = this.cht.data.datasets[3]
-        this.cht_bat_amp = this.cht.data.datasets[4]
-        this.cht_bat_volt = this.cht.data.datasets[5]
-        this.cht_mot_volt = this.cht.data.datasets[6]
-        this.cht_point_limit = 200
-        this.cht_scale_margin = 0.2
-
+        this.resetChart( )
     }
     
     /* TODO: ? MOVE THIS OUTSIDE OF THE DEVICE CLASS ? */
@@ -488,6 +473,20 @@ export class Device {
         )
         
     }
+    resetChart( ) {
+        /* CHART DATA ( LIVE ) **************************************************************/
+        this.cht = NewChartData( )
+        this.cht_ch4 = this.cht.data.datasets[0]
+        this.cht_hi_flow = this.cht.data.datasets[1]
+        this.cht_lo_flow = this.cht.data.datasets[2]
+        this.cht_press = this.cht.data.datasets[3]
+        this.cht_bat_amp = this.cht.data.datasets[4]
+        this.cht_bat_volt = this.cht.data.datasets[5]
+        this.cht_mot_volt = this.cht.data.datasets[6]
+        this.cht_point_limit = 200
+        this.cht_scale_margin = 0.2
+    }
+
 
     /* WEBSOCKET METHODS **************************************************************/
     disconnectWS( ) { }
@@ -636,7 +635,6 @@ export class Device {
             console.log("Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
-
     endJob = async( ) => {
         console.log( "End current job for device: ", this.reg.des_dev_serial ) 
 
@@ -667,10 +665,9 @@ export class Device {
         if ( reg.status === "success" ) { 
             console.log("End Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
             this.smp = new Sample( )
-            this.job = new Job( )
+            this.resetChart( )
         }
     }
-
     setAdmin = async( ) => {
         console.log( "Set Admin for device: ", this.reg.des_dev_serial ) 
         
@@ -706,7 +703,6 @@ export class Device {
             console.log("SET ADMIN Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
-
     setHeader = async( ) => {
         console.log( "Set Header for device: ", this.reg.des_dev_serial ) 
         
@@ -742,7 +738,6 @@ export class Device {
             console.log("SET HEADER Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
-    
     setConfig = async( ) => { 
         console.log( "Set Config for device: ", this.reg.des_dev_serial ) 
         

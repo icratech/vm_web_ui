@@ -13,10 +13,9 @@
     import { DEVICES } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
-    /* TODO: REVISE 
-    THIS EXPOSES THE MODAL'S OPEN( ) METHOD SO IT CAN BE CALLED FROM OTHER COMPONENTS
-    IT'S UGLY; I'M NOT PROUD; IT DOES WORK... */
-    $: open = ( ) => { }
+    /* USED TO EXPOSE THE MODAL'S OPEN( ) METHOD 
+    SO IT CAN BE CALLED FROM OTHER COMPONENTS */
+    let modal
 
 </script>
 
@@ -24,8 +23,7 @@
 
     <div class="flx-row layout">
 
-        <Modal bind:open on:confirm={ async( ) => { device.startJob( ) 
-            } }>
+        <Modal bind:this={ modal } on:confirm={ async( ) => { device.startJob( ) } }>
             <h3 class='fg-accent' slot="title">Start a new job</h3>
             <div slot="content" class="flx-row">
                 <DeviceStartPanel bind:device />
@@ -33,7 +31,7 @@
             <div slot="footer">Send command</div>
         </Modal>
      
-        <DeviceControls bind:device on:start={ async( ) => { open( ) } }/>
+        <DeviceControls bind:device on:start={ async( ) => { modal.open( ) } }/>
             
         <div class="flx-col content">
 
@@ -94,7 +92,7 @@
             </div>
     
             <div class="flx-col chart">
-                <LineChart bind:chartdata={ device.cht } id={ device.des_dev_serial }/>
+                <LineChart bind:chartdata={ device.cht } />
             </div>
     
         </div>
