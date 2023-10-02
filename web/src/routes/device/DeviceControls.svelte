@@ -22,7 +22,7 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
     export let device = new Device( )
-    $: event = device.evt 
+    $: evt = device.evt 
     $: cfg = device.cfg
     $: hdr = device.hdr
     $: smp = ( device.smp ? device.smp : new Sample( ) )
@@ -30,9 +30,9 @@
     $: available = hdr.hdr_job_start == 0
     $: pending = hdr.hdr_job_end != 0
     $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
-    $: jobStartText = ( pending ? 'Pending Job' : 'Start Job' )
+    $: jobStartText = ( pending ? 'Pending Command' : 'Start Job' )
     $: jobStartIcon = btn_img_config 
-    $: jobStartFunc = ( ) => { ( pending ? device.connectWS( $AUTH ) : dispatch( 'start' ) ) }
+    $: jobStartFunc = ( ) => { ( pending ? device.endJob( ) : dispatch( 'start' ) ) }
 
     $: active = ( hdr.hdr_job_start > 0 && hdr.hdr_job_end == 0 )
     $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
@@ -42,7 +42,7 @@
 
         let map = new mapboxgl.Map(  {
             container: ctx,
-            style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
+            style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
             zoom : ( active ? 5.5 : 1 ),
             interactive: true

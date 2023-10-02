@@ -158,10 +158,6 @@ export const get_devices = async( ) => {
                     dev.smp,
                     dev.reg
                 )
-                device.mark = new mapboxgl.Marker( device.mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat  ] ) 
-                device.s_mark = new mapboxgl.Marker( device.s_mark_el ).setLngLat( [ dev.hdr.hdr_geo_lng, dev.hdr.hdr_geo_lat ] ) 
-                device.updateMarkerMode( )
-
                 DEVICES.update( d => { return [ ...d, device ] } )
             }        
         } )
@@ -371,13 +367,20 @@ export class Device {
         this.highlight = false
 
         /* MAP DATA ( LIVE ) *****************************************************************/
+        /** https://docs.mapbox.com/mapbox-gl-js/api/markers/#marker */
         /* DEVICE PAGE MAP MARKER */
         this.mark_el = document.createElement('div')
         // this.mark_el.addEventListener('click', ( ) => { console.log( "Device PAGE Marker" ) } )
+        this.mark = new mapboxgl.Marker( 
+            this.mark_el, { anchor: 'bottom-right' } 
+        ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] ) 
 
         /* DEVICE SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
-        this.s_mark_el.addEventListener('click', ( ) => { goto( '/device/' + this.reg.des_dev_serial ) } )
+        this.s_mark_el.addEventListener('click', ( ) => { 
+            goto( '/device/' + this.reg.des_dev_serial ) 
+            this.highlight = false
+        } )
         this.s_mark_el.addEventListener('mouseover', ( ) => { 
             this.highlight = true //console.log( "this.highlight = ", this.highlight ) 
             this.update( )
@@ -386,6 +389,9 @@ export class Device {
             this.highlight = false // console.log( "this.highlight = ", this.highlight ) 
             this.update( )
         } )
+        this.s_mark = new mapboxgl.Marker( 
+            this.s_mark_el, { anchor: 'bottom-right' } 
+            ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] )
 
         this.resetChart( )
     }
@@ -400,21 +406,21 @@ export class Device {
         // console.log( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt )
         switch ( this.cfg.cfg_vlv_tgt ) {
             case 0: 
-                this.mark_el.className = 'marker_build'; 
-                this.s_mark_el.className = 'marker_build'; 
+                this.mark_el.className = 'marker build'; 
+                this.s_mark_el.className = 'marker build'; 
                 break;
             case 2: 
-                this.mark_el.className = 'marker_vent'; 
-                this.s_mark_el.className = 'marker_vent'; 
+                this.mark_el.className = 'marker vent'; 
+                this.s_mark_el.className = 'marker vent'; 
                 break
             case 4: 
             case 6: 
                 if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) {
-                    this.mark_el.className = 'marker_hi_flow'; 
-                    this.s_mark_el.className = 'marker_hi_flow'; 
+                    this.mark_el.className = 'marker hi_flow'; 
+                    this.s_mark_el.className = 'marker hi_flow'; 
                 } else {
-                    this.mark_el.className = 'marker_lo_flow'; 
-                    this.s_mark_el.className = 'marker_lo_flow'; 
+                    this.mark_el.className = 'marker lo_flow'; 
+                    this.s_mark_el.className = 'marker lo_flow'; 
                 }
                 break
         }
@@ -490,10 +496,12 @@ export class Device {
 
     /* WEBSOCKET METHODS **************************************************************/
     disconnectWS( ) { }
-    connectWS = async( user ) => {
+    connectWS = async( ) => {
 
+        let au = get( AUTH )
+        
         let reg = encodeURIComponent(JSON.stringify( this.reg ) )
-        let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ user.token }&des_reg=${ reg }`
+        let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.token }&des_reg=${ reg }`
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => { 
             this.socket = true
@@ -596,7 +604,7 @@ export class Device {
 
         let au = get( AUTH )
 
-        if ( !this.socket ) { await this.connectWS( au ) }
+        if ( !this.socket ) { await this.connectWS( ) }
 
         this.adm.adm_user_id = au.id
         this.adm.adm_app = client_app
@@ -640,7 +648,7 @@ export class Device {
 
         let au = get( AUTH )
 
-        if ( !this.socket ) { await this.connectWS( au ) }
+        if ( !this.socket ) { await this.connectWS( ) }
 
         this.hdr.hdr_job_end = -1
         this.reg.des_job_reg_app = client_app
@@ -673,7 +681,7 @@ export class Device {
         
         let au = get( AUTH )
         
-        if ( !this.socket ) { this.connectWS( au ) }
+        if ( !this.socket ) { this.connectWS( ) }
         
         this.adm.adm_user_id = au.id
         this.adm.adm_app = client_app
@@ -708,7 +716,7 @@ export class Device {
         
         let au = get( AUTH )
         
-        if ( !this.socket ) { this.connectWS( au ) }
+        if ( !this.socket ) { this.connectWS( ) }
         
         this.hdr.hdr_user_id = au.id
         this.hdr.hdr_app = client_app
@@ -743,7 +751,7 @@ export class Device {
         
         let au = get( AUTH )
         
-        if ( !this.socket ) { this.connectWS( au ) }
+        if ( !this.socket ) { this.connectWS( ) }
         
         this.cfg.cfg_user_id = au.id
         this.cfg.cfg_app = client_app
@@ -823,17 +831,11 @@ export class Job {
         
         this.cht = NewChartData( )
         this.cht_ch4 = this.cht.data.datasets[0]
-
         this.cht_hi_flow = this.cht.data.datasets[1]
-        
         this.cht_lo_flow = this.cht.data.datasets[2]
-        
         this.cht_press = this.cht.data.datasets[3]
-        
         this.cht_bat_amp = this.cht.data.datasets[4]
-        
         this.cht_bat_volt = this.cht.data.datasets[5]
-        
         this.cht_mot_volt = this.cht.data.datasets[6]
 
         this.cht_point_limit = 100
@@ -1339,34 +1341,34 @@ export class DemoModeTransition {
 
 
 /* MAP STUFF ********************************************************************************************/
-// export class GeoJSONFeatureCollection {
-//     constructor (
-//         features = [ ]
-//     ) {
-//         this.type = "FeatureCollection"
-//         this.features = features
-//     }
-// }
+export class GeoJSONFeatureCollection {
+    constructor (
+        features = [ ]
+    ) {
+        this.type = "FeatureCollection"
+        this.features = features
+    }
+}
 
-// export class GeoJSONFeature {
-//     constructor(
-//         geometry = new GeoJSONGeometry( ),
-//         well_name = ""
-//     ) {
-//         this.type = "Feature"
-//         this.geometry = geometry
-//         this.well_name = well_name
-//     }
-// }
+export class GeoJSONFeature {
+    constructor(
+        geometry = new GeoJSONGeometry( ),
+        well_name = ""
+    ) {
+        this.type = "Feature"
+        this.geometry = geometry
+        this.properties = { title: well_name }
+    }
+}
 
-// export class GeoJSONGeometry {
-//     constructor( 
-//         coordinates = [ -115.000000, 55.000000 ]
-//     ) {
-//         this.type = "Point"
-//         this.coordinates = coordinates
-//     }
-// }
+export class GeoJSONGeometry {
+    constructor( 
+        coordinates = [ -115.000000, 55.000000 ]
+    ) {
+        this.type = "Point"
+        this.coordinates = coordinates
+    }
+}
 
 
 /* CHART STUFF ******************************************************************************************/

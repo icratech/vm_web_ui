@@ -58,50 +58,38 @@
             
             .map-container {
                 height: 100%;
-                background-color: var(--aqua_a);
+                /* background-color: var(--aqua_a); */
+                /* background-color: var(--light_aa); */
                 border-radius: 0.5em;
                 position: relative;
+                border-bottom: solid 0.15em var(--light_01);
+                border-right: solid 0.15em var(--light_01);
             }
 
-            .marker_vent {
+            .marker {
+                width: 18px;
+                height: 18px;
+                border-top-left-radius: 50%;
+                border-top-right-radius: 50%;
+                border-bottom-left-radius: 50%;
+                cursor: pointer;
+                position: relative;
+            }
+            .marker.vent {
                 background-color: var(--aqua_aa);
                 border: solid 0.2em var(--aqua);
-                /* background-size: cover; */
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                cursor: pointer;
-                position: relative;
             }
-            .marker_build {
+            .marker.build {
                 background-color: var(--green_aa);
                 border: solid 0.2em var(--green);
-                background-size: cover;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                cursor: pointer;
-                position: relative;
             }
-            .marker_hi_flow {
+            .marker.hi_flow {
                 background-color: var(--orange_aa);
                 border: solid 0.2em var(--orange);
-                /* background-size: cover; */
-                width: 20px;
-                height: 20px;;
-                border-radius: 50%;
-                cursor: pointer;
-                position: relative;
             }
-            .marker_lo_flow {
+            .marker.lo_flow {
                 background-color: var(--yellow_aa);
                 border: solid 0.2em var(--yellow);
-                /* background-size: cover; */
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                cursor: pointer;
-                position: relative;
             }
 
             .sqr-btn {

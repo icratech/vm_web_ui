@@ -2,7 +2,7 @@
 
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
-    import { DEVICES, DEVICES_LOADED } from "../../lib/des_api";
+    import { DEVICES, DEVICES_LOADED, GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONGeometry } from "../../lib/des_api";
 
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
     // import 'mapbox-gl/dist/mapbox-gl.css'
@@ -13,26 +13,22 @@
     const makeMap = ( ctx ) => {
         map = new mapboxgl.Map(  {
             container: ctx,
-            style: 'mapbox://styles/leehayford/clklqsnmp006t01q22cb3h18x',
+            style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: origin,
-            zoom : 2
+            zoom : 2   
         } )
-        map.on( 'load', ( ) => { 
-            map.resize( ) 
-            $DEVICES.forEach( d =>{ d.updateMarkerMode( ) } )
-            console.log( "DeviceSearch -> map.on( load )" )
-        } )
-        console.log( "DeviceSearch -> makeMap( ) -> DEVIECS: ", $DEVICES )
-        let i = 0
+
         $DEVICES.forEach( d =>{
-             d.s_mark.addTo( map )
-             d.updateDeviceSearchMap = ( lng, lat ) => { 
+            d.s_mark.setLngLat( [ d.hdr.hdr_geo_lng, d.hdr.hdr_geo_lat ] )
+            d.updateMarkerMode( ) 
+            d.s_mark.addTo( map )
+            d.updateDeviceSearchMap = ( lng, lat ) => { 
                 d.s_mark.setLngLat( [ lng, lat ] ) 
                 d.updateMarkerMode( )
                 console.log( "updateDeviceSearchMap( ): ", d.s_mark.getOffset( ) )
-            }
-            i++
+            }  
         } ) 
+
     }
 
     $: filter = true
