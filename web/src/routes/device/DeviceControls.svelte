@@ -17,8 +17,7 @@
     import btn_img_stop from "$lib/images/btn-img-stop.svg"
     import btn_img_watch from "$lib/images/btn-img-view.svg"
     
-    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
-    // import 'mapbox-gl/dist/mapbox-gl.css'
+    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
     export let device = new Device( )

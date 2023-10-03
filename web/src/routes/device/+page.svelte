@@ -23,7 +23,7 @@
         <DeviceSearch />
         
         <div class="flx-col device-list">
-            { #each $DEVICES as device  }
+            { #each $DEVICES as device ( device.reg.des_dev_serial ) }
             <DeviceCard bind:device={ device } />
             { /each }
         </div>

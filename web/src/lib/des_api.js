@@ -17,14 +17,13 @@ export const AUTH = writable( { } )
 export const USERS = writable( [ ] )
 export const EVENT_TYPES = writable( [ ] )
 export const DEVICES = writable( [ ] )
-// export const DEVICE_MAP_MARKERS = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
 export const DEMO_DEVICES = writable( [ ] )
 
 const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des.leehayford.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
-export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` )
+export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` ) /* TODO: TEST WSS ON SERVER */
 
 export const login = async( email, password ) => {
 
@@ -165,7 +164,7 @@ export const get_devices = async( ) => {
     get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
     DEVICES_LOADED.set( true )
     console.log( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
-    console.log( "des_api.js -> get_devices( ) -> DEVICES_LOADED: ", get( DEVICES_LOADED ) )
+    // console.log( "des_api.js -> get_devices( ) -> DEVICES_LOADED: ", get( DEVICES_LOADED ) )
 
 }
 export const register_device = async( serial ) => {

@@ -2,12 +2,11 @@
 
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
-    import { DEVICES, DEVICES_LOADED, GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONGeometry } from "../../lib/des_api";
-
-    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl
-    // import 'mapbox-gl/dist/mapbox-gl.css'
+    import { DEVICES, DEVICES_LOADED, /*GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONGeometry */} from "../../lib/des_api";
+ 
+    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
-
+    
     let origin = [ -113.811, 52.269 ]
     let map
     const makeMap = ( ctx ) => {
@@ -33,8 +32,6 @@
 
     $: filter = true
     $: filterButtonText = ( filter ? "^" : "v" )
-
-
 
 </script>
 

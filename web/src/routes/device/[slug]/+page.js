@@ -1,7 +1,7 @@
 
 export const ssr = false
 
-import { DEVICES_LOADED, DEVICES } from '../../../lib/des_api'
+import { DEVICES_LOADED } from '../../../lib/des_api'
 import { redirect } from '@sveltejs/kit'
 import { get } from 'svelte/store'
 
