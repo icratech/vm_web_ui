@@ -10,12 +10,12 @@
 
     export let header = new Header( )
 
-    onMount( ( ) => {
-        const interval = setInterval( ( ) => { 
-            header.hdr_time = Date.now( ) //  console.log( "T: ", header.hdr_time )
-        }, 1000 )
-        return ( ) => { clearInterval( interval ) }
-    } )
+    // onMount( ( ) => {
+    //     const interval = setInterval( ( ) => { 
+    //         header.hdr_time = Date.now( ) //  console.log( "T: ", header.hdr_time )
+    //     }, 1000 )
+    //     return ( ) => { clearInterval( interval ) }
+    // } )
 
     </script>
 

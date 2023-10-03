@@ -14,7 +14,7 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: origin,
-            zoom : 2   
+            zoom : 1.5   
         } )
 
         $DEVICES.forEach( d =>{

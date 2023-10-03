@@ -30,7 +30,7 @@
     $: pending = hdr.hdr_job_end != 0
     $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
     $: jobStartText = ( pending ? 'Pending Command' : 'Start Job' )
-    $: jobStartIcon = btn_img_config 
+    $: jobStartIcon = ( pending ? btn_img_config : btn_img_start ) 
     $: jobStartFunc = ( ) => { ( pending ? device.endJob( ) : dispatch( 'start' ) ) }
 
     $: active = ( hdr.hdr_job_start > 0 && hdr.hdr_job_end == 0 )

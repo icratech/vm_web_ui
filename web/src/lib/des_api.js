@@ -38,8 +38,10 @@ export const login = async( email, password ) => {
     console.log(`"\nAppHeader: login -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
 
     if ( auth.status === "success" ) { 
-        console.log(`\nAppHeader: login -> SUCCESS:\n${ auth.token }\n` )
+        //console.log(`\nAppHeader: login -> SUCCESS:\n${ auth.token }\n` )
         sessionStorage.setItem( 'des_token', auth.token, { path: '/' } )
+    } else {
+        console.log( "\n AUTH FAILED: \n", auth.message )
     }
     await get_user( )
 
@@ -84,14 +86,13 @@ export const get_user = async( ) => {
             usr.data.user.updated_at,
             token,
             true
-        ) )
-       console.log("\ndes_api.js -> get_user( ) -> AUTHENTICATION SUCCESS!\n" )
+        ) ) // console.log("\ndes_api.js -> get_user( ) -> AUTHENTICATION SUCCESS!\n" )
     } 
     else {
 
         AUTH.set( new User( ) )
         sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
-        console.log("\ndes_api.js -> get_user( ) -> AUTHENTICATION FAILED!\n" ) 
+        // console.log("\ndes_api.js -> get_user( ) -> AUTHENTICATION FAILED!\n" ) 
     }
     
     console.log("\ndes_api.js -> get_user( ) -> AUTH: \n", get( AUTH ) )
