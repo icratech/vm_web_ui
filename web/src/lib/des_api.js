@@ -122,6 +122,7 @@ export const API_URL_C001_V001_DEVICE_END =  `${ HTTP_SERVER }/api/001/001/devic
 export const API_URL_C001_V001_DEVICE_ADM =  `${ HTTP_SERVER }/api/001/001/device/admin`
 export const API_URL_C001_V001_DEVICE_HDR =  `${ HTTP_SERVER }/api/001/001/device/header`
 export const API_URL_C001_V001_DEVICE_CFG =  `${ HTTP_SERVER }/api/001/001/device/config`
+export const API_URL_C001_V001_DEVICE_SEARCH =  `${ HTTP_SERVER }/api/001/001/device/search`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
@@ -168,6 +169,51 @@ export const get_devices = async( ) => {
     // console.log( "des_api.js -> get_devices( ) -> DEVICES_LOADED: ", get( DEVICES_LOADED ) )
 
 }
+export const search_devices = async( params ) => {
+
+    console.log("search_devices( ) -> params: ", params )
+    let au = get( AUTH )
+
+    DEVICES_LOADED.set( false )
+    DEVICES.update( d => { return [ ] } )
+    let req = new Request( API_URL_C001_V001_DEVICE_SEARCH, { 
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            // "Authorization": `Bearer ${ au.token }` 
+        },
+        body: JSON.stringify( params )
+    } )
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    if ( json.status == "success") { 
+
+        let store = get( DEVICES )
+        let devs = json.data.devices 
+        console.log( "search_devices( ) -> response:\n", devs )
+        
+        devs.forEach( dev => {
+            if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+                let device = new Device(
+                    dev.adm,
+                    dev.hdr,
+                    dev.cfg,
+                    dev.evt,
+                    dev.smp,
+                    dev.reg
+                )
+                DEVICES.update( d => { return [ ...d, device ] } )
+            }        
+        } )
+    } 
+    get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+    DEVICES_LOADED.set( true )
+    console.log( "des_api.js -> search_devices( ) -> DEVICES: ", get( DEVICES ) )
+
+}
+
+
 export const register_device = async( serial ) => {
     let au = get( AUTH )
     let reg = new DESRegistration( )
@@ -342,6 +388,22 @@ export class DESRegistration {
         this.des_job_dev_id = des_job_dev_id
     }
 
+}
+
+export class DESSearchParam {
+    constructor(
+        token = "",
+        lng_min = -180.0,
+        lng_max = 180.0,
+        lat_min = -90.0,
+        lat_max = 90.0
+    ) {
+        this.token = token
+        this.lng_min = lng_min
+        this.lng_max = lng_max
+        this.lat_min = lat_min
+        this.lat_max = lat_max
+    }
 }
 
 import { goto } from '$app/navigation'
