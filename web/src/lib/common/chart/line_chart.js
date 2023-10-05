@@ -92,7 +92,12 @@ export class LineChartModel {
 
     pushPoint( point, set = [ ], scale, limit, scale_margin ) {
 
-        let x_min = set.pushSample( limit, point )
+        let len = set.data.push( point ) 
+        for ( len; len > limit; len-- ) {
+            set.data.shift( )
+        }
+        let x_min = set.data[0].x
+        // let x_min = set.pushSample( limit, point )
         // let filt = set.data.filter( x => x.x >= x_min )
         // let Ys = filt.map( p => p.y )
         // let min = Math.min( ...Ys ) // console.log( min )
@@ -127,16 +132,16 @@ export class LineChartDataSet {
         this.backgroundColor = markerColor
     }
     
-    pushSample( limit, point = { x: 0, y: 0.0 } ) {
-        let len = this.data.push( point ) 
+    // pushSample( limit, point = { x: 0, y: 0.0 } ) {
+    //     let len = this.data.push( point ) 
 
-        if ( limit > 0 ) {
-            for ( len; len > limit; len-- ) {
-                this.data.shift( )
-            }
-        }
-        return this.data[0].x
-    }
+    //     // if ( limit > 0 ) {
+    //         for ( len; len > limit; len-- ) {
+    //             this.data.shift( )
+    //         }
+    //     // }
+    //     return this.data[0].x
+    // }
 }
 export class LineChartScale {
     constructor( 
@@ -191,39 +196,74 @@ export class LineChartScale {
     }
 }
 
-export let LineChartXScale = {
-    type: 'time',
-    time: {
-        displayFormats: {
-            day: "MMM-d HH:mm",
-            hour: 'MMM-d HH:mm',
-            minute: 'HH:mm:ss',
-            second: 'HH:mm:ss',
-            millisecond: "HH:mm:ss.SSS",
+export class LineChartXScale {
+    constructor( ) {
+        this.type = 'time'
+        this.time = {
+            displayFormats: {
+                day: "MMM-d HH:mm",
+                hour: 'MMM-d HH:mm',
+                minute: 'HH:mm:ss',
+                second: 'HH:mm:ss',
+                millisecond: "HH:mm:ss.SSS",
+            }
         }
-    },
-    grid: { 
-        tickLength: 10,
-        drawTicks: false,
-        color: RGBA( BASE.LIGHT, 0.1 ),
-        display: true
-    },
-    position: 'bottom',
-    // title: {
-    //     display: true,
-    //     font: { size: 15 },
-    //     padding: { top: 13, bottom: 13 },
-    //     color: RGBA( BASE.LIGHT, 0.7 ),
-    //     text: "Time",
-    // },
-    ticks: {
-        autoSkip: true,
-        autoSkipPadding: 50,
-        maxRotation: 0,
-        color: RGBA( BASE.LIGHT, 0.7 ),
-        padding: 15,
+        this.grid = { 
+            tickLength: 10,
+            drawTicks: false,
+            color: RGBA( BASE.LIGHT, 0.1 ),
+            display: true
+        }
+        this.position = 'bottom'
+        // this.title = {
+        //     display: true,
+        //     font: { size: 15 },
+        //     padding: { top: 13, bottom: 13 },
+        //     color: RGBA( BASE.LIGHT, 0.7 ),
+        //     text: "Time",
+        // }
+        this.ticks = {
+            autoSkip: true,
+            autoSkipPadding: 50,
+            maxRotation: 0,
+            color: RGBA( BASE.LIGHT, 0.7 ),
+            padding: 15,
+        }
     }
 }
+// export let LineChartXScale = {
+//     type: 'time',
+//     time: {
+//         displayFormats: {
+//             day: "MMM-d HH:mm",
+//             hour: 'MMM-d HH:mm',
+//             minute: 'HH:mm:ss',
+//             second: 'HH:mm:ss',
+//             millisecond: "HH:mm:ss.SSS",
+//         }
+//     },
+//     grid: { 
+//         tickLength: 10,
+//         drawTicks: false,
+//         color: RGBA( BASE.LIGHT, 0.1 ),
+//         display: true
+//     },
+//     position: 'bottom',
+//     // title: {
+//     //     display: true,
+//     //     font: { size: 15 },
+//     //     padding: { top: 13, bottom: 13 },
+//     //     color: RGBA( BASE.LIGHT, 0.7 ),
+//     //     text: "Time",
+//     // },
+//     ticks: {
+//         autoSkip: true,
+//         autoSkipPadding: 50,
+//         maxRotation: 0,
+//         color: RGBA( BASE.LIGHT, 0.7 ),
+//         padding: 15,
+//     }
+// }
 
 export class XYPoint { 
     constructor( 

@@ -1,5 +1,7 @@
 import { writable, get } from 'svelte/store'
+import { goto } from '$app/navigation'
 import mapboxgl from 'mapbox-gl'
+import { BASE, RGBA } from './common/colors'
 
 export const openModals = ( initial ) => {
     const isOpen = writable( initial )
@@ -16,14 +18,42 @@ export const waitMilli = ( ms ) => new Promise( ( res ) => setTimeout( res, ms )
 export const AUTH = writable( { } )
 export const USERS = writable( [ ] )
 export const EVENT_TYPES = writable( [ ] )
+
 export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
+export const updateDevicesStore = ( ) => { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
+
 export const DEMO_DEVICES = writable( [ ] )
+
+
+export const device_class = "001"
+export const device_version= "001"
+export const client_app = `C${ device_class }V${ device_version }_client_app v0.0.0`
 
 const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des.leehayford.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` ) /* TODO: TEST WSS ON SERVER */
+
+
+/* DES API ROUTES *************************************************************************************/
+export const API_URL_USER_LIST =  `${ HTTP_SERVER }/user`
+export const get_users = async( ) => {
+
+    let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
+    let res = await fetch( req )
+    let json = await res.json( )
+    return json.data.users
+}
+
+export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
+export const get_event_types = async( ) => {
+    
+    let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
+    let res = await fetch( req )
+    let json = await res.json( )
+    return json.data.event_types
+}
 
 export const login = async( email, password ) => {
 
@@ -98,35 +128,39 @@ export const get_user = async( ) => {
     console.log("\ndes_api.js -> get_user( ) -> AUTH: \n", get( AUTH ) )
 }
 
-export const API_URL_USER_LIST =  `${ HTTP_SERVER }/user`
-export const get_users = async( ) => {
-
-    let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
-    let res = await fetch( req )
-    let json = await res.json( )
-    return json.data.users
-}
-
-export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
-export const get_event_types = async( ) => {
-    
-    let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
-    let res = await fetch( req )
-    let json = await res.json( )
-    return json.data.event_types
-}
-
+/* DEVICE API ROUTES **********************************************************************************/
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
 export const API_URL_C001_V001_DEVICE_START =  `${ HTTP_SERVER }/api/001/001/device/start`
 export const API_URL_C001_V001_DEVICE_END =  `${ HTTP_SERVER }/api/001/001/device/end`
 export const API_URL_C001_V001_DEVICE_ADM =  `${ HTTP_SERVER }/api/001/001/device/admin`
 export const API_URL_C001_V001_DEVICE_HDR =  `${ HTTP_SERVER }/api/001/001/device/header`
 export const API_URL_C001_V001_DEVICE_CFG =  `${ HTTP_SERVER }/api/001/001/device/config`
-export const API_URL_C001_V001_DEVICE_SEARCH =  `${ HTTP_SERVER }/api/001/001/device/search`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
-export const API_URL_GET_RUN_DEMO_SIM = `${ WS_SERVER }/api/001/001/demo/sim` 
+export const register_device = async( serial ) => {
+    let au = get( AUTH )
+    let reg = new DESRegistration( )
+    reg.des_dev_serial = serial
+    reg.des_dev_reg_user_id = au.id
+    reg.des_dev_reg_app = demo_app
+    reg.des_job_lng = -114.75 + ( Math.random() * ( -110.15 - -114.75 ) )
+    reg.des_job_lat = 51.85 + ( Math.random() * ( 54.35 - 51.85 ) )
+    console.log("des_api.js -> register_device( ) -> REQUEST reg:\n", reg )
+
+    let req = new Request( API_URL_C001_V001_DEVICE_REGISTER, { 
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${ au.token }` 
+        },
+        body: JSON.stringify( reg )
+    } )
+    let res = await fetch( req )
+    reg = await res.json( )
+    console.log("des_api.js -> register_device( ) ->  RESPONSE reg:\n", reg )
+    await get_devices( )
+}
 
 export const get_devices = async( ) => {
 
@@ -169,14 +203,17 @@ export const get_devices = async( ) => {
     // console.log( "des_api.js -> get_devices( ) -> DEVICES_LOADED: ", get( DEVICES_LOADED ) )
 
 }
-export const search_devices = async( params ) => {
 
-    console.log("search_devices( ) -> params: ", params )
+/* JOB API ROUTES *************************************************************************************/
+export const API_URL_C001_V001_JOB_SEARCH =  `${ HTTP_SERVER }/api/001/001/job/search`
+export const search_jobs = async( params ) => {
+
+    console.log("search_jobs( ) -> params: ", params )
     let au = get( AUTH )
 
     DEVICES_LOADED.set( false )
     DEVICES.update( d => { return [ ] } )
-    let req = new Request( API_URL_C001_V001_DEVICE_SEARCH, { 
+    let req = new Request( API_URL_C001_V001_JOB_SEARCH, { 
         method: "POST",
         headers: { 
             "Content-Type": "application/json",
@@ -191,59 +228,32 @@ export const search_devices = async( params ) => {
 
         let store = get( DEVICES )
         let devs = json.data.devices 
-        console.log( "search_devices( ) -> response:\n", devs )
+        console.log( "search_jobs( ) -> response:\n", devs )
         
-        devs.forEach( dev => {
-            if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
-                let device = new Device(
-                    dev.adm,
-                    dev.hdr,
-                    dev.cfg,
-                    dev.evt,
-                    dev.smp,
-                    dev.reg
-                )
-                DEVICES.update( d => { return [ ...d, device ] } )
-            }        
-        } )
+        // devs.forEach( dev => {
+        //     if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+        //         let device = new Device(
+        //             dev.adm,
+        //             dev.hdr,
+        //             dev.cfg,
+        //             dev.evt,
+        //             dev.smp,
+        //             dev.reg
+        //         )
+        //         DEVICES.update( d => { return [ ...d, device ] } )
+        //     }        
+        // } )
     } 
-    get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
-    DEVICES_LOADED.set( true )
-    console.log( "des_api.js -> search_devices( ) -> DEVICES: ", get( DEVICES ) )
+    // get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+    // DEVICES_LOADED.set( true )
+    // console.log( "des_api.js -> search_devices( ) -> DEVICES: ", get( DEVICES ) )
 
-}
-
-
-export const register_device = async( serial ) => {
-    let au = get( AUTH )
-    let reg = new DESRegistration( )
-    reg.des_dev_serial = serial
-    reg.des_dev_reg_user_id = au.id
-    reg.des_dev_reg_app = demo_app
-    reg.des_job_lng = -114.75 + ( Math.random() * ( -110.15 - -114.75 ) )
-    reg.des_job_lat = 51.85 + ( Math.random() * ( 54.35 - 51.85 ) )
-    console.log("des_api.js -> register_device( ) -> REQUEST reg:\n", reg )
-
-    let req = new Request( API_URL_C001_V001_DEVICE_REGISTER, { 
-        method: "POST",
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${ au.token }` 
-        },
-        body: JSON.stringify( reg )
-    } )
-    let res = await fetch( req )
-    reg = await res.json( )
-    console.log("des_api.js -> register_device( ) ->  RESPONSE reg:\n", reg )
-    await get_devices( )
 }
 
 // export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
 // export const API_URL_GET_DEVICES = `${ HTTP_SERVER }/api/device/list`
 // export const API_URL_GET_DEVICE_BY_SN = `${ HTTP_SERVER }/api/device/serial` 
 export const API_URL_GET_JOBS =  `${ HTTP_SERVER }/api/job/list`
-export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name` 
-
 export const load_get_jobs = async( serverLoadEvent ) => {
 
     let req = new Request( API_URL_GET_JOBS, { 
@@ -269,6 +279,7 @@ export const load_get_jobs = async( serverLoadEvent ) => {
     return { resp }
 } 
 
+export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name` 
 export const load_get_job_by_name = async( serverLoadEvent ) => {
 
     let reg = new DESRegistration( )
@@ -301,12 +312,7 @@ export const load_get_job_by_name = async( serverLoadEvent ) => {
 } 
 
 
-
-export const device_class = "001"
-export const device_version= "001"
-export const demo_app = `C${ device_class }V${ device_version }_demo_app v0.0.0`
-export const client_app = `C${ device_class }V${ device_version }_client_app v0.0.0`
-
+/* DES DATA STRUCTURES  *****************************************************************************/
 export class User {
     constructor(
         id = "",
@@ -330,7 +336,7 @@ export class User {
         this.logged_in = logged_in
     }
 }
-/* DEVICE DATA STRUCTURE  *****************************************************************************/
+
 export class DESRegistration {
     constructor( 
         /* DESDevice */
@@ -404,9 +410,18 @@ export class DESSearchParam {
         this.lat_min = lat_min
         this.lat_max = lat_max
     }
+    getMapBounds( map ) { 
+        // map.getBounds() returns LngLatBounds object 
+        // https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglatbounds
+        let b = map.getBounds( )
+            this.lng_max = b._ne.lng
+            this.lat_max = b._ne.lat
+            this.lng_min = b._sw.lng
+            this.lat_min = b._sw.lat
+    }
 }
 
-import { goto } from '$app/navigation'
+/* DEVICE DATA STRUCTURE  *****************************************************************************/
 export class Device {
     constructor( 
         adm = new Admin( ),
@@ -444,12 +459,12 @@ export class Device {
             this.highlight = false
         } )
         this.s_mark_el.addEventListener('mouseover', ( ) => { 
-            this.highlight = true //console.log( "this.highlight = ", this.highlight ) 
-            this.update( )
+            this.highlight = true 
+            updateDevicesStore( )
         } )
         this.s_mark_el.addEventListener('mouseleave', ( ) => { 
-            this.highlight = false // console.log( "this.highlight = ", this.highlight ) 
-            this.update( )
+            this.highlight = false 
+            updateDevicesStore( )
         } )
         this.s_mark = new mapboxgl.Marker( 
             this.s_mark_el, { anchor: 'bottom-right' } 
@@ -458,8 +473,8 @@ export class Device {
         this.resetChart( )
     }
     
-    /* TODO: ? MOVE THIS OUTSIDE OF THE DEVICE CLASS ? */
-    update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
+    // /* TODO: ? MOVE THIS OUTSIDE OF THE DEVICE CLASS ? */
+    // update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
     /* MAP METHODS ( LIVE ) **************************************************************/
     updateDeviceSearchMap( ) { }
@@ -491,55 +506,81 @@ export class Device {
     /* CHART METHODS ( LIVE ) ************************************************************/
     updateChartData( ) {
 
-        this.cht.pushPoint( 
+        // this.cht.pushPoint( 
+        this.pushPoint( 
             { x: this.smp.smp_time, y: this.smp.smp_ch4 },
             this.cht_ch4, this.cht.options.scales.y_ch4,
             this.cht_point_limit,
             this.cht_scale_margin
         )
         
-        this.cht.pushPoint( 
+        // this.cht.pushPoint( 
+        this.pushPoint( 
             { x: this.smp.smp_time, y: this.smp.smp_hi_flow },
             this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
             this.cht_point_limit,
             this.cht_scale_margin
         )
         
-        this.cht.pushPoint( 
+        // this.cht.pushPoint( 
+        this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_lo_flow },
             this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
             this.cht_point_limit,
             this.cht_scale_margin
         )
         
-        this.cht.pushPoint( 
+        // this.cht.pushPoint( 
+        this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_press },
             this.cht_press, this.cht.options.scales.y_press,
             this.cht_point_limit,
             this.cht_scale_margin
         )
         
-        this.cht.pushPoint( 
+        // this.cht.pushPoint( 
+        this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_bat_amp },
             this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
             this.cht_point_limit,
             this.cht_scale_margin
         )
         
-        this.cht.pushPoint( 
+        // this.cht.pushPoint( 
+        this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_bat_volt },
             this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
             this.cht_point_limit,
             this.cht_scale_margin
         )
         
-        this.cht.pushPoint( 
+        // this.cht.pushPoint( 
+        this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_mot_volt },
             this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
             this.cht_point_limit,
             this.cht_scale_margin
         )
         
+    }
+    pushPoint( point, set = [ ], scale, limit, scale_margin ) {
+
+        let len = set.data.push( point ) 
+        for ( len; len > limit; len-- ) {
+            set.data.shift( )
+        }
+        let x_min = set.data[0].x
+        // let x_min = set.pushSample( limit, point )
+        // let filt = set.data.filter( x => x.x >= x_min )
+        // let Ys = filt.map( p => p.y )
+        // let min = Math.min( ...Ys ) // console.log( min )
+        // let max = Math.max( ...Ys ) // console.log( max )
+        // if ( max - min > 0 ) {
+        //     scale.min = min - ( ( max - min ) * scale_margin )
+        //     scale.max = max +  ( ( max - min ) * scale_margin )
+        // }    
+        this.cht.options.scales.x.min = x_min
+        this.cht.options.scales.x.max = point.x
     }
     resetChart( ) {
         /* CHART DATA ( LIVE ) **************************************************************/
@@ -555,7 +596,6 @@ export class Device {
         this.cht_scale_margin = 0.2
     }
 
-
     /* WEBSOCKET METHODS **************************************************************/
     disconnectWS( ) { }
     connectWS = async( ) => {
@@ -567,14 +607,16 @@ export class Device {
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => { 
             this.socket = true
-            this.update( ) 
+            // this.update( ) 
+            updateDevicesStore( )
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
         }
         ws.onerror = ( e ) => { 
             ws.send( "close" )
             ws.close( )
             this.socket = false
-            this.update( ) 
+            // this.update( ) 
+            updateDevicesStore( )
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket ERROR\n${ JSON.stringify( e )  }\n` ) 
         }
         ws.onmessage = ( e ) => {
@@ -613,11 +655,7 @@ export class Device {
                 case "sample":
                     this.smp = msg.data
                     this.updateMarkerMode( )
-                    // if ( this.job.samples ) {
-                    //     this.job.samples.push( msg.data )
-                    // } else {
-                    //     this.job.samples = [ msg.data ]
-                    // }
+
                     if ( this.smp.smp_lo_flow < this.cfg.cfg_flow_tog ) {
                         this.cht.options.scales.y_lo_flow.display = true
                         this.cht_lo_flow.hidden = false
@@ -633,8 +671,8 @@ export class Device {
                         this.cht_hi_flow.hidden = false
 
                     }
-                    // console.log( `sample -> ${ this.reg.des_dev_serial }:\n`, this.job )
-                    this.updateChartData()
+                    // console.log( `sample -> ${ this.reg.des_dev_serial }:\n` )
+                    this.updateChartData( )
                     break
 
                 case "live": break
@@ -645,7 +683,8 @@ export class Device {
             }
             
             // console.log( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
-            this.update( )
+            // this.update( ) 
+            updateDevicesStore( )
         } 
         this.disconnectWS =  ( ) => {
             ws.send( "close" )
@@ -653,7 +692,8 @@ export class Device {
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
             this.socket = false
             this.highlight = false
-            this.update( )
+            // this.update( ) 
+            updateDevicesStore( )
         }
         await waitMilli(1000)
     }
@@ -1235,7 +1275,10 @@ export class Sample {
         this.smp_job_name =smp_job_name
     }
 }
-/* USED FOR SERVER ASSEMBLED SAMPLE DATA */
+
+/* 
+USED FOR SERVER ASSEMBLED SAMPLE DATA 
+*/
 export class XYSampleData { 
     constructor(
         xy_smp = {
@@ -1270,139 +1313,8 @@ export class DiagSample { /* NOT IMPLEMENTED */
     /* NOT IMPLEMENTED */
 }
 
-/* 
-DEMO! - NOT FOR PRODUCTION 
-*/
-export class DemoDevice {
-    constructor( 
-        dev = new Device( ), 
-        sim = new Sim( ),
-    ) { 
-        this.dev = dev
-        this.sim = sim
-    }
-
-    update( ) {
-        let demos
-        const unsub = DEMO_DEVICES.subscribe( ( v ) => { demos = v } )
-        unsub( )
-        DEMO_DEVICES.update( ( ) => { return [ ...demos ] } )
-    }
-
-   disconnectSIM( ) { /* DEMO! - NOT FOR PRODUCTION */ } 
-   connectSIM( user ) { /* DEMO! - NOT FOR PRODUCTION */
-
-        let sim_js = encodeURIComponent(JSON.stringify( this.sim ) )
-        let reg_js = encodeURIComponent(JSON.stringify( this.dev.reg ) ) 
-        let url = `${ API_URL_GET_RUN_DEMO_SIM }?access_token=${ user.token }&sim=${ sim_js }&des_reg=${ reg_js }`
-
-        console.log( `connectSIM( ) ->  this.dev: ${ JSON.stringify( this.dev.reg.des_dev_serial, null, 4 ) }`  )
-        let ws = new WebSocket( url )
-
-        ws.onopen = ( e ) => { console.log( "class DemoDevice -> WebSocket OPEN" )  }
-        ws.onerror = ( e ) => {
-            ws.close( )
-            this.sim.run = false
-            console.log( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } ONERROR:\n`, JSON.stringify( e ) )
-            this.update( )
-        }
-        ws.onmessage = ( msg ) => {
-        
-            let data =  JSON.parse( JSON.parse( msg.data ) )
-            console.log( `class DemoDevice: ${ this.dev.reg.des_dev_serial } ONMESSAGE:\n`, data )
-            this.update( )
-        } 
-        this.sim.run = true
-       
-        this.disconnectSIM = ( ) => { 
-                ws.send( "close" )
-                ws.close( ) 
-                this.sim.run = false
-                console.log( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } -> WebSocket CLOSED: -> sim ${ this.sim.run }\n` )
-                this.update( )
-        }
-        this.update( )
-   }
-}
-
-export class Sim {
-    constructor(
-	    qty = 1000,
-	    dur = 500,
-	    fillQty = 1,
-        max_ch4 = 92.1 + Math.random( ) * 7.9,
-        max_flow = 0.199 + Math.random( ) * 248.799,
-        run = false,
-    ) {
-        this.qty = qty
-        this.dur = dur
-        this.fillQty = fillQty
-        this.run = run
-        this.max_ch4 = max_ch4
-        this.max_flow = max_flow
-        this.max_press = ( this.max_flow / 250 ) * 1000
-
-        this.modeVent( )
-    }
-
-    modeVent( ) {
-        this.mtx_ch4 = new DemoModeTransition( this.max_ch4, 0, 600000, 600000 )
-        this.mtx_hi_flow = new DemoModeTransition( this.max_flow, 0, 600000, 500000 )
-        this.mtx_lo_flow = new DemoModeTransition( ( this.max_flow > 2 ? 2 : this.max_flow ), 0, 600000, 500000 )
-        this.mtx_press = new DemoModeTransition( this.pax_press, 0, 600000, 600000 )
-        // console.log( "modeVent( ):\n", this )
-    }
-
-    modeFlow( ) {
-        this.mtx_ch4 = new DemoModeTransition( 0, this.max_ch4, 600000, 600000 )
-        this.mtx_hi_flow = new DemoModeTransition( 0, this.max_flow, 600000, 500000 )
-        this.mtx_lo_flow = new DemoModeTransition( 0, ( this.max_flow > 2 ? 2 : this.max_flow ), 600000, 500000 )
-        this.mtx_press = new DemoModeTransition( this.pax_press, 0, 600000, 600000 )
-        // console.log( "modeFlow( ):\n", this )
-    }
-
-    modeBuild( ) {
-        this.mtx_ch4 = new DemoModeTransition( this.max_ch4, 0, 600000, 600000 )
-        this.mtx_hi_flow = new DemoModeTransition( this.max_flow, 0, 600000, 500000 )
-        this.mtx_lo_flow = new DemoModeTransition( ( this.max_flow > 2 ? 2 : this.max_flow ), 600000, 500000 )
-        this.mtx_press = new DemoModeTransition( 0, this.pax_press, 600000, 600000 )
-        // console.log( "modeBuild( ):\n", this )
-    }
-
-}
-
-export class DemoModeTransition {
-    constructor(
-        v_min = 0,
-        v_max = 0,
-        span_up = 10000,
-        span_dn = 10000,
-    ) {
-        this.v_min = v_min
-        this.v_max = v_max
-        this.span_up = span_up
-        this.span_dn = span_dn
-    }
-}
-
-// export const MODE_BUILD_CSS = 'fg-yellow'
-// export const MODE_VENT_CSS = 'fg-red'
-// export const MODE_HIGH_FLOW_CSS = 'fg-blue'
-// export const MODE_LOW_FLOW_CSS = 'fg-aqua'
-// export const MODE = [
-//    'BUILD', // 0
-//    'BUILD <-> VENT', // 1
-//    'VENT', // 2
-//    'VENT <-> HI FLOW', // 3
-//    'HI FLOW', // 4
-//    'HI FLOW <-> LO FLOW', // 5
-//    'LO FLOW', // 6
-//    'MANUAL >-<' // 7
-// ]
-
-
-
 /* MAP STUFF ********************************************************************************************/
+/* GEOJSON FORMAT HAS PROVEN UNNECESSARY THUS FAR... */
 export class GeoJSONFeatureCollection {
     constructor (
         features = [ ]
@@ -1411,7 +1323,6 @@ export class GeoJSONFeatureCollection {
         this.features = features
     }
 }
-
 export class GeoJSONFeature {
     constructor(
         geometry = new GeoJSONGeometry( ),
@@ -1422,7 +1333,6 @@ export class GeoJSONFeature {
         this.properties = { title: well_name }
     }
 }
-
 export class GeoJSONGeometry {
     constructor( 
         coordinates = [ -115.000000, 55.000000 ]
@@ -1434,8 +1344,6 @@ export class GeoJSONGeometry {
 
 
 /* CHART STUFF ******************************************************************************************/
-
-import { BASE, RGBA } from './common/colors'
 export const COLORS = {
     CH4: BASE.PINK,
     HI_FLOW: BASE.ORANGE,
@@ -1499,7 +1407,7 @@ const NewChartScales = ( ) => {
 
     return {
         
-        x: LineChartXScale,
+        x: new LineChartXScale( ),
 
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
             RGBA( COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false 
@@ -1542,3 +1450,118 @@ export const NewChartData = ( ) => {
 
     return cht
 }
+
+
+/* DEMO! - NOT FOR PRODUCTION  *********************************************************************/
+export const API_URL_GET_RUN_DEMO_SIM = `${ WS_SERVER }/api/001/001/demo/sim` 
+export class DemoDevice {
+    constructor( 
+        dev = new Device( ), 
+        sim = new Sim( ),
+    ) { 
+        this.dev = dev
+        this.sim = sim
+    }
+
+    update( ) {
+        let demos
+        const unsub = DEMO_DEVICES.subscribe( ( v ) => { demos = v } )
+        unsub( )
+        DEMO_DEVICES.update( ( ) => { return [ ...demos ] } )
+    }
+
+   disconnectSIM( ) { /* DEMO! - NOT FOR PRODUCTION */ } 
+   connectSIM( user ) { /* DEMO! - NOT FOR PRODUCTION */
+
+        let sim_js = encodeURIComponent(JSON.stringify( this.sim ) )
+        let reg_js = encodeURIComponent(JSON.stringify( this.dev.reg ) ) 
+        let url = `${ API_URL_GET_RUN_DEMO_SIM }?access_token=${ user.token }&sim=${ sim_js }&des_reg=${ reg_js }`
+
+        console.log( `connectSIM( ) ->  this.dev: ${ JSON.stringify( this.dev.reg.des_dev_serial, null, 4 ) }`  )
+        let ws = new WebSocket( url )
+
+        ws.onopen = ( e ) => { console.log( "class DemoDevice -> WebSocket OPEN" )  }
+        ws.onerror = ( e ) => {
+            ws.close( )
+            this.sim.run = false
+            console.log( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } ONERROR:\n`, JSON.stringify( e ) )
+            this.update( )
+        }
+        ws.onmessage = ( msg ) => {
+        
+            let data =  JSON.parse( JSON.parse( msg.data ) )
+            console.log( `class DemoDevice: ${ this.dev.reg.des_dev_serial } ONMESSAGE:\n`, data )
+            this.update( )
+        } 
+        this.sim.run = true
+       
+        this.disconnectSIM = ( ) => { 
+                ws.send( "close" )
+                ws.close( ) 
+                this.sim.run = false
+                console.log( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } -> WebSocket CLOSED: -> sim ${ this.sim.run }\n` )
+                this.update( )
+        }
+        this.update( )
+   }
+}
+export class Sim {
+    constructor(
+	    qty = 1000,
+	    dur = 500,
+	    fillQty = 1,
+        max_ch4 = 92.1 + Math.random( ) * 7.9,
+        max_flow = 0.199 + Math.random( ) * 248.799,
+        run = false,
+    ) {
+        this.qty = qty
+        this.dur = dur
+        this.fillQty = fillQty
+        this.run = run
+        this.max_ch4 = max_ch4
+        this.max_flow = max_flow
+        this.max_press = ( this.max_flow / 250 ) * 1000
+
+        this.modeVent( )
+    }
+
+    modeVent( ) {
+        this.mtx_ch4 = new DemoModeTransition( this.max_ch4, 0, 600000, 600000 )
+        this.mtx_hi_flow = new DemoModeTransition( this.max_flow, 0, 600000, 500000 )
+        this.mtx_lo_flow = new DemoModeTransition( ( this.max_flow > 2 ? 2 : this.max_flow ), 0, 600000, 500000 )
+        this.mtx_press = new DemoModeTransition( this.pax_press, 0, 600000, 600000 )
+        // console.log( "modeVent( ):\n", this )
+    }
+
+    modeFlow( ) {
+        this.mtx_ch4 = new DemoModeTransition( 0, this.max_ch4, 600000, 600000 )
+        this.mtx_hi_flow = new DemoModeTransition( 0, this.max_flow, 600000, 500000 )
+        this.mtx_lo_flow = new DemoModeTransition( 0, ( this.max_flow > 2 ? 2 : this.max_flow ), 600000, 500000 )
+        this.mtx_press = new DemoModeTransition( this.pax_press, 0, 600000, 600000 )
+        // console.log( "modeFlow( ):\n", this )
+    }
+
+    modeBuild( ) {
+        this.mtx_ch4 = new DemoModeTransition( this.max_ch4, 0, 600000, 600000 )
+        this.mtx_hi_flow = new DemoModeTransition( this.max_flow, 0, 600000, 500000 )
+        this.mtx_lo_flow = new DemoModeTransition( ( this.max_flow > 2 ? 2 : this.max_flow ), 600000, 500000 )
+        this.mtx_press = new DemoModeTransition( 0, this.pax_press, 600000, 600000 )
+        // console.log( "modeBuild( ):\n", this )
+    }
+
+}
+export class DemoModeTransition {
+    constructor(
+        v_min = 0,
+        v_max = 0,
+        span_up = 10000,
+        span_dn = 10000,
+    ) {
+        this.v_min = v_min
+        this.v_max = v_max
+        this.span_up = span_up
+        this.span_dn = span_dn
+    }
+}
+
+

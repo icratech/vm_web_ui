@@ -34,7 +34,11 @@
         <DeviceControls bind:device on:start={ async( ) => { modal.open( ) } }/>
             
         <div class="flx-col content">
-
+    
+            <div class="flx-col chart">
+                <LineChart bind:chartdata={ device.cht } />
+            </div>
+    
             <div class="flx-col panel">
 
                 <div class="flx-row">
@@ -90,11 +94,7 @@
                 </div>
 
             </div>
-    
-            <div class="flx-col chart">
-                <LineChart bind:chartdata={ device.cht } />
-            </div>
-    
+
         </div>
       
     </div>
@@ -132,7 +132,7 @@
     }
 
     .chart {
-        height: 65%;
+        height: 34em;
     }
     .panel {
         background-color: var(--light_aa);
@@ -142,7 +142,7 @@
         border-radius: 0.5em;
         gap: 0.5em;
         justify-content: space-between;
-        height: 35%;
+        height: 100%;
     }
 
 </style>
