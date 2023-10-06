@@ -53,6 +53,8 @@
         close( ) 
     }
 
+    export let valid = true
+
 </script>
 
 <!-- <slot name="trigger" { open }>
@@ -88,11 +90,14 @@
                     <div>Confirm</div>
                 </slot>
                     
+                { #if valid }
                 <PillButton 
                     cls={ 'bg-green' }
                     on:click={ confirm }
                     hint={ 'Confirm' } 
                 />
+                { /if }
+
             </div>
 
         </div>

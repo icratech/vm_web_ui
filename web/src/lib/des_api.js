@@ -37,8 +37,29 @@ export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` ) /* TODO:
 
 
 /* DES API ROUTES *************************************************************************************/
-export const API_URL_USER_LIST =  `${ HTTP_SERVER }/user`
-export const get_users = async( ) => {
+
+export const API_URL_USE_SIGNUP =  `${ HTTP_SERVER }/api/user/signup`
+export const sign_up_user = async( usu ) => {
+
+    let req = new Request(API_URL_USE_SIGNUP, { 
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        credentials: "include",
+        body: JSON.stringify( usu ) 
+    } )
+    let res = await fetch( req )
+    let auth = await res.json( )
+    console.log(`"\ndes_api.js -> sign_up_user( ) ->  RESPONSE -> \n${ JSON.stringify( auth, null, 4 ) }`)
+
+    if ( auth.status === "success" ) { 
+        await login( usu.email, usu.password )
+    } else {
+        console.log( "\n SIGN-UP FAILED: \n", auth.message )
+    }
+}
+
+export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
+export const get_user_list = async( ) => {
 
     let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
     let res = await fetch( req )
@@ -46,18 +67,10 @@ export const get_users = async( ) => {
     return json.data.users
 }
 
-export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
-export const get_event_types = async( ) => {
-    
-    let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
-    let res = await fetch( req )
-    let json = await res.json( )
-    return json.data.event_types
-}
-
+export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
 export const login = async( email, password ) => {
 
-    let req = new Request( `${ HTTP_SERVER }/api/auth/login`, { 
+    let req = new Request(API_URL_USER_LOGIN, { 
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -77,9 +90,11 @@ export const login = async( email, password ) => {
 
     if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  }
 }
+
+export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
 export const logout = async( ) => {
 
-    let req = new Request( `${ HTTP_SERVER }/api/auth/logout`, { 
+    let req = new Request( API_URL_USER_LOGOUT, { 
         method: "GET",
         headers: { 'Authorization': `Bearer ${ sessionStorage.getItem( 'des_token' ) }` }, 
         credentials: "include"   
@@ -93,11 +108,13 @@ export const logout = async( ) => {
 
     console.log(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
 }
+
+export const API_URL_USER_ME = `${ HTTP_SERVER }/api/user/me`
 export const get_user = async( ) => {
 
     let token = sessionStorage.getItem( 'des_token' )
 
-    let user_res = await fetch( `${ HTTP_SERVER }/user/me`, { 
+    let user_res = await fetch( API_URL_USER_ME, { 
             method: "GET",
             headers: { 'Authorization': `Bearer ${ token }`}      
         } 
@@ -205,6 +222,15 @@ export const get_devices = async( ) => {
 }
 
 /* JOB API ROUTES *************************************************************************************/
+export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
+export const get_event_types = async( ) => {
+    
+    let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
+    let res = await fetch( req )
+    let json = await res.json( )
+    return json.data.event_types
+}
+
 export const API_URL_C001_V001_JOB_SEARCH =  `${ HTTP_SERVER }/api/001/001/job/search`
 export const search_jobs = async( params ) => {
 
@@ -334,6 +360,20 @@ export class User {
         this.updated_at = updated_at
         this.token = token
         this.logged_in = logged_in
+    }
+}
+
+export class UserSignUp {
+    constructor(
+        name = "",
+        email = "",
+        password = "",
+        password_confirm = "",
+    ) {
+        this.name = name
+        this.email = email
+        this.password = password
+        this.password_confirm = password_confirm
     }
 }
 
@@ -676,6 +716,12 @@ export class Device {
                     break
 
                 case "live": break
+
+                case "auth":
+                    let auth = msg.data
+                    if ( auth.status === "fail" ) { this.disconnectWS( ) }
+                    console.log( auth.message ) 
+                    break
 
                 default: 
                     console.log( `Type unknown:\n${ e.data }\n` )

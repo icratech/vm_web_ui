@@ -1,7 +1,7 @@
 <script>
 
     import { onMount } from "svelte"
-    import { User, USERS, get_users } from "../../des_api"
+    import { User } from "../../des_api"
     import { get } from 'svelte/store'
 
     export let uid

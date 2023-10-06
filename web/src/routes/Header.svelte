@@ -8,7 +8,7 @@
 
     let email = ""
     let password = ""
-    $: loginButtonColor = ( $AUTH.logged_in ? 'bg-purple' : 'bg-green_a' )
+    $: loginButtonColor = ( $AUTH.logged_in ? 'bg-purple' : 'bg-accent' )
     $: loginButtonText = ( $AUTH.logged_in ? 'out' : 'in' )
     $: loginButtonFunc = ( $AUTH.logged_in ? logout : ( ) => { login( email, password ) } )
 
@@ -45,7 +45,7 @@
             <div class="flx-col input-container">
                 <label class="lbl">
                     password
-                    <input name="password" type="password"  bind:value={ password } id="pw"/>
+                    <input name="password" type="password"  bind:value={ password } id="pw" autocomplete="new-password"/>
                 </label>
             </div>
             { /if }
