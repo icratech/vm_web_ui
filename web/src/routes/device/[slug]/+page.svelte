@@ -18,7 +18,6 @@
     let modal
 
 </script>
-
 <dvi class="flx-col container">
 
     <div class="flx-row layout">

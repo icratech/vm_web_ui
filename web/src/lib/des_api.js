@@ -81,7 +81,7 @@ export const login = async( email, password ) => {
     console.log(`"\nAppHeader: login -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
 
     if ( auth.status === "success" ) { 
-        //console.log(`\nAppHeader: login -> SUCCESS:\n${ auth.token }\n` )
+        console.log(`\nAppHeader: login -> SUCCESS:\n${ auth.token }\n` )
         sessionStorage.setItem( 'des_token', auth.token, { path: '/' } )
     } else {
         console.log( "\n AUTH FAILED: \n", auth.message )
@@ -94,9 +94,12 @@ export const login = async( email, password ) => {
 export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
 export const logout = async( ) => {
 
+    let au = get( AUTH )
+
     let req = new Request( API_URL_USER_LOGOUT, { 
         method: "GET",
-        headers: { 'Authorization': `Bearer ${ sessionStorage.getItem( 'des_token' ) }` }, 
+        // headers: { 'Authorization': `Bearer ${ sessionStorage.getItem( 'des_token' ) }` }, 
+        headers: { 'Authorization': `Bearer ${ au.token }` }, 
         credentials: "include"   
     } )
     let res = await fetch( req )
@@ -282,10 +285,13 @@ export const search_jobs = async( params ) => {
 export const API_URL_GET_JOBS =  `${ HTTP_SERVER }/api/job/list`
 export const load_get_jobs = async( serverLoadEvent ) => {
 
+    let au = get( AUTH )
+
     let req = new Request( API_URL_GET_JOBS, { 
         method: 'GET',
         headers: {
-            "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
+            // "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
+            "Authorization":  `Bearer ${au.token }`, 
         },
     } )
 
@@ -308,6 +314,8 @@ export const load_get_jobs = async( serverLoadEvent ) => {
 export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name` 
 export const load_get_job_by_name = async( serverLoadEvent ) => {
 
+    let au = get( AUTH )
+
     let reg = new DESRegistration( )
     reg.des_job_name = serverLoadEvent.params.slug
 
@@ -316,7 +324,8 @@ export const load_get_job_by_name = async( serverLoadEvent ) => {
         credentials: "include",
         headers: {
             "Content-Type": "application/json",
-            "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
+            // "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
+            "Authorization":  `Bearer ${au.token }`, 
         },
         body:  JSON.stringify( reg )
     } )

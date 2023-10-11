@@ -1,5 +1,4 @@
-
-export const ssr = false
+// export const ssr = false
 
 import { DEVICES_LOADED } from '../../../lib/des_api'
 import { redirect } from '@sveltejs/kit'
