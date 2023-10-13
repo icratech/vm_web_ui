@@ -22,7 +22,7 @@
 
         <div class="flx-col title-block">
             <div class="flx-row icon-block">
-                <h1 style="color: var(--grey_a)">V<span class="ent" style="color: var(--grey_a)">ENT</span><span class="wat">WAT</span><span class="ch">CH</span><sub class="four">4</sub></h1>
+                <h1 style="color: var(--grey_a)">V<span class="ent">ENT</span><span class="medic">MEDIC</span></h1>
             </div>
             <div class="subtitle">
                 <p>Part of the <span class="data-desk">Data</span><span class="two">2</span><span class="data-desk">Desk</span> ecosystem</p>
@@ -86,20 +86,12 @@
 
 	.ent {
         font-size: 1.8rem;
+        color: var(--light);
     }
-	.wat {
-        font-size: 1.8rem;
-        color: var(--grey);
-    }
-    .ch {
+    .medic {
         font-size: 1.8rem;
         color: var(--accent_a);
     }
-	.four {
-		font-size: 0.6em;
-        font-weight: 300;
-        color: var(--accent_a);
-	}
 
     .subtitle {
         margin-top: -0.3em;

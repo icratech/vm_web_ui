@@ -21,7 +21,7 @@
 <div class="flx-col container">
 
     <div class="flx-col welcome">
-        <div class="logo">V<span class="ent" style="color: var(--grey_a)">ENT</span><span class="wat">WAT</span><span class="ch">CH</span><sub class="four">4</sub></div>
+        <div class="logo">V<span class="ent">ENT</span><span class="medic">MEDIC</span></div>
         <br>
         <h3>Some interesting facts about this system should go here...</h3>
         <h3>... And maybe a fun tag-line.</h3>
@@ -103,20 +103,12 @@
     }
 	.ent {
         font-size: 0.7em;
+        color: var(--light);
     }
-	.wat {
-        font-size: 0.7em;
-        color: var(--grey);
-    }
-    .ch {
+    .medic {
         font-size: 0.7em;
         color: var(--accent_a);
     }
-	.four {
-		font-size: 0.5em;
-        font-weight: 300;
-        color: var(--accent_a);
-	}
 
     .actions {
         font-size: 1.2em;
