@@ -2,6 +2,7 @@
 
     import Modal from "../lib/common/modal/Modal.svelte"
     import PillButton from "../lib/common/button/PillButton.svelte"
+    import vent_medic_logo from "$lib/images/vent-medic-logo-white.png"
 
     import UserRegistration from "./UserRegistration.svelte"
     import { UserSignUp, sign_up_user } from "../lib/des_api"
@@ -21,7 +22,10 @@
 <div class="flx-col container">
 
     <div class="flx-col welcome">
-        <div class="logo">V<span class="ent">ENT</span><span class="medic">MEDIC</span></div>
+        
+        <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
+
+        <!-- <div class="logo">V<span class="ent">ENT</span><span class="medic">MEDIC</span></div> -->
         <br>
         <h3>Some interesting facts about this system should go here...</h3>
         <h3>... And maybe a fun tag-line.</h3>
@@ -98,17 +102,21 @@
     }
 
     .logo {
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        height: 7.5em;
         color: var(--grey_a);
-        font-size: 6.9em;
+        /* font-size: 6.9em; */
     }
-	.ent {
+	/* .ent {
         font-size: 0.7em;
         color: var(--light);
     }
     .medic {
         font-size: 0.7em;
         color: var(--accent_a);
-    }
+    } */
 
     .actions {
         font-size: 1.2em;

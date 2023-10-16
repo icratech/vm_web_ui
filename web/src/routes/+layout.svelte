@@ -43,14 +43,14 @@
 
         <div class="flx-col nav">
 
-            <div class="flx-col">
+            <div class="flx-col ops">
                 <PillButton on:click={ ( ) => { goto( '/' ) } } cls='bg-accent' img={ btn_img_home } hint={ null } />
                 <PillButton on:click={ ( ) => { goto( '/device' ) } } cls='bg-accent' img={ btn_img_gauge } hint={ 'Device list' }  />
                 <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-accent'  hint={ 'Job list' } />
             </div>
 
             { #if $AUTH.role == "admin" }
-            <div class="flx-col">
+            <div class="flx-col admin">
                 <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple'  hint={ "If you don't know..." } />
             </div>
             { /if }
@@ -89,7 +89,6 @@
         height: 100%;
         padding-bottom: 1em;
     }
-
     .nav {
         width: 2.5em;
         gap:2em;
@@ -101,6 +100,28 @@
         padding: 0 1rem;
         height: 100%;
         overflow: hidden;
+    }
+
+    @media(max-width: 720px) {
+        .layout {
+            flex-direction: column;
+        }
+        .nav {
+            flex-direction: row;
+            width: 100%;
+        }
+        .ops {
+            flex-direction: row;
+        }
+        .admin {
+            flex-direction: row;
+            justify-content: flex-end;
+            padding-right: 1em;
+        }
+        .page {
+            padding: 0;
+            margin-top: -2em;
+        }
     }
 
 </style>

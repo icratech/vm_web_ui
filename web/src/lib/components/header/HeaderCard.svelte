@@ -11,7 +11,7 @@
 
 <div class="flx-col card-content">
     
-    <div class="flx-row card-title">
+    <div class="flx-row card-title title">
         <div class="job"><span style="color: var(--aqua_aa); padding-right:0.5em;">Job ID:</span> { header.hdr_job_name }</div> 
         <div><DateTimeDisplay date={ displayDate } /></div>
     </div>
@@ -72,5 +72,13 @@
         padding: 0em;
         font-size: 0.9rem;
         width: 100%;
+    }
+    @media(max-width:720px) {
+        .title {
+            display: none;
+        }
+        .lbl {
+            display: none;
+        }
     }
 </style>

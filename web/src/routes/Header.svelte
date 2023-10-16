@@ -2,9 +2,14 @@
 
     // export let user
     // export let form
+	// import watchMedia from 'svelte-media'
+    // $: media = watchMedia( {
+    //     mobile: "(max-width: 720)"
+    // } )
 
     import { AUTH, login, logout } from '../lib/des_api'
     import PillButton from '../lib/common/button/PillButton.svelte'
+    import vent_medic_logo from "$lib/images/vent-medic-logo-white.png"
 
     let email = ""
     let password = ""
@@ -18,22 +23,27 @@
 
 <div class="flx-col container">
 
-    <div class="flx-row content">  
+    <div class="flx-row { ( $AUTH.logged_in ? 'content-in' : 'content' ) }">  
 
         <div class="flx-col title-block">
             <div class="flx-row icon-block">
-                <h1 style="color: var(--grey_a)">V<span class="ent">ENT</span><span class="medic">MEDIC</span></h1>
+                <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
+                <!-- <h1 style="color: var(--grey_a)">V<span class="ent">ENT</span><span class="medic">MEDIC</span></h1> -->
             </div>
-            <div class="subtitle">
+            <!-- <div class="subtitle">
                 <p>Part of the <span class="data-desk">Data</span><span class="two">2</span><span class="data-desk">Desk</span> ecosystem</p>
-            </div>
+            </div> -->
             
         </div>
+
+        <!-- { #if media.mobile }
+            <h4>MOBILE</h4>
+        { :else } -->
 
         <div class="flx-row login">
         
             { #if $AUTH.logged_in }
-            <h4>{ $AUTH.name }, you are a tolerable person.</h4>
+            <h4 id="auth">{ $AUTH.name }, you are a tolerable person.</h4>
             { :else }
             <div class="flx-col input-container">
                 <label class="lbl">
@@ -49,13 +59,19 @@
                 </label>
             </div>
             { /if }
-            <PillButton 
-                cls={ loginButtonColor }
-                on:click={ loginButtonFunc }
-                hint={ null } 
-            />
+            <div class="login-btn">
+                
+                <div class="mob-msg">{ ( $AUTH.logged_in ? $AUTH.name: 'Sign-in' ) }</div>
+               
+                <PillButton 
+                    cls={ loginButtonColor }
+                    on:click={ loginButtonFunc }
+                    hint={ null } 
+                />
+            </div>
         </div>
 
+        <!-- { /if } -->
 
     </div>        
 
@@ -68,12 +84,13 @@
         border-bottom: solid 0.05em var(--light_01);
         /* border-right: solid 0.05em var(--light_01); */
         padding-left: 1em;
-        padding-right: 2em;
+        padding-right: 1em;
         justify-content: space-between;
         gap: 0;
     }
     .content {
         /* padding-left: 1rem; */
+        flex-direction: row;
         justify-content: space-between;
     }
     .title-block {
@@ -84,15 +101,24 @@
         padding: 0;
     }
 
-	.ent {
+    .logo {
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: left;
+        margin-top: 1em;
+        height: 2.7em;
+        width: 100%;
+    }
+
+	/* .ent {
         font-size: 1.8rem;
         color: var(--light);
     }
     .medic {
         font-size: 1.8rem;
         color: var(--accent_a);
-    }
-
+    } */
+/* 
     .subtitle {
         margin-top: -0.3em;
         padding-bottom: 0.75em;
@@ -104,13 +130,13 @@
     .two {
         color: var(--accent);
     }
-    
+     */
 
     .login {
         justify-content: flex-end;
         align-items: flex-end;
         padding-bottom: 1em;
-        margin-right: 1em;
+        /* margin-right: 1em; */
     }
 
     .input-container {
@@ -134,4 +160,47 @@
         width: 100%;
     }
 
+    .login-btn {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            width: auto;
+            gap: 1em;
+        }
+    .mob-msg {
+        display: none;
+    }
+
+    @media(max-width:720px) {
+        .container {
+            padding-bottom: 1em;
+        }
+        .content {
+            flex-direction: column;
+        }
+        .login {
+            flex-direction:column;
+            align-items: center;
+            padding: 0;
+            gap:0.5em;
+        }
+        .input-container {
+            width: 100%;
+        }
+        .login-btn {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+            gap: 1em;
+        }
+        .mob-msg {
+            display: block;
+            font-size: 1.2em;
+        }
+
+        #auth {
+            display: none;
+        }
+    }
 </style>

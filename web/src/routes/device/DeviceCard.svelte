@@ -46,14 +46,14 @@
 
     </div>
 
-    <div class="flx-col card">
+    <div class="flx-col card content">
 
             <div class="flx-row card-title">        
-                <div class="flx-row seg">
+                <div class="flx-row seg sn">
                     <h4 class="fg-accent">SN:</h4>
                     <h4>{ device.reg.des_dev_serial }</h4>
                 </div>  
-                <div class="flx-row seg">
+                <div class="flx-row seg cv">
                     <div class="sml">class</div>
                     <div class="fg-accent">{ device.reg.des_dev_class }</div>
                     <div class="sml">version</div>
@@ -62,15 +62,19 @@
 
             </div>
             
-            <BarGaugeCard bind:smp bind:cfg/>
+            <div class=gag>
+                <BarGaugeCard bind:smp bind:cfg/>
+            </div>
             
     </div>
-    <div class="flx-col card">
+    <div class="flx-col card hdr">
         <HeaderCard bind:header={hdr} />
     </div>
     <!-- <ConfigCard bind:config /> -->
     
-    <EventCard bind:event={evt} title="Last event" />
+    <div class="flx-col card evt">
+        <EventCard bind:event={evt} title="Last event" />
+    </div>
 
 </div>
 
@@ -98,4 +102,35 @@
         gap: 1em;
     }
 
+    .evt {
+        height: 100%;
+    }
+    @media(max-width: 720px) {
+        .container {
+            flex-direction: column;
+            padding: 0;
+            gap:0;
+        }
+        .btns {
+            flex-direction: row;
+            padding: 0;
+            gap: 1em;
+        }
+        .content {
+            flex-direction: column;
+            gap:0;
+            padding:0;
+        }
+        .cv { display:none; }
+        .gag {
+            padding: 0.5em;
+        }
+        .hdr {
+            /* display:none; */
+            padding: 0.5em;
+        }
+        .evt {
+            display:none;
+        }
+    }
 </style>

@@ -65,7 +65,7 @@
 
     .content {
         height: 100%;
-        overflow-y: auto;
+        /* overflow-y: auto; */
     }
 
     .device-list {
@@ -74,5 +74,10 @@
         padding: 0 1em;
         gap: 1.5em;
     }
-
+    @media(max-width: 720px) {
+        .content {
+            flex-direction: column;
+            padding-right: 0.5em;
+        }
+    }
 </style>

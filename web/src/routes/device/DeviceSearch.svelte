@@ -13,7 +13,8 @@
     const dispatch = createEventDispatcher( )
 
 
-    let origin = [ -113.811, 52.269 ]
+    // let origin = [ -113.811, 52.269 ]
+    let origin = [ -110, 65 ]
 
     let map
     const makeMap = ( ctx ) => {
@@ -23,7 +24,7 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: origin,
-            zoom : 1.5   
+            zoom : 1.0   
         } )
         map.on( 'zoomend', ( ) => {
             search.getMapBounds( map ) 
@@ -68,13 +69,13 @@
 
         <InputText enabled={ true } bind:txt={ search.token } place="Search text"/>
         
-        <PillButton
+        <!-- <PillButton
             cls={ 'bg-purple' }
             hint={ 'More filters' } 
             on:click={ ( ) => { 
                 // search_devices( search ) 
             } }
-        />
+        /> -->
 
 
     </div>
@@ -116,4 +117,17 @@
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
     } */
+
+    @media(max-width: 720px) {
+        .search-panel {
+            height: 25em;
+            max-width: 100%;
+            min-width: 100%;
+            width:auto;
+        }
+        .map-container {
+            height: 20em;
+        }
+    }
+
 </style>
