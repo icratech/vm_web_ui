@@ -77,7 +77,7 @@
 
     .device-list-mobile { display: none;  }
 
-    @media(max-width: 1080px) {
+    @media(max-width: 768px) {
         .content {
             flex-direction: column;
             padding-right: 0.5em;

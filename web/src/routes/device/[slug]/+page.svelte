@@ -142,7 +142,7 @@
         height: 100%;
     }
     
-    @media(max-width: 1080px) {
+    @media(max-width: 768px) {
         .container { 
             padding-right: 0.5em; 
             height: auto;

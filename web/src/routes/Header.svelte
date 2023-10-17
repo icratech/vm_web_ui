@@ -141,7 +141,7 @@
         display: none;
     }
 
-    @media(max-width:1080px) {
+    @media(max-width:768px) {
         .container {
             background-color: transparent;
             border-bottom: none;

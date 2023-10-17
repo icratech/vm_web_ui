@@ -101,7 +101,7 @@
         align-items: center;
     }
 
-    @media(max-width: 1080px) {
+    @media(max-width: 768px) {
         .search-panel {
             max-width: 100%;
             min-width: 100%;

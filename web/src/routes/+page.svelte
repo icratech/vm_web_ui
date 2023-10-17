@@ -149,7 +149,7 @@
         color: var(--orange);
     }
 
-    @media(max-width: 1080px) {
+    @media(max-width: 768px) {
         .container {
             overflow-y: auto;
         }
