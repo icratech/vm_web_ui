@@ -109,7 +109,7 @@
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
-        justify-content: flex-start;
+        justify-content: center;
         height: 50em;
         opacity: .9;
     }
@@ -157,6 +157,7 @@
         }
         .logo {
             height: 6.5em;
+            margin-top: 2em;
         }
     }
 
