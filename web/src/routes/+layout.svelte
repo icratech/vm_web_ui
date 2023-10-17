@@ -109,7 +109,7 @@
     .ops-mobile { display: none; }
     .admin-mobile { display: none; }
 
-    @media(max-width: 768px) {
+    @media(max-width: 425px) {
         .layout {
             flex-direction: column;
         }

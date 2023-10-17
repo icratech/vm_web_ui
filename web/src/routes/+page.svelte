@@ -53,8 +53,8 @@
             </div>
         </Modal>
 
-        <div class="flx-row banner-deployed" style="background-image: url( { vent_medic_deployed} );"></div>
-        <div class="flx-row banner-ship" style="background-image: url( { vent_medic_ship} );"></div>
+        <div class="flx-row banner deployed" style="background-image: url( { vent_medic_deployed} );"></div>
+        <div class="flx-row banner ship" style="background-image: url( { vent_medic_ship} );"></div>
 
         <div class="flx-row actions">
 
@@ -105,7 +105,7 @@
         z-index: 1;
     }
 
-    .banner-deployed {
+    .banner {
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
@@ -113,14 +113,10 @@
         height: 50em;
         opacity: .9;
     }
-    .banner-ship {
-        display: none;
-        background-size: contain;
-        background-position: center;
-        background-repeat: no-repeat;
-        justify-content: center;
-        opacity: .9;
-        height: 35em;
+    .banner.deployed { display: flex; }
+    .banner.ship { 
+        display: none; 
+        height: 37em;
     }
 
     .actions {
@@ -149,18 +145,18 @@
         color: var(--orange);
     }
 
-    @media(max-width: 768px) {
+    @media(max-width: 425px) {
         .container {
             overflow-y: auto;
         }
-        .banner-deployed {
+        .banner.deployed {
             display: none;
         }
-        .banner-ship {
-            display: block;
+        .banner.ship {
+            display: flex;
         }
         .logo {
-            height: 7em;
+            width: 80%;
         }
     }
 
