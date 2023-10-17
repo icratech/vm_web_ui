@@ -116,7 +116,7 @@
     .banner.deployed { display: flex; }
     .banner.ship { 
         display: none; 
-        height: 27em;
+        height: 29em;
     }
 
     .actions {

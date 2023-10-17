@@ -9,7 +9,6 @@
     let email = ""
     let password = ""
     $: loginButtonColor = ( $AUTH.logged_in ? 'bg-purple' : 'bg-accent' )
-    $: loginButtonText = ( $AUTH.logged_in ? 'out' : 'in' )
     $: loginButtonFunc = ( $AUTH.logged_in ? ( ) => { logout( ); goto( '/' ) } : ( ) => { login( email, password ) } )
 
 </script>
@@ -141,7 +140,7 @@
         display: none;
     }
 
-    @media(max-width:1080px) {
+    @media(max-width:425px) {
         .container {
             background-color: transparent;
             border-bottom: none;
@@ -149,12 +148,18 @@
         .content {
             flex-direction: column;
         }
-        .logo { margin-top: 0.5em; }
-        .subtitle { padding-bottom: 0; }
+        .logo { 
+            margin-top: 0.5em; 
+            height: 3em;
+
+        }
+        .subtitle { 
+            padding-bottom: 0;
+            margin-left: 3em;
+        }
         .login {
             flex-direction:column;
             justify-content: center;
-            /* align-items: center; */
             padding: 0;
             gap:0.5em;
         }
