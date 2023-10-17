@@ -88,7 +88,7 @@
         gap: 1rem;
         overflow-y: hidden;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
     }
 
     .welcome {
@@ -109,14 +109,14 @@
         background-size: contain;
         background-position: center;
         background-repeat: no-repeat;
-        justify-content: center;
+        justify-content: flex-start;
         height: 50em;
         opacity: .9;
     }
     .banner.deployed { display: flex; }
     .banner.ship { 
         display: none; 
-        height: 37em;
+        height: 27em;
     }
 
     .actions {
@@ -156,7 +156,7 @@
             display: flex;
         }
         .logo {
-            width: 80%;
+            height: 6.5em;
         }
     }
 
