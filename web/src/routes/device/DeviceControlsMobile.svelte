@@ -1,6 +1,6 @@
-<script>
 
-    // import { onMount } from 'svelte'
+<script>
+    
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher( )
 
@@ -9,10 +9,9 @@
     import { RGBA, BASE } from "../../lib/common/colors"
 
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
-    import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
-    // import HeaderCardMobile from '../../lib/components/header/HeaderCardMobile.svelte'
+    import HeaderCardMobile from '../../lib/components/header/HeaderCardMobile.svelte'
     
-    import PillButton from '../../lib/common/button/PillButton.svelte'
+    import PillButton from "$lib/common/button/PillButton.svelte"
     import btn_img_start from "$lib/images/btn-img-start.svg"
     import btn_img_config from "$lib/images/btn-img-config.svg"
     import btn_img_stop from "$lib/images/btn-img-stop.svg"
@@ -29,13 +28,11 @@
     $: available = hdr.hdr_job_start == 0
     $: pending = hdr.hdr_job_end != 0
     $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
-    $: jobStartText = ( pending ? 'Pending Command' : 'Start Job' )
     $: jobStartIcon = ( pending ? btn_img_config : btn_img_start ) 
     $: jobStartFunc = ( ) => { ( pending ? device.endJob( ) : dispatch( 'start' ) ) }
 
     $: active = ( hdr.hdr_job_start != 0 )
     $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
-    $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
 
     let color_code = RGBA(BASE.LIGHT, 0.6)
     let lbl = 'OFF'
@@ -70,27 +67,26 @@
                     color_code = RGBA(BASE.LIGHT, 0.6)
             }
         }
-    }
+    }  
 
     const makeMap = ( ctx ) => {
 
-        let map = new mapboxgl.Map(  {
-            container: ctx,
-            style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
-            center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
-            zoom : ( active ? 5.5 : 1 ),
-            interactive: true
-        } )
+    let map = new mapboxgl.Map(  {
+        container: ctx,
+        style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
+        center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
+        zoom : ( active ? 5.5 : 2.5 ),
+        interactive: true
+    } )
 
-        device.mark.addTo( map )
+    device.mark.addTo( map )
         device.updateDevicePageMap = ( act, lng, lat ) => { 
-            map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 3500 } ) 
+            map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 2.5 ), duration: 3500 } ) 
             device.mark.setLngLat( [ lng, lat ] )
         }
     }
 
 </script>
-
 
 <div class="flx-col container">
 
@@ -110,7 +106,7 @@
                 cls={ jobStartColor }
                 on:click={ jobStartFunc }
                 img={ jobStartIcon }
-                hint={ jobStartText }
+                hint={ null }
             />
             { /if }
         
@@ -119,28 +115,29 @@
                 cls={ 'bg-red' }
                 on:click={ ( ) => { device.endJob( $AUTH ) } }
                 img={ btn_img_stop }
-                hint={ 'End Job' } 
+                hint={ null } 
             />
             { /if }  
             <PillButton 
                 cls={ socketButtonColor }
                 on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
                 img={ btn_img_watch }
-                hint={ socketButtonText } 
+                hint={ null } 
             />
 
         </div> 
 
     </div>
-                
+
+                    
     <div class="flx-col">
 
         <BarGaugeCard bind:hdr bind:cfg bind:smp/>
-        
-        <HeaderCard bind:hdr />
+
+        <HeaderCardMobile bind:hdr />
 
     </div>
-
+    
     <div class="map-container" use:makeMap ></div>
 
 </div>

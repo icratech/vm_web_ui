@@ -1,7 +1,8 @@
 <script>
 
     import PillButton from "$lib/common/button/PillButton.svelte"
-    import { Device, AUTH, Sample } from "../../lib/des_api"
+    import { AUTH, COLORS, Device, Sample } from "../../lib/des_api"
+    import { RGBA, BASE } from "../../lib/common/colors"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
     import EventCard from "../../lib/components/event/EventCard.svelte"
@@ -17,12 +18,48 @@
     $: hdr = device.hdr
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    $: active = ( hdr.hdr_job_start > 0 && hdr.hdr_job_end == 0 )
+    $: active = ( hdr.hdr_job_start != 0 )
 
-    
-    $: socketButtonColor = ( device.socket ? 'bg-yellow' : 'bg-green' )
+    $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
     $: highlight = ( device.highlight ? 'highlight' : '' ) 
+
+
+    let color_code = RGBA(BASE.LIGHT, 0.6)
+    let lbl = 'OFF'
+    $: {
+
+        if ( hdr.hdr_job_start == 0 ) { color_code = RGBA(BASE.LIGHT, 0.2)  }
+        else {
+            switch ( cfg.cfg_vlv_tgt ) {
+
+                case 0: 
+                    lbl = 'BUILD'
+                    color_code = RGBA(COLORS.PRESS, 0.7)
+                    break
+
+                case 2: 
+                    lbl = 'VENT'
+                    color_code = RGBA(BASE.AQUA, 0.8)
+                    break
+
+                case 4: // HI FLOW
+                case 6: // LO FLOW
+                    lbl = 'FLOW'
+                    if ( smp.smp_lo_flow > cfg.cfg_flow_tog ) {
+                        color_code = RGBA(COLORS.HI_FLOW, 0.8)
+                    } else {
+                        color_code = RGBA(COLORS.LO_FLOW, 0.8)
+                    }
+                    break
+
+                default:
+                    lbl = 'OFF'
+                    color_code = RGBA(BASE.LIGHT, 0.6)
+            }
+        }
+    }
+
 
 </script>
 
@@ -36,45 +73,41 @@
             img={ btn_img_gauge }
             hint={ 'Device Controls' } 
         />
-                
-        <PillButton 
-            cls={ socketButtonColor }
-            on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
-            img={ btn_img_watch }
-            hint={ socketButtonText } 
-        />
+         
+        { #if active }       
+            <PillButton 
+                cls={ socketButtonColor }
+                on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
+                img={ btn_img_watch }
+                hint={ socketButtonText } 
+            />
+        { /if }
 
     </div>
 
-    <div class="flx-col card content">
+    <div class="flx-col gauge">
 
-            <div class="flx-row card-title">        
+            <div class="flx-row card-title title">     
+
+                <h4 class="mode" style="background-color: { color_code };">{ lbl }</h4>
+    
                 <div class="flx-row seg sn">
                     <h4 class="fg-accent">SN:</h4>
                     <h4>{ device.reg.des_dev_serial }</h4>
                 </div>  
-                <div class="flx-row seg cv">
-                    <div class="sml">class</div>
-                    <div class="fg-accent">{ device.reg.des_dev_class }</div>
-                    <div class="sml">version</div>
-                    <div class="fg-accent">{ device.reg.des_dev_version }</div>
-                </div>
 
             </div>
-            
-            <div class=gag>
-                <BarGaugeCard bind:smp bind:cfg/>
-            </div>
-            
+
+            { #if active }
+                <BarGaugeCard bind:hdr bind:cfg bind:smp/>     
+            { /if }
+
     </div>
-    <div class="flx-col card hdr">
-        <HeaderCard bind:header={hdr} />
-    </div>
-    <!-- <ConfigCard bind:config /> -->
-    
-    <div class="flx-col card evt">
+
+    { #if active }
+        <HeaderCard bind:hdr />
         <EventCard bind:event={evt} title="Last event" />
-    </div>
+    { /if }
 
 </div>
 
@@ -83,7 +116,7 @@
     .container {
         justify-content: space-between;
         border-radius: 0.5em;
-        padding: 0 1.5em;
+        padding: 1em;
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
@@ -92,45 +125,32 @@
         background-color: var(--light_009);
     }
     .btns {
-        width: 2.5em;
-        gap:2em;
-        padding: 1em 0;
+        width: 2.25em;
+        gap:1em;
+        padding: 0;
     }
+    
+    .gauge {
+        gap: 1em;
+    }
+
+    .title { justify-content: flex-start;  }
+
+    .mode { 
+        color: var(--dark); 
+        padding: 0 1em; 
+        border-radius: 1em; 
+        font-size: 1.3em; 
+        font-weight: 400;
+    }
+
     .seg {
         width: auto;
-        justify-content: flex-end;
+        /* justify-content: flex-end; */
         gap: 1em;
     }
 
     .evt {
         height: 100%;
-    }
-    @media(max-width: 720px) {
-        .container {
-            flex-direction: column;
-            padding: 0;
-            gap:0;
-        }
-        .btns {
-            flex-direction: row;
-            padding: 0;
-            gap: 1em;
-        }
-        .content {
-            flex-direction: column;
-            gap:0;
-            padding:0;
-        }
-        .cv { display:none; }
-        .gag {
-            padding: 0.5em;
-        }
-        .hdr {
-            /* display:none; */
-            padding: 0.5em;
-        }
-        .evt {
-            display:none;
-        }
     }
 </style>

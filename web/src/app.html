@@ -5,7 +5,7 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
         <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet">
 		<meta name="viewport" content="width=device-width" />
-		<title>D2D</title>
+		<title>Vent Medic</title>
         <style>
             * {
                 background-color: transparent; 
@@ -16,6 +16,12 @@
                 font-size: 12px;
             }
 
+            @media(max-width: 1080px) {
+                * {
+                    font-size: 33px;
+                }
+            } 
+
             h1 { font-size: 2.5em; font-weight: 350; }
             h2 { font-size: 2.1em; font-weight: 300; }
             h3 { font-size: 1.8em; font-weight: 300; font-style: oblique; }
@@ -24,8 +30,8 @@
 
             p { 
                 color: var(--grey);
-                margin: 0px;
-                padding: 0px;
+                margin:  0;
+                padding: 0;
             }
 
             a {
@@ -65,8 +71,8 @@
             }
 
             .marker {
-                width: 18px;
-                height: 18px;
+                width: 1.5em;
+                height: 1.5em;
                 border-top-left-radius: 50%;
                 border-top-right-radius: 50%;
                 border-bottom-left-radius: 50%;
@@ -234,6 +240,7 @@
                 --orange: rgb(245, 120, 0);
                 --orange_a: rgb(245, 120, 0, 0.8);
                 --orange_aa: rgb(245, 120, 0, 0.4);
+                --orange_01: rgb(245, 120, 0, 0.1);
 
                 --yellow: rgb(230, 180, 20);
                 --yellow_a: rgb(230, 180, 20, 0.7);
@@ -269,6 +276,11 @@
                 --pink_a: rgb(250, 70, 200, 0.7);
                 --pink_aa: rgb(250, 70, 200, 0.4);
 
+                --accent: var(--grey);
+                --accent_a: var(--grey_a);
+                --accent_aa: var(--grey_aa);
+                --accent_fg: var(--light_a);
+
                 --accent: var(--aqua);
                 --accent_a: var(--aqua_a);
                 --accent_aa: var(--aqua_aa);
@@ -277,18 +289,13 @@
                 /* --accent: var(--green);
                 --accent_a: var(--green_a);
                 --accent_aa: var(--green_aa);
-                --accent_fg: var(--light_a);
-                 */
+                --accent_fg: var(--light_a); */
+                
                 /* --accent: var(--orange);
                 --accent_a: var(--orange_a);
                 --accent_aa: var(--orange_aa);
                 --accent_fg: var(--light_a); */
                 
-                /* --accent: var(--grey);
-                --accent_a: var(--grey_a);
-                --accent_aa: var(--grey_aa);
-                --accent_fg: var(--light_a); */
-
             }
 
             /* *:focus { outline: 0.1rem solid var(--light_a); outline-offset: 0.1rem; } */

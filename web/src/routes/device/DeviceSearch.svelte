@@ -12,8 +12,6 @@
     export let search = new DESSearchParam( )
     const dispatch = createEventDispatcher( )
 
-
-    // let origin = [ -113.811, 52.269 ]
     let origin = [ -110, 65 ]
 
     let map
@@ -24,7 +22,7 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: origin,
-            zoom : 1.0   
+            zoom : 2.3   
         } )
         map.on( 'zoomend', ( ) => {
             search.getMapBounds( map ) 
@@ -45,12 +43,11 @@
                 console.log( "updateDeviceSearchMap( ): ", d.s_mark.getOffset( ) )
             }  
         } ) 
-        // mapLoaded = true
-        // map.triggerRepaint( )
+        
     }
 
-    $: filter = true
-    $: filterButtonText = ( filter ? "^" : "v" )
+    // $: filter = true
+    // $: filterButtonText = ( filter ? "^" : "v" )
 
 </script>
 
@@ -77,12 +74,8 @@
             } }
         /> -->
 
-
     </div>
 
-    <!-- <div class="flx-row filters">
-        FILTERS
-    </div> -->
 
     { #if $DEVICES_LOADED }
     <div class="map-container" use:makeMap></div>
@@ -98,7 +91,6 @@
         max-width: 38em;
         min-width: 38em;
         height:100%;
-        /* overflow-y: hidden; */
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
@@ -109,25 +101,13 @@
         align-items: center;
     }
 
-    /* .filters {
-        height: 35em;
-        padding: 0.5rem;
-        border-radius: 0.5em;
-        background-color: var(--light_aa);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
-    } */
-
-    @media(max-width: 720px) {
+    @media(max-width: 1080px) {
         .search-panel {
-            height: 25em;
             max-width: 100%;
             min-width: 100%;
             width:auto;
         }
-        .map-container {
-            height: 20em;
-        }
+
     }
 
 </style>

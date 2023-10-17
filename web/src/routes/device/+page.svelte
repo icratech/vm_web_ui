@@ -6,6 +6,7 @@
     import { DEVICES, DEVICES_LOADED, DESSearchParam, get_devices, updateDevicesStore } from '../../lib/des_api'
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
+    import DeviceCardMobile from './DeviceCardMobile.svelte'
 
     export let data
     $: console.log( "/device/+page.svelte -> data ", data )
@@ -42,12 +43,14 @@
         <DeviceSearch bind:search on:filter={ ( ) => { updateDevicesStore( ) } } />
         
         <div class="flx-col device-list">
-            { #each $DEVICES.filter( d => {  
-                return  checkBounds( d ) && checkTextFilter( d, search )
-            } ) as device ( device.reg.des_job_name ) }
+            { #each $DEVICES.filter( d => {  return  checkBounds( d ) && checkTextFilter( d, search ) } ) as device ( device.reg.des_job_name ) }
+                <DeviceCard bind:device={ device } />
+            { /each }
+        </div>
 
-            <DeviceCard bind:device={ device } />
-
+        <div class="flx-col device-list-mobile">
+            { #each $DEVICES.filter( d => {  return  checkBounds( d ) && checkTextFilter( d, search ) } ) as device ( device.reg.des_job_name ) }
+                <DeviceCardMobile bind:device={ device } />
             { /each }
         </div>
 
@@ -63,10 +66,7 @@
         overflow-y: hidden;
     }
 
-    .content {
-        height: 100%;
-        /* overflow-y: auto; */
-    }
+    .content { height: 100%; }
 
     .device-list {
         width: 100%;
@@ -74,10 +74,25 @@
         padding: 0 1em;
         gap: 1.5em;
     }
-    @media(max-width: 720px) {
+
+    .device-list-mobile { display: none;  }
+
+    @media(max-width: 1080px) {
         .content {
             flex-direction: column;
             padding-right: 0.5em;
         }
+        
+        .device-list-mobile {
+            height: 100%;
+            display: flex;
+            width: 100%;
+            overflow-y: auto;
+            padding: 0 1em;
+            gap: 1.5em;
+        }
+
+        .device-list { display: none; }
+
     }
 </style>

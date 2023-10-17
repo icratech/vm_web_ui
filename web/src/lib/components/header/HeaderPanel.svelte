@@ -16,34 +16,33 @@
 
     <div class="flx-col  card-content">
 
-        <div class="flx-row">
+        <div class="flx-row in">
             <p class="lbl">Company:</p>
             <InputText enabled={ true } bind:txt={ header.hdr_well_co } place="Company name"/>
         </div>
         
-        <div class="flx-row">
+        <div class="flx-row in">
             <p class="lbl">Well Name:</p>
             <InputText enabled={ true } bind:txt={ header.hdr_well_name } place="Well name" />
         </div>
         
-        <div class="flx-row">
+        <div class="flx-row in">
             <p class="lbl">Surface Loc:</p>
             <InputText enabled={ true } bind:txt={ header.hdr_well_sf_loc } place="Well location / UWI"/>
         </div>
         
-        <div class="flx-row">
-            <p class="lbl">Bottom-Hole Loc:</p>
+        <div class="flx-row in">
+            <p class="lbl">Bottom Loc:</p>
             <InputText enabled={ true } bind:txt={ header.hdr_well_bh_loc } place="Bottom-hole location"/>
         </div>
         
-        <div class="flx-row">
+        <div class="flx-row in">
             <p class="lbl">License:</p>
             <InputText enabled={ true } bind:txt={ header.hdr_well_lic } place="Well License #"/>
         </div>
 
-        <br>
-        <div class="flx-row card-title">
-            <div><DateTimeDisplay bind:date={ header.hdr_time } /></div>
+        <div class="flx-row card-title meta">
+            <!-- <DateTimeDisplay bind:date={ header.hdr_time } /> -->
             <UserBadge uid={ header.hdr_user_id } />
         </div>
 
@@ -53,10 +52,13 @@
 
 <style>
 
-    .container {
+    /* .container {
         width: 42em;
-    }    
+    }     */
 
+    .in {
+        gap: 0.5em;
+    }
     .lbl {
         display: flex;
         flex-direction: row;
@@ -64,7 +66,12 @@
         align-items: center;
         color: var( --accent_a);
         /* font-size: 0.9rem; */
-        width: 13em;
+        width: 7em;
+    }
+    .meta {
+        /* flex-direction: column; */
+        padding: 0;
+        gap: 0.5em;
     }
 
 </style>

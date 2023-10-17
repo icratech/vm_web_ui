@@ -1,21 +1,16 @@
 <script>
 
-    // export let user
-    // export let form
-	// import watchMedia from 'svelte-media'
-    // $: media = watchMedia( {
-    //     mobile: "(max-width: 720)"
-    // } )
+    import { goto } from '$app/navigation'
 
     import { AUTH, login, logout } from '../lib/des_api'
     import PillButton from '../lib/common/button/PillButton.svelte'
-    import vent_medic_logo from "$lib/images/vent-medic-logo-white.png"
+    import vent_medic_logo from "$lib/images/vent-medic-hdr-logo.svg"
 
     let email = ""
     let password = ""
     $: loginButtonColor = ( $AUTH.logged_in ? 'bg-purple' : 'bg-accent' )
     $: loginButtonText = ( $AUTH.logged_in ? 'out' : 'in' )
-    $: loginButtonFunc = ( $AUTH.logged_in ? logout : ( ) => { login( email, password ) } )
+    $: loginButtonFunc = ( $AUTH.logged_in ? ( ) => { logout( ); goto( '/' ) } : ( ) => { login( email, password ) } )
 
 </script>
 
@@ -26,19 +21,12 @@
     <div class="flx-row { ( $AUTH.logged_in ? 'content-in' : 'content' ) }">  
 
         <div class="flx-col title-block">
-            <div class="flx-row icon-block">
-                <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
-                <!-- <h1 style="color: var(--grey_a)">V<span class="ent">ENT</span><span class="medic">MEDIC</span></h1> -->
-            </div>
-            <!-- <div class="subtitle">
+            <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
+            <div class="subtitle">
                 <p>Part of the <span class="data-desk">Data</span><span class="two">2</span><span class="data-desk">Desk</span> ecosystem</p>
-            </div> -->
+            </div>
             
         </div>
-
-        <!-- { #if media.mobile }
-            <h4>MOBILE</h4>
-        { :else } -->
 
         <div class="flx-row login">
         
@@ -61,7 +49,7 @@
             { /if }
             <div class="login-btn">
                 
-                <div class="mob-msg">{ ( $AUTH.logged_in ? $AUTH.name: 'Sign-in' ) }</div>
+                <div class="mob-msg">{ ( $AUTH.logged_in ? $AUTH.name : 'Sign-In' ) }</div>
                
                 <PillButton 
                     cls={ loginButtonColor }
@@ -70,8 +58,6 @@
                 />
             </div>
         </div>
-
-        <!-- { /if } -->
 
     </div>        
 
@@ -82,14 +68,12 @@
     .container {
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
-        /* border-right: solid 0.05em var(--light_01); */
         padding-left: 1em;
         padding-right: 1em;
         justify-content: space-between;
         gap: 0;
     }
     .content {
-        /* padding-left: 1rem; */
         flex-direction: row;
         justify-content: space-between;
     }
@@ -97,30 +81,19 @@
         min-width: 20rem;
         gap: 0;
     }
-    .icon-block {
-        padding: 0;
-    }
 
     .logo {
         background-size: contain;
         background-repeat: no-repeat;
         background-position: left;
         margin-top: 1em;
-        height: 2.7em;
+        height: 3.8em;
         width: 100%;
     }
 
-	/* .ent {
-        font-size: 1.8rem;
-        color: var(--light);
-    }
-    .medic {
-        font-size: 1.8rem;
-        color: var(--accent_a);
-    } */
-/* 
     .subtitle {
-        margin-top: -0.3em;
+        margin-top: -0.85em;
+        margin-left: 3.8em;
         padding-bottom: 0.75em;
     }
     .data-desk {
@@ -130,13 +103,12 @@
     .two {
         color: var(--accent);
     }
-     */
+    
 
     .login {
         justify-content: flex-end;
         align-items: flex-end;
         padding-bottom: 1em;
-        /* margin-right: 1em; */
     }
 
     .input-container {
@@ -153,10 +125,8 @@
         background-color: var(--light_aa);
         padding: 0.5rem;
         border-radius: 0.5rem;
-        /* border-top: solid 0.05em var(--dark); */
         border-right: solid 0.05em var(--light_01);
         border-bottom: solid 0.05em var(--light_01);
-        /* border-left: solid 0.05em var(--dark); */
         width: 100%;
     }
 
@@ -171,16 +141,20 @@
         display: none;
     }
 
-    @media(max-width:720px) {
+    @media(max-width:1080px) {
         .container {
-            padding-bottom: 1em;
+            background-color: transparent;
+            border-bottom: none;
         }
         .content {
             flex-direction: column;
         }
+        .logo { margin-top: 0.5em; }
+        .subtitle { padding-bottom: 0; }
         .login {
             flex-direction:column;
-            align-items: center;
+            justify-content: center;
+            /* align-items: center; */
             padding: 0;
             gap:0.5em;
         }

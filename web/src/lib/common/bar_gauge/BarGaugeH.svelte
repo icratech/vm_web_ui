@@ -6,7 +6,11 @@
     export let max = 100
     export let min = 0
     export let num
-    $: width = num / ( max - min ) * 100
+    let width = 0
+    $: { 
+        let val = num / ( max - min ) * 100
+        width = ( val < 0 ? 0 : val ) 
+    }
 
     const bar_color = RGBA(base_color, 0.7)
     const title_color = RGBA(base_color, 0.8)

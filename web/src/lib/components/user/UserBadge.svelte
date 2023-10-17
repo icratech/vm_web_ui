@@ -25,8 +25,6 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
-        margin-top: -0.5em;
-        margin-right: 0.5em;
         padding: 0.25em 1.5em;
         border-radius: 2em;
         gap: 3em;

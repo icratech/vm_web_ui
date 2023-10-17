@@ -3,6 +3,7 @@
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import PillButton from '../../../lib/common/button/PillButton.svelte'
     import DeviceControls from '../../device/DeviceControls.svelte'
+    import DeviceControlsMobile from '../../device/DeviceControlsMobile.svelte'
 
     import Modal from '../../../lib/common/modal/Modal.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
@@ -30,7 +31,10 @@
             <div slot="footer">Send command</div>
         </Modal>
      
-        <DeviceControls bind:device on:start={ async( ) => { modal.open( ) } }/>
+        <div class="flx-col dev-con">
+            <DeviceControls bind:device on:start={ async( ) => { modal.open( ) } }/>
+        </div>
+        
             
         <div class="flx-col content">
     
@@ -38,9 +42,7 @@
                 <LineChart bind:chartdata={ device.cht } />
             </div>
     
-            <div class="flx-col panel">
-
-                <div class="flx-row">
+            <div class="flx-row panel">
 
                     <div class="flx-col tabs">
 
@@ -82,15 +84,9 @@
             
                     </div>
                 
-                    <div class="flx-row">
+                    <HeaderPanel bind:header={ device.hdr }/>
 
-                        <HeaderPanel bind:header={ device.hdr }/>
-
-                        <ConfigPanel bind:config={ device.cfg }/>
-
-                    </div>
-
-                </div>
+                    <ConfigPanel bind:config={ device.cfg }/>
 
             </div>
 
@@ -110,23 +106,25 @@
 
     .layout {
         height: 100%;
-        overflow-y: auto;
+        /* overflow-y: auto; */
+    }
+
+    .dev-con {
+        max-width: 38em;
+        min-width: 38em;
     }
 
     .content {
-        /* background-color: var(--light_aa);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01); */
-        border-radius: 0.5em;
+        /* border-radius: 0.5em; */
         padding: 0 1em;
         height: 100%;
-        overflow: hidden;
+        /* overflow: hidden; */
     }
 
     .tabs {
         /* justify-content: flex-end; */
         align-items: center;
-        width: 2.5em;
+        width: 50em;
         padding: 0;
     }
 
@@ -142,6 +140,35 @@
         gap: 0.5em;
         justify-content: space-between;
         height: 100%;
+    }
+    
+    @media(max-width: 1080px) {
+        .container { 
+            padding-right: 0.5em; 
+            height: auto;
+        }
+        .layout {
+            flex-direction: column;
+            overflow-y: auto;
+            /* width: auto; */
+        }
+        .dev-con {
+            max-width: 100%;
+            min-width: 100%;
+            /* width: auto; */
+            height: 200em;
+        }
+        .content { 
+            padding: 0; 
+            gap: 0.5em;
+        }
+        .panel {
+            flex-direction: column;
+        }
+        .tabs {
+            flex-direction: row;
+            width: 100%;
+        }
     }
 
 </style>

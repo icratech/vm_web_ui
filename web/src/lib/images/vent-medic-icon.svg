@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="55mm"
+   height="55mm"
+   viewBox="0 0 55 55"
+   version="1.1"
+   id="svg5"
+   xml:space="preserve"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   sodipodi:docname="vent-medic-icon.svg"
+   inkscape:export-filename="..\..\..\static\favicon.png"
+   inkscape:export-xdpi="59.112728"
+   inkscape:export-ydpi="59.112728"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview7"
+     pagecolor="#7b7b7b"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="false"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="16.263456"
+     inkscape:cy="24.041631"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-2"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="text1852"
+     borderlayer="true"
+     showborder="true" /><defs
+     id="defs2" /><g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"><g
+       aria-label="VENT"
+       transform="scale(0.82095107,1.2180994)"
+       id="text1852"
+       style="font-weight:300;font-size:20.8216px;font-family:'Segoe UI';-inkscape-font-specification:'Segoe UI Light';letter-spacing:0px;word-spacing:0px;fill:#820000;fill-opacity:0.519757;stroke-width:0.780806"><g
+         id="g454"
+         transform="matrix(1.2286039,0,0,1.2286039,-8.1983458,-4.8709124)"><path
+           id="path4752"
+           style="fill:#e6e6e6;fill-opacity:0.9;stroke:none;stroke-width:0.420723px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 42.183833,3.9645935 c -14.47389,0.778542 -19.794929,5.417962 -22.823334,9.4651785 -4.419413,5.370569 -3.8483,8.961494 -12.6876039,3.352755 1.1551758,9.75483 8.0389899,13.341001 14.0441119,15.38203 7.968668,2.978521 13.29676,2.5936 4.974704,8.55094 14.473877,-0.77853 19.794936,-5.41797 22.823334,-9.46517 4.419413,-5.370577 3.848299,-8.961496 12.687604,-3.35276 C 60.047472,18.142746 53.163659,14.556559 47.158537,12.515538 39.189869,9.5370285 33.861778,9.9219365 42.183833,3.9645935 Z m -8.218994,9.1618485 a 13.670443,9.2133406 0 0 1 13.670836,9.213606 13.670443,9.2133406 0 0 1 -13.670836,9.21361 13.670443,9.2133406 0 0 1 -13.670836,-9.21361 13.670443,9.2133406 0 0 1 13.670836,-9.213606 z" /><path
+           id="path910"
+           style="fill:#f57800;fill-opacity:0.7;stroke:none;stroke-width:0.420723px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 33.937772,16.661288 a 8.4257145,5.6786001 0 0 0 -8.425951,5.678767 8.4257145,5.6786001 0 0 0 8.425951,5.678748 8.4257145,5.6786001 0 0 0 8.425951,-5.678748 8.4257145,5.6786001 0 0 0 -8.425951,-5.678767 z" /></g></g></g></svg>
