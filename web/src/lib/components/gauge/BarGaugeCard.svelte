@@ -53,13 +53,30 @@
 <style>
     .container {
         justify-content: center;
-        padding: 1em 0.5em;
+        padding: 0;
         border-radius: 0.5em;
-        gap: 0;
         height: 100%;
-        background-color: var(--light_aa);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
+        gap: 0;
     }
     
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+        
+    }
+
+    /* TABLET */
+    @media(max-width: 1024px) {
+        .container { 
+            background-color: transparent;
+            border: none;
+            /* padding: 0;  */
+            /* gap: 0.5em;  */
+        }
+    }
+
+    /* MOBILE */
+    @media(max-width: 425px) { 
+    
+    }
+
 </style>

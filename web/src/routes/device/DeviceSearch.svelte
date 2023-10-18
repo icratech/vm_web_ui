@@ -1,5 +1,7 @@
 <script>
 
+    import { onMount } from 'svelte';
+
     import { createEventDispatcher } from 'svelte';
 
     import PillButton from '../../lib/common/button/PillButton.svelte'
@@ -12,7 +14,14 @@
     export let search = new DESSearchParam( )
     const dispatch = createEventDispatcher( )
 
-    let origin = [ -110, 65 ]
+    $: zoom = 2.3
+    $: origin = [ -110, 65 ]
+    onMount( ( ) => {
+        if (window.matchMedia( "( max-width: 425px )" ) ) {
+            origin = [ -110, 75 ]
+            zoom = 1.5
+        }
+    } )
 
     let map
     const makeMap = ( ctx ) => {
@@ -22,7 +31,7 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: origin,
-            zoom : 2.3   
+            zoom : zoom   
         } )
         map.on( 'zoomend', ( ) => {
             search.getMapBounds( map ) 
@@ -46,9 +55,6 @@
         
     }
 
-    // $: filter = true
-    // $: filterButtonText = ( filter ? "^" : "v" )
-
 </script>
 
 <div class="flx-col search-panel">
@@ -65,17 +71,8 @@
         />
 
         <InputText enabled={ true } bind:txt={ search.token } place="Search text"/>
-        
-        <!-- <PillButton
-            cls={ 'bg-purple' }
-            hint={ 'More filters' } 
-            on:click={ ( ) => { 
-                // search_devices( search ) 
-            } }
-        /> -->
 
     </div>
-
 
     { #if $DEVICES_LOADED }
     <div class="map-container" use:makeMap></div>
@@ -86,14 +83,12 @@
 <style>
 
     .search-panel {
-        border-radius: 0.5em;
-        padding: 1em;
-        max-width: 38em;
-        min-width: 38em;
-        height:100%;
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
+        border-radius: 0.5em;
+        padding: 1em;
+        height:100%;
     }
 
     .search {
@@ -101,11 +96,20 @@
         align-items: center;
     }
 
-    @media(max-width: 768px) {
+    /* TABLET */
+    @media(max-width: 1024px) {
+
+    }
+
+    /* MOBILE */
+    @media(max-width: 425px) {
         .search-panel {
+            padding-right: 0;
+            background-color: transparent;
+            border: none;
             max-width: 100%;
             min-width: 100%;
-            width:auto;
+            width: auto;
         }
 
     }

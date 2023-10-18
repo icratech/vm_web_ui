@@ -76,10 +76,7 @@
         flex-direction: row;
         justify-content: space-between;
     }
-    .title-block {
-        min-width: 20rem;
-        gap: 0;
-    }
+    .title-block { min-width: 20rem; gap: 0;  }
 
     .logo {
         background-size: contain;
@@ -95,13 +92,8 @@
         margin-left: 3.8em;
         padding-bottom: 0.75em;
     }
-    .data-desk {
-        font-style: oblique;
-        color: var(--light);
-    }
-    .two {
-        color: var(--accent);
-    }
+    .data-desk { font-style: oblique; color: var(--light); }
+    .two { color: var(--accent);  }
     
 
     .login {
@@ -110,14 +102,9 @@
         padding-bottom: 1em;
     }
 
-    .input-container {
-        gap: 0.25rem;
-        width: 17em;
-    }
+    .input-container { gap: 0.25rem; width: 17em; }
 
-    .lbl {
-        font-size: 0.9rem;
-    }
+    .lbl { font-size: 0.9rem;  }
 
     input {
         color: var(--light);
@@ -136,26 +123,31 @@
             width: auto;
             gap: 1em;
         }
-    .mob-msg {
-        display: none;
-    }
-
-    @media(max-width:425px) {
-        .container {
-            background-color: transparent;
-            border-bottom: none;
-        }
-        .content {
-            flex-direction: column;
-        }
+    .mob-msg { display: none;  }
+    
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+        .container { background-color: transparent; }
         .logo { 
             margin-top: 0.5em; 
             height: 3em;
-
         }
         .subtitle { 
-            padding-bottom: 0;
+            padding-bottom: 0.25em;
             margin-left: 3em;
+        }
+    }
+
+    /* TABLET */
+    @media(max-width: 1024px) {
+
+
+    }
+
+    /* MOBILE */
+    @media(max-width:425px) {
+        .content {
+            flex-direction: column;
         }
         .login {
             flex-direction:column;

@@ -1,24 +1,23 @@
 <script>
 
+    import { onMount } from 'svelte';
     import Modal from "../lib/common/modal/Modal.svelte"
     import PillButton from "../lib/common/button/PillButton.svelte"
     import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
-    import vent_medic_ship from "$lib/images/vent-medic-ship.webp"
+    import vent_medic_nested from "$lib/images/vent-medic-ship.webp"
     import vent_medic_deployed from "$lib/images/vent-medic-deployed.webp"
-
     import UserRegistration from "./UserRegistration.svelte"
     import { UserSignUp, sign_up_user } from "../lib/des_api"
-    let newUser = new UserSignUp( )
+
     let modal
-
+    let newUser = new UserSignUp( )
     let validEmailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
-
     $: nameLength = ( newUser.name.length >= 3 )
     $: validEmail = ( newUser.email.match( validEmailRegex ) ) 
     $: pwLength = ( newUser.password.length >= 8 )
     $: pwMatch = ( newUser.password !== "" && newUser.password == newUser.password_confirm )
-
     $: valid = ( nameLength && validEmail && pwLength && pwMatch ) 
+
 </script>
 
 <div class="flx-col container" >
@@ -54,7 +53,7 @@
         </Modal>
 
         <div class="flx-row banner deployed" style="background-image: url( { vent_medic_deployed} );"></div>
-        <div class="flx-row banner ship" style="background-image: url( { vent_medic_ship} );"></div>
+        <div class="flx-row banner ship" style="background-image: url( { vent_medic_nested} );"></div>
 
         <div class="flx-row actions">
 
@@ -64,15 +63,6 @@
                 cls='bg-accent' 
                 hint={ null }
             />
-            <!-- <br>
-            <div class='alert'>Or</div>
-            <br>
-            <PillButton 
-                on:click={ async( ) => { modal.open( ) } }
-                cls='bg-accent' 
-                hint={ null }
-            />
-            <div class='alert'>Sign-Up</div> -->
 
         </div>
 
@@ -84,23 +74,23 @@
 <style>
 
     .container {
-        height: 100%;
-        gap: 1rem;
+        justify-content: flex-start;
         overflow-y: hidden;
         align-items: center;
-        justify-content: flex-start;
+        height: 100%;
     }
 
     .welcome {
         justify-content: space-between;
         align-items: center;
+        height: 100%;
     }
 
     .logo {
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
-        margin-bottom: -1em;
+        margin-top: 3em;
         height: 10em;
         z-index: 1;
     }
@@ -110,14 +100,11 @@
         background-position: center;
         background-repeat: no-repeat;
         justify-content: center;
-        height: 50em;
-        opacity: .9;
+        height: 100%;
+        opacity: .8;
     }
     .banner.deployed { display: flex; }
-    .banner.ship { 
-        display: none; 
-        height: 29em;
-    }
+    .banner.ship { display: none; }
 
     .actions {
         font-size: 1.2em;
@@ -145,20 +132,22 @@
         color: var(--orange);
     }
 
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+        
+    }
+
+    /* TABLET */
+    @media(max-width: 1024px) {
+
+    }
+
+    /* MOBILE */
     @media(max-width: 425px) {
-        .container {
-            overflow-y: auto;
-        }
-        .banner.deployed {
-            display: none;
-        }
-        .banner.ship {
-            display: flex;
-        }
-        .logo {
-            height: 6.5em;
-            margin-top: 2em;
-        }
+        .container { overflow-y: auto; }
+        .banner.deployed { display: none; }
+        .banner.ship { display: flex; }
+        .logo { height: 7em; }
     }
 
 </style>

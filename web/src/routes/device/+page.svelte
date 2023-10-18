@@ -6,7 +6,6 @@
     import { DEVICES, DEVICES_LOADED, DESSearchParam, get_devices, updateDevicesStore } from '../../lib/des_api'
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
-    import DeviceCardMobile from './DeviceCardMobile.svelte'
 
     export let data
     $: console.log( "/device/+page.svelte -> data ", data )
@@ -40,17 +39,13 @@
 
     <div class="flx-row content">
 
-        <DeviceSearch bind:search on:filter={ ( ) => { updateDevicesStore( ) } } />
+        <div class="flx-col search">
+            <DeviceSearch bind:search on:filter={ ( ) => { updateDevicesStore( ) } } />
+        </div>
         
         <div class="flx-col device-list">
             { #each $DEVICES.filter( d => {  return  checkBounds( d ) && checkTextFilter( d, search ) } ) as device ( device.reg.des_job_name ) }
                 <DeviceCard bind:device={ device } />
-            { /each }
-        </div>
-
-        <div class="flx-col device-list-mobile">
-            { #each $DEVICES.filter( d => {  return  checkBounds( d ) && checkTextFilter( d, search ) } ) as device ( device.reg.des_job_name ) }
-                <DeviceCardMobile bind:device={ device } />
             { /each }
         </div>
 
@@ -68,31 +63,51 @@
 
     .content { height: 100%; }
 
+    .search {
+        max-width: 25%;
+        min-width: 25%;
+        width: auto;
+        padding: 0;
+    }
+
     .device-list {
         width: 100%;
         overflow-y: auto;
         padding: 0 1em;
-        gap: 1.5em;
     }
 
-    .device-list-mobile { display: none;  }
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+        .content { padding-left: 0; }
+        .search {
+            max-width: 33%;
+            min-width: 33%;
+        }
+        .device-list { padding-left: 0; }
+    }
 
-    @media(max-width: 768px) {
-        .content {
-            flex-direction: column;
-            padding-right: 0.5em;
+    /* TABLET */
+    @media(max-width: 1024px) {
+
+        .content { padding-right: 1em; }
+        .search {
+            max-width: 45%;
+            min-width: 45%;
         }
         
-        .device-list-mobile {
-            height: 100%;
-            display: flex;
-            width: 100%;
-            overflow-y: auto;
-            padding: 0 1em;
-            gap: 1.5em;
-        }
+    }
 
-        .device-list { display: none; }
+    /* MOBILE */
+    @media(max-width: 425px) {
+
+        .content { flex-direction: column; }
+        .search { 
+            max-height: 30em;
+            min-height: 30em;
+            max-width: 100%;
+            min-width: 100%;
+        }
+        .device-list { padding: 0 0.5em; }
 
     }
 </style>

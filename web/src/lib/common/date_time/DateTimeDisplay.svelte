@@ -35,6 +35,7 @@
 <style>
     .container {
         gap: 1em;
+        width: auto;
     }
     .seg {
         width: auto;

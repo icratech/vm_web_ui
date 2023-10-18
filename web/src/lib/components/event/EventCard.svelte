@@ -24,29 +24,30 @@
 </script>
 
 <div class="flx-col container">
-           
-    <div class="flx-row card-title">
-        <div><DateTimeDisplay date={ event.evt_time } /></div>
+  
+    <div class="flx-row">
+        <div class="fg-green_a">{ evt_type.evt_typ_name }</div>
     </div>
 
-    <div class="flx-col card-content">
-
-        <div class="flx-row bet">
-            <div class="fg-green_a">{ evt_type.evt_typ_name }</div>
-        </div>
-
-        <div class="flx-row mid">
-            <div class="sml">{ message }</div>
-        </div>
+    <div class="flx-row mid">
+        <div class="sml">{ message }</div>
+    </div>
         
+    <div class="flx-row src">
+        <DateTimeDisplay date={ event.evt_time } />
+        <UserBadge uid={ event.evt_user_id } />
     </div>
 
-    <UserBadge uid={ event.evt_user_id } />
 
 </div>
 
 <style>
     .container {
-        gap: 0.75em;
+        justify-content: space-between;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        gap: 0;
     }
+    .src { align-items: center; }
 </style>

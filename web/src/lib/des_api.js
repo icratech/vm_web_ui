@@ -30,7 +30,7 @@ export const device_class = "001"
 export const device_version= "001"
 export const client_app = `C${ device_class }V${ device_version }_client_app v0.0.0`
 
-const local = false
+const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des1.data2desk.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` ) 

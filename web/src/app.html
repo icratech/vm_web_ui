@@ -10,10 +10,29 @@
             * {
                 background-color: transparent; 
                 box-sizing: border-box;
-                padding: 0rem;
-                margin: 0rem;
+                padding: 0em;
+                margin: 0em;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 font-size: 12px;
+            }
+
+            /* LAP TOP */
+            @media(max-width: 1440px) {
+                * { 
+                    --gap: 1em;
+                }
+            }
+
+            /* TABLET */
+            @media(max-width: 1024px) {
+                /* * { 
+                    --gap: 0.75em;
+                } */
+            }
+
+            /* MOBILE */
+            @media(max-width: 425px) { 
+                
             }
 
             h1 { font-size: 2.5em; font-weight: 350; }
@@ -131,6 +150,11 @@
                 /* padding-left: 3rem; */
             }
 
+            .vert-line {
+                border-left: 0.1em solid var(--light_01);
+                padding: 0 0.5em;
+                width: 1em;
+            }
             .flx-col {
                 display: flex;
                 flex-direction: column;

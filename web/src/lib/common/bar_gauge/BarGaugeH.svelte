@@ -19,9 +19,11 @@
 
 <div class="flx-row container">
 
-    <div class="flx-col header">
-        <div class="title" style="color: { title_color }">{ title }</div>
+    <div class="flx-row title">
+        <div style="color: { title_color }">{ title }</div>
     </div>
+
+    <div class="vert-line"/>
 
     <dvi class="flx-row gauge-contatiner">
 
@@ -48,20 +50,17 @@
         gap: 0;
     }
 
-    .header {
-        justify-content: center;
-        align-items: flex-end;
+    .title {
+        justify-content: flex-end;
+        align-items: center;
         padding-right: 1em;
-        width: 6em;
+        width: 8em;
     }
     .value {   
         align-items: center;
         width: 9.5em;
         gap: 0.5em;
         padding-left: 1em;
-    }
-    .title {
-        text-align: center;
     }
 
     .gauge-contatiner {
