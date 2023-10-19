@@ -56,9 +56,9 @@
 <style>
 
     .container {
+        overflow-y: hidden;
         height: 100%;
         gap: 1rem;
-        overflow-y: hidden;
     }
 
     .content { height: 100%; }
@@ -71,7 +71,6 @@
     }
 
     .device-list {
-        width: 100%;
         overflow-y: auto;
         padding: 0 1em;
     }
@@ -93,6 +92,7 @@
         .search {
             max-width: 45%;
             min-width: 45%;
+            padding-right: 0.5em; 
         }
         
     }
@@ -100,7 +100,10 @@
     /* MOBILE */
     @media(max-width: 425px) {
 
-        .content { flex-direction: column; }
+        .content { 
+            flex-direction: column; 
+            padding-right: 0.5em; 
+        }
         .search { 
             max-height: 30em;
             min-height: 30em;

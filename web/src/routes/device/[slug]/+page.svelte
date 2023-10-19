@@ -21,7 +21,7 @@
 </script>
 <dvi class="flx-col container">
 
-    <div class="flx-row layout">
+    <div class="flx-row content">
 
         <Modal bind:this={ modal } on:confirm={ async( ) => { device.startJob( ) } }>
             <h3 class='fg-accent' slot="title">Start a new job</h3>
@@ -31,18 +31,18 @@
             <div slot="footer">Send command</div>
         </Modal>
      
-        <div class="flx-col dev-con">
+        <div class="flx-col status">
             <DeviceControls bind:device on:start={ async( ) => { modal.open( ) } }/>
         </div>
         
             
-        <div class="flx-col content">
+        <div class="flx-col panel">
     
             <div class="flx-col chart">
                 <LineChart bind:chartdata={ device.cht } />
             </div>
     
-            <div class="flx-row panel">
+            <div class="flx-row action">
 
                     <div class="flx-col tabs">
 
@@ -99,76 +99,117 @@
 <style>
 
     .container {
+        overflow: hidden;
         height: 100%;
         gap: 1rem;
-        overflow-y: hidden;
     }
 
-    .layout {
+    .content { 
         height: 100%;
-        /* overflow-y: auto; */
     }
 
-    .dev-con {
-        max-width: 38em;
-        min-width: 38em;
+    .status {
+        max-width: 25%;
+        min-width: 25%;
+        width: auto;
+        padding-right: 0.5em;
     }
 
-    .content {
-        /* border-radius: 0.5em; */
+    .panel {
         padding: 0 1em;
-        height: 100%;
-        /* overflow: hidden; */
+        padding-left: 0;
+        height: auto;
     }
+
+    .chart { min-height: 38em; }
 
     .tabs {
-        /* justify-content: flex-end; */
         align-items: center;
-        width: 50em;
+        width: 3.5em;
         padding: 0;
     }
 
-    .chart {
-        height: 34em;
-    }
-    .panel {
-        background-color: var(--light_aa);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
-        padding: 1em;
-        border-radius: 0.5em;
-        gap: 0.5em;
+    .action {
         justify-content: space-between;
         height: 100%;
     }
     
-    @media(max-width: 768px) {
+
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+        .status {
+            max-width: 33%;
+            min-width: 33%;
+        }
+        .panel { max-width: 67%;  }
+        .chart { min-height: 35em; }
+    }
+
+    /* TABLET */
+    @media(max-width: 1024px) { 
         .container { 
             padding-right: 0.5em; 
-            height: auto;
-        }
-        .layout {
-            flex-direction: column;
-            overflow-y: auto;
-            /* width: auto; */
-        }
-        .dev-con {
-            max-width: 100%;
-            min-width: 100%;
-            /* width: auto; */
-            height: 200em;
         }
         .content { 
-            padding: 0; 
+            flex-direction: column; 
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 0;
+        }
+        .status {
+            max-width: 100%;
+            min-width: 100%;
+        }
+        .panel { 
+            padding-right: 0.5em; 
+            max-width: 100%;  
             gap: 0.5em;
         }
-        .panel {
+        .chart { min-height: 30em; }
+        .action {
+            flex-direction: row;
+            border: none;
+            padding: 0;
+        }
+        .tabs {
             flex-direction: column;
+            padding-left: 0.5em;
+            width: 3.5em;
+        }
+    }
+
+    /* MOBILE */
+    @media(max-width: 425px) { 
+        .container { 
+            padding-right: 0.5em; 
+        }
+        .content { 
+            flex-direction: column; 
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 0;
+        }
+        .status {
+            max-width: 100%;
+            min-width: 100%;
+            height: 300em;
+        }
+        .panel { 
+            padding-right: 0.5em; 
+            max-width: 100%;  
+            gap: 0.5em;
+        }
+        .chart { padding: 0; }
+        .action {
+            flex-direction: column;
+            border: none;
+            padding: 0;
         }
         .tabs {
             flex-direction: row;
-            width: 100%;
+            padding-left: 1em;
         }
     }
+
 
 </style>

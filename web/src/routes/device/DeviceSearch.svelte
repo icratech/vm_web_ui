@@ -57,7 +57,7 @@
 
 </script>
 
-<div class="flx-col search-panel">
+<div class="flx-col container">
 
     <div class="flx-row search">
 
@@ -82,18 +82,25 @@
 
 <style>
 
-    .search-panel {
+    .container {
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
         border-radius: 0.5em;
-        padding: 1em;
         height:100%;
+        padding: 0;
+        gap: 0;
     }
 
     .search {
-        padding: 0.25em;
+        padding: 1em;
         align-items: center;
+    }
+    
+
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+
     }
 
     /* TABLET */
@@ -103,7 +110,7 @@
 
     /* MOBILE */
     @media(max-width: 425px) {
-        .search-panel {
+        .container {
             padding-right: 0;
             background-color: transparent;
             border: none;

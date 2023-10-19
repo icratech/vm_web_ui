@@ -99,18 +99,21 @@
     
         </div>
             { #if active }
-                <BarGaugeCard bind:hdr bind:cfg bind:smp/>     
+                <BarGaugeCard bind:cfg bind:smp/>     
             { /if }
 
     </div>
 
     { #if active }
-        <!-- <div class="vert-line"/> -->
-        <HeaderCard bind:hdr />
 
-        <!-- <div class="vert-line"/> -->
-        <div class="evt">
-            <EventCard bind:event={evt} title="Last event" />
+        <div class="flx-row hdr">
+            <div class="vert-line sep"/>
+            <HeaderCard bind:hdr />
+        </div>
+        
+        <div class="flx-row evt">
+            <div class="vert-line sep"/>
+            <EventCard bind:event={evt} />
         </div>
     { /if }
 
@@ -150,11 +153,11 @@
             padding: 0.5em;
             gap: 0.5em;
         }
+        .sep { display: none; }
     }
 
     /* MOBILE */
     @media(max-width: 425px) {
-
     }
 
 </style>

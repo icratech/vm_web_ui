@@ -27,7 +27,26 @@
 </script>
 
 
-<div class="flx-row">
+<div class="flx-row panel">
     <HeaderPanel bind:header={ device.hdr }/>
     <ConfigPanel bind:config={ device.cfg }/>
 </div>
+
+<style>
+    
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+
+    }
+
+    /* TABLET */
+    @media(max-width: 1024px) {
+        
+    }
+
+    /* MOBILE */
+    @media(max-width: 425px) { 
+        .panel { flex-direction: column; }
+    }
+
+</style>

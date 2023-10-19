@@ -148,7 +148,7 @@
     }
     .flx-col.content-wrapper {
         z-index: 11;
-        width: auto;
+        width: 50%;
         /* max-width: 70vw; */
         border-radius: 0.5em;
         padding: 1.5em;
@@ -170,5 +170,42 @@
         gap: 1.5em;
         overflow: hidden;
         opacity: 0.7;
+    }
+        
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+
+        .flx-col.content-wrapper {
+            width: 70%;
+ 
+        }
+    }
+
+    /* TABLET */
+    @media(max-width: 1024px) {
+        .flx-col.content-wrapper {
+            background-image: none;
+            background-color: transparent;
+            border: none;
+            width: 100%;
+            margin: 2em;
+            padding: 0;
+            gap:0;
+        }
+        div.content {
+            /* flex-direction: column; */
+            border:none;
+            padding: 0.5em;
+        }
+    }
+
+    /* MOBILE */
+    @media(max-width: 425px) { 
+        .flx-col.content-wrapper {
+            margin: 1em;
+        }
+        div.content {
+            flex-direction: column;
+        }
     }
 </style>

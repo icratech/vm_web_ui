@@ -30,7 +30,7 @@
             <div class="lbl">Mult.</div> 
         </div>
 
-        <br>
+        <!-- <br> -->
         <div class="flx-row in">Stabilized Shut-In Pressure - SSP Alarm</div>
         <div class="flx-row in">
             <div class="lbl-left">Rate( kPa/hr ):</div> 
@@ -49,7 +49,7 @@
             <div class="lbl">Dur. ( hr )</div> 
         </div>
 
-        <br>
+        <!-- <br> -->
         <div class="flx-row in">Flow Alarm Settings </div>
         <div class="flx-row in">
             <div class="lbl-left">Max ( L/min ):</div> 
@@ -68,7 +68,7 @@
             <div class="lbl">Toggle ( L/min )</div> 
         </div>
         
-        <br>
+        <!-- <br> -->
         <div class="flx-row in">
             <div >Measurements  </div>
             <p class="lbl-top">Sample</p>
@@ -128,7 +128,7 @@
 <style>
 
     .cont {
-        padding: 0.5em;
+        gap: 0.75em;
     }
 
     .in {

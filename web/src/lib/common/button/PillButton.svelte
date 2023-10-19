@@ -52,4 +52,21 @@
         visibility: visible;
         z-index: 99;
     }
+
+
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+
+    }
+
+    /* TABLET */
+    @media(max-width: 1024px) {
+        .icon:hover .hint { display: none; }
+    }
+
+    /* MOBILE */
+    @media(max-width: 425px) { 
+        
+    }
+
 </style>

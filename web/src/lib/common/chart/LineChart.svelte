@@ -49,11 +49,16 @@
 <style>
 
     .container {
-        padding-top: 2em;
         border-radius: 0.5em;
         position: relative;
         height: 100%;
         width: 100%;
     }
 
+    /* MOBILE */
+    @media(max-width: 425px) { 
+        .container {
+            padding: 0;
+        }
+    }
 </style>

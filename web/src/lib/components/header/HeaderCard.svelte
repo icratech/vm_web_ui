@@ -60,7 +60,7 @@
         color: var( --accent_a);
         justify-content: flex-end;
         align-items: center;
-        padding-right: 1em;
+        padding-right: 0.75em;
         width: 8em;
     }
 

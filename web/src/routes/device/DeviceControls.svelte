@@ -94,76 +94,81 @@
 
 <div class="flx-col container">
 
-    <div class="flx-row title">     
+    <div class="flx-col layout">
+        <div class="flx-row title">     
 
-        <div class="flx-row ser">
-            <div class="fg-accent ser">SN:</div>
-            <div class="ser">{ device.reg.des_dev_serial }</div>
-        </div>  
+            <div class="flx-row ser">
+                <div class="fg-accent ser">SN:</div>
+                <div class="ser">{ device.reg.des_dev_serial }</div>
+            </div>  
 
-        <h4 class="mode" style="background-color: { color_code };">{ lbl }</h4>
+            <h4 class="mode" style="background-color: { color_code };">{ lbl }</h4>
 
-        <div class="flx-row btns">
+            <div class="flx-row btns">
 
-            { #if available || pending }
-            <PillButton 
-                cls={ jobStartColor }
-                on:click={ jobStartFunc }
-                img={ jobStartIcon }
-                hint={ jobStartText }
-            />
-            { /if }
-        
-            { #if active }
-            <PillButton 
-                cls={ 'bg-red' }
-                on:click={ ( ) => { device.endJob( $AUTH ) } }
-                img={ btn_img_stop }
-                hint={ 'End Job' } 
-            />
-            { /if }  
-            <PillButton 
-                cls={ socketButtonColor }
-                on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
-                img={ btn_img_watch }
-                hint={ socketButtonText } 
-            />
+                { #if available || pending }
+                <PillButton 
+                    cls={ jobStartColor }
+                    on:click={ jobStartFunc }
+                    img={ jobStartIcon }
+                    hint={ jobStartText }
+                />
+                { /if }
+            
+                { #if active }
+                <PillButton 
+                    cls={ 'bg-red' }
+                    on:click={ ( ) => { device.endJob( $AUTH ) } }
+                    img={ btn_img_stop }
+                    hint={ 'End Job' } 
+                />
+                { /if }  
+                <PillButton 
+                    cls={ socketButtonColor }
+                    on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
+                    img={ btn_img_watch }
+                    hint={ socketButtonText } 
+                />
 
-        </div> 
+            </div> 
 
+        </div>
+                    
+        <div class="flx-col status">
+
+            <BarGaugeCard bind:hdr bind:cfg bind:smp/>
+            
+            <HeaderCard bind:hdr />
+
+        </div>
     </div>
-                
-    <div class="flx-col">
-
-        <BarGaugeCard bind:hdr bind:cfg bind:smp/>
-        
-        <HeaderCard bind:hdr />
-
+    <div class="flx-col map">
+        <div class="map-container" use:makeMap />
     </div>
-
-    <div class="map-container" use:makeMap ></div>
 
 </div>
 
 <style>
 
     .container {
-        border-radius: 0.5em;
-        padding: 1em;
-        height:100%;
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
+        border-radius: 0.5em;
+        height:100%;
+        padding: 0;
+        gap: 0;
     }
-
+    .layout { 
+        padding: 0 1em; 
+        padding-top: 1em;
+    }
     .title {
         justify-content: space-between;
         align-items: center;
+        padding: 0;
     }
-    .ser { 
-        font-size: 1.2em;
-        gap: 0.5em;
-    }
+    .ser { font-size: 1.2em; gap: 0.5em; }
     
     .mode { 
         color: var(--dark); 
@@ -173,9 +178,51 @@
         font-weight: 400;
     }
 
-    .btns {
-        align-items: center;
-        justify-content: flex-end;
+    .btns { align-items: center;  justify-content: flex-end; }
+
+    .map {
+        min-height: 15em;
+        height: 100%;
+    }
+
+    /* LAP TOP */
+    @media(max-width: 1440px) {
+
+    }
+
+    /* TABLET */
+    @media(max-width: 1024px) {
+        .container { 
+            flex-direction: row; 
+            border: none;
+            padding: 1em 0;
+        }
+        .layout { padding-top: 0; }
+        .ser { font-size: 1.2em; gap: 0.5em; }    
+        .title { padding: 0; }
+    }
+
+    /* MOBILE */
+    /* @media(max-width: 768px) {
+        .container { flex-direction: row; }
+    } */
+    
+    /* MOBILE */
+    @media(max-width: 425px) {
+        .container { 
+            flex-direction: column; 
+            padding-top: 0;
+            padding-right: 0;
+            padding-left: 0.5em;
+            background-color: transparent;
+            border: none;
+            max-width: 100%;
+            min-width: 100%;
+            width: auto;
+        }
+        .title { padding: 0 0.5em; }
+        .ser { font-size: 1.2em; gap: 1em; }    
+
     }
 
 </style>

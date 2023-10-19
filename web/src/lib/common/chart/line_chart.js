@@ -37,9 +37,9 @@ export class LineChartModel {
             parsing: false, 
             layout: {
                 padding: {
-                    left: 10,
-                    right: 10,
-                    bottom: 10,
+                    left: 5,
+                    right: 5,
+                    bottom: 5,
                 }
             },
             interaction: { 
@@ -67,7 +67,7 @@ export class LineChartModel {
                         boxWidth: 20,
                         borderRadius: 10,
                         useBorderRadius: true,
-                        padding: 20,
+                        padding: 10,
                     },
                 },
                 decimation: { 

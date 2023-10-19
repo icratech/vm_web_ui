@@ -2,7 +2,6 @@
 
     import { onMount } from "svelte"
     import { User } from "../../des_api"
-    import { get } from 'svelte/store'
 
     export let uid
     export let user = new User( )
@@ -12,24 +11,15 @@
 
 </script>
 
-<div class="flx-row bet">
-    <br>
-    <div class="content">
-        <p style="color: var(--grey_a)">{ user.name }</p>
-        <p style="color: var(--aqua_aa)">{ user.email }</p>
-    </div>
+<div class="flx-row content">
+    <p style="color: var(--light_a)">{ user.name }</p>
+    <p style="color: var(--aqua_aa)">{ user.email }</p>
 </div>
 
 <style>
     .content {
-        display: flex;
-        flex-direction: row;
         justify-content: flex-end;
-        padding: 0.25em 1.5em;
-        border-radius: 2em;
-        gap: 3em;
-        background-color: var(--light_aa);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
+        padding: 0 0.5em;
+        gap: 1em;
     }
 </style>
