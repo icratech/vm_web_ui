@@ -704,7 +704,7 @@ export class Device {
                 case "sample":
                     this.smp = msg.data
                     this.updateMarkerMode( )
-
+      
                     if ( this.smp.smp_lo_flow < this.cfg.cfg_flow_tog ) {
                         this.cht.options.scales.y_lo_flow.display = true
                         this.cht_lo_flow.hidden = false

@@ -220,6 +220,7 @@
         }
         .title { padding: 0 0.5em; }
         .ser { font-size: 1.2em; gap: 1em; }    
+        .map { max-height: 15em;  }
 
     }
 
