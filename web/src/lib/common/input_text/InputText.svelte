@@ -56,19 +56,4 @@
         text-align: start;
     }
 
-    input {
-        color: var(--light);
-        background-color: var(--aqua_01);
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        border-right: solid 0.05em var(--light_01);
-        border-bottom: solid 0.05em var(--light_01);
-        width: 100%;
-    }
-
-    input:disabled {
-        color: var(--grey);
-		border: 0.1rem solid transparent;
-    }
-
 </style>

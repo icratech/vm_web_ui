@@ -142,7 +142,7 @@
             min-width: 33%;
         }
         .panel { max-width: 67%;  }
-        .chart { min-height: 35em; }
+        .chart { min-height: 30em; }
     }
 
     /* TABLET */
@@ -165,7 +165,7 @@
             max-width: 100%;  
             gap: 0.5em;
         }
-        .chart { min-height: 30em; }
+        .chart { min-height: 27em; }
         .action {
             flex-direction: row;
             border: none;

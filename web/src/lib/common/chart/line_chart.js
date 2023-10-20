@@ -169,8 +169,8 @@ export class LineChartScale {
         this.title = {
             display: true,
             align: "end",
-            font: { size: 14 },
-            padding: { top: 10 },
+            font: { size: 12 },
+            padding: { top: 6, bottom: 6 },
             color: color,
             text: title,
         }

@@ -84,8 +84,8 @@
 
         device.mark.addTo( map )
         device.updateDevicePageMap = ( act, lng, lat ) => { 
-            map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 3500 } ) 
             device.mark.setLngLat( [ lng, lat ] )
+            map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 2500 } ) 
         }
     }
 
@@ -95,6 +95,7 @@
 <div class="flx-col container">
 
     <div class="flx-col layout">
+
         <div class="flx-row title">     
 
             <div class="flx-row ser">
@@ -141,7 +142,9 @@
             <HeaderCard bind:hdr />
 
         </div>
+
     </div>
+    <br>
     <div class="flx-col map">
         <div class="map-container" use:makeMap />
     </div>
@@ -201,11 +204,6 @@
         .ser { font-size: 1.2em; gap: 0.5em; }    
         .title { padding: 0; }
     }
-
-    /* MOBILE */
-    /* @media(max-width: 768px) {
-        .container { flex-direction: row; }
-    } */
     
     /* MOBILE */
     @media(max-width: 425px) {

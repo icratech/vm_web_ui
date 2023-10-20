@@ -70,6 +70,22 @@
                 padding: 1em;
             }
 
+            input {
+                color: var(--light);
+                background-color: var(--aqua_01);
+                padding: 0.35em 0.5rem;
+                border-radius: 0.5rem;
+                border-right: solid 0.05em var(--light_01);
+                border-bottom: solid 0.05em var(--light_01);
+                width: 100%;
+            }
+
+            input:disabled {
+                color: var(--grey_a);
+                padding: 0.25rem 0.5rem;
+                border: 0.1rem solid transparent;
+            }
+
             input:focus { outline: 0.05rem solid var(--accent_aa); outline-offset: 0.15rem; }
 
             .radio:focus { outline: 0.0rem solid transparent; outline-offset: 0.15rem; }
@@ -78,10 +94,6 @@
             .map-container {
                 height: 100%;
                 position: relative;
-                /* border-radius: 0.5em;
-                border-bottom: solid 0.15em var(--light_01);
-                border-right: solid 0.15em var(--light_01); */
-                /* margin: -1em; */
             }
 
             .marker {

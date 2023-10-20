@@ -20,23 +20,3 @@
     disabled = { !enabled }
 >
 
-
-<style>
-
-
-    input {
-        color: var(--light);
-        background-color: var(--aqua_01);
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        border-right: solid 0.05em var(--light_01);
-        border-bottom: solid 0.05em var(--light_01);
-    }
-
-    input:disabled {
-        color: var(--grey_a);
-        padding: 0.25rem 0.5rem;
-		border: 0.1rem solid transparent;
-    }
-
-</style>
