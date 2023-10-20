@@ -2,7 +2,7 @@
 
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import PillButton from '../../../lib/common/button/PillButton.svelte'
-    import DeviceControls from '../../device/DeviceControls.svelte'
+    import DeviceInfo from '../DeviceInfo.svelte'
 
     import Modal from '../../../lib/common/modal/Modal.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
@@ -31,10 +31,9 @@
         </Modal>
      
         <div class="flx-col status">
-            <DeviceControls bind:device on:start={ async( ) => { modal.open( ) } }/>
+            <DeviceInfo bind:device on:start={ async( ) => { modal.open( ) } }/>
         </div>
         
-            
         <div class="flx-col panel">
     
             <div class="flx-col chart">
@@ -164,7 +163,7 @@
             max-width: 100%;  
             gap: 0.5em;
         }
-        .chart { min-height: 27em; }
+        .chart { min-height: 23em; }
         .action {
             flex-direction: row;
             border: none;
@@ -172,6 +171,7 @@
         }
         .tabs {
             flex-direction: column;
+            padding-top: 1em;
             padding-left: 0.5em;
             width: 3.5em;
         }
@@ -198,7 +198,7 @@
             max-width: 100%;  
             gap: 0.5em;
         }
-        .chart { padding: 0; }
+        .chart { display:none; padding: 0; }
         .action {
             flex-direction: column;
             border: none;

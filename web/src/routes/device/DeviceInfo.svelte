@@ -96,16 +96,18 @@
 
     <div class="flx-col layout">
 
-        <div class="flx-row title">     
+        <div class="flx-row title-bar">     
 
-            <div class="flx-row ser">
-                <div class="fg-accent ser">SN:</div>
-                <div class="ser">{ device.reg.des_dev_serial }</div>
+            <div class="flx-row ser-cont">
+                <div class="flx-row fg-accent ser-lbl">Serial #</div>
+                <div class="vert-line"/>
+                <div class="flx-row ser">{ device.reg.des_dev_serial }</div>
             </div>  
 
             <h4 class="mode" style="background-color: { color_code };">{ lbl }</h4>
 
             <div class="flx-row btns">
+
 
                 { #if available || pending }
                 <PillButton 
@@ -124,6 +126,7 @@
                     hint={ 'End Job' } 
                 />
                 { /if }  
+                   
                 <PillButton 
                     cls={ socketButtonColor }
                     on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
@@ -131,15 +134,16 @@
                     hint={ socketButtonText } 
                 />
 
+            
             </div> 
 
         </div>
                     
         <div class="flx-col status">
 
-            <BarGaugeCard bind:hdr bind:cfg bind:smp/>
-            
             <HeaderCard bind:hdr />
+
+            <BarGaugeCard bind:hdr bind:cfg bind:smp/>
 
         </div>
 
@@ -160,18 +164,38 @@
         border-radius: 0.5em;
         height:100%;
         padding: 0;
-        gap: 0;
+        gap: 0.5em;
     }
-    .layout { 
-        padding: 0 1em; 
-        padding-top: 1em;
+    .layout {  
+        padding: 0; 
+        padding-right: 0.5em;
+        gap: 0; 
     }
-    .title {
+    .title-bar {
         justify-content: space-between;
         align-items: center;
-        padding: 0;
+        padding: 0.5em 0;
     }
-    .ser { font-size: 1.2em; gap: 0.5em; }
+    
+    .ser-cont { 
+        width: auto;
+        height: 2em; 
+        gap: 0;         
+    }
+    .ser-lbl { 
+        font-size: 1.25em;  
+        color: var( --accent_a);
+        justify-content: flex-end;
+        align-items: center;
+        padding-right: 0.6em;
+        max-width: 4.8em;
+        min-width: 4.8em;
+    }
+    .ser { 
+        font-size: 1.25em;  
+        align-items: center; 
+        width: auto;
+    }
     
     .mode { 
         color: var(--dark); 
@@ -181,9 +205,15 @@
         font-weight: 400;
     }
 
-    .btns { align-items: center;  justify-content: flex-end; }
+    .btns { 
+        justify-content: flex-end; 
+        align-items: center; 
+        width: auto;
+        gap: 1em;
+    }
 
     .map {
+        border-radius: 0.5em;
         min-height: 15em;
         height: 100%;
     }
@@ -196,13 +226,14 @@
     /* TABLET */
     @media(max-width: 1024px) {
         .container { 
+            background-color: transparent;
             flex-direction: row; 
             border: none;
-            padding: 1em 0;
         }
-        .layout { padding-top: 0; }
-        .ser { font-size: 1.2em; gap: 0.5em; }    
-        .title { padding: 0; }
+        .layout { 
+            padding-top: 0; 
+            padding-right: 0; 
+        }
     }
     
     /* MOBILE */
@@ -210,17 +241,16 @@
         .container { 
             flex-direction: column; 
             padding-top: 0;
-            padding-right: 0;
-            padding-left: 0.5em;
+            padding-right: 0.5em;
+            padding-left: 1em;
             background-color: transparent;
             border: none;
             max-width: 100%;
             min-width: 100%;
             width: auto;
         }
-        .title { padding: 0 0.5em; }
-        .ser { font-size: 1.2em; gap: 1em; }    
-        .map { max-height: 15em;  }
+        .layout {  padding: 0;  }
+        .map { max-height: 13em;  }
 
     }
 

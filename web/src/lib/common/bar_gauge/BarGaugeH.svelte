@@ -54,7 +54,8 @@
         justify-content: flex-end;
         align-items: center;
         padding-right: 0.75em;
-        width: 8em;
+        max-width: 6em;
+        min-width: 6em;
     }
     .value {   
         align-items: center;

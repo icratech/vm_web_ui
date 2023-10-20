@@ -43,7 +43,6 @@
 <style>
 
     .container { 
-        justify-content: center;
         border-radius: 0.5em;
         height: 100%;
         padding: 0;
@@ -51,9 +50,8 @@
     }
 
     .field { 
-        height: 2em; gap: 0;         
-        justify-content: flex-start;
-        width: 100%;
+        height: 2em; 
+        gap: 0;         
     }
     
     .title {
@@ -61,8 +59,11 @@
         justify-content: flex-end;
         align-items: center;
         padding-right: 0.75em;
-        width: 8em;
+        max-width: 6em;
+        min-width: 6em;
     }
+
+    .value { align-items: center; }
 
     /* LAP TOP */
     @media(max-width: 1440px) {
