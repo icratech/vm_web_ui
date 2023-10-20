@@ -3,7 +3,6 @@
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import PillButton from '../../../lib/common/button/PillButton.svelte'
     import DeviceControls from '../../device/DeviceControls.svelte'
-    import DeviceControlsMobile from '../../device/DeviceControlsMobile.svelte'
 
     import Modal from '../../../lib/common/modal/Modal.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
