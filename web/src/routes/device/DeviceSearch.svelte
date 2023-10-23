@@ -105,20 +105,24 @@
 
     /* TABLET */
     @media(max-width: 1024px) {
-
     }
 
     /* MOBILE */
     @media(max-width: 425px) {
         .container {
             padding-right: 0;
+            padding-left: 1em;
             background-color: transparent;
             border: none;
             max-width: 100%;
             min-width: 100%;
             width: auto;
         }
-
+        .search { 
+            padding-top: 0.5em; 
+            padding-right: 0; 
+            padding-left: 0; 
+        }
     }
 
 </style>

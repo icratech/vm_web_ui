@@ -95,6 +95,10 @@
             padding-right: 0.5em; 
         }
         
+        .device-list { 
+            padding: 0 0.5em; 
+            overflow-x: hidden;
+        }
     }
 
     /* MOBILE */
@@ -110,7 +114,5 @@
             max-width: 100%;
             min-width: 100%;
         }
-        .device-list { padding: 0 0.5em; }
-
     }
 </style>

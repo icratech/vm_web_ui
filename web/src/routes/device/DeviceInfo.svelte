@@ -4,10 +4,9 @@
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher( )
 
+    import { AUTH, Device, Sample } from "../../lib/des_api"
 
-    import { AUTH, COLORS, Device, Sample } from "../../lib/des_api"
-    import { RGBA, BASE } from "../../lib/common/colors"
-
+    import DeviceMode from "./DeviceMode.svelte"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
     // import HeaderCardMobile from '../../lib/components/header/HeaderCardMobile.svelte'
@@ -36,41 +35,6 @@
     $: active = ( hdr.hdr_job_start != 0 )
     $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
-
-    let color_code = RGBA(BASE.LIGHT, 0.6)
-    let lbl = 'OFF'
-    $: {
-
-        if ( hdr.hdr_job_start == 0 ) { color_code = RGBA(BASE.LIGHT, 0.2)  }
-        else {
-            switch ( cfg.cfg_vlv_tgt ) {
-
-                case 0: 
-                    lbl = 'BUILD'
-                    color_code = RGBA(COLORS.PRESS, 0.7)
-                    break
-
-                case 2: 
-                    lbl = 'VENT'
-                    color_code = RGBA(BASE.AQUA, 0.8)
-                    break
-
-                case 4: // HI FLOW
-                case 6: // LO FLOW
-                    lbl = 'FLOW'
-                    if ( smp.smp_lo_flow > cfg.cfg_flow_tog ) {
-                        color_code = RGBA(COLORS.HI_FLOW, 0.8)
-                    } else {
-                        color_code = RGBA(COLORS.LO_FLOW, 0.8)
-                    }
-                    break
-
-                default:
-                    lbl = 'OFF'
-                    color_code = RGBA(BASE.LIGHT, 0.6)
-            }
-        }
-    }
 
     const makeMap = ( ctx ) => {
 
@@ -104,7 +68,7 @@
                 <div class="flx-row ser">{ device.reg.des_dev_serial }</div>
             </div>  
 
-            <h4 class="mode" style="background-color: { color_code };">{ lbl }</h4>
+            <DeviceMode bind:device />
 
             <div class="flx-row btns">
 
@@ -174,7 +138,9 @@
     .title-bar {
         justify-content: space-between;
         align-items: center;
-        padding: 0.5em 0;
+        padding: 0;
+        padding-top: 0.5em;
+        padding-bottom: 1em;
     }
     
     .ser-cont { 
@@ -195,14 +161,6 @@
         font-size: 1.25em;  
         align-items: center; 
         width: auto;
-    }
-    
-    .mode { 
-        color: var(--dark); 
-        padding: 0 1em; 
-        border-radius: 1em; 
-        font-size: 1.3em; 
-        font-weight: 400;
     }
 
     .btns { 
@@ -234,6 +192,7 @@
             padding-top: 0; 
             padding-right: 0; 
         }
+        .title-bar {padding-bottom: 0.75em; }
     }
     
     /* MOBILE */

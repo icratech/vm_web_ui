@@ -12,8 +12,9 @@
         width = ( val < 0 ? 0 : val ) 
     }
 
-    const bar_color = RGBA(base_color, 0.7)
-    const title_color = RGBA(base_color, 0.8)
+    const bar_color = RGBA(base_color, 0.2)
+    const bar_border_color = RGBA(base_color, 0.5)
+    const title_color = RGBA(base_color, 0.7)
 
 </script>
 
@@ -27,7 +28,13 @@
 
     <dvi class="flx-row gauge-contatiner">
 
-        <div class="flx-row bar"  style="width:{ width }%; background-color: { bar_color };"></div>
+        <div class="flx-row bar"  
+            style="
+                width:{ width }%; 
+                background-color: { bar_color }; 
+                border: solid 0.1em { bar_border_color };
+            ">
+        </div>
 
         <div style="width:{ 100 - width }%"></div>
 
@@ -72,8 +79,8 @@
     }
 
     .bar {
-        height: 0.152em;
-        border-radius: 0.1em;
+        height: 0.7em;
+        /* border-radius: 0.2em; */
     }
 
     .num {

@@ -27,12 +27,12 @@
         </div>
         
         <div class="flx-row in">
-            <p class="lbl">Surface Loc:</p>
+            <p class="lbl">Surf Loc:</p>
             <InputText enabled={ true } bind:txt={ header.hdr_well_sf_loc } place="Well location / UWI"/>
         </div>
         
         <div class="flx-row in">
-            <p class="lbl">Bottom Loc:</p>
+            <p class="lbl">Bot Loc:</p>
             <InputText enabled={ true } bind:txt={ header.hdr_well_bh_loc } place="Bottom-hole location"/>
         </div>
         
