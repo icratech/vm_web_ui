@@ -9,6 +9,13 @@
     import HeaderPanel from '../../../lib/components/header/HeaderPanel.svelte'
     import ConfigPanel from '../../../lib/components/config/ConfigPanel.svelte'
     
+    import btn_img_adm from "$lib/images/btn-img-adm.svg"
+    import btn_img_hdr from "$lib/images/btn-img-hdr.svg"
+    import btn_img_cfg from "$lib/images/btn-img-cfg.svg"
+    import btn_img_vlv_vent from "$lib/images/btn-img-vlv-vent.svg"
+    import btn_img_vlv_flow from "$lib/images/btn-img-vlv-flow.svg"
+    import btn_img_vlv_build from "$lib/images/btn-img-vlv-build.svg"
+
     export let data
     import { DEVICES } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
@@ -46,36 +53,42 @@
 
                         <PillButton
                             cls={ 'bg-light' } 
+                            img={ btn_img_adm }
                             on:click={ device.setAdmin }
                             hint='ADM'
                         />
                 
                         <PillButton
                             cls={ 'bg-light' }
+                            img={ btn_img_hdr }
                             on:click={ device.setHeader }
                             hint='HDR'
                         />
                 
                         <PillButton
                             cls={ 'bg-light' }
+                            img={ btn_img_cfg }
                             on:click={ device.setConfig }
                             hint='CFG'
                         />
             
                         <PillButton
                             cls={ 'bg-aqua' }
+                            img={ btn_img_vlv_vent }
                             on:click={ ( ) => { device.setMode( 2 ) } }
                             hint='VENT'
                         />    
 
                         <PillButton
                             cls={ 'bg-orange' }
+                            img={ btn_img_vlv_flow }
                             on:click={ ( ) => { device.setMode( 4 ) } }
                             hint='FLOW'
                         />
             
                         <PillButton
                             cls={ 'bg-green' }
+                            img={ btn_img_vlv_build }
                             on:click={ ( ) => { device.setMode( 0 ) } }
                             hint='BUILD'
                         />

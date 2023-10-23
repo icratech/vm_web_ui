@@ -30,7 +30,7 @@
         <div class="flx-row login">
         
             { #if $AUTH.logged_in }
-            <h4 id="auth">{ $AUTH.name }, you are a tolerable person.</h4>
+            <h4 id="auth">{ $AUTH.name }</h4>
             { :else }
             <div class="flx-col input-container">
                 <label class="lbl">

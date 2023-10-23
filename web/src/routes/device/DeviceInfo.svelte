@@ -4,7 +4,7 @@
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher( )
 
-    import { AUTH, Device, Sample } from "../../lib/des_api"
+    import { Device, Sample } from "../../lib/des_api"
 
     import DeviceMode from "./DeviceMode.svelte"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
@@ -29,7 +29,7 @@
     $: pending = hdr.hdr_job_end != 0
     $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
     $: jobStartText = ( pending ? 'Pending Command' : 'Start Job' )
-    $: jobStartIcon = ( pending ? btn_img_config : btn_img_start ) 
+    $: jobStartIcon = ( pending ? btn_img_stop : btn_img_start ) 
     $: jobStartFunc = ( ) => { ( pending ? device.endJob( ) : dispatch( 'start' ) ) }
 
     $: active = ( hdr.hdr_job_start != 0 )
@@ -85,7 +85,7 @@
                 { #if active }
                 <PillButton 
                     cls={ 'bg-red' }
-                    on:click={ ( ) => { device.endJob( $AUTH ) } }
+                    on:click={ ( ) => { device.endJob( ) } }
                     img={ btn_img_stop }
                     hint={ 'End Job' } 
                 />
@@ -93,7 +93,7 @@
                    
                 <PillButton 
                     cls={ socketButtonColor }
-                    on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
+                    on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) } }
                     img={ btn_img_watch }
                     hint={ socketButtonText } 
                 />
