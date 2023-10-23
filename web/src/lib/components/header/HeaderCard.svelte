@@ -21,13 +21,13 @@
     </div>
     
     <div class="flx-row field">
-        <div class="flx-row title">Surface Loc</div>
+        <div class="flx-row title">Surf Loc</div>
         <div class="vert-line"/>
         <div class="flx-row value">{ hdr.hdr_well_sf_loc }</div>
     </div>
     
     <div class="flx-row field">
-        <div class="flx-row title">Bottom Loc</div>
+        <div class="flx-row title">Bot Loc</div>
         <div class="vert-line"/>
         <div class="flx-row value">{ hdr.hdr_well_bh_loc }</div>
     </div>

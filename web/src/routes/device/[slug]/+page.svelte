@@ -125,6 +125,7 @@
         align-items: center;
         width: 3.5em;
         padding: 0;
+        padding-top: 1em;
     }
 
     .action {
@@ -171,7 +172,6 @@
         }
         .tabs {
             flex-direction: column;
-            padding-top: 1em;
             padding-left: 0.5em;
             width: 3.5em;
         }
