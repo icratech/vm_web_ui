@@ -9,6 +9,7 @@
     import PillButton from '../lib/common/button/PillButton.svelte'
     import btn_img_home from "$lib/images/btn-img-home.svg"
     import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
+    import btn_img_report from "$lib/images/btn-img-report.svg"
 
     onMount( async( ) => {
 
@@ -48,7 +49,7 @@
                 <div class="flx-col ops">
                     <PillButton on:click={ ( ) => { goto( '/' ) } } cls='bg-accent' img={ btn_img_home } hint={ null } />
                     <PillButton on:click={ ( ) => { goto( '/device' ) } } cls='bg-accent' img={ btn_img_gauge } hint={ 'Device list' }  />
-                    <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-accent'  hint={ 'Job list' } />
+                    <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-accent' img={ btn_img_report } hint={ 'Job list' } />
                 </div>
                 
                 <div class="flx-row ops-mobile">
@@ -59,7 +60,7 @@
 
             { /if }
 
-            { #if $AUTH.role == "admin" }
+            <!-- { #if $AUTH.role == "admin" }
 
                 <div class="flx-col admin">
                     <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple'  hint={ "If you don't know..." } />
@@ -69,7 +70,7 @@
                     <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple'  hint={ null } />
                 </div>
 
-            { /if }
+            { /if } -->
 
         </div>
 
@@ -105,7 +106,7 @@
     }
 
     .ops-mobile { display: none; }
-    .admin-mobile { display: none; }
+    /* .admin-mobile { display: none; } */
 
     /* LAP TOP */
     @media(max-width: 1440px) {
@@ -123,8 +124,8 @@
         .nav { flex-direction: row; width: 100%; }
         .ops { display: none; }
         .ops-mobile { display: flex; }
-        .admin { display: none; }
-        .admin-mobile { display: flex;  justify-content: flex-end; }
+        /* .admin { display: none; } */
+        /* .admin-mobile { display: flex;  justify-content: flex-end; } */
     }
 
 </style>

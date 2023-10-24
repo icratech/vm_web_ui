@@ -4,6 +4,7 @@
 
     import { createEventDispatcher } from 'svelte';
 
+    import btn_img_reset from "$lib/images/btn-img-reset.svg"
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
     import { DEVICES, DEVICES_LOADED, DESSearchParam, get_devices /*GeoJSONFeatureCollection, GeoJSONFeature, GeoJSONGeometry */} from "../../lib/des_api";
@@ -62,7 +63,8 @@
     <div class="flx-row search">
 
         <PillButton
-            cls={ 'bg-grey' }
+            cls={ 'bg-accent' }
+            img={ btn_img_reset }
             hint={ 'Reset filters' } 
             on:click={ ( ) => { 
                 search = new DESSearchParam( )

@@ -226,6 +226,9 @@ export const get_devices = async( ) => {
 
 /* JOB API ROUTES *************************************************************************************/
 export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
+
+export const API_URL_C001_V001_JOB_LIST =  `${ HTTP_SERVER }/api/001/001/job/list`
+
 export const get_event_types = async( ) => {
     
     let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )

@@ -13,7 +13,7 @@
     
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import btn_img_start from "$lib/images/btn-img-start.svg"
-    import btn_img_config from "$lib/images/btn-img-config.svg"
+    import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
     import btn_img_stop from "$lib/images/btn-img-stop.svg"
     import btn_img_watch from "$lib/images/btn-img-view.svg"
     
@@ -29,7 +29,7 @@
     $: pending = hdr.hdr_job_end != 0
     $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
     $: jobStartText = ( pending ? 'Pending Command' : 'Start Job' )
-    $: jobStartIcon = ( pending ? btn_img_stop : btn_img_start ) 
+    $: jobStartIcon = ( pending ? btn_img_cmd : btn_img_start ) 
     $: jobStartFunc = ( ) => { ( pending ? device.endJob( ) : dispatch( 'start' ) ) }
 
     $: active = ( hdr.hdr_job_start != 0 )
@@ -82,7 +82,7 @@
                 />
                 { /if }
             
-                { #if active }
+                { #if active && !pending }
                 <PillButton 
                     cls={ 'bg-red' }
                     on:click={ ( ) => { device.endJob( ) } }

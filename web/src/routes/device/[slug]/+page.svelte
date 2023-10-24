@@ -49,55 +49,59 @@
     
             <div class="flx-row action">
 
-                    <div class="flx-col tabs">
-
-                        <PillButton
-                            cls={ 'bg-light' } 
-                            img={ btn_img_adm }
-                            on:click={ device.setAdmin }
-                            hint='ADM'
-                        />
-                
-                        <PillButton
-                            cls={ 'bg-light' }
-                            img={ btn_img_hdr }
-                            on:click={ device.setHeader }
-                            hint='HDR'
-                        />
-                
-                        <PillButton
-                            cls={ 'bg-light' }
-                            img={ btn_img_cfg }
-                            on:click={ device.setConfig }
-                            hint='CFG'
-                        />
-            
-                        <PillButton
-                            cls={ 'bg-aqua' }
-                            img={ btn_img_vlv_vent }
-                            on:click={ ( ) => { device.setMode( 2 ) } }
-                            hint='VENT'
-                        />    
-
-                        <PillButton
-                            cls={ 'bg-orange' }
-                            img={ btn_img_vlv_flow }
-                            on:click={ ( ) => { device.setMode( 4 ) } }
-                            hint='FLOW'
-                        />
-            
-                        <PillButton
-                            cls={ 'bg-green' }
-                            img={ btn_img_vlv_build }
-                            on:click={ ( ) => { device.setMode( 0 ) } }
-                            hint='BUILD'
-                        />
-            
+                <div class="flx-col panel-cont">
+                    <div class="flx-row panel-title-bar">
+                        <div class="flx-row panel-title-btns">
+                            <PillButton
+                                cls={ 'bg-light' } 
+                                img={ btn_img_adm }
+                                on:click={ device.setAdmin }
+                                hint='Send Admin'
+                            />
+                            <PillButton
+                                cls={ 'bg-light' }
+                                img={ btn_img_hdr }
+                                on:click={ device.setHeader }
+                                hint='Send Header'
+                            />
+                        </div>
+                        <h3 class="panel-title">Job Header</h3>
                     </div>
-                
                     <HeaderPanel bind:header={ device.hdr }/>
+                </div>
 
+                <div class="flx-col panel-cont">
+                    <div class="flx-row panel-title-bar">
+                        <div class="flx-row panel-title-btns">   
+                            <PillButton
+                                cls={ 'bg-light' }
+                                img={ btn_img_cfg }
+                                on:click={ device.setConfig }
+                                hint='Send Config'
+                            />
+                            <PillButton
+                                cls={ 'bg-aqua' }
+                                img={ btn_img_vlv_vent }
+                                on:click={ ( ) => { device.setMode( 2 ) } }
+                                hint='VENT'
+                            />    
+                            <PillButton
+                                cls={ 'bg-orange' }
+                                img={ btn_img_vlv_flow }
+                                on:click={ ( ) => { device.setMode( 4 ) } }
+                                hint='FLOW'
+                            />
+                            <PillButton
+                                cls={ 'bg-green' }
+                                img={ btn_img_vlv_build }
+                                on:click={ ( ) => { device.setMode( 0 ) } }
+                                hint='BUILD'
+                            />
+                        </div>
+                        <h3 class="panel-title">Job Configuration</h3>
+                    </div>
                     <ConfigPanel bind:config={ device.cfg }/>
+                </div>
 
             </div>
 
@@ -134,18 +138,29 @@
 
     .chart { min-height: 38em; }
 
-    .tabs {
-        align-items: center;
-        width: 3.5em;
-        padding: 0;
-        padding-top: 1em;
-    }
-
     .action {
         justify-content: space-between;
         height: 100%;
     }
-    
+
+    .panel-cont { gap: 0.5em; }
+
+    .panel-title-bar {
+        justify-content: space-between;
+        padding-left: 1em;
+        padding-top: 0;
+        padding-right: 0.5em;
+        width: 100%;
+    }
+    .panel-title-btns {
+        flex-direction: row;
+        width: auto;
+    }
+    .panel-title {
+        align-items: flex-end;
+        width: 100%;
+    }
+
 
     /* LAP TOP */
     @media(max-width: 1440px) {
@@ -183,11 +198,6 @@
             border: none;
             padding: 0;
         }
-        .tabs {
-            flex-direction: column;
-            padding-left: 0.5em;
-            width: 3.5em;
-        }
     }
 
     /* MOBILE */
@@ -217,10 +227,7 @@
             border: none;
             padding: 0;
         }
-        .tabs {
-            flex-direction: row;
-            padding-left: 1em;
-        }
+        .panel-title-bar { padding-top: 1em; }
     }
 
 
