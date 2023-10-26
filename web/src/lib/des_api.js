@@ -30,7 +30,7 @@ export const device_class = "001"
 export const device_version= "001"
 export const client_app = `C${ device_class }V${ device_version }_client_app v0.0.0`
 
-const local = true
+const local = false
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des1.data2desk.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` ) 
@@ -207,6 +207,7 @@ export const get_devices = async( ) => {
             if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
                 let device = new Device(
                     dev.adm,
+                    dev.hw,
                     dev.hdr,
                     dev.cfg,
                     dev.evt,
@@ -477,6 +478,7 @@ export class DESSearchParam {
 export class Device {
     constructor( 
         adm = new Admin( ),
+        hw = new HwID(),
         hdr = new Header( ),
         cfg = new Config( ),
         evt = new Event( ),
@@ -484,6 +486,7 @@ export class Device {
         reg = new DESRegistration( ), 
     ) { 
         this.adm = adm
+        this.hw = hw
         this.hdr = hdr
         this.cfg = cfg
         this.evt = evt
@@ -681,6 +684,11 @@ export class Device {
                     console.log("new admin received from device: ", this.adm)
                     break
 
+                case "hwid":
+                    this.hw = msg.data
+                    console.log("new hwid received from device: ", this.hw)
+                    break
+    
                 case "header":
                     this.hdr = msg.data
                     console.log("new header received from device: ", this.hdr)
@@ -769,6 +777,9 @@ export class Device {
         this.adm.adm_user_id = au.id
         this.adm.adm_app = client_app
 
+        this.hw.hw_user_id = au.id
+        this.hw.hw_app = client_app
+
         this.hdr.hdr_user_id = au.id
         this.hdr.hdr_app = client_app
         this.hdr.hdr_job_end = -1
@@ -781,6 +792,7 @@ export class Device {
 
         let dev = {
             adm: this.adm,
+            hw: this.hw,
             hdr: this.hdr,
             cfg: this.cfg,
             reg: this.reg

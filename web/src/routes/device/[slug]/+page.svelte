@@ -68,6 +68,14 @@
                         <h3 class="panel-title">Job Header</h3>
                     </div>
                     <HeaderPanel bind:header={ device.hdr }/>
+                    <div class="flx-row" style="padding-left: 1em;">
+                        <div class="flx-row">
+                            <p>Logger FW: </p><p style="color: var(--orange)">{ device.hw.hw_log_fw }</p>
+                        </div>
+                        <div class="flx-row">
+                            <p>Modem FW: </p><p style="color: var(--orange)">{ device.hw.hw_mod_fw }</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flx-col panel-cont">
@@ -226,6 +234,7 @@
             flex-direction: column;
             border: none;
             padding: 0;
+            padding-left: 0.5em;
         }
         .panel-title-bar { padding-top: 1em; }
     }
