@@ -8,11 +8,11 @@
     $: hdr = device.hdr
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    let color_code = BASE.LIGHT
+    $: color_code = BASE.LIGHT
     $: color_code_txt = RGBA(color_code,1)
     $: color_code_bg = RGBA(color_code, 0.2)
     $: color_code_border = RGBA(color_code, 0.5)
-    let lbl = 'OFF'
+    $: lbl = 'OFF'
     $: {
         if ( hdr.hdr_job_start == 0 ) { color_code = BASE.LIGHT  }
         else {

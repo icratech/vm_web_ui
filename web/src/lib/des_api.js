@@ -1078,10 +1078,6 @@ export class Admin {
         adm_op_host = "",
         adm_op_port = 0,
     
-        adm_class = device_class,
-        adm_version = device_version,
-        adm_serial = "",
-    
         adm_bat_hi_amp = 2.5, // Amps
         adm_bat_lo_volt = 10.5, // Volts
     
@@ -1122,9 +1118,9 @@ export class Admin {
         this.adm_op_host = adm_op_host,
         this.adm_op_port = adm_op_port,
     
-        this.adm_class = adm_class,
-        this.adm_version = adm_version,
-        this.adm_serial = adm_serial,
+        // this.adm_class = adm_class,
+        // this.adm_version = adm_version,
+        // this.adm_serial = adm_serial,
     
         this.adm_bat_hi_amp = adm_bat_hi_amp, // Amps
         this.adm_bat_lo_volt = adm_bat_lo_volt, // Volts
@@ -1155,6 +1151,40 @@ export class Admin {
         this.adm_lfs_diff = adm_lfs_diff, // psi
         this.adm_lfs_diff_min = adm_lfs_diff_min, // psi
         this.adm_lfs_diff_max = adm_lfs_diff_max // psi
+    }
+}
+
+/* 
+WEB CLIENT -> HTTP -> DES ( LOG ) -> MQTT -> DEVICE  
+  - Device returns readonl hardware ID values
+WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE  
+*/
+export class HwID {
+    constructor(
+        hw_time = 0,
+        hw_addr = "",
+        hw_user_id = "",
+        hw_app = client_app,
+
+        hw_serial = "",
+        hw_version = device_version,
+        hw_class = device_class,
+
+        hw_log_fw = "00.00.000",
+        hw_mod_fw = "00.00.000"
+    
+    ) {
+        this.hw_time = hw_time
+        this.hw_addr = hw_addr
+        this.hw_user_id = hw_user_id
+        this.hw_app = hw_app
+
+        this.hw_serial = hw_serial
+        this.hw_version = hw_version
+        this.hw_class = hw_class
+
+        this.hw_log_fw = hw_log_fw
+        this.hw_mod_fw = hw_mod_fw  
     }
 }
 
