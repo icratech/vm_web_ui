@@ -11,7 +11,7 @@
     import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
     import btn_img_watch from "$lib/images/btn-img-view.svg"
     
-    import { AUTH, Device, Sample } from "../../lib/des_api"
+    import { Device, Sample } from "../../lib/des_api"
     
     export let device = new Device( )
 
@@ -54,7 +54,7 @@
                  
                 <PillButton 
                     cls={ socketButtonColor }
-                    on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( $AUTH ) ) } }
+                    on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) } }
                     img={ btn_img_watch }
                     hint={ socketButtonText } 
                 />

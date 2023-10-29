@@ -23,6 +23,10 @@ export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
 export const updateDevicesStore = ( ) => { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
+export const JOBS = writable( [ ] )
+export const JOBS_LOADED = writable( false )
+export const updateJobsStore = ( ) => { JOBS.update( ( ) => { return [ ...get(JOBS) ] } ) }
+
 export const DEMO_DEVICES = writable( [ ] )
 
 
@@ -30,7 +34,7 @@ export const device_class = "001"
 export const device_version= "001"
 export const client_app = `C${ device_class }V${ device_version }_client_app v0.0.0`
 
-const local = false
+const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des1.data2desk.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` ) 
@@ -89,6 +93,7 @@ export const login = async( email, password ) => {
     await get_user( )
 
     if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  }
+    if ( get(AUTH).role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
 }
 
 export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
@@ -214,21 +219,66 @@ export const get_devices = async( ) => {
                     dev.smp,
                     dev.reg
                 )
-                DEVICES.update( d => { return [ ...d, device ] } )
+                device.connectWS()
+                DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
             }        
         } )
     } 
     get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
     DEVICES_LOADED.set( true )
     console.log( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
-    // console.log( "des_api.js -> get_devices( ) -> DEVICES_LOADED: ", get( DEVICES_LOADED ) )
-
 }
 
 /* JOB API ROUTES *************************************************************************************/
 export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
 
 export const API_URL_C001_V001_JOB_LIST =  `${ HTTP_SERVER }/api/001/001/job/list`
+export const get_jobs = async( ) => { 
+
+    let token = sessionStorage.getItem( 'des_token' )
+
+    JOBS_LOADED.set( false )
+    let req = new Request( API_URL_C001_V001_JOB_LIST, { 
+        method: 'GET',
+        headers: {
+            "Authorization":  `Bearer ${ token }`, 
+        },
+    } )
+
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    if ( json.status == "success") { 
+
+        let store = get( JOBS )
+        let jobs = json.data.jobs
+        console.log( "get_jobs( ) -> response:\n", jobs )
+
+        jobs.forEach( j => {
+            if ( store.filter( s =>{ return s.reg.des_job_name == j.reg.des_job_name } )[0] == undefined ) {
+                let job = new Job(
+                    j.admins,
+                    j.headers,
+                    j.configs,
+                    j.events,
+                    j.samples,
+                    j.xypoints,
+                    j.reg,
+                )
+                let dev  = JSON.parse( job.reg.des_job_json )
+                console.log( JSON.stringify( dev, null, 4 ) )
+                JOBS.update( sjobs => { return [ ...sjobs, job ] } )
+            }
+        } )
+
+        get( JOBS ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+        JOBS_LOADED.set( true )
+
+        console.log( "des_api.js -> get_jobs( ) -> JOBS: ", get( JOBS ) )
+    } else {
+        console.log( "des_api.js -> get_jobs( ) -> NO JOBS." )
+    }
+}
 
 export const get_event_types = async( ) => {
     
@@ -417,7 +467,14 @@ export class DESRegistration {
         des_job_end = 0,
         des_job_lng = -15.000000,
         des_job_lat = 55.000000,
-        des_job_dev_id = 0
+        des_job_dev_id = 0,
+
+        /* DESJobSearch */
+        des_job_search_id = 0,
+        des_job_token = "",
+        des_job_json = "",
+        des_job_key = ""
+
     ) {
         /* DESDevice */
         this.des_dev_id = des_dev_id
@@ -445,6 +502,13 @@ export class DESRegistration {
         this.des_job_lng = des_job_lng
         this.des_job_lat = des_job_lat
         this.des_job_dev_id = des_job_dev_id
+
+        /* DESJobSearch */
+        this.des_job_search_id = des_job_search_id
+
+        this.des_job_token = des_job_token
+        this.des_job_json = des_job_json
+        this.des_job_key = des_job_key
     }
 
 }
@@ -1001,6 +1065,28 @@ export class Job {
         this.xypoints = xypoints
         this.reg = reg
         
+        this.highlight = false
+        /* JOB SEARCH PAGE MAP MARKER */
+        this.s_mark_el = document.createElement('div')
+        this.s_mark_el.className = 'marker job'; 
+        this.s_mark_el.addEventListener('click', ( ) => { 
+            goto( '/job/' + this.reg.des_job_name ) 
+            this.highlight = false
+        } )
+        this.s_mark_el.addEventListener('mouseover', ( ) => { 
+            this.highlight = true 
+            updateJobsStore( )
+        } )
+        this.s_mark_el.addEventListener('mouseleave', ( ) => { 
+            this.highlight = false 
+            updateJobsStore( )
+        } )
+        this.s_mark = new mapboxgl.Marker( 
+            this.s_mark_el, { anchor: 'bottom-right' } 
+            ).setLngLat( [ this.reg.des_job_lng, this.reg.des_job_lat  ] )
+
+
+
         this.cht = NewChartData( )
         this.cht_ch4 = this.cht.data.datasets[0]
         this.cht_hi_flow = this.cht.data.datasets[1]
@@ -1321,7 +1407,7 @@ export class Event {
         evt_title = "",
         evt_msg = "" 
     ) {
-        this.evt_id = evt_id // Set by DES upon database write
+        // this.evt_id = evt_id // Set by DES upon database write
         this.evt_time = evt_time
         this.evt_addr = evt_addr
         this.evt_user_id = evt_user_id

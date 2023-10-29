@@ -33,12 +33,44 @@
         } 
     } )
 
-    const src = '$lib/space.jpg'
+    // const src = '$lib/space.jpg'
+
+    let page_name = "HOME"
+    let home_btn_color = 'bg-orange'
+    let device_btn_color = 'bg-accent'
+    let job_btn_color = 'bg-accent'
+    const do_nav = ( path, name ) => {
+        goto( path )
+        page_name = name
+        switch ( page_name ) {
+            case 'DEVICES': {  
+                home_btn_color = 'bg-accent'
+                device_btn_color = 'bg-orange'
+                job_btn_color = 'bg-accent'
+                break
+            }
+            case 'JOBS': { 
+                home_btn_color = 'bg-accent'
+                device_btn_color = 'bg-accent'
+                job_btn_color = 'bg-orange'
+                break
+            }
+            default : { 
+                home_btn_color = 'bg-orange'
+                device_btn_color = 'bg-accent'
+                job_btn_color = 'bg-accent'
+                break
+            }
+        }
+    }
+
+
+
 </script>
 
 <div class="flx-col main">
 
-    <Header />
+    <Header bind:page_name/>
 
     <div class="flx-row layout">
 
@@ -47,15 +79,24 @@
             { #if $AUTH.logged_in }
 
                 <div class="flx-col ops">
-                    <PillButton on:click={ ( ) => { goto( '/' ) } } cls='bg-accent' img={ btn_img_home } hint={ null } />
-                    <PillButton on:click={ ( ) => { goto( '/device' ) } } cls='bg-accent' img={ btn_img_gauge } hint={ 'Device list' }  />
-                    <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-accent' img={ btn_img_report } hint={ 'Job list' } />
-                </div>
-                
-                <div class="flx-row ops-mobile">
-                    <PillButton on:click={ ( ) => { goto( '/' ) } } cls='bg-accent' img={ btn_img_home } hint={ null } />
-                    <PillButton on:click={ ( ) => { goto( '/device' ) } } cls='bg-accent' img={ btn_img_gauge } hint={ null } />
-                    <PillButton on:click={ ( ) => { goto( '/job' ) } } cls='bg-accent' hint={ null } />
+                    <PillButton 
+                        on:click={ ( ) => { do_nav( '/', 'HOME' ) } } 
+                        cls={ home_btn_color }
+                        img={ btn_img_home } 
+                        hint={ null } 
+                    />
+                    <PillButton 
+                        on:click={ ( ) => { do_nav( '/device', 'DEVICES' ) } } 
+                        cls={ device_btn_color }
+                        img={ btn_img_gauge } 
+                        hint={ 'Device list' }  
+                    />
+                    <PillButton 
+                        on:click={ ( ) => { do_nav( '/job', 'JOBS' ) } } 
+                        cls={ job_btn_color }
+                        img={ btn_img_report } 
+                        hint={ 'Job list' } 
+                    />
                 </div>
 
             { /if }
@@ -105,9 +146,6 @@
         overflow: hidden;
     }
 
-    .ops-mobile { display: none; }
-    /* .admin-mobile { display: none; } */
-
     /* LAP TOP */
     @media(max-width: 1440px) {
         
@@ -122,10 +160,7 @@
     @media(max-width: 425px) {
         .layout { flex-direction: column; }
         .nav { flex-direction: row; width: 100%; }
-        .ops { display: none; }
-        .ops-mobile { display: flex; }
-        /* .admin { display: none; } */
-        /* .admin-mobile { display: flex;  justify-content: flex-end; } */
+        .ops { flex-direction: row; }
     }
 
 </style>

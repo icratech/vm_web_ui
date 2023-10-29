@@ -11,6 +11,7 @@
     $: loginButtonColor = ( $AUTH.logged_in ? 'bg-purple' : 'bg-accent' )
     $: loginButtonFunc = ( $AUTH.logged_in ? ( ) => { logout( ); goto( '/' ) } : ( ) => { login( email, password ) } )
 
+    export let page_name = "PAGE_NAME"
 </script>
 
 
@@ -26,6 +27,8 @@
             </div>
             
         </div>
+
+        <div class="flx-row page-block"><h3>{ page_name }</h3></div>
 
         <div class="flx-row login">
         
@@ -76,7 +79,16 @@
         flex-direction: row;
         justify-content: space-between;
     }
-    .title-block { min-width: 20rem; gap: 0;  }
+    .title-block { 
+        width: auto;
+        min-width: 19em;
+        gap: 0;  
+    }
+    .page-block {
+        color: var(--orange_a);
+        align-items: flex-end;
+        padding: 2em;
+    }
 
     .logo {
         background-size: contain;
@@ -149,6 +161,11 @@
         .content {
             flex-direction: column;
         }
+        .page-block {
+            align-items: flex-end;
+            padding: 1em 0;
+        }
+        .page-block h3 { font-size: 1.3em; }
         .login {
             flex-direction:column;
             justify-content: center;

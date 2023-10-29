@@ -61,7 +61,7 @@
 
     /* TABLET */
     @media(max-width: 1024px) {
-        .icon:hover .hint { display: none; }
+        /* .icon:hover .hint { display: none; } */
     }
 
     /* MOBILE */

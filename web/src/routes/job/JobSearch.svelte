@@ -1,5 +1,5 @@
 <script>
-
+    
     import { onMount } from 'svelte';
 
     import { createEventDispatcher } from 'svelte';
@@ -7,8 +7,8 @@
     import btn_img_reset from "$lib/images/btn-img-reset.svg"
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
-    import { DEVICES, DEVICES_LOADED, DESSearchParam, get_devices } from "../../lib/des_api";
- 
+    import { JOBS, JOBS_LOADED, DESSearchParam, get_jobs } from "../../lib/des_api";
+     
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
@@ -23,10 +23,8 @@
             zoom = 1.5
         }
     } )
-
-    let map
     const makeMap = ( ctx ) => {
-        // console.log( "DeviceSearch -> makeMap( )" )
+        // console.log( "JobSearch -> makeMap( )" )
 
         map = new mapboxgl.Map(  {
             container: ctx,
@@ -36,30 +34,22 @@
         } )
         map.on( 'zoomend', ( ) => {
             search.getMapBounds( map ) 
-            dispatch( 'filter' ) //  console.log( "DeviceSearch -> map.on( zoomend ) -> Search region:", search )
+            dispatch( 'filter' ) //  console.log( "JobSearch -> map.on( zoomend ) -> Search region:", search )
         } )
         map.on( 'dragend', ( ) => {
             search.getMapBounds( map ) 
-            dispatch( 'filter' ) // console.log( "DeviceSearch -> map.on( dragend ) -> Search region:", search )
+            dispatch( 'filter' ) // console.log( "JobSearch -> map.on( dragend ) -> Search region:", search )
         } )
 
-        $DEVICES.forEach( d =>{
-            d.s_mark.setLngLat( [ d.hdr.hdr_geo_lng, d.hdr.hdr_geo_lat ] )
-            d.updateMarkerMode( ) 
-            d.s_mark.addTo( map )
-            d.updateDeviceSearchMap = ( lng, lat ) => { 
-                d.s_mark.setLngLat( [ lng, lat ] ) 
-                d.updateMarkerMode( )
-                console.log( "updateDeviceSearchMap( ): ", d.s_mark.getOffset( ) )
-            }  
-        } ) 
+        $JOBS.forEach( j =>{ j.s_mark.addTo( map ) } ) 
         
     }
+    let map
 
 </script>
 
 <div class="flx-col container">
-    
+
     <div class="flx-row search">
 
         <PillButton
@@ -68,7 +58,7 @@
             hint={ 'Reset filters' } 
             on:click={ ( ) => { 
                 search = new DESSearchParam( )
-                get_devices( ) 
+                get_jobs( ) 
             } }
         />
 
@@ -76,7 +66,7 @@
 
     </div>
 
-    { #if $DEVICES_LOADED }
+    { #if $JOBS_LOADED }
     <div class="map-container" use:makeMap></div>
     { /if }
 
