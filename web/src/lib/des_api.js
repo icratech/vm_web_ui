@@ -219,11 +219,13 @@ export const get_devices = async( ) => {
                     dev.smp,
                     dev.reg
                 )
-                device.connectWS()
+                // device.connectWS()
                 DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
             }        
         } )
+        get( DEVICES ).forEach( d => { if ( !d.socket ) { d.connectWS( ) } } )
     } 
+
     get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
     DEVICES_LOADED.set( true )
     console.log( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
@@ -265,8 +267,8 @@ export const get_jobs = async( ) => {
                     j.xypoints,
                     j.reg,
                 )
-                let dev  = JSON.parse( job.reg.des_job_json )
-                console.log( JSON.stringify( dev, null, 4 ) )
+                // let dev  = JSON.parse( job.reg.des_job_json )
+                // console.log( JSON.stringify( dev, null, 4 ) )
                 JOBS.update( sjobs => { return [ ...sjobs, job ] } )
             }
         } )
@@ -726,7 +728,6 @@ export class Device {
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => { 
             this.socket = true
-            // this.update( ) 
             updateDevicesStore( )
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
         }
@@ -734,7 +735,6 @@ export class Device {
             ws.send( "close" )
             ws.close( )
             this.socket = false
-            // this.update( ) 
             updateDevicesStore( )
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket ERROR\n${ JSON.stringify( e )  }\n` ) 
         }

@@ -22,13 +22,14 @@
         )
     }
     const checkTextFilter = ( j, s ) => {
+        let stat = JSON.parse(j.reg.des_job_json)
         return (
             j.reg.des_dev_serial.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
-            j.hdr.hdr_well_co.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
-            j.hdr.hdr_well_name.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
-            j.hdr.hdr_well_sf_loc.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
-            j.hdr.hdr_well_bh_loc.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
-            j.hdr.hdr_well_lic.toUpperCase( ).includes( s.token.toUpperCase( ) )
+            stat.hdr.hdr_well_co.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_name.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_sf_loc.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_bh_loc.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_lic.toUpperCase( ).includes( s.token.toUpperCase( ) )
         )
     }
 

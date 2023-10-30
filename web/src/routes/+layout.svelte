@@ -31,32 +31,42 @@
             $DEVICES.forEach( dev => { dev.disconnectWS( ) } )
             $DEMO_DEVICES.forEach( dev => { dev.disconnectSIM( ) } ) 
         } 
+        page = window.location.href.split( "/" ).pop( )
     } )
 
     // const src = '$lib/space.jpg'
 
+    $: page = "";
     let page_name = "HOME"
     let home_btn_color = 'bg-orange'
     let device_btn_color = 'bg-accent'
     let job_btn_color = 'bg-accent'
-    const do_nav = ( path, name ) => {
-        goto( path )
-        page_name = name
-        switch ( page_name ) {
-            case 'DEVICES': {  
+    $: {
+        switch ( page ) {
+            case '' : { 
+                page_name = "HOME"
+                home_btn_color = 'bg-orange'
+                device_btn_color = 'bg-accent'
+                job_btn_color = 'bg-accent'
+                break
+            }
+            case 'device': {  
+                page_name = "DEVICES"
                 home_btn_color = 'bg-accent'
                 device_btn_color = 'bg-orange'
                 job_btn_color = 'bg-accent'
                 break
             }
-            case 'JOBS': { 
+            case 'job': { 
+                page_name = "JOBS"
                 home_btn_color = 'bg-accent'
                 device_btn_color = 'bg-accent'
                 job_btn_color = 'bg-orange'
                 break
             }
             default : { 
-                home_btn_color = 'bg-orange'
+                page_name = ""
+                home_btn_color = 'bg-accent'
                 device_btn_color = 'bg-accent'
                 job_btn_color = 'bg-accent'
                 break
@@ -71,7 +81,7 @@
 <div class="flx-col main">
 
     <Header bind:page_name/>
-
+    
     <div class="flx-row layout">
 
         <div class="flx-col nav">
@@ -80,19 +90,19 @@
 
                 <div class="flx-col ops">
                     <PillButton 
-                        on:click={ ( ) => { do_nav( '/', 'HOME' ) } } 
+                        on:click={ ( ) => { goto( '/' ); page = '' } } 
                         cls={ home_btn_color }
                         img={ btn_img_home } 
                         hint={ null } 
                     />
                     <PillButton 
-                        on:click={ ( ) => { do_nav( '/device', 'DEVICES' ) } } 
+                        on:click={ ( ) => { goto( '/device' ); page = 'device' } } 
                         cls={ device_btn_color }
                         img={ btn_img_gauge } 
                         hint={ 'Device list' }  
                     />
                     <PillButton 
-                        on:click={ ( ) => { do_nav( '/job', 'JOBS' ) } } 
+                        on:click={ ( ) => { goto( '/job' ); page = 'job' } } 
                         cls={ job_btn_color }
                         img={ btn_img_report } 
                         hint={ 'Job list' } 

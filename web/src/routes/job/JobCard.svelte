@@ -12,9 +12,9 @@
     import { Job, Header, Event } from "../../lib/des_api"
     
     export let job = new Job( )
-    $: hdr = new Header( )
-    // $: hdr = job.headers[0]
-    $: evt = new Event( )
+    $: stat  = JSON.parse( job.reg.des_job_json )
+    $: hdr = stat.hdr
+    $: evt = stat.evt
 
     $: highlight = ( job.highlight ? 'highlight' : '' ) 
 </script>
