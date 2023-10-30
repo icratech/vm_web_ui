@@ -6,8 +6,9 @@
 
     import Modal from '../../../lib/common/modal/Modal.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
-    import HeaderPanel from '../../../lib/components/header/HeaderPanel.svelte'
-    import ConfigPanel from '../../../lib/components/config/ConfigPanel.svelte'
+    import HeaderBuilder from '../../../lib/components/header/HeaderBuilder.svelte'
+    import ConfigBuilder from '../../../lib/components/config/ConfigBuilder.svelte'
+    import EventBuilder from '../../../lib/components/event/EventBuilder.svelte'
     
     import btn_img_adm from "$lib/images/btn-img-adm.svg"
     import btn_img_hdr from "$lib/images/btn-img-hdr.svg"
@@ -67,7 +68,7 @@
                         </div>
                         <h3 class="panel-title">Job Header</h3>
                     </div>
-                    <HeaderPanel bind:header={ device.hdr }/>
+                    <HeaderBuilder bind:header={ device.hdr }/>
                     <div class="flx-row" style="padding-left: 1em;">
                         <div class="flx-row">
                             <p>Logger FW: </p><p style="color: var(--orange)">{ device.hw.hw_log_fw }</p>
@@ -108,7 +109,13 @@
                         </div>
                         <h3 class="panel-title">Job Configuration</h3>
                     </div>
-                    <ConfigPanel bind:config={ device.cfg }/>
+                    <ConfigBuilder bind:config={ device.cfg }/>
+                </div>
+                <div class="flx-col panel-cont">
+                    <div class="flx-row panel-title-bar">
+                        <h3 class="panel-title">Event ( Comment )</h3>
+                    </div>
+                    <EventBuilder bind:device />
                 </div>
 
             </div>

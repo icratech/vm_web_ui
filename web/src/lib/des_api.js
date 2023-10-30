@@ -160,6 +160,7 @@ export const API_URL_C001_V001_DEVICE_END =  `${ HTTP_SERVER }/api/001/001/devic
 export const API_URL_C001_V001_DEVICE_ADM =  `${ HTTP_SERVER }/api/001/001/device/admin`
 export const API_URL_C001_V001_DEVICE_HDR =  `${ HTTP_SERVER }/api/001/001/device/header`
 export const API_URL_C001_V001_DEVICE_CFG =  `${ HTTP_SERVER }/api/001/001/device/config`
+export const API_URL_C001_V001_DEVICE_EVT =  `${ HTTP_SERVER }/api/001/001/device/event`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
@@ -287,6 +288,7 @@ export const get_event_types = async( ) => {
     let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
     let res = await fetch( req )
     let json = await res.json( )
+    EVENT_TYPES.update( ( ) => { return [ JSON.parse( JSON.stringify( json.data.event_types ) ) ] } )
     return json.data.event_types
 }
 
@@ -1022,28 +1024,41 @@ export class Device {
         this.cfg.cfg_vlv_pos = mode
         this.setConfig()
     }
+    createEvent = async( evt ) => {
+        console.log( "Create Event for device: ", this.reg.des_dev_serial ) 
+        
+        let au = get( AUTH )
+        
+        if ( !this.socket ) { this.connectWS( ) }
+        
+        evt.evt_user_id = au.id
+        evt.evt_app = client_app
 
-    // getJob = async( job_name = this.hdr.hdr_job_name ) => {
-    //     console.log( `Get job: ${ job_name } for device: ${ this.reg.des_dev_serial }`, ) 
-    //     let au = get( AUTH )
-    //     this.reg.des_job_reg_app = client_app
-    //     this.reg.des_job_reg_user_id = au.id
-    //     this.reg.des_job_name = job_name 
-    //     console.log( "Send GET JOB Request:\n", this.reg ) 
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
 
-    //     let req = new Request( "", {
-    //         method: "POST",
-    //         headers: { 
-    //             "Content-Type": "application/json",
-    //             "Authorization": `Bearer ${ au.token }` 
-    //         },
-    //         body: JSON.stringify( this.reg )
-    //     } )
-    //     let res = await fetch( req )
-    //     let reg = await res.json( )
-    //     console.log(`des_api.js -> device.getJob( ${ job_name } ) ->  RESPONSE reg:\n`, reg )
-    // }
+        let dev = {
+            evt: evt,
+            reg: this.reg
+        }
+        console.log( "Send CREATE EVENT Request:\n", dev ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_EVT, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let reg = await res.json( )
+        console.log("des_api.js -> device.createEvent( ) ->  RESPONSE reg:\n", reg )
 
+        if ( reg.status === "success" ) { 
+            console.log("CREATE EVENT Request -> SUCCESS:\n", this.reg.des_dev_serial )
+        }
+    }
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/

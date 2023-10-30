@@ -79,18 +79,58 @@
                 border-bottom: solid 0.05em var(--light_01);
                 width: 100%;
             }
-
             input:disabled {
                 color: var(--grey_a);
                 padding: 0.25rem 0.5rem;
                 border: 0.1rem solid transparent;
             }
-
             input:focus { outline: 0.05rem solid var(--accent_aa); outline-offset: 0.15rem; }
+
+            textarea {
+                color: var(--light);
+                background-color: var(--aqua_01);
+                padding: 0.35em 0.5rem;
+                border-radius: 0.5rem;
+                border-left: solid 0.15em transparent;
+                border-top: solid 0.15em transparent;
+                border-right: solid 0.05em var(--light_01);
+                border-bottom: solid 0.05em var(--light_01);
+                width: 100%;
+                height: 100%;
+                outline: none;
+                overflow: visible;
+                white-space: pre-wrap;
+            }
+            textarea:disabled {
+                color: var(--grey);
+                border: 0.1rem solid transparent;        
+            }
+            textarea:focus { outline: 0.05rem solid var(--accent_aa); outline-offset: 0.15rem; }
+
+            select {
+                background-color: var(--aqua_01);
+                width: 100%;
+                border-radius: 0.5em;
+                border-left: solid 0.15em transparent;
+                border-top: solid 0.15em transparent;
+                border-right: solid 0.05em var(--light_01);
+                border-bottom: solid 0.05em var(--light_01);
+                padding:0.5rem;
+                width: 100%;
+                text-align-last: left;
+            }
+            select option { 
+                background-color: var(--dark ); 
+                line-height: 5em;
+                border-radius: 0.5em;
+                outline: none;
+                border: none;
+            }
+            select:focus { outline: 0.05rem solid var(--accent_aa); outline-offset: 0.15rem; }
 
             .radio:focus { outline: 0.0rem solid transparent; outline-offset: 0.15rem; }
 
-            
+        
             .map-container {
                 height: 100%;
                 position: relative;
@@ -182,7 +222,7 @@
             .flx-col.card {
                 padding: 1em 0;
             }
-            .flx-col.card-content {
+            .flx-col .card-content {
                 background-color: var(--light_002);
                 border-bottom: solid 0.05em var(--light_01);
                 border-right: solid 0.05em var(--light_01);

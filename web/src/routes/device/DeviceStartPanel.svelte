@@ -3,8 +3,8 @@
 
     import { onMount } from 'svelte'
     
-    import HeaderPanel from '../../lib/components/header/HeaderPanel.svelte'
-    import ConfigPanel from '../../lib/components/config/ConfigPanel.svelte'
+    import HeaderPanel from '../../lib/components/header/HeaderBuilder.svelte'
+    import ConfigPanel from '../../lib/components/config/ConfigBuilder.svelte'
 
     import { Device } from '../../lib/des_api'
 

@@ -1,13 +1,13 @@
 <script>
 
-    import { Guid } from 'js-guid'
+    import { Guid } from 'js-guid' // npm install js-guid
     import { onMount } from 'svelte'
     
     export let txt = null
     export let place = ""
     export let lbl = null
     export let enabled = false
-    export let remMinHeigh = 1.5  
+    export let remMinHeight = 1.5  
     export let guid = Guid.newGuid( ).StringGuid
     
     let init = null
@@ -41,7 +41,7 @@
                 spellcheck=value
                 placeholder= { place }
                 disabled = { !enabled }
-                style="min-height: { remMinHeigh }rem;"
+                style="min-height: { remMinHeight }rem;"
                 ></textarea>
 
         </div>
@@ -59,25 +59,6 @@
     #lbl {
         font-size: 0.9rem;
     }
-
-    textarea {
-        color: var(--light);
-    	font-size: 0.9rem;
-        background-color: var(--dark);
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.2rem;
-		border: 0.1rem solid var(--light_a);
-        width: 100%;
-        height: 100%;
-        outline: none;
-		overflow: visible;
-        white-space: pre-wrap;
-    }
-    textarea:disabled {
-        color: var(--grey);
-		border: 0.1rem solid transparent;        
-    }
-
 	.disp {
         background-color: transparent;
 		border-radius: 0.5rem;
