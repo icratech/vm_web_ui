@@ -1,8 +1,11 @@
 
 <script>
+    
+    import DateTimeDisplay from "../../common/date_time/DateTimeDisplay.svelte"
 	import { Header } from "../../des_api"
 
     export let hdr = new Header( )
+    $: running = hdr.hdr_job_end > 0
 
 </script>
 
@@ -38,6 +41,24 @@
         <div class="flx-row value">{ hdr.hdr_well_lic }</div>
     </div>
     
+    <div class="flx-row field">
+        <div class="flx-row title date">Start</div>
+        <div class="vert-line"/>
+
+        <DateTimeDisplay bind:date={ hdr.hdr_job_start } showTime={ !running } />
+
+        <div class="vert-line" style="margin-left: 1em;"/> 
+
+        { #if running }
+        <div class="flx-row title date">End</div>
+        <div class="vert-line"/>   
+                <DateTimeDisplay bind:date={ hdr.hdr_time } showTime={ false }/>
+        <!-- { :else }
+            <div class="flx-row title date">In progress</div> -->
+        { /if }
+        
+    </div>
+    
 </div>
 
 <style>
@@ -63,7 +84,10 @@
         min-width: 6em;
     }
 
+    .date { color: var(--orange_a); }
+
     .value { align-items: center; }
+
 
     /* LAP TOP */
     @media(max-width: 1440px) {

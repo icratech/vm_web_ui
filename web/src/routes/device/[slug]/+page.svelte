@@ -66,9 +66,9 @@
                                 hint='Send Header'
                             />
                         </div>
-                        <h3 class="panel-title">Job Header</h3>
+                        <h3 class="panel-title">Header</h3>
                     </div>
-                    <HeaderBuilder bind:header={ device.hdr }/>
+                    <HeaderBuilder bind:hdr={ device.hdr }/>
                     <div class="flx-row" style="padding-left: 1em;">
                         <div class="flx-row">
                             <p>Logger FW: </p><p style="color: var(--orange)">{ device.hw.hw_log_fw }</p>
@@ -107,13 +107,13 @@
                                 hint='BUILD'
                             />
                         </div>
-                        <h3 class="panel-title">Job Configuration</h3>
+                        <h3 class="panel-title">Configuration</h3>
                     </div>
                     <ConfigBuilder bind:config={ device.cfg }/>
                 </div>
                 <div class="flx-col panel-cont">
                     <div class="flx-row panel-title-bar">
-                        <h3 class="panel-title">Event ( Comment )</h3>
+                        <h3 class="panel-title">Event</h3>
                     </div>
                     <EventBuilderOp bind:device />
                 </div>
@@ -158,7 +158,10 @@
         height: 100%;
     }
 
-    .panel-cont { gap: 0.5em; }
+    .panel-cont { 
+        gap: 0.5em; 
+        width: 33%;
+    }
 
     .panel-title-bar {
         justify-content: space-between;

@@ -1444,14 +1444,15 @@ export class Event {
         this.evt_msg = evt_msg
     }
 }
+Event.prototype.MaxMsg = 512
+Event.prototype.MaxTitle = 36
+
 export class EventType {
     constructor(
-        // evt_type_id = 0, /* THIS IS THE ONLY JOB MODEL WITH AN ACTUAL ID */
         evt_type_code = 0,
         evt_typ_name = "",
         evt_typ_desc = "",
     ) {
-        this.evt_type_id = evt_type_id
         this.evt_type_code = evt_type_code
         this.evt_typ_name = evt_typ_name
         this.evt_typ_desc = evt_typ_desc

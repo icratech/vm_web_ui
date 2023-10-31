@@ -1,5 +1,6 @@
 
 <script>
+    export let showTime = true
     export let date = 0
     $: d = new Date( date )
     $: ye = ( date == 0 ? 'yyyy' : d.getFullYear( ) )
@@ -22,6 +23,7 @@
         <div class={ col }>{ da }</div>
     </div>
     
+    { #if showTime }
     <div class="flx-row seg">
         <div class={ col }>{ hr }</div>
         <div class="fg-accent">:</div>
@@ -29,6 +31,7 @@
         <div class="fg-accent">:</div>
         <div class={ col }>{ sc }</div>
     </div>
+    { /if }
     
 </div>
 
@@ -36,6 +39,7 @@
     .container {
         gap: 1em;
         width: auto;
+        align-items: center;
     }
     .seg {
         width: auto;

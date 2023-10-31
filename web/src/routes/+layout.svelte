@@ -17,6 +17,7 @@
             await get_user( ) 
         }
 
+        await get_user_list( )
         await get_event_types( )
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 

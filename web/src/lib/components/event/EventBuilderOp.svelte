@@ -24,13 +24,15 @@
         evt.evt_code = event_type.evt_typ_code
     }
 
-    $: msg_limit = false
-    let max = 512
-    $: {
-        if ( evt.evt_msg.length > max ) {
-            evt.evt_msg = evt.evt_msg.slice(0, max)
-            msg_limit = true
-        }
+    $: msg_limit = evt.evt_msg.length >= evt.MaxMsg
+    $: msg_limit_style = ( msg_limit ? "color: var(--red);" : "color: var(--grey_03);"  )
+    
+    $: title_limit = evt.evt_title.length >= evt.MaxTitle
+    $: title_limit_style = ( title_limit ? "color: var(--red);" : "color: var(--grey_03);"  )
+
+    $: { 
+        evt.evt_title = evt.evt_title.slice( 0, evt.MaxTitle )
+        evt.evt_msg = evt.evt_msg.slice( 0, evt.MaxMsg )  
     }
 
 </script>
@@ -47,6 +49,7 @@
         <div class="flx-row in">
             <p class="lbl">Title:</p>
             <InputText enabled={ true } bind:txt={ evt.evt_title } place="Optional Title" />
+            <p class="count" style={ title_limit_style }>{ evt.MaxTitle - evt.evt_title.length }</p>
         </div>
         
         <div class="flx-row in">
@@ -55,8 +58,12 @@
         
         <div class="flx-row foot">
             
-            <div class="flx-row count">
-                { evt.evt_msg.length } / { max }
+            <div class="flx-row count" style={ msg_limit_style }>
+                { #if msg_limit }
+                    Maximum Characters: { evt.MaxMsg }
+                { :else }
+                    { evt.MaxMsg - evt.evt_msg.length } 
+                { /if }
             </div>
 
             <div class="flx-row btns">
@@ -102,6 +109,14 @@
     .foot {
         justify-content: space-between;
         padding-top: 0.5em;
+    }
+
+    .count { 
+        /* padding-left: 1em; */
+        margin-top: -0.5em;
+        font-size: 1.1em;
+        font-style: oblique;
+        font-weight: 500;
     }
 
     .btns {

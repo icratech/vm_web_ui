@@ -1,11 +1,10 @@
 
 <script>
 
-    import { onMount } from "svelte"
     import DateTimeDisplay from "../../common/date_time/DateTimeDisplay.svelte"
     import UserBadge from "../user/UserBadge.svelte"
 
-    import { Event, EventType } from "../../des_api"
+    import { EVENT_TYPES, Event, EventType } from "../../des_api"
     
     export let event = new Event( )
     let charLimit = 230
@@ -15,11 +14,8 @@
         : event.evt_msg 
     )
 
-    let evt_type = new EventType( )
-    onMount( async( ) => { 
-        evt_type = JSON.parse( sessionStorage.event_types ).filter( 
-            t => t.evt_typ_code == event.evt_code )[0]
-    } )
+    $: evt_type = $EVENT_TYPES.filter( t => t.evt_typ_code == event.evt_code )[0]
+
 
 </script>
 

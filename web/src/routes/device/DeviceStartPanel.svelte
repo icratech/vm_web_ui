@@ -28,7 +28,7 @@
 
 
 <div class="flx-row panel">
-    <HeaderPanel bind:header={ device.hdr }/>
+    <HeaderPanel bind:hdr={ device.hdr }/>
     <ConfigPanel bind:config={ device.cfg }/>
 </div>
 
