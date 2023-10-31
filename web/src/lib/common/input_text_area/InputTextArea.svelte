@@ -3,7 +3,7 @@
     import { Guid } from 'js-guid' // npm install js-guid
     import { onMount } from 'svelte'
     
-    export let txt = null
+    export let txt = ""
     export let place = ""
     export let lbl = null
     export let enabled = false
@@ -14,7 +14,7 @@
 
     onMount( ( ) => { init = true } )
     
-    $: { if( init != false & txt != null ) { resize( ) } }
+    $: { if( init != false & txt != "" ) { resize( ) } }
     
     const resize = async( ) => { // console.log( `Resizing textarea: ${ guid }`)
         let txtArea = document.getElementById( guid )

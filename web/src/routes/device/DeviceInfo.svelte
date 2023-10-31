@@ -107,7 +107,7 @@
 
             <HeaderCard bind:hdr />
 
-            <BarGaugeCard bind:hdr bind:cfg bind:smp/>
+            <BarGaugeCard bind:cfg bind:smp/>
 
         </div>
 

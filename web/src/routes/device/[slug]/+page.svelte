@@ -8,7 +8,7 @@
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     import HeaderBuilder from '../../../lib/components/header/HeaderBuilder.svelte'
     import ConfigBuilder from '../../../lib/components/config/ConfigBuilder.svelte'
-    import EventBuilder from '../../../lib/components/event/EventBuilder.svelte'
+    import EventBuilderOp from '../../../lib/components/event/EventBuilderOp.svelte'
     
     import btn_img_adm from "$lib/images/btn-img-adm.svg"
     import btn_img_hdr from "$lib/images/btn-img-hdr.svg"
@@ -115,7 +115,7 @@
                     <div class="flx-row panel-title-bar">
                         <h3 class="panel-title">Event ( Comment )</h3>
                     </div>
-                    <EventBuilder bind:device />
+                    <EventBuilderOp bind:device />
                 </div>
 
             </div>

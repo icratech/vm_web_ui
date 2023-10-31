@@ -17,13 +17,7 @@
             await get_user( ) 
         }
 
-        let users = await get_user_list( ) 
-        // console.log( `layout.svelte -> onMount( ):  get_users( ): users\n${ JSON.stringify( users, null, 4 ) }` )
-        sessionStorage.setItem( "users", JSON.stringify( users ) ) // users = JSON.parse( sessionStorage.users )  // console.log( `layout.svelte -> sessionStorage: users\n${  JSON.stringify( users, null, 4 )  }` )
-
-        let event_types = await get_event_types( )
-        // console.log( `layout.svelte -> onMount( ):  get_event_types( ): event_types\n${ JSON.stringify( event_types, null, 4 ) }` )
-        sessionStorage.setItem( "event_types", JSON.stringify( event_types ) ) // event_types = JSON.parse( sessionStorage.event_types ) // console.log( `layout.svelte -> sessionStorage: event_types\n${  JSON.stringify( event_types, null, 4 )  }` )
+        await get_event_types( )
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
         CAUSES THE SERVER TO UNSUBSCRIBE THIS DEVICE USER'S MQTT CLIENT FROM ALL TOPICS */
@@ -61,7 +55,7 @@
                 page_name = "JOBS"
                 home_btn_color = 'bg-accent'
                 device_btn_color = 'bg-accent'
-                job_btn_color = 'bg-orange'
+                job_btn_color = 'bg-pink'
                 break
             }
             default : { 

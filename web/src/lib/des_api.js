@@ -18,6 +18,7 @@ export const waitMilli = ( ms ) => new Promise( ( res ) => setTimeout( res, ms )
 export const AUTH = writable( { } )
 export const USERS = writable( [ ] )
 export const EVENT_TYPES = writable( [ ] )
+export const EVENT_TYPES_LOADED = writable( false )
 
 export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
@@ -68,6 +69,10 @@ export const get_user_list = async( ) => {
     let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
     let res = await fetch( req )
     let json = await res.json( )
+    
+    console.log( `des_api.js -> get_users( ): users\n${ JSON.stringify( json.data.users, null, 4 ) }` )
+    sessionStorage.setItem( "users", JSON.stringify( json.data.users ) ) 
+
     return json.data.users
 }
 
@@ -285,10 +290,17 @@ export const get_jobs = async( ) => {
 
 export const get_event_types = async( ) => {
     
+    EVENT_TYPES_LOADED.set( false )
     let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
     let res = await fetch( req )
     let json = await res.json( )
-    EVENT_TYPES.update( ( ) => { return [ JSON.parse( JSON.stringify( json.data.event_types ) ) ] } )
+    
+    // console.log( `des_api.js -> get_event_types( ): event_types\n${ JSON.stringify( json.data.event_types, null, 4 ) }` )
+    sessionStorage.setItem( "event_types", JSON.stringify( json.data.event_types ) ) 
+    
+    EVENT_TYPES.update( ( ) => { return [ ...(JSON.parse( JSON.stringify( json.data.event_types ) ) ) ] } )
+    EVENT_TYPES_LOADED.set( true )
+
     return json.data.event_types
 }
 
@@ -1434,7 +1446,7 @@ export class Event {
 }
 export class EventType {
     constructor(
-        evt_type_id = 0, /* THIS IS THE ONLY JOB MODEL WITH AN ACTUAL ID */
+        // evt_type_id = 0, /* THIS IS THE ONLY JOB MODEL WITH AN ACTUAL ID */
         evt_type_code = 0,
         evt_typ_name = "",
         evt_typ_desc = "",
