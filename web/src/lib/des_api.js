@@ -218,7 +218,7 @@ export const get_devices = async( ) => {
             if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
                 let device = new Device(
                     dev.adm,
-                    dev.hw,
+                    dev.sta,
                     dev.hdr,
                     dev.cfg,
                     dev.evt,
@@ -266,6 +266,7 @@ export const get_jobs = async( ) => {
             if ( store.filter( s =>{ return s.reg.des_job_name == j.reg.des_job_name } )[0] == undefined ) {
                 let job = new Job(
                     j.admins,
+                    j.states,
                     j.headers,
                     j.configs,
                     j.events,
@@ -558,7 +559,7 @@ export class DESSearchParam {
 export class Device {
     constructor( 
         adm = new Admin( ),
-        hw = new HwID(),
+        sta = new State(),
         hdr = new Header( ),
         cfg = new Config( ),
         evt = new Event( ),
@@ -566,7 +567,7 @@ export class Device {
         reg = new DESRegistration( ), 
     ) { 
         this.adm = adm
-        this.hw = hw
+        this.sta = sta
         this.hdr = hdr
         this.cfg = cfg
         this.evt = evt
@@ -762,15 +763,15 @@ export class Device {
                     console.log("new admin received from device: ", this.adm)
                     break
 
-                case "hwid":
-                    this.hw = msg.data
-                    console.log("new hwid received from device: ", this.hw)
+                case "state":
+                    this.sta = msg.data
+                    console.log("new state received from device: ", this.sta)
+                    this.reg.des_job_name = this.sta.sta_job_name
                     break
     
                 case "header":
                     this.hdr = msg.data
                     console.log("new header received from device: ", this.hdr)
-                    this.reg.des_job_name = this.hdr.hdr_job_name
                     this.reg.des_job_start = this.hdr.hdr_job_start
                     this.reg.des_job_end = this.hdr.hdr_job_end
                     this.reg.des_job_lng = this.hdr.hdr_geo_lng
@@ -855,8 +856,8 @@ export class Device {
         this.adm.adm_user_id = au.id
         this.adm.adm_app = client_app
 
-        this.hw.hw_user_id = au.id
-        this.hw.hw_app = client_app
+        this.sta.sta_user_id = au.id
+        this.sta.sta_app = client_app
 
         this.hdr.hdr_user_id = au.id
         this.hdr.hdr_app = client_app
@@ -870,7 +871,7 @@ export class Device {
 
         let dev = {
             adm: this.adm,
-            hw: this.hw,
+            sta: this.sta,
             hdr: this.hdr,
             cfg: this.cfg,
             reg: this.reg
@@ -1077,6 +1078,7 @@ export class Device {
 export class Job {
     constructor(
         admins = [ ],
+        states = [ ],
         headers = [ ],
         configs = [ ],
         events = [ ],
@@ -1085,6 +1087,7 @@ export class Job {
         reg = new DESRegistration( ),
     ) {
         this.admins = admins
+        this.states = states
         this.headers = headers
         this.configs = configs
         this.events = events
@@ -1281,35 +1284,41 @@ export class Admin {
 
 /* 
 WEB CLIENT -> HTTP -> DES ( LOG ) -> MQTT -> DEVICE  
-  - Device returns readonl hardware ID values
+  - Device returns readonly state values
 WEB CLIENT <- HTTP <- ( JOB DB WRITE ) DES <- MQTT <- DEVICE  
 */
-export class HwID {
+export class State {
     constructor(
-        hw_time = 0,
-        hw_addr = "",
-        hw_user_id = "",
-        hw_app = client_app,
+        sta_time = 0,
+        sta_addr = "",
+        sta_user_id = "",
+        sta_app = client_app,
 
-        hw_serial = "",
-        hw_version = device_version,
-        hw_class = device_class,
+        sta_serial = "",
+        sta_version = device_version,
+        sta_class = device_class,
 
-        hw_log_fw = "00.00.000",
-        hw_mod_fw = "00.00.000"
+        sta_log_fw = "00.00.000",
+        sta_mod_fw = "00.00.000",
+
+        sta_logging = 0,
+        sta_job_name = ""
     
     ) {
-        this.hw_time = hw_time
-        this.hw_addr = hw_addr
-        this.hw_user_id = hw_user_id
-        this.hw_app = hw_app
+        this.sta_time = sta_time
+        this.sta_addr = sta_addr
+        this.sta_user_id = sta_user_id
+        this.sta_app = sta_app
 
-        this.hw_serial = hw_serial
-        this.hw_version = hw_version
-        this.hw_class = hw_class
+        this.sta_serial = sta_serial
+        this.sta_version = sta_version
+        this.sta_class = sta_class
 
-        this.hw_log_fw = hw_log_fw
-        this.hw_mod_fw = hw_mod_fw  
+        this.sta_log_fw = sta_log_fw
+        this.sta_mod_fw = sta_mod_fw  
+
+        this.sta_logging = sta_logging
+        this.sta_job_name = sta_job_name
     }
 }
 
@@ -1334,7 +1343,6 @@ export class Header {
         hdr_well_lic = "",
 
         /* JOB NAME, START & STOP */
-        hdr_job_name = "",
         hdr_job_start = 0,
         hdr_job_end = 0,
 
@@ -1353,7 +1361,6 @@ export class Header {
         this.hdr_well_bh_loc = hdr_well_bh_loc
         this.hdr_well_lic = hdr_well_lic
 
-        this.hdr_job_name = hdr_job_name
         this.hdr_job_start = hdr_job_start
         this.hdr_job_end = hdr_job_end
         this.hdr_geo_lng = hdr_geo_lng

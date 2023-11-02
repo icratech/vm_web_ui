@@ -71,10 +71,10 @@
                     <HeaderBuilder bind:hdr={ device.hdr }/>
                     <div class="flx-row" style="padding-left: 1em;">
                         <div class="flx-row">
-                            <p>Logger FW: </p><p style="color: var(--orange)">{ device.hw.hw_log_fw }</p>
+                            <p>Logger FW: </p><p style="color: var(--orange)">{ device.sta.sta_log_fw }</p>
                         </div>
                         <div class="flx-row">
-                            <p>Modem FW: </p><p style="color: var(--orange)">{ device.hw.hw_mod_fw }</p>
+                            <p>Modem FW: </p><p style="color: var(--orange)">{ device.sta.sta_mod_fw }</p>
                         </div>
                     </div>
                 </div>

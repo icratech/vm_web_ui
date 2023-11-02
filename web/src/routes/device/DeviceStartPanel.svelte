@@ -16,6 +16,7 @@
         const interval = setInterval( ( ) => { 
             let time = Date.now( ) //  console.log( "T: ", header.hdr_time )
             device.adm.adm_time = time
+            device.sta.sta_time = time
             device.hdr.hdr_time = time
             device.cfg.cfg_time = time
         }, 1000 )

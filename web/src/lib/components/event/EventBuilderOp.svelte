@@ -13,15 +13,16 @@
     export let device = new Device( )
     $: evt = new Event( )
     $: event_type = $EVENT_TYPES.filter( t => { return t.evt_typ_code == 2000 } )[0]
-
+        
     const sendEvent = ( ) => { 
+        evt.evt_code = event_type.evt_typ_code
         device.createEvent( evt )  
         clearEvent( )
     }
 
     const clearEvent = ( ) => {
         evt = new Event( )
-        evt.evt_code = event_type.evt_typ_code
+        
     }
 
     $: msg_limit = evt.evt_msg.length >= evt.MaxMsg
