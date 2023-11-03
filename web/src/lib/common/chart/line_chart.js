@@ -1,5 +1,6 @@
 
 import { BASE, RGBA } from "../colors"
+import { FormatDateTime } from "../format"
 
 
 export const CHART_LINE_WIDTH = 2.5
@@ -19,8 +20,40 @@ const chartAreaBorder = {
     }
 }
 
+const defaultZoomHandler = ( e ) => {
+    console.log( "default zoom handler...\n", e.chart )
+
+    let dats = e.chart.config._config.data.datasets
+    console.log( "default zoom handler... datasets\n", dats )
+
+    let xs = ( dats[0].data.map( v => { return v.x } ) ).filter( x => {
+        return ( 
+            x > Math.round( e.chart.scales["x"]._userMin ) &&
+            x < Math.round( e.chart.scales["x"]._userMax )
+        )  
+    } )
+
+    let xmin = xs[0]
+    let xmax = xs[xs.length-1]
+
+    console.log( "default zoom min x unix:  ", xmin )
+    console.log( "default zoom min x time:  ", FormatDateTime( xmin ) )
+    console.log( "default zoom max x unix:  ", xmax )
+    console.log( "default zoom max x time:  ", FormatDateTime( xmax ) )
+
+    dats.forEach( ds => { 
+        let vStart = ds.data.filter( v => { return v.x == xmin } )[0]
+        let vEnd = ds.data.filter( v => { return v.x == xmax } )[0]
+        console.log( `${ ds.label }:  ${ vStart.y } -> ${ vEnd.y }` )
+    } )
+
+}
 export class LineChartModel {
-    constructor( title, color ) {
+    constructor( 
+        title, 
+        color,
+        zoomHandler =  defaultZoomHandler
+        ) {
 
         this.type = 'line'
         
@@ -80,6 +113,7 @@ export class LineChartModel {
                         scaleMode: "xy",
                         wheel: { enabled: true, speed: 0.05, },
                         drag: { enabled: true },
+                        // onZoomComplete: zoomHandler
                     },
                     pan: { enabled: false }
                 },
@@ -109,6 +143,17 @@ export class LineChartModel {
         this.options.scales.x.min = x_min
         this.options.scales.x.max = point.x
     }
+
+    autoScale( set, scale, margin ) {
+        let Ys = set.data.map( p => p.y )
+        let min = Math.min( ...Ys ) // console.log( min )
+        let max = Math.max( ...Ys )  // console.log( max )
+        if ( max - min > 0 ) {
+            scale.min = min - ( ( max - min ) * margin )
+            scale.max = max +  ( ( max - min ) * margin )
+        } 
+    }
+
 }
 export class LineChartDataSet {
     constructor( 
@@ -131,17 +176,7 @@ export class LineChartDataSet {
         this.radius = markerRadius
         this.backgroundColor = markerColor
     }
-    
-    // pushSample( limit, point = { x: 0, y: 0.0 } ) {
-    //     let len = this.data.push( point ) 
 
-    //     // if ( limit > 0 ) {
-    //         for ( len; len > limit; len-- ) {
-    //             this.data.shift( )
-    //         }
-    //     // }
-    //     return this.data[0].x
-    // }
 }
 export class LineChartScale {
     constructor( 
@@ -231,39 +266,6 @@ export class LineChartXScale {
         }
     }
 }
-// export let LineChartXScale = {
-//     type: 'time',
-//     time: {
-//         displayFormats: {
-//             day: "MMM-d HH:mm",
-//             hour: 'MMM-d HH:mm',
-//             minute: 'HH:mm:ss',
-//             second: 'HH:mm:ss',
-//             millisecond: "HH:mm:ss.SSS",
-//         }
-//     },
-//     grid: { 
-//         tickLength: 10,
-//         drawTicks: false,
-//         color: RGBA( BASE.LIGHT, 0.1 ),
-//         display: true
-//     },
-//     position: 'bottom',
-//     // title: {
-//     //     display: true,
-//     //     font: { size: 15 },
-//     //     padding: { top: 13, bottom: 13 },
-//     //     color: RGBA( BASE.LIGHT, 0.7 ),
-//     //     text: "Time",
-//     // },
-//     ticks: {
-//         autoSkip: true,
-//         autoSkipPadding: 50,
-//         maxRotation: 0,
-//         color: RGBA( BASE.LIGHT, 0.7 ),
-//         padding: 15,
-//     }
-// }
 
 export class XYPoint { 
     constructor( 

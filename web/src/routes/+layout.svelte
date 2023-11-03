@@ -4,7 +4,7 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
-    import { AUTH, get_user, get_user_list, get_event_types, DEVICES, DEMO_DEVICES, USERS, EVENT_TYPES } from '../lib/des_api';
+    import { AUTH, get_user, get_user_list, get_event_types, DEVICES, DEMO_DEVICES, } from '../lib/des_api';
     import Header from './Header.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
     import btn_img_home from "$lib/images/btn-img-home.svg"

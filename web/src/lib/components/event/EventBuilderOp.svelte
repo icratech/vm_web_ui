@@ -8,11 +8,11 @@
     import InputTextArea from "../../common/input_text_area/InputTextArea.svelte"
     import PillButton from "$lib/common/button/PillButton.svelte"
 
-    import { EVENT_TYPES, Event, Device } from "../../des_api";
+    import { Event, Device } from "../../des_api";
 
     export let device = new Device( )
     $: evt = new Event( )
-    $: event_type = $EVENT_TYPES.filter( t => { return t.evt_typ_code == 2000 } )[0]
+    $: event_type = (JSON.parse( sessionStorage.event_types )).filter( t => { return t.evt_typ_code == 2000 } )[0]
         
     const sendEvent = ( ) => { 
         evt.evt_code = event_type.evt_typ_code

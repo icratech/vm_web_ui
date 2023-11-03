@@ -2,6 +2,7 @@ import { writable, get } from 'svelte/store'
 import { goto } from '$app/navigation'
 import mapboxgl from 'mapbox-gl'
 import { BASE, RGBA } from './common/colors'
+import { FormatDateTime } from "./common/format"
 
 export const openModals = ( initial ) => {
     const isOpen = writable( initial )
@@ -16,9 +17,6 @@ export const openModals = ( initial ) => {
 export const waitMilli = ( ms ) => new Promise( ( res ) => setTimeout( res, ms ) )
 
 export const AUTH = writable( { } )
-export const USERS = writable( [ ] )
-export const EVENT_TYPES = writable( [ ] )
-export const EVENT_TYPES_LOADED = writable( false )
 
 export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
@@ -70,7 +68,7 @@ export const get_user_list = async( ) => {
     let res = await fetch( req )
     let json = await res.json( )
     
-    console.log( `des_api.js -> get_users( ): users\n${ JSON.stringify( json.data.users, null, 4 ) }` )
+    // console.log( `des_api.js -> get_users( ): users\n${ JSON.stringify( json.data.users, null, 4 ) }` )
     sessionStorage.setItem( "users", JSON.stringify( json.data.users ) ) 
 
     return json.data.users
@@ -238,18 +236,32 @@ export const get_devices = async( ) => {
 }
 
 /* JOB API ROUTES *************************************************************************************/
-export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
 
+export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
 export const API_URL_C001_V001_JOB_LIST =  `${ HTTP_SERVER }/api/001/001/job/list`
+export const API_URL_C001_V001_JOB_DATA =  `${ HTTP_SERVER }/api/001/001/job/data`
+
+export const get_event_types = async( ) => {
+    
+    let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
+    let res = await fetch( req )
+    let json = await res.json( )
+    
+    // console.log( `des_api.js -> get_event_types( ): event_types\n${ JSON.stringify( json.data.event_types, null, 4 ) }` )
+    sessionStorage.setItem( "event_types", JSON.stringify( json.data.event_types ) ) 
+
+    return json.data.event_types
+}
+
 export const get_jobs = async( ) => { 
 
-    let token = sessionStorage.getItem( 'des_token' )
+    let au = get( AUTH )
 
     JOBS_LOADED.set( false )
     let req = new Request( API_URL_C001_V001_JOB_LIST, { 
         method: 'GET',
         headers: {
-            "Authorization":  `Bearer ${ token }`, 
+            "Authorization":  `Bearer ${ au.token }`, 
         },
     } )
 
@@ -289,22 +301,7 @@ export const get_jobs = async( ) => {
     }
 }
 
-export const get_event_types = async( ) => {
-    
-    EVENT_TYPES_LOADED.set( false )
-    let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
-    let res = await fetch( req )
-    let json = await res.json( )
-    
-    // console.log( `des_api.js -> get_event_types( ): event_types\n${ JSON.stringify( json.data.event_types, null, 4 ) }` )
-    sessionStorage.setItem( "event_types", JSON.stringify( json.data.event_types ) ) 
-    
-    EVENT_TYPES.update( ( ) => { return [ ...(JSON.parse( JSON.stringify( json.data.event_types ) ) ) ] } )
-    EVENT_TYPES_LOADED.set( true )
-
-    return json.data.event_types
-}
-
+/* NOT IMPLEMENTED */
 export const API_URL_C001_V001_JOB_SEARCH =  `${ HTTP_SERVER }/api/001/001/job/search`
 export const search_jobs = async( params ) => {
 
@@ -325,97 +322,9 @@ export const search_jobs = async( params ) => {
     let json = await res.json( )
 
     if ( json.status == "success") { 
-
-        let store = get( DEVICES )
-        let devs = json.data.devices 
-        console.log( "search_jobs( ) -> response:\n", devs )
-        
-        // devs.forEach( dev => {
-        //     if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
-        //         let device = new Device(
-        //             dev.adm,
-        //             dev.hdr,
-        //             dev.cfg,
-        //             dev.evt,
-        //             dev.smp,
-        //             dev.reg
-        //         )
-        //         DEVICES.update( d => { return [ ...d, device ] } )
-        //     }        
-        // } )
+        console.log( "search_jobs( ) -> response:\n", json.data.jobs )
     } 
-    // get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
-    // DEVICES_LOADED.set( true )
-    // console.log( "des_api.js -> search_devices( ) -> DEVICES: ", get( DEVICES ) )
-
 }
-
-// export const API_URL_REGISTER_DEVICE =  `${ SERVER }/api/device/register`
-// export const API_URL_GET_DEVICES = `${ HTTP_SERVER }/api/device/list`
-// export const API_URL_GET_DEVICE_BY_SN = `${ HTTP_SERVER }/api/device/serial` 
-export const API_URL_GET_JOBS =  `${ HTTP_SERVER }/api/job/list`
-export const load_get_jobs = async( serverLoadEvent ) => {
-
-    let au = get( AUTH )
-
-    let req = new Request( API_URL_GET_JOBS, { 
-        method: 'GET',
-        headers: {
-            // "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
-            "Authorization":  `Bearer ${au.token }`, 
-        },
-    } )
-
-    const { fetch } = serverLoadEvent
-    let res = await fetch( req )
-    let json = await res.json( )
-
-    let resp = {
-        status: json.status,
-        message: json.message,
-        jobs: [],
-    } 
-    if ( resp.status == "success") { 
-        resp.jobs = json.data.jobs 
-    }
-   
-    return { resp }
-} 
-
-export const API_URL_GET_JOB_BY_NAME = `${ HTTP_SERVER }/api/job/name` 
-export const load_get_job_by_name = async( serverLoadEvent ) => {
-
-    let au = get( AUTH )
-
-    let reg = new DESRegistration( )
-    reg.des_job_name = serverLoadEvent.params.slug
-
-    let req = new Request( API_URL_GET_JOB_BY_NAME, { 
-        method: 'POST',
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            // "Authorization":  `Bearer ${ serverLoadEvent.cookies.get("des_token") }`, 
-            "Authorization":  `Bearer ${au.token }`, 
-        },
-        body:  JSON.stringify( reg )
-    } )
-
-    const { fetch } = serverLoadEvent
-    let res = await fetch( req )
-    let json = await res.json( )
-
-    let resp = {
-        status: json.status,
-        message: json.message,
-        job: { },
-    } 
-    if ( resp.status == "success") { 
-        resp.job = json.data.job 
-    }
-   
-    return { resp }
-} 
 
 
 /* DES DATA STRUCTURES  *****************************************************************************/
@@ -1084,6 +993,7 @@ export class Job {
         events = [ ],
         samples = [ ],
         xypoints = [ ],
+        // reports = [],
         reg = new DESRegistration( ),
     ) {
         this.admins = admins
@@ -1093,6 +1003,8 @@ export class Job {
         this.events = events
         this.samples = samples
         this.xypoints = xypoints
+        // this.reports = reports
+        this.reports = []
         this.reg = reg
         
         this.highlight = false
@@ -1115,77 +1027,202 @@ export class Job {
             this.s_mark_el, { anchor: 'bottom-right' } 
             ).setLngLat( [ this.reg.des_job_lng, this.reg.des_job_lat  ] )
 
+        this.resetChart( )
+    }
+    
+    getJobData = async( ) => {
 
+        console.log( "job.getJobData( ) -> reg: ", this.reg )
+        let au = get( AUTH )
+    
+        let req = new Request( API_URL_C001_V001_JOB_DATA, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${ au.token }`
+            },
+            body: JSON.stringify( this.reg )
+        } )
+        let res = await fetch( req )
+        let json = await res.json( )
 
+        if ( json.status == "success" ) {
+            let j = JSON.parse( JSON.stringify( json.data.job ) )
+            this.admins = j.admins
+            this.states = j.states
+            this.headers = j.headers
+            this.configs = j.configs
+            this.events = j.events
+            this.samples = j.samples
+            await this.updateChartData( j.xypoints )
+            return true
+        } 
+    }
+
+    /* CHART DATA */
+    updateChartData = async( xyp ) => {
+        
+        console.log(  "job.updateChartData( ) -> samples: ", this.samples.length )
+        
+        this.xypoints = xyp
+        this.cht_ch4.data = xyp.ch4
+        this.cht_hi_flow.data = xyp.hi_flow
+        this.cht_lo_flow.data = xyp.lo_flow
+        this.cht_press.data = xyp.press
+        this.cht_bat_amp.data = xyp.bat_amp
+        this.cht_bat_volt.data = xyp.bat_volt
+        this.cht_mot_volt.data = xyp.mot_volt
+
+        // this.cht.options.scales.x.min = this.cht_ch4.data[0].x
+        // this.cht.options.scales.x.max = this.cht_ch4.data[this.cht_ch4.data.length -1].x
+        let flow = this.cht_lo_flow.data.map( f => f.y )
+        if ( flow.some( f => { return f > 2.5 } ) ) {
+            this.cht.options.scales.y_hi_flow.display = true
+            this.cht_hi_flow.hidden = false
+
+            this.cht.options.scales.y_lo_flow.display = false
+            this.cht_lo_flow.hidden = true
+        } else {
+            this.cht.options.scales.y_hi_flow.display = false
+            this.cht_hi_flow.hidden = true
+
+            this.cht.options.scales.y_lo_flow.display = true
+            this.cht_lo_flow.hidden = false
+        } 
+        
+        this.cht.autoScale( this.cht_ch4,  this.cht.options.scales.y_ch4, 0.1 )
+        this.cht.autoScale( this.cht_press,  this.cht.options.scales.y_press, 0.1 )
+        this.cht.autoScale( this.cht_hi_flow,  this.cht.options.scales.y_hi_flow, 0.1 )
+        this.cht.autoScale( this.cht_lo_flow,  this.cht.options.scales.y_lo_flow, 0.1 )
+
+    }
+
+    resetChart( ) {
+        /* CHART DATA **************************************************************/
         this.cht = NewChartData( )
+        this.cht.options.plugins.zoom.zoom.onZoomComplete = this.chartZoomSelect
         this.cht_ch4 = this.cht.data.datasets[0]
+
         this.cht_hi_flow = this.cht.data.datasets[1]
+        this.cht.options.scales.y_hi_flow.display = true
+
         this.cht_lo_flow = this.cht.data.datasets[2]
+
         this.cht_press = this.cht.data.datasets[3]
         this.cht_bat_amp = this.cht.data.datasets[4]
         this.cht_bat_volt = this.cht.data.datasets[5]
         this.cht_mot_volt = this.cht.data.datasets[6]
-
-        this.cht_point_limit = 100
+        this.cht_point_limit = 0
         this.cht_scale_margin = 0.1
     }
+
+    chartZoomSelect = ( e ) => { 
+        console.log( "job.chartZoomSelect...\n", e.chart )
     
-    /* CHART DATA */
-    updateChartData( ) {
+        let dats = e.chart.config._config.data.datasets
+        console.log( "job.chartZoomSelect... datasets\n", dats )
 
-        let sample = this.samples[ this.samples.length - 1 ]
-
-        this.cht.pushPoint( 
-            { x: sample.smp_time, y: sample.smp_ch4 },
-            this.cht_ch4, this.cht.options.scales.y_ch4,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            { x: sample.smp_time, y: sample.smp_hi_flow },
-            this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            { x: sample.smp_time, y: sample.smp_lo_flow },
-            this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            { x: sample.smp_time, y: sample.smp_press },
-            this.cht_press, this.cht.options.scales.y_press,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            { x: sample.smp_time, y: sample.smp_bat_amp },
-            this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            { x: sample.smp_time, y: sample.smp_bat_volt },
-            this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.cht.pushPoint( 
-            { x: sample.smp_time, y: sample.smp_mot_volt },
-            this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
+        let scls = e.chart.scales
+        console.log( "job.chartZoomSelect... scales\n", scls )
+    
+        let xs = ( dats[0].data.map( v => { return v.x } ) ).filter( x => {
+            return ( 
+                x > Math.round( e.chart.scales["x"].min ) &&
+                x < Math.round( e.chart.scales["x"].max )
+            )  
+        } )
+    
+        let xmin = xs[0]
+        let xmax = xs[xs.length-1]
+    
+        console.log( `UnixMilli:  ${ xmin } -> ${ xmax }` )
+        console.log( `DateTime:  ${ FormatDateTime( xmin ) } -> ${ FormatDateTime( xmax ) }` )
+    
+        dats.forEach( ds => { 
+            let vStart = ds.data.filter( v => { return v.x == xmin } )[0]
+            let vEnd = ds.data.filter( v => { return v.x == xmax } )[0]
+            let scl = e.chart.scales[ds.yAxisID]
+            console.log( `${ ds.label }: vals: ${ vStart.y } -> ${ vEnd.y }, ${ scl.id }: scales: ${ scl.min } -> ${ scl.max }` )
+        } )
+    
     }
 
+    newReport = async( rep ) => { 
+        rep.rep_job_id = this.reg.des_job_id
+        this.reports.push( rep )
+        console.log( "Reports: ", this.reports )
+    }
+
+}
+
+export class Report {
+    constructor(
+        /* { metadata } */
+        rep_id = 0,
+        job_id = 0,
+        title = "",
+        rep_secs = []
+    ) {
+        this.rep_id = rep_id
+        this.rep_job_id = job_id
+        this.rep_title = title
+        this.rep_secs = rep_secs
+    }
+    
+    addSection = ( sec ) => { 
+        sec.sec_rep_id = this.rep_id
+        /* TODO: VALIDATE */
+        rep_secs.push( sec )
+        /* TODO: HTTP POST TO DES */
+    }
+}
+export class Section {
+    constructor(
+        /*  { metadata } */
+        sec_id = 0,
+        sec_rep_id = 0,
+        sec_start = 0,
+        sec_end = 0,
+        sec_name = "",
+        sec_dats = []
+    ) {
+        this.sec_id = sec_id
+        this.rep_id = sec_rep_id
+        this.sec_start = sec_start
+        this.sec_end = sec_end
+        this.sec_name = sec_name
+        this.sec_dats = sec_dats
+    }
+
+    addSectionDataSet = ( sds ) => {
+        sds.sec_id = this.sec_id
+        /* TODO: VALIDATE */
+        sec_dats.push( sds )
+        /* TODO: HTTP POST TO DES */
+    }
+
+ }
+
+ export class SectionDataSet {
+    constructor(
+        /*  { metadata } */
+        sds_id,
+        sec_id,
+        sds_csv = true,
+        sds_plot = true,
+        sds_y_axis,
+        sds_y_min,
+        sds_y_max,
+    ) {
+        this.sds_id = sds_id
+        this.sec_id = sec_id
+        this.sds_csv = sds_csv
+        this.sds_plot = sds_plot
+        this.sds_y_axis = sds_y_axis
+        this.sds_y_min = sds_y_min
+        this.sds_y_max = sds_y_max
+    }
 }
 
 /* 

@@ -4,7 +4,7 @@
     import DateTimeDisplay from "../../common/date_time/DateTimeDisplay.svelte"
     import UserBadge from "../user/UserBadge.svelte"
 
-    import { EVENT_TYPES, Event, EventType } from "../../des_api"
+    import { Event } from "../../des_api"
     
     export let event = new Event( )
     let charLimit = 230
@@ -13,16 +13,24 @@
         ? event.evt_msg.slice( 0, charLimit ) + "..." 
         : event.evt_msg 
     )
-
-    $: evt_type = $EVENT_TYPES.filter( t => t.evt_typ_code == event.evt_code )[0]
-
+    $: evt_type = (JSON.parse( sessionStorage.event_types )).filter( t => t.evt_typ_code == event.evt_code )[0]
+    $: evtColorCode = 'fg-accent'
+    $: {
+        if ( evt_type.evt_typ_code < 999 ) {
+            evtColorCode = 'fg-orange'
+        } else if ( evt_type.evt_typ_code > 999 && evt_type.evt_typ_code < 2000 ) {
+            evtColorCode = 'fg-red'
+        } else {
+            evtColorCode = 'fg-accent'
+        }
+    }
 
 </script>
 
 <div class="flx-col container">
   
     <div class="flx-col title-bar">
-        <div class="fg-green_a">{ evt_type.evt_typ_name }</div>
+        <div class={ evtColorCode }>{ evt_type.evt_typ_name }</div>
         { #if  event.evt_title !== "" }
             <div class="flx-row title">{ event.evt_title }</div>
         { /if }

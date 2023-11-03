@@ -9,7 +9,7 @@
 
     import btn_img_report from "$lib/images/btn-img-report.svg"
 
-    import { Job, Header, Event } from "../../lib/des_api"
+    import { Job } from "../../lib/des_api"
     
     export let job = new Job( )
     $: stat  = JSON.parse( job.reg.des_job_json )
@@ -34,7 +34,7 @@
             <div class="flx-row btns">    
 
                 <PillButton 
-                    on:click={ ( ) => { goto( `job/${job.reg.des_job_name }` ) } }
+                    on:click={ ( ) => { goto( `job/${ job.reg.des_job_name }` ) } }
                     cls={ 'bg-accent' }
                     img={ btn_img_report }
                     hint={ 'Job Reports' } 
