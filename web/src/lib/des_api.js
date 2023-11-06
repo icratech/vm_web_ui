@@ -1160,13 +1160,13 @@ export class Report {
     constructor(
         /* { metadata } */
         rep_id = 0,
-        job_id = 0,
-        title = "",
+        rep_job_id = 0,
+        rep_title = "",
         rep_secs = []
     ) {
         this.rep_id = rep_id
-        this.rep_job_id = job_id
-        this.rep_title = title
+        this.rep_job_id = rep_job_id
+        this.rep_title = rep_title
         this.rep_secs = rep_secs
     }
     
@@ -1207,21 +1207,21 @@ export class Section {
  export class SectionDataSet {
     constructor(
         /*  { metadata } */
-        sds_id,
-        sec_id,
-        sds_csv = true,
-        sds_plot = true,
-        sds_y_axis,
-        sds_y_min,
-        sds_y_max,
+        dat_id,
+        dat_sec_id,
+        dat_csv = true,
+        dat_plot = true,
+        dat_y_axis,
+        dat_y_min,
+        dat_y_max,
     ) {
-        this.sds_id = sds_id
-        this.sec_id = sec_id
-        this.sds_csv = sds_csv
-        this.sds_plot = sds_plot
-        this.sds_y_axis = sds_y_axis
-        this.sds_y_min = sds_y_min
-        this.sds_y_max = sds_y_max
+        this.sds_id = dat_id
+        this.sec_id = dat_sec_id
+        this.sds_csv = dat_csv
+        this.sds_plot = dat_plot
+        this.sds_y_axis = dat_y_axis
+        this.sds_y_min = dat_y_min
+        this.sds_y_max = dat_y_max
     }
 }
 
