@@ -240,6 +240,7 @@ export const get_devices = async( ) => {
 export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
 export const API_URL_C001_V001_JOB_LIST =  `${ HTTP_SERVER }/api/001/001/job/list`
 export const API_URL_C001_V001_JOB_DATA =  `${ HTTP_SERVER }/api/001/001/job/data`
+export const API_URL_C001_V001_JOB_NEW_REPORT =  `${ HTTP_SERVER }/api/001/001/job/new_report`
 
 export const get_event_types = async( ) => {
     
@@ -284,6 +285,7 @@ export const get_jobs = async( ) => {
                     j.events,
                     j.samples,
                     j.xypoints,
+                    j.reports,
                     j.reg,
                 )
                 // let dev  = JSON.parse( job.reg.des_job_json )
@@ -993,7 +995,7 @@ export class Job {
         events = [ ],
         samples = [ ],
         xypoints = [ ],
-        // reports = [],
+        reports = [],
         reg = new DESRegistration( ),
     ) {
         this.admins = admins
@@ -1003,7 +1005,7 @@ export class Job {
         this.events = events
         this.samples = samples
         this.xypoints = xypoints
-        // this.reports = reports
+        this.reports = reports
         this.reports = []
         this.reg = reg
         
@@ -1056,6 +1058,7 @@ export class Job {
             this.events = j.events
             this.samples = j.samples
             await this.updateChartData( j.xypoints )
+            this.reports = j.reports
             return true
         } 
     }
@@ -1149,25 +1152,57 @@ export class Job {
     }
 
     newReport = async( rep ) => { 
-        rep.rep_job_id = this.reg.des_job_id
-        this.reports.push( rep )
-        console.log( "Reports: ", this.reports )
+        
+        let au = get( AUTH ) 
+
+        rep.rep_user_id = au.id
+        rep.reg = this.reg
+        console.log( "job.newReport( ) -> rep: ", rep )
+    
+        let req = new Request( API_URL_C001_V001_JOB_NEW_REPORT, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${ au.token }`
+            },
+            body: JSON.stringify( rep )
+        } )
+        let res = await fetch( req )
+        let json = await res.json( )
+    
+        if ( json.status == "success" ) {
+            let j = JSON.parse( JSON.stringify( json.data ) )
+            console.log( "Report: \n", j )
+        }
+        // rep.rep_job_id = this.reg.des_job_id
+        // this.reports.push( rep )
+        // console.log( "Reports: ", this.reports )
     }
 
 }
 
 export class Report {
     constructor(
-        /* { metadata } */
         rep_id = 0,
-        job_id = 0,
-        title = "",
-        rep_secs = []
+        rep_user_id ="",
+        rep_created = 0,
+        rep_modified = 0,
+
+        rep_title = "",
+        rep_secs = [],
+
+        reg = new DESRegistration( ),
     ) {
         this.rep_id = rep_id
-        this.rep_job_id = job_id
-        this.rep_title = title
+        this.rep_user_id = rep_user_id
+        this.rep_created = rep_created
+        this.rep_modified = rep_modified
+
+        this.rep_title = rep_title
         this.rep_secs = rep_secs
+
+        this.reg = reg
     }
     
     addSection = ( sec ) => { 
