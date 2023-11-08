@@ -76,8 +76,12 @@ export class LineChartModel {
                 }
             },
             interaction: { 
-                mode: "time", 
-                intersection: false 
+                // mode: "time", 
+                // intersection: false, 
+                intersect: false, 
+                mode: 'nearest',
+                axis: 'x',
+                includeINvisible: true, 
             },
             scales: { 
                 x: LineChartXScale 
@@ -117,7 +121,12 @@ export class LineChartModel {
                     },
                     pan: { enabled: false }
                 },
-        //         // tooltip: { position: "fixed" }
+                // annotation: {
+                //     annotations: { 
+                //         // x: LineChartXSelected
+                //     }
+                // },
+                tooltip: { position: "fixed" }
             }
         }
 
@@ -230,7 +239,6 @@ export class LineChartScale {
         // }
     }
 }
-
 export class LineChartXScale {
     constructor( ) {
         this.type = 'time'
@@ -267,6 +275,21 @@ export class LineChartXScale {
     }
 }
 
+// export class LineChartXSelected {
+//     constructor( xmin, xmax ) {
+//         this.type = 'line'
+//         this.adjustScaleRange= false
+//         this.xScaleID = 'x'
+//         this.yScaleID = 'y_ch4'
+//         this.xMin = xmin
+//         this.xMax = xmax
+//         this.yMin = 0
+//         this.yMax = 1000
+//         this.borderColor = 'rgb(255, 99, 132)'
+//         this.borderWidth = 2
+//     }
+// }
+
 export class XYPoint { 
     constructor( 
         point = { x: 0, y: 0.0 } 
@@ -275,3 +298,5 @@ export class XYPoint {
         this.y = point.y 
     } 
 }
+
+

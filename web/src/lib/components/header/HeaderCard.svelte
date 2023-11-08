@@ -1,7 +1,7 @@
 
 <script>
     
-    import DateTimeDisplay from "../../common/date_time/DateTimeDisplay.svelte"
+    import DateTimeDisplay from "$lib/common/date_time/DateTimeDisplay.svelte"
 	import { Header } from "../../des_api"
 
     export let hdr = new Header( )

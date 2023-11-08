@@ -8,15 +8,16 @@
     import InputTextArea from "$lib/common/input_text_area/InputTextArea.svelte"
     import PillButton from "$lib/common/button/PillButton.svelte"
 
-    import { Event, Device } from "../../des_api";
+    import { Event, Job } from "../../des_api";
 
-    export let device = new Device( )
-    $: evt = new Event( )
-    $: event_type = (JSON.parse( sessionStorage.event_types )).filter( t => { return t.evt_typ_code == 2000 } )[0]
+    export let job = new Job( )
+    export let evt = new Event( )
+    export let evt_code = 2001
+    $: event_type = (JSON.parse( sessionStorage.event_types )).filter( t => { return t.evt_typ_code == evt_code } )[0]
         
     const sendEvent = ( ) => { 
         evt.evt_code = event_type.evt_typ_code
-        device.newEvent( evt )  
+        job.newEvent( evt )  
         clearEvent( )
     }
 
@@ -37,6 +38,7 @@
     }
 
 </script>
+
 
 <div class="flx-col container">
 

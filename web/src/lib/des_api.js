@@ -238,9 +238,11 @@ export const get_devices = async( ) => {
 /* JOB API ROUTES *************************************************************************************/
 
 export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
-export const API_URL_C001_V001_JOB_LIST =  `${ HTTP_SERVER }/api/001/001/job/list`
-export const API_URL_C001_V001_JOB_DATA =  `${ HTTP_SERVER }/api/001/001/job/data`
+export const API_URL_C001_V001_JOB_LIST = `${ HTTP_SERVER }/api/001/001/job/list`
+export const API_URL_C001_V001_JOB_DATA = `${ HTTP_SERVER }/api/001/001/job/data`
 export const API_URL_C001_V001_JOB_NEW_REPORT =  `${ HTTP_SERVER }/api/001/001/job/new_report`
+export const API_URL_C001_V001_JOB_NEW_HDR = `${ HTTP_SERVER }/api/001/001/job/new_header`
+export const API_URL_C001_V001_JOB_NEW_EVT = `${ HTTP_SERVER }/api/001/001/job/new_event`
 
 export const get_event_types = async( ) => {
     
@@ -890,7 +892,7 @@ export class Device {
             hdr: this.hdr,
             reg: this.reg
         }
-        console.log( "Send SET HEADER Request:\n", dev ) 
+        console.log( "Send DEVICE SET HEADER Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_HDR, { 
             method: "POST",
@@ -905,7 +907,7 @@ export class Device {
         console.log("des_api.js -> device.setHeader( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("SET HEADER Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            console.log("DEVICE SET HEADER Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
     setConfig = async( ) => { 
@@ -948,7 +950,7 @@ export class Device {
         this.cfg.cfg_vlv_pos = mode
         this.setConfig()
     }
-    createEvent = async( evt ) => {
+    newEvent = async( evt ) => {
         console.log( "Create Event for device: ", this.reg.des_dev_serial ) 
         
         let au = get( AUTH )
@@ -965,7 +967,7 @@ export class Device {
             evt: evt,
             reg: this.reg
         }
-        console.log( "Send CREATE EVENT Request:\n", dev ) 
+        console.log( "Send DEVICE CREATE EVENT Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_EVT, { 
             method: "POST",
@@ -980,7 +982,7 @@ export class Device {
         console.log("des_api.js -> device.createEvent( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("CREATE EVENT Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            console.log("DEVICE CREATE EVENT Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
 }
@@ -1143,12 +1145,82 @@ export class Job {
         console.log( `DateTime:  ${ FormatDateTime( xmin ) } -> ${ FormatDateTime( xmax ) }` )
     
         dats.forEach( ds => { 
-            let vStart = ds.data.filter( v => { return v.x == xmin } )[0]
-            let vEnd = ds.data.filter( v => { return v.x == xmax } )[0]
             let scl = e.chart.scales[ds.yAxisID]
-            console.log( `${ ds.label }: vals: ${ vStart.y } -> ${ vEnd.y }, ${ scl.id }: scales: ${ scl.min } -> ${ scl.max }` )
+            if ( scl.id != "y") {
+                let vStart = ds.data.filter( v => { return v.x == xmin } )[0]
+                let vEnd = ds.data.filter( v => { return v.x == xmax } )[0]
+                console.log( `${ ds.label }: vals: ${ vStart.y } -> ${ vEnd.y }, ${ scl.id }: scales: ${ scl.min } -> ${ scl.max }` )
+            }
         } )
     
+    }
+
+    newHeader = async( hdr ) => {
+        console.log( "job.newHeader( ): ", this.reg.des_job_name ) 
+        
+        let au = get( AUTH )
+
+        hdr.hdr_user_id = au.id
+        hdr.hdr_app = client_app
+
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+
+        let job = {
+            hdr: hdr,
+            reg: this.reg
+        }
+        console.log( "Send JOB SET HEADER Request:\n", job ) 
+        
+        let req = new Request( API_URL_C001_V001_JOB_NEW_HDR, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( job )
+        } )
+        let res = await fetch( req )
+        let reg = await res.json( )
+        console.log("des_api.js -> job.newHeader( ) ->  RESPONSE reg:\n", reg )
+
+        if ( reg.status === "success" ) { 
+            console.log("JOB NEW HEADER Request -> SUCCESS:\n", this.reg.des_job_name )
+        }
+    }
+
+    newEvent = async( evt ) => {
+        console.log( "job.newEvent( ): ", this.reg.des_job_name ) 
+        
+        let au = get( AUTH )
+
+        evt.evt_user_id = au.id
+        evt.hdr_app = client_app
+
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+
+        let job = {
+            evt: evt,
+            reg: this.reg
+        }
+        console.log( "Send JOB NEW EVENT Request:\n", job ) 
+        
+        let req = new Request( API_URL_C001_V001_JOB_NEW_EVT, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( job )
+        } )
+        let res = await fetch( req )
+        let reg = await res.json( )
+        console.log("des_api.js -> job.newEvent( ) ->  RESPONSE reg:\n", reg )
+
+        if ( reg.status === "success" ) { 
+            console.log("JOB NEW EVENT Request -> SUCCESS:\n", this.reg.des_job_name )
+        }
     }
 
     newReport = async( rep ) => { 
@@ -1157,7 +1229,7 @@ export class Job {
 
         rep.rep_user_id = au.id
         rep.reg = this.reg
-        console.log( "job.newReport( ) -> rep: ", rep )
+        console.log( "job.createReport( ) -> rep: ", rep )
     
         let req = new Request( API_URL_C001_V001_JOB_NEW_REPORT, {
             method: 'POST',
@@ -1691,8 +1763,12 @@ const NewChartDataSets = ( ) => {
         new LineChartDataSet( [ ], "Motor Volts", "y_mot_volt", false,
             CHART_LINE_WIDTH, RGBA( COLORS.MOT_VOLT, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.MOT_VOLT, 0.7 ) 
-        )
+        ),
 
+        new LineChartDataSet( [ ], "Selection", "y", true,
+            CHART_LINE_WIDTH, RGBA( BASE.AQUA, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( BASE.AQUA, 0.7 ) 
+        ),
     ]
 
 }
@@ -1702,6 +1778,10 @@ const NewChartScales = ( ) => {
         
         x: new LineChartXScale( ),
 
+        y: new LineChartScale( "Selection", 1, 0, 100, "left", 
+            RGBA( BASE.AQUA, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false, false 
+        ),
+        
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
             RGBA( COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false 
         ),
@@ -1736,11 +1816,15 @@ const NewChartScales = ( ) => {
     }
 
 }
+// const NewXSelected = ( ) => {
+//     return new LineChartXSelected( 1699402380496, 1699402380496 ) 
+    
+// }
 export const NewChartData = ( ) => {
     let cht = new LineChartModel( "", RGBA( BASE.LIGHT, 0.7 ) )
     cht.data.datasets = NewChartDataSets( )
     cht.options.scales = NewChartScales( )
-
+    // cht.options.plugins.annotation.annotations = NewXSelected( ) 
     return cht
 }
 

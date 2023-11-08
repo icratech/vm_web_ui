@@ -6,15 +6,17 @@
     // $: status = data.resp.status
     // $: { console.log( `./job/[slug]: ${ status.toUpperCase() }\t${ message }` ) }
 
-    import PillButton from '../../../lib/common/button/PillButton.svelte'
-    import InputText from '../../../lib/common/input_text/InputText.svelte'
-    import LineChart from '../../../lib/common/chart/LineChart.svelte'
+    import PillButton from '$lib/common/button/PillButton.svelte'
+    import InputText from '$lib/common/input_text/InputText.svelte'
+    import LineChart from '$lib/common/chart/LineChart.svelte'
 
+    import ReportCard from '$lib/components/report/ReportCard.svelte'
+    import EventBuilderRep from '$lib/components/event/EventBuilderRep.svelte'
 
     import btn_img_report from "$lib/images/btn-img-report.svg"
 
     import { onMount } from "svelte"
-	import { JOBS, Report, Section, SectionDataSet  } from "../../../lib/des_api"
+	import { JOBS, Header, Event, Report, Section, SectionDataSet  } from "../../../lib/des_api"
     
     export let data
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
@@ -24,7 +26,6 @@
         loaded = await job.getJobData( )
         console.log( job )
     } )
-
     let cur_rep = new Report( )
 
     let new_rep = new Report( )
@@ -40,6 +41,12 @@
         rep.addSection( new_sec )
         new_sec = new Section( )
     }
+    
+    let cur_hdr = new Header( )
+
+    $: evt_code = 2001
+    let cur_evt = new Event( )
+
 
 </script>
 <div class="flx-col container">
@@ -47,8 +54,15 @@
     <div class="flx-row content">
 
         <div class="flx-col status">
-            <h3>Device Info</h3>
+            <h3>Job Info</h3>
             { job.reg.des_job_name }
+
+            
+            <div class="flx-col report-list">
+                { #each job.reports as rep ( rep.rep_id ) }
+                    <ReportCard bind:rep={ rep } />
+                { /each }
+            </div> 
 
         </div>
 
@@ -80,6 +94,20 @@
                         hint={ 'New Section' } 
                     />
 
+                    <PillButton 
+                        on:click={ ( ) => { job.newHeader( cur_hdr ) } }
+                        cls={ 'bg-pink' }
+                        img={ btn_img_report }
+                        hint={ 'New Header' } 
+                    />
+
+                    <PillButton 
+                    on:click={ ( ) => { job.newEvent( cur_evt ) } }
+                        cls={ 'bg-pink' }
+                        img={ btn_img_report }
+                        hint={ 'New Event' } 
+                    />
+
                 </div>
 
                 <div class="flx-col txts">
@@ -91,6 +119,12 @@
                 </div>
 
                 <div class="flx-col">
+
+                    <EventBuilderRep 
+                        bind:job
+                        bind:evt={ cur_evt }
+                        bind:evt_code
+                    />
 
                 </div>
 
@@ -138,7 +172,7 @@
 
 
     .btns { 
-        justify-content: flex-end; 
+        justify-content: flex-start; 
         align-items: center; 
         width: auto;
         gap: 1em;
