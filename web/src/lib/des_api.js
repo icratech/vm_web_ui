@@ -1777,10 +1777,6 @@ const NewChartScales = ( ) => {
     return {
         
         x: new LineChartXScale( ),
-
-        y: new LineChartScale( "Selection", 1, 0, 100, "left", 
-            RGBA( BASE.AQUA, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false, false 
-        ),
         
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
             RGBA( COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false 
@@ -1812,6 +1808,10 @@ const NewChartScales = ( ) => {
         y_mot_volt: new LineChartScale( "Mot ( V )", 2, 0, 15, "right", 
             RGBA( COLORS.MOT_VOLT, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
             false  
+        ),
+
+        y: new LineChartScale( "Selection", 1, 0, 100, "left", 
+            RGBA( BASE.AQUA, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false, false 
         )
     }
 

@@ -83,6 +83,7 @@ export class LineChartModel {
                 axis: 'x',
                 includeINvisible: true, 
             },
+            events: [ 'click' ],
             scales: { 
                 x: LineChartXScale 
             },
@@ -126,7 +127,10 @@ export class LineChartModel {
                 //         // x: LineChartXSelected
                 //     }
                 // },
-                tooltip: { position: "fixed" }
+                tooltip: { 
+                    // position: "fixed",
+                    enabled: false 
+                }
             }
         }
 

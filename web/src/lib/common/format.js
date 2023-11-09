@@ -15,8 +15,8 @@ export const FormatDateSRED = (d) => {
 export const FormatDateTime = (d) => {
     let date = new Date(d)
     let ye = date.getFullYear()
-    let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
-    let da = date.getDay()
+    let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d)
+    let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d)
     let hr =  String(date. getHours()). padStart(2, "0")
     let mn = String(date. getMinutes()). padStart(2, "0")
     let sc = String(date. getSeconds()). padStart(2, "0")
@@ -26,8 +26,8 @@ export const FormatDateTime = (d) => {
 export const FormatDateTimeHTML = (d) => {
     let date = new Date(d)
     let ye = date.getFullYear()
-    let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
-    let da = date.getDay()
+    let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d)
+    let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d)
     let hr =  String(date. getHours()). padStart(2, "0")
     let mn = String(date. getMinutes()). padStart(2, "0")
     let sc = String(date. getSeconds()). padStart(2, "0")
