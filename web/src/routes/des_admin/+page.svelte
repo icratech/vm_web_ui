@@ -31,13 +31,13 @@
 
 <dvi class="flx-col container">
 
-    <h1>DEMO PAGE</h1>
+    <h1>DES ADMINISTRATION PAGE</h1>
 
     <div class="flx-row new-device">
 
         <PillButton 
             cls='bg-accent'
-            on:click={ async( ) => { await register_device( serial ); $DEVICES_LOADED= false } }
+            on:click={ async( ) => { await register_device( serial ) } }
             hint={ null } 
         />
 
@@ -56,7 +56,7 @@
     <div class="flx-col device-list">
         { #each $DEMO_DEVICES as demo ( `demo_page_${ demo.dev.reg.des_dev_id }` ) }
             <DemoDeviceCard 
-                bind:demo_device={ demo }
+                bind:device={ demo }
                 on:go={ ( ) => { goto( `device/${ demo.dev.reg.des_dev_serial }` ) } }
             />
         { /each }

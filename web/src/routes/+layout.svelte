@@ -86,6 +86,11 @@
         page = 'job'
     }
 
+    const goto_des = ( ) => {
+        goto( '/des_admin' ) 
+        page = 'des'
+    }
+
 </script>
 
 <div class="flx-col main">
@@ -121,17 +126,17 @@
 
             { /if }
 
-            <!-- { #if $AUTH.role == "admin" }
+            { #if $AUTH.role == "admin" }
 
                 <div class="flx-col admin">
-                    <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple'  hint={ "If you don't know..." } />
-                </div>
-                
-                <div class="flx-row admin-mobile">
-                    <PillButton on:click={ ( ) => { goto( '/demo' ) } } cls='bg-purple'  hint={ null } />
+                    <PillButton 
+                        on:click={ goto_des } 
+                        cls='bg-purple'  
+                        hint={ "If you don't know..." } 
+                    />
                 </div>
 
-            { /if } -->
+            { /if }
 
         </div>
 

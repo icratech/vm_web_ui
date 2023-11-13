@@ -174,13 +174,13 @@ export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/devi
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
 export const register_device = async( serial ) => {
+
     let au = get( AUTH )
     let reg = new DESRegistration( )
+
     reg.des_dev_serial = serial
     reg.des_dev_reg_user_id = au.id
-    reg.des_dev_reg_app = demo_app
-    reg.des_job_lng = -114.75 + ( Math.random() * ( -110.15 - -114.75 ) )
-    reg.des_job_lat = 51.85 + ( Math.random() * ( 54.35 - 51.85 ) )
+    reg.des_dev_reg_app = client_app
     console.log("des_api.js -> register_device( ) -> REQUEST reg:\n", reg )
 
     let req = new Request( API_URL_C001_V001_DEVICE_REGISTER, { 
@@ -194,6 +194,11 @@ export const register_device = async( serial ) => {
     let res = await fetch( req )
     reg = await res.json( )
     console.log("des_api.js -> register_device( ) ->  RESPONSE reg:\n", reg )
+    
+    if ( reg.status === "success" ) { 
+        console.log("REGISTER DEVICE Request -> SUCCESS:\n", reg.des_dev_serial )
+    }
+
     await get_devices( )
 }
 
@@ -405,15 +410,15 @@ export class DESRegistration {
         des_job_name = "",
         des_job_start = 0,
         des_job_end = 0,
-        des_job_lng = -15.000000,
-        des_job_lat = 55.000000,
+        des_job_lng = -180,
+        des_job_lat = 90,
         des_job_dev_id = 0,
 
         /* DESJobSearch */
         des_job_search_id = 0,
         des_job_token = "",
         des_job_json = "",
-        des_job_key = ""
+        des_job_key = 0
 
     ) {
         /* DESDevice */
@@ -1550,7 +1555,11 @@ export class State {
         sta_mod_fw = "00.00.000",
 
         sta_logging = 0,
-        sta_job_name = ""
+        sta_job_name = "",
+
+        sta_stm_uid1 = 0,
+        sta_stm_uid2 = 0,
+        sta_stm_uid3 = 0
     
     ) {
         this.sta_time = sta_time
@@ -1567,6 +1576,10 @@ export class State {
 
         this.sta_logging = sta_logging
         this.sta_job_name = sta_job_name
+        
+        this.sta_stm_uid1 = sta_stm_uid1
+        this.sta_stm_uid2 = sta_stm_uid2
+        this.sta_stm_uid3 = sta_stm_uid3
     }
 }
 

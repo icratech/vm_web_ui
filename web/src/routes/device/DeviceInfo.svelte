@@ -36,6 +36,8 @@
 
     $: { switch ( sta.sta_logging ) {
 
+            case OP_CODES.DES_REG_REQ: 
+            case OP_CODES.DES_REGISTERED: 
             case OP_CODES.JOB_ENDED: 
                 cmdButtonColor = 'bg-green'
                 cmdButtonHint = 'Start Job'
