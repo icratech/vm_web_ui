@@ -10,6 +10,7 @@
     import InputText from '$lib/common/input_text/InputText.svelte'
     import LineChart from '$lib/common/chart/LineChart.svelte'
 
+    import HeaderCard from '../../../lib/components/header/HeaderCard.svelte'
     import ReportCard from '$lib/components/report/ReportCard.svelte'
     import EventBuilderRep from '$lib/components/event/EventBuilderRep.svelte'
 
@@ -20,7 +21,9 @@
     
     export let data
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
-    
+    $: hdr = job.headers.pop( )
+    let new_hdr = new Header( )
+
     $: loaded = false
     onMount( async( ) => {
         loaded = await job.getJobData( )
@@ -42,10 +45,10 @@
         new_sec = new Section( )
     }
     
-    let cur_hdr = new Header( )
 
     $: evt_code = 2001
     let cur_evt = new Event( )
+    $: { cur_evt.evt_time = job.selection } 
 
 
 </script>
@@ -54,14 +57,21 @@
     <div class="flx-row content">
 
         <div class="flx-col status">
-            <h3>Job Info</h3>
-            { job.reg.des_job_name }
 
+            <HeaderCard bind:hdr />
+            <!-- <div class="flx-col title">
+                <h3>Job Info</h3>
+                { job.reg.des_job_name }
+            </div> -->
             
+
+
             <div class="flx-col report-list">
-                { #each job.reports as rep ( rep.rep_id ) }
-                    <ReportCard bind:rep={ rep } />
-                { /each }
+            Reports
+            { #each job.reports as rep ( rep.rep_id ) }
+                <ReportCard bind:rep={ rep } bind:job/>
+                <br>
+            { /each }
             </div> 
 
         </div>
@@ -95,7 +105,7 @@
                     />
 
                     <PillButton 
-                        on:click={ ( ) => { job.newHeader( cur_hdr ) } }
+                        on:click={ ( ) => { job.newHeader( new_hdr ) } }
                         cls={ 'bg-pink' }
                         img={ btn_img_report }
                         hint={ 'New Header' } 
@@ -154,11 +164,15 @@
     }
 
     .status {
-        background-color: var(--light_01);
+        /* background-color: var(--light_01); */
         max-width: 25%;
         min-width: 25%;
         width: auto;
         padding-right: 0.5em;
+    }
+
+    .report-list {
+        overflow: auto;
     }
 
     .panel {

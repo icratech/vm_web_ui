@@ -3,6 +3,7 @@ import { goto } from '$app/navigation'
 import mapboxgl from 'mapbox-gl'
 import { BASE, RGBA } from './common/colors'
 import { FormatDateTime } from "./common/format"
+import { getRelativePosition } from 'chart.js/helpers'
 
 export const openModals = ( initial ) => {
     const isOpen = writable( initial )
@@ -20,7 +21,7 @@ export const AUTH = writable( { } )
 
 export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
-export const updateDevicesStore = ( ) => { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
+export const updateDevicesStore = async( ) => { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
 export const JOBS = writable( [ ] )
 export const JOBS_LOADED = writable( false )
@@ -63,6 +64,7 @@ export const sign_up_user = async( usu ) => {
 
 export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
 export const get_user_list = async( ) => {
+    console.log( `des_api.js -> get_user_list( )` )
 
     let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
     let res = await fetch( req )
@@ -93,7 +95,7 @@ export const login = async( email, password ) => {
     } else {
         console.log( "\n AUTH FAILED: \n", auth.message )
     }
-    await get_user( )
+    await get_user( auth.token )
 
     if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  }
     if ( get(AUTH).role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
@@ -102,11 +104,13 @@ export const login = async( email, password ) => {
 export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
 export const logout = async( ) => {
 
+    /* DISCONNECT ALL DEVICE WS ON LOGOUT */
+    get( DEVICES ).forEach( async( dev ) => { await dev.disconnectWS( ) } )
+
     let au = get( AUTH )
 
     let req = new Request( API_URL_USER_LOGOUT, { 
         method: "GET",
-        // headers: { 'Authorization': `Bearer ${ sessionStorage.getItem( 'des_token' ) }` }, 
         headers: { 'Authorization': `Bearer ${ au.token }` }, 
         credentials: "include"   
     } )
@@ -121,9 +125,9 @@ export const logout = async( ) => {
 }
 
 export const API_URL_USER_ME = `${ HTTP_SERVER }/api/user/me`
-export const get_user = async( ) => {
+export const get_user = async( token ) => {
 
-    let token = sessionStorage.getItem( 'des_token' )
+    // let token = sessionStorage.getItem( 'des_token' )
 
     let user_res = await fetch( API_URL_USER_ME, { 
             method: "GET",
@@ -159,8 +163,10 @@ export const get_user = async( ) => {
 /* DEVICE API ROUTES **********************************************************************************/
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
 export const API_URL_C001_V001_DEVICE_START =  `${ HTTP_SERVER }/api/001/001/device/start`
+export const API_URL_C001_V001_DEVICE_CANCEL_START =  `${ HTTP_SERVER }/api/001/001/device/cancel_start`
 export const API_URL_C001_V001_DEVICE_END =  `${ HTTP_SERVER }/api/001/001/device/end`
 export const API_URL_C001_V001_DEVICE_ADM =  `${ HTTP_SERVER }/api/001/001/device/admin`
+export const API_URL_C001_V001_DEVICE_STA =  `${ HTTP_SERVER }/api/001/001/device/state`
 export const API_URL_C001_V001_DEVICE_HDR =  `${ HTTP_SERVER }/api/001/001/device/header`
 export const API_URL_C001_V001_DEVICE_CFG =  `${ HTTP_SERVER }/api/001/001/device/config`
 export const API_URL_C001_V001_DEVICE_EVT =  `${ HTTP_SERVER }/api/001/001/device/event`
@@ -193,13 +199,14 @@ export const register_device = async( serial ) => {
 
 export const get_devices = async( ) => {
 
-    let token = sessionStorage.getItem( 'des_token' )
+    let au = get( AUTH )
+    console.log("\ndes_api.js -> get_devices( ) -> AUTH: \n", au )
 
     DEVICES_LOADED.set( false )
     let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
         method: 'GET',
         headers: {
-            "Authorization":  `Bearer ${ token }`, 
+            "Authorization":  `Bearer ${ au.token }`, 
         },
     } )
 
@@ -210,7 +217,7 @@ export const get_devices = async( ) => {
 
         let store = get( DEVICES )
         let devs = json.data.devices 
-        console.log( "get_devices( ) -> response:\n", devs )
+        // console.log( "get_devices( ) -> response:\n", devs )
         
         devs.forEach( dev => {
             if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
@@ -223,16 +230,22 @@ export const get_devices = async( ) => {
                     dev.smp,
                     dev.reg
                 )
-                // device.connectWS()
                 DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
             }        
         } )
-        get( DEVICES ).forEach( d => { if ( !d.socket ) { d.connectWS( ) } } )
-    } 
+        await connect_devices( )
 
-    get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
-    DEVICES_LOADED.set( true )
-    console.log( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
+        get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+        DEVICES_LOADED.set( true )
+        console.log( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
+    } else {
+        console.log( "des_api.js -> get_devices( ) -> NO DEVICES." )
+    }
+
+}
+
+export const connect_devices = async( ) => { 
+    get( DEVICES ).forEach( async( d ) => { if ( !d.socket ) { await d.connectWS( ) } } )
 }
 
 /* JOB API ROUTES *************************************************************************************/
@@ -245,7 +258,7 @@ export const API_URL_C001_V001_JOB_NEW_HDR = `${ HTTP_SERVER }/api/001/001/job/n
 export const API_URL_C001_V001_JOB_NEW_EVT = `${ HTTP_SERVER }/api/001/001/job/new_event`
 
 export const get_event_types = async( ) => {
-    
+    console.log( `des_api.js -> get_event_types( )` )
     let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
     let res = await fetch( req )
     let json = await res.json( )
@@ -275,7 +288,7 @@ export const get_jobs = async( ) => {
 
         let store = get( JOBS )
         let jobs = json.data.jobs
-        console.log( "get_jobs( ) -> response:\n", jobs )
+        // console.log( "get_jobs( ) -> response:\n", jobs )
 
         jobs.forEach( j => {
             if ( store.filter( s =>{ return s.reg.des_job_name == j.reg.des_job_name } )[0] == undefined ) {
@@ -290,15 +303,12 @@ export const get_jobs = async( ) => {
                     j.reports,
                     j.reg,
                 )
-                // let dev  = JSON.parse( job.reg.des_job_json )
-                // console.log( JSON.stringify( dev, null, 4 ) )
                 JOBS.update( sjobs => { return [ ...sjobs, job ] } )
             }
         } )
 
         get( JOBS ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
         JOBS_LOADED.set( true )
-
         console.log( "des_api.js -> get_jobs( ) -> JOBS: ", get( JOBS ) )
     } else {
         console.log( "des_api.js -> get_jobs( ) -> NO JOBS." )
@@ -339,8 +349,8 @@ export class User {
         email = "",
         role = "",
         provider = "",
-        created_at = 1691762552703,
-        updated_at = 1691762552703,
+        created_at = 0,
+        updated_at = 0,
         token = "none",
         logged_in = false
     ) {
@@ -498,26 +508,15 @@ export class Device {
         this.mark_el = document.createElement('div')
         // this.mark_el.addEventListener('click', ( ) => { console.log( "Device PAGE Marker" ) } )
         this.mark = new mapboxgl.Marker( 
-            this.mark_el, { anchor: 'bottom-right' } 
-        ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] ) 
+            this.mark_el, { anchor: 'bottom-right' } ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] ) 
 
         /* DEVICE SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
-        this.s_mark_el.addEventListener('click', ( ) => { 
-            goto( '/device/' + this.reg.des_dev_serial ) 
-            this.highlight = false
-        } )
-        this.s_mark_el.addEventListener('mouseover', ( ) => { 
-            this.highlight = true 
-            updateDevicesStore( )
-        } )
-        this.s_mark_el.addEventListener('mouseleave', ( ) => { 
-            this.highlight = false 
-            updateDevicesStore( )
-        } )
+        this.s_mark_el.addEventListener('click', ( ) => { goto( '/device/' + this.reg.des_dev_serial ); this.highlight = false } )
+        this.s_mark_el.addEventListener('mouseover', ( ) => { this.highlight = true; updateDevicesStore( ) } )
+        this.s_mark_el.addEventListener('mouseleave', ( ) => { this.highlight = false; updateDevicesStore( ) } )
         this.s_mark = new mapboxgl.Marker( 
-            this.s_mark_el, { anchor: 'bottom-right' } 
-            ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] )
+            this.s_mark_el, { anchor: 'bottom-right' } ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] )
 
         this.resetChart( )
     }
@@ -530,24 +529,31 @@ export class Device {
     updateDevicePageMap( ) { }
     updateMarkerMode = ( ) => {
         // console.log( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt )
-        switch ( this.cfg.cfg_vlv_tgt ) {
-            case 0: 
+        // switch ( this.cfg.cfg_vlv_tgt ) {
+        // let mode = getMode( this.cfg, this.smp )    
+        switch ( getMode( this.cfg, this.smp ) ) {
+
+            case MODE_BUILD: 
                 this.mark_el.className = 'marker build'; 
                 this.s_mark_el.className = 'marker build'; 
                 break;
-            case 2: 
+
+            case MODE_VENT: 
                 this.mark_el.className = 'marker vent'; 
                 this.s_mark_el.className = 'marker vent'; 
                 break
-            case 4: 
-            case 6: 
-                if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) {
-                    this.mark_el.className = 'marker hi_flow'; 
-                    this.s_mark_el.className = 'marker hi_flow'; 
-                } else {
+
+            case MODE_HI_FLOW: 
+                this.mark_el.className = 'marker hi_flow'; 
+                this.s_mark_el.className = 'marker hi_flow';
+                break
+
+            case MODE_LO_FLOW: 
+                // if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) { 
+                // } else {
                     this.mark_el.className = 'marker lo_flow'; 
                     this.s_mark_el.className = 'marker lo_flow'; 
-                }
+                // }
                 break
         }
     }
@@ -634,37 +640,39 @@ export class Device {
     resetChart( ) {
         /* CHART DATA ( LIVE ) **************************************************************/
         this.cht = NewChartData( )
-        this.cht_ch4 = this.cht.data.datasets[0]
-        this.cht_hi_flow = this.cht.data.datasets[1]
-        this.cht_lo_flow = this.cht.data.datasets[2]
-        this.cht_press = this.cht.data.datasets[3]
-        this.cht_bat_amp = this.cht.data.datasets[4]
-        this.cht_bat_volt = this.cht.data.datasets[5]
-        this.cht_mot_volt = this.cht.data.datasets[6]
+        this.cht_select = this.cht.data.datasets[CHT_DATASET_INDEX_SELECT]
+        this.cht_ch4 = this.cht.data.datasets[CHT_DATASET_INDEX_CH4]
+        this.cht_hi_flow = this.cht.data.datasets[CHT_DATASET_INDEX_HI_FLOW]
+        this.cht_lo_flow = this.cht.data.datasets[CHT_DATASET_INDEX_LO_FLOW]
+        this.cht_press = this.cht.data.datasets[CHT_DATASET_INDEX__PRESS]
+        this.cht_bat_amp = this.cht.data.datasets[CHT_DATASET_INDEX_BAT_AMP]
+        this.cht_bat_volt = this.cht.data.datasets[CHT_DATASET_INDEX_BAT_VOLT]
+        this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX_MOT_VOLT]
         this.cht_point_limit = 200
         this.cht_scale_margin = 0.2
     }
 
     /* WEBSOCKET METHODS **************************************************************/
-    disconnectWS( ) { }
+    disconnectWS = async( ) => { }
     connectWS = async( ) => {
 
         let au = get( AUTH )
-        
+        console.log( `class Device -> ${ this.reg.des_dev_serial } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
+
         let reg = encodeURIComponent(JSON.stringify( this.reg ) )
         let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.token }&des_reg=${ reg }`
         const ws = new WebSocket( url )
-        ws.onopen = ( e ) => { 
+        ws.onopen = ( e ) => {  
             this.socket = true
             updateDevicesStore( )
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
         }
         ws.onerror = ( e ) => { 
-            ws.send( "close" )
+            // ws.send( "close" )
             ws.close( )
             this.socket = false
             updateDevicesStore( )
-            console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket ERROR\n${ JSON.stringify( e )  }\n` ) 
+            console.log( `class Device -> ${ this.reg.des_dev_serial } -> ws.onerror ERROR\n${ JSON.stringify( e )  }\n` ) 
         }
         ws.onmessage = ( e ) => {
 
@@ -744,13 +752,12 @@ export class Device {
             // this.update( ) 
             updateDevicesStore( )
         } 
-        this.disconnectWS =  ( ) => {
+        this.disconnectWS =  async( ) => {
             ws.send( "close" )
             ws.close( ) 
             console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
             this.socket = false
             this.highlight = false
-            // this.update( ) 
             updateDevicesStore( )
         }
         await waitMilli(1000)
@@ -760,24 +767,23 @@ export class Device {
     startJob = async( ) => {
         console.log( "Start new job for device: ", this.reg.des_dev_serial ) 
 
-        this.job = new Job( )
+        // this.job = new Job( )
 
         let au = get( AUTH )
 
         if ( !this.socket ) { await this.connectWS( ) }
 
-        this.adm.adm_user_id = au.id
-        this.adm.adm_app = client_app
+        // this.adm.adm_user_id = au.id
+        // this.adm.adm_app = client_app
 
-        this.sta.sta_user_id = au.id
-        this.sta.sta_app = client_app
+        // this.sta.sta_user_id = au.id
+        // this.sta.sta_app = client_app
 
-        this.hdr.hdr_user_id = au.id
-        this.hdr.hdr_app = client_app
-        this.hdr.hdr_job_end = -1
+        // this.hdr.hdr_user_id = au.id
+        // this.hdr.hdr_app = client_app
 
-        this.cfg.cfg_user_id = au.id
-        this.cfg.cfg_app = client_app
+        // this.cfg.cfg_user_id = au.id
+        // this.cfg.cfg_app = client_app
 
         this.reg.des_job_reg_user_id = au.id
         this.reg.des_job_reg_app = client_app
@@ -805,6 +811,36 @@ export class Device {
 
         if ( reg.status === "success" ) { 
             console.log("Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+        }
+    }
+    cancelStartJob = async( ) => { 
+        console.log( "Cancel Start job request for device: ", this.reg.des_dev_serial ) 
+
+        let au = get( AUTH )
+
+        if ( !this.socket ) { await this.connectWS( ) }
+      
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+
+        let dev = { reg: this.reg }
+
+        console.log( "Send CANCEL START JOB Request:\n", dev ) 
+        let req = new Request( API_URL_C001_V001_DEVICE_CANCEL_START, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res_raw = await fetch( req )
+        let res = await res_raw.json( )
+        console.log("des_api.js -> device.cancelStartJob( ) ->  RESPONSE res:\n", res )
+
+        if ( res.status === "success" ) { 
+            console.log("Cancel Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            this.sta = res.data.device.sta
         }
     }
     endJob = async( ) => {
@@ -845,7 +881,7 @@ export class Device {
         
         let au = get( AUTH )
         
-        if ( !this.socket ) { this.connectWS( ) }
+        if ( !this.socket ) { await this.connectWS( ) }
         
         this.adm.adm_user_id = au.id
         this.adm.adm_app = client_app
@@ -875,12 +911,47 @@ export class Device {
             console.log("SET ADMIN Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
+    setState = async( ) => {
+        console.log( "Set State for device: ", this.reg.des_dev_serial ) 
+        
+        let au = get( AUTH )
+        
+        if ( !this.socket ) { await this.connectWS( ) }
+        
+        this.sta.sta_user_id = au.id
+        this.sta.sta_app = client_app
+
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+
+        let dev = {
+            sta: this.sta,
+            reg: this.reg
+        }
+        console.log( "Send DEVICE SET STATE Request:\n", dev ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_STA, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let reg = await res.json( )
+        console.log("des_api.js -> device.setState( ) ->  RESPONSE reg:\n", reg )
+
+        if ( reg.status === "success" ) { 
+            console.log("DEVICE SET STATE Request -> SUCCESS:\n", this.reg.des_dev_serial )
+        }
+    }
     setHeader = async( ) => {
         console.log( "Set Header for device: ", this.reg.des_dev_serial ) 
         
         let au = get( AUTH )
         
-        if ( !this.socket ) { this.connectWS( ) }
+        if ( !this.socket ) { await this.connectWS( ) }
         
         this.hdr.hdr_user_id = au.id
         this.hdr.hdr_app = client_app
@@ -915,7 +986,7 @@ export class Device {
         
         let au = get( AUTH )
         
-        if ( !this.socket ) { this.connectWS( ) }
+        if ( !this.socket ) { await this.connectWS( ) }
         
         this.cfg.cfg_user_id = au.id
         this.cfg.cfg_app = client_app
@@ -955,7 +1026,7 @@ export class Device {
         
         let au = get( AUTH )
         
-        if ( !this.socket ) { this.connectWS( ) }
+        if ( !this.socket ) { await this.connectWS( ) }
         
         evt.evt_user_id = au.id
         evt.evt_app = client_app
@@ -986,6 +1057,15 @@ export class Device {
         }
     }
 }
+/* OPERATION CODES ( Event.EvtCode 0 : 999 ) *******************************************************/
+export const OP_CODES = {
+    DES_REG_REQ: 0,    // USER REQUEST -> CHANGE DEVICE'S OPERATIONAL DATA EXCHANGE SERVER
+    DES_REGISTERED: 1, // DEVICE RESPONSE -> SENT TO NEW DATA EXCHANGE SERVER
+    JOB_ENDED: 2,      // DEVICE RESPONSE -> JOB ENDED
+    JOB_START_REQ: 3,  // USER REQUEST -> START JOB
+    JOB_STARTED: 4,    // DEVICE RESPONSE -> JOB STARTED
+    JOB_END_REQ: 5    // USER REQUEST -> END JOB
+}
 
 /* JOB DATA STRUCTURES ********************************************************************************/
 export class Job {
@@ -1012,6 +1092,7 @@ export class Job {
         this.reg = reg
         
         this.highlight = false
+        this.selection = 0
         /* JOB SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
         this.s_mark_el.className = 'marker job'; 
@@ -1106,18 +1187,40 @@ export class Job {
     resetChart( ) {
         /* CHART DATA **************************************************************/
         this.cht = NewChartData( )
+
+        this.cht_select = this.cht.data.datasets[CHT_DATASET_INDEX_SELECT]
+        this.cht_ch4 = this.cht.data.datasets[CHT_DATASET_INDEX_CH4]
+        this.cht_hi_flow = this.cht.data.datasets[CHT_DATASET_INDEX_HI_FLOW]
+        this.cht_lo_flow = this.cht.data.datasets[CHT_DATASET_INDEX_LO_FLOW]
+        this.cht_press = this.cht.data.datasets[CHT_DATASET_INDEX__PRESS]
+        this.cht_bat_amp = this.cht.data.datasets[CHT_DATASET_INDEX_BAT_AMP]
+        this.cht_bat_volt = this.cht.data.datasets[CHT_DATASET_INDEX_BAT_VOLT]
+        this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX_MOT_VOLT]
+        
         this.cht.options.plugins.zoom.zoom.onZoomComplete = this.chartZoomSelect
-        this.cht_ch4 = this.cht.data.datasets[0]
 
-        this.cht_hi_flow = this.cht.data.datasets[1]
+        this.cht.options.onClick = ( e ) => {
+            console.log( "job.cht.options.onClick( e ) -> e: ", e )
+            this.selection = Math.floor( e.chart.scales.x.getValueForPixel( e.x ) )
+            console.log( "job.cht.options.onClick( e ) -> this.selection: ", this.selection )
+
+            let xs = this.cht_press.data.map( d => d.x )
+            if ( xs[0] > this.selection ) { this.selection = xs[0] }
+            else if ( xs.pop( ) < this.selection  ) { this.selection = xs.pop( ) }
+            else { 
+                let pre = xs.filter( x => x <= this.selection ).pop( ) 
+                let sub = xs.filter( x => x >= this.selection )[0] 
+                this.selection = ( this.selection - pre < sub - this.selection ? pre : sub )                
+            }
+    
+            this.cht_select.data = [  
+                { x: this.selection, y: Number.MIN_SAFE_INTEGER }, 
+                { x: this.selection, y: Number.MAX_SAFE_INTEGER } 
+            ]
+            updateJobsStore( )
+        }
+
         this.cht.options.scales.y_hi_flow.display = true
-
-        this.cht_lo_flow = this.cht.data.datasets[2]
-
-        this.cht_press = this.cht.data.datasets[3]
-        this.cht_bat_amp = this.cht.data.datasets[4]
-        this.cht_bat_volt = this.cht.data.datasets[5]
-        this.cht_mot_volt = this.cht.data.datasets[6]
         this.cht_point_limit = 0
         this.cht_scale_margin = 0.1
     }
@@ -1131,7 +1234,7 @@ export class Job {
         let scls = e.chart.scales
         console.log( "job.chartZoomSelect... scales\n", scls )
     
-        let xs = ( dats[0].data.map( v => { return v.x } ) ).filter( x => {
+        let xs = ( dats[CHT_DATASET_INDEX_CH4].data.map( v => { return v.x } ) ).filter( x => {
             return ( 
                 x > Math.round( e.chart.scales["x"].min ) &&
                 x < Math.round( e.chart.scales["x"].max )
@@ -1146,6 +1249,7 @@ export class Job {
     
         dats.forEach( ds => { 
             let scl = e.chart.scales[ds.yAxisID]
+            console.log( "job.chartZoomSelect( ) -> dats.forEach( ds ): -> scl.id  ", scl.id )
             if ( scl.id != "y") {
                 let vStart = ds.data.filter( v => { return v.x == xmin } )[0]
                 let vEnd = ds.data.filter( v => { return v.x == xmax } )[0]
@@ -1566,8 +1670,34 @@ export class Config {
         this.cfg_diag_log = cfg_diag_log // milliseconds
         this.cfg_diag_trans = cfg_diag_trans // milliseconds
     }
+    
+    
 }
 
+/* MODE ( VALVE POSITIONS ) *************************************************************************/
+export const MODE_BUILD = 0
+export const MODE_VENT = 2
+export const MODE_HI_FLOW = 4
+export const MODE_LO_FLOW = 6
+export const getMode = ( cfg, smp ) => {
+
+    switch ( cfg.cfg_vlv_tgt ) {
+
+        case MODE_BUILD: 
+            return MODE_BUILD
+            break
+
+        case MODE_VENT: 
+            return MODE_VENT
+            break
+
+        case MODE_HI_FLOW: 
+        case MODE_LO_FLOW:
+            return ( smp.smp_lo_flow > cfg.cfg_flow_tog ? MODE_HI_FLOW : MODE_LO_FLOW ) 
+            break   
+    }
+
+}
 /* 
 WEB CLIENT -> HTTP -> DES ( JOB DB WRITE ) -> MQTT -> DEVICE  
   - Device loggs event to as is memory ( no reponse )
@@ -1718,65 +1848,72 @@ export const COLORS = {
     BAT_VOLT: BASE.PURPLE,
     MOT_VOLT: BASE.RED
 }
+export const CHT_DATASET_INDEX_SELECT = 0
+export const CHT_DATASET_INDEX_CH4 = 1
+export const CHT_DATASET_INDEX_HI_FLOW = 2
+export const CHT_DATASET_INDEX_LO_FLOW = 3
+export const CHT_DATASET_INDEX__PRESS = 4
+export const CHT_DATASET_INDEX_BAT_AMP = 5
+export const CHT_DATASET_INDEX_BAT_VOLT = 6
+export const CHT_DATASET_INDEX_MOT_VOLT = 7
 
-import { LineChartModel, LineChartXScale, LineChartScale, LineChartDataSet, CHART_LINE_WIDTH, CHART_MARKER_RADIUS } from './common/chart/line_chart'
-const NewChartDataSets = ( ) => {
-    return [
-
-         /* 0 */
-        new LineChartDataSet( [ ], "Methane", "y_ch4", true,
-            CHART_LINE_WIDTH, RGBA( COLORS.CH4, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.CH4, 0.7 ) 
-        ),
+import { LineChartModel, LineChartXScale, LineChartScale, LineChartDataSet, LineChartXSelectScale, CHART_LINE_WIDTH, CHART_MARKER_RADIUS } from './common/chart/line_chart'
+const NewChartDataSets = ( datasets = [ ] ) => {
+    // return [
 
          /* 1 */
-        new LineChartDataSet( [ ], "High Flow", "y_hi_flow", true, 
-            CHART_LINE_WIDTH, RGBA( COLORS.HI_FLOW, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.HI_FLOW, 0.7 ) 
-        ),  
+        datasets.push( new LineChartDataSet( [ ], "Methane", "y_ch4", true,
+            CHART_LINE_WIDTH, RGBA( COLORS.CH4, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.CH4, 0.7 ) 
+        ) )
 
          /* 2 */
-        new LineChartDataSet( [ ], "Low Flow", "y_lo_flow", true,
-            CHART_LINE_WIDTH,  RGBA( COLORS.LO_FLOW, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.LO_FLOW, 0.7 ) 
-        ),
+         datasets.push( new LineChartDataSet( [ ], "High Flow", "y_hi_flow", true, 
+            CHART_LINE_WIDTH, RGBA( COLORS.HI_FLOW, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.HI_FLOW, 0.7 ) 
+        ) )
 
          /* 3 */
-        new LineChartDataSet( [ ], "Pressure", "y_press", true,
-            CHART_LINE_WIDTH, RGBA( COLORS.PRESS, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.PRESS, 0.7 ) 
-        ),
+         datasets.push( new LineChartDataSet( [ ], "Low Flow", "y_lo_flow", true,
+            CHART_LINE_WIDTH,  RGBA( COLORS.LO_FLOW, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.LO_FLOW, 0.7 ) 
+        ) )
 
          /* 4 */
-        new LineChartDataSet( [ ], "Battery Amps", "y_bat_amp", false, 
-            CHART_LINE_WIDTH, RGBA( COLORS.BAT_AMP, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.BAT_AMP, 0.7 ) 
-        ),
+         datasets.push( new LineChartDataSet( [ ], "Pressure", "y_press", true,
+            CHART_LINE_WIDTH, RGBA( COLORS.PRESS, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.PRESS, 0.7 ) 
+        ) )
 
          /* 5 */
-        new LineChartDataSet( [ ], "Battery Volts", "y_bat_volt", false,
-            CHART_LINE_WIDTH, RGBA( COLORS.BAT_VOLT, 0.3 ),  
-            CHART_MARKER_RADIUS, RGBA( COLORS.BAT_VOLT, 0.7 ) 
-        ),
+         datasets.push( new LineChartDataSet( [ ], "Battery Amps", "y_bat_amp", false, 
+            CHART_LINE_WIDTH, RGBA( COLORS.BAT_AMP, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( COLORS.BAT_AMP, 0.7 ) 
+        ) )
 
          /* 6 */
-        new LineChartDataSet( [ ], "Motor Volts", "y_mot_volt", false,
+         datasets.push( new LineChartDataSet( [ ], "Battery Volts", "y_bat_volt", false,
+            CHART_LINE_WIDTH, RGBA( COLORS.BAT_VOLT, 0.3 ),  
+            CHART_MARKER_RADIUS, RGBA( COLORS.BAT_VOLT, 0.7 ) 
+        ) ) 
+
+         /* 7 */
+         datasets.push( new LineChartDataSet( [ ], "Motor Volts", "y_mot_volt", false,
             CHART_LINE_WIDTH, RGBA( COLORS.MOT_VOLT, 0.3 ), 
             CHART_MARKER_RADIUS, RGBA( COLORS.MOT_VOLT, 0.7 ) 
-        ),
+        ) )
 
-        new LineChartDataSet( [ ], "Selection", "y", true,
-            CHART_LINE_WIDTH, RGBA( BASE.AQUA, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( BASE.AQUA, 0.7 ) 
-        ),
-    ]
+    // ]
 
+    return datasets
 }
 const NewChartScales = ( ) => {
 
     return {
         
         x: new LineChartXScale( ),
+
+        y: new LineChartXSelectScale( ),
         
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
             RGBA( COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false 
@@ -1808,23 +1945,16 @@ const NewChartScales = ( ) => {
         y_mot_volt: new LineChartScale( "Mot ( V )", 2, 0, 15, "right", 
             RGBA( COLORS.MOT_VOLT, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
             false  
-        ),
-
-        y: new LineChartScale( "Selection", 1, 0, 100, "left", 
-            RGBA( BASE.AQUA, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false, false 
         )
+
     }
 
 }
-// const NewXSelected = ( ) => {
-//     return new LineChartXSelected( 1699402380496, 1699402380496 ) 
-    
-// }
+
 export const NewChartData = ( ) => {
     let cht = new LineChartModel( "", RGBA( BASE.LIGHT, 0.7 ) )
-    cht.data.datasets = NewChartDataSets( )
     cht.options.scales = NewChartScales( )
-    // cht.options.plugins.annotation.annotations = NewXSelected( ) 
+    cht.data.datasets = NewChartDataSets( cht.data.datasets )
     return cht
 }
 

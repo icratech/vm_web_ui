@@ -9,7 +9,7 @@
     export let data
     $: console.log( "/job/+page.svelte -> data ", data )
     onMount( async( ) => { 
-        console.log( "/job/+page.svelte -> onMount( ) -> $JOBS_LOADED: ", $JOBS_LOADED )
+        // console.log( "/job/+page.svelte -> onMount( ) -> $JOBS_LOADED: ", $JOBS_LOADED )
         if( !$JOBS_LOADED ) { await get_jobs( ) }
     } )
 

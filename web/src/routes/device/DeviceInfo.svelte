@@ -4,7 +4,7 @@
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher( )
 
-    import { Device, Sample } from "../../lib/des_api"
+    import { Device, OP_CODES, Sample } from "../../lib/des_api"
 
     import DeviceMode from "./DeviceMode.svelte"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
@@ -12,6 +12,7 @@
     // import HeaderCardMobile from '../../lib/components/header/HeaderCardMobile.svelte'
     
     import PillButton from '../../lib/common/button/PillButton.svelte'
+    import btn_img_default from "$lib/images/btn-img-default.svg"
     import btn_img_start from "$lib/images/btn-img-start.svg"
     import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
     import btn_img_stop from "$lib/images/btn-img-stop.svg"
@@ -23,26 +24,62 @@
     export let device = new Device( )
     $: cfg = device.cfg
     $: hdr = device.hdr
+    $: sta = device.sta
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    $: available = hdr.hdr_job_start == 0
-    $: pending = hdr.hdr_job_end != 0
-    $: jobStartColor = ( pending ? 'bg-orange' : 'bg-green' )
-    $: jobStartText = ( pending ? 'Pending Command' : 'Start Job' )
-    $: jobStartIcon = ( pending ? btn_img_cmd : btn_img_start ) 
-    $: jobStartFunc = ( ) => { ( pending ? device.endJob( ) : dispatch( 'start' ) ) }
+    $: cmdButtonColor = 'bg-accent'
+    $: cmdButtonHint = 'Not Set'
+    $: cmdButtonIcon = btn_img_default
+    $: cmdButtonFunc = ( ) => {
+        console.log( "device.sta.sta_logging: ", sta.sta_logging, OP_CODES.JOB_ENDED )
+    } 
 
-    $: active = ( hdr.hdr_job_start != 0 )
+    $: { switch ( sta.sta_logging ) {
+
+            case OP_CODES.JOB_ENDED: 
+                cmdButtonColor = 'bg-green'
+                cmdButtonHint = 'Start Job'
+                cmdButtonIcon = btn_img_start
+                cmdButtonFunc = ( ) => { dispatch( 'start' ) }
+                break 
+
+            case OP_CODES.JOB_STARTED: 
+                cmdButtonColor = 'bg-red'
+                cmdButtonHint = 'End Job'
+                cmdButtonIcon = btn_img_stop
+                cmdButtonFunc = ( ) => { device.endJob( ) }
+                break 
+            
+            case OP_CODES.JOB_START_REQ:
+                cmdButtonColor = 'bg-orange' 
+                cmdButtonHint = 'Cancel Start Job' 
+                cmdButtonIcon = btn_img_cmd
+                cmdButtonFunc = ( ) => { device.cancelStartJob( ) }
+                break
+
+            case OP_CODES.JOB_END_REQ: 
+                cmdButtonColor = 'bg-pink' 
+                cmdButtonHint = 'Cancel End Job' 
+                cmdButtonIcon = btn_img_cmd
+                // cmdButtonFunc = ( ) => { /* cnacel end */ }
+                cmdButtonFunc = ( ) => { device.cancelStartJob( ) }
+                break
+
+        }
+    }
+
     $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
-
+    // $: socketButtonFunc =  async( ) => { ( device.socket ? await device.disconnectWS( ) : await device.connectWS( ) ) }
+    $: socketButtonFunc =  ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) }
+    
     const makeMap = ( ctx ) => {
 
         let map = new mapboxgl.Map(  {
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
-            zoom : ( active ? 5.5 : 1 ),
+            zoom : ( sta.sta_logging == OP_CODES.JOB_STARTED ? 5.5 : 1 ),
             interactive: true
         } )
 
@@ -72,33 +109,20 @@
 
             <div class="flx-row btns">
 
+                <PillButton 
+                    bind:cls={ cmdButtonColor }
+                    on:click={ cmdButtonFunc }
+                    bind:img={ cmdButtonIcon }
+                    bind:hint={ cmdButtonHint }
+                />
 
-                { #if available || pending }
-                <PillButton 
-                    cls={ jobStartColor }
-                    on:click={ jobStartFunc }
-                    img={ jobStartIcon }
-                    hint={ jobStartText }
-                />
-                { /if }
-            
-                { #if active && !pending }
-                <PillButton 
-                    cls={ 'bg-red' }
-                    on:click={ ( ) => { device.endJob( ) } }
-                    img={ btn_img_stop }
-                    hint={ 'End Job' } 
-                />
-                { /if }  
-                   
                 <PillButton 
                     cls={ socketButtonColor }
-                    on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) } }
+                    on:click={ socketButtonFunc }
                     img={ btn_img_watch }
                     hint={ socketButtonText } 
                 />
 
-            
             </div> 
 
         </div>

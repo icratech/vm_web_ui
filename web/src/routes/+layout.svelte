@@ -4,7 +4,9 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
-    import { AUTH, get_user, get_user_list, get_event_types, DEVICES, DEMO_DEVICES, } from '../lib/des_api';
+    import { AUTH, 
+        get_user, 
+        get_user_list, get_event_types, DEVICES, DEMO_DEVICES, } from '../lib/des_api';
     import Header from './Header.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
     import btn_img_home from "$lib/images/btn-img-home.svg"
@@ -14,7 +16,7 @@
     onMount( async( ) => {
 
         if ( sessionStorage.getItem( 'des_token') != 'none' ) { // console.log( "Current des_token: ", token )
-            await get_user( ) 
+            await get_user( sessionStorage.getItem( 'des_token') ) 
         }
 
         await get_user_list( )
@@ -22,9 +24,9 @@
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
         CAUSES THE SERVER TO UNSUBSCRIBE THIS DEVICE USER'S MQTT CLIENT FROM ALL TOPICS */
-        window.onbeforeunload = ( ) => { 
-            $DEVICES.forEach( dev => { dev.disconnectWS( ) } )
-            $DEMO_DEVICES.forEach( dev => { dev.disconnectSIM( ) } ) 
+        window.onbeforeunload = async( ) => { 
+            $DEVICES.forEach( async( dev ) => { if ( dev.socket ) { await dev.disconnectWS( ) } } )
+            // $DEMO_DEVICES.forEach( dev => { dev.disconnectSIM( ) } ) 
         } 
         page = window.location.href.split( "/" ).pop( )
     } )
@@ -69,13 +71,26 @@
         }
     }
 
+    const goto_home = ( ) => {
+        goto( '/' ) 
+        page = ''
+    }
 
+    const goto_device = ( ) => {
+        goto( '/device' ) 
+        page = 'device'
+    }
+
+    const goto_job = ( ) => {
+        goto( '/job' ) 
+        page = 'job'
+    }
 
 </script>
 
 <div class="flx-col main">
 
-    <Header bind:page_name/>
+    <Header bind:page_name on:logout={ goto_home }/>
     
     <div class="flx-row layout">
 
@@ -85,19 +100,19 @@
 
                 <div class="flx-col ops">
                     <PillButton 
-                        on:click={ ( ) => { goto( '/' ); page = '' } } 
+                        on:click={ goto_home } 
                         cls={ home_btn_color }
                         img={ btn_img_home } 
                         hint={ null } 
                     />
                     <PillButton 
-                        on:click={ ( ) => { goto( '/device' ); page = 'device' } } 
+                        on:click={ goto_device } 
                         cls={ device_btn_color }
                         img={ btn_img_gauge } 
                         hint={ 'Device list' }  
                     />
                     <PillButton 
-                        on:click={ ( ) => { goto( '/job' ); page = 'job' } } 
+                        on:click={ goto_job } 
                         cls={ job_btn_color }
                         img={ btn_img_report } 
                         hint={ 'Job list' } 

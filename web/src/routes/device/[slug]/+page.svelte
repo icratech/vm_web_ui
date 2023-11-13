@@ -11,6 +11,7 @@
     import EventBuilderOp from '../../../lib/components/event/EventBuilderOp.svelte'
     
     import btn_img_adm from "$lib/images/btn-img-adm.svg"
+    import btn_img_sta from "$lib/images/btn-img-sta.svg"
     import btn_img_hdr from "$lib/images/btn-img-hdr.svg"
     import btn_img_cfg from "$lib/images/btn-img-cfg.svg"
     import btn_img_vlv_vent from "$lib/images/btn-img-vlv-vent.svg"
@@ -58,6 +59,12 @@
                                 img={ btn_img_adm }
                                 on:click={ device.setAdmin }
                                 hint='Send Admin'
+                            />
+                            <PillButton
+                                cls={ 'bg-light' } 
+                                img={ btn_img_sta }
+                                on:click={ device.setState }
+                                hint='Send State'
                             />
                             <PillButton
                                 cls={ 'bg-light' }

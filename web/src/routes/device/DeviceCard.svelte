@@ -54,7 +54,7 @@
                  
                 <PillButton 
                     cls={ socketButtonColor }
-                    on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) } }
+                    on:click={ async( ) => { ( device.socket ? await device.disconnectWS( ) : await device.connectWS( ) ) } }
                     img={ btn_img_watch }
                     hint={ socketButtonText } 
                 />

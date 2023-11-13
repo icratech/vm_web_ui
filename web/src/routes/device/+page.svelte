@@ -3,7 +3,7 @@
 
     import { onMount } from 'svelte'
 
-    import { DEVICES, DEVICES_LOADED, DESSearchParam, get_devices, updateDevicesStore } from '../../lib/des_api'
+    import { DEVICES, DEVICES_LOADED, DESSearchParam, get_user, get_devices, connect_devices, updateDevicesStore } from '../../lib/des_api'
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
@@ -11,7 +11,11 @@
     $: console.log( "/device/+page.svelte -> data ", data )
     onMount( async( ) => { 
         // console.log( "/device/+page.svelte -> onMount( ) -> $DEVICES_LOADED: ", $DEVICES_LOADED )
-        if( !$DEVICES_LOADED ) { await get_devices( ) }
+        if( !$DEVICES_LOADED ) { 
+            // await get_user( sessionStorage.getItem( 'des_token') )
+            await get_devices( ) 
+        }
+        await connect_devices( ) 
     } )
 
     $: search = new DESSearchParam( )

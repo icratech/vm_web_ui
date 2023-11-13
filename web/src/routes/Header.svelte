@@ -6,10 +6,13 @@
     import PillButton from '../lib/common/button/PillButton.svelte'
     import vent_medic_logo from "$lib/images/vent-medic-hdr-logo.svg"
 
+	import { createEventDispatcher } from 'svelte'
+	const dispatch = createEventDispatcher()
+
     let email = ""
     let password = ""
     $: loginButtonColor = ( $AUTH.logged_in ? 'bg-purple' : 'bg-accent' )
-    $: loginButtonFunc = ( $AUTH.logged_in ? ( ) => { logout( ); goto( '/' ) } : ( ) => { login( email, password ) } )
+    $: loginButtonFunc = ( $AUTH.logged_in ? ( ) => { logout( ); dispatch( 'logout' ); } : ( ) => { login( email, password ) } )
 
     export let page_name = "PAGE_NAME"
 </script>

@@ -7,6 +7,7 @@
     import InputText from "$lib/common/input_text/InputText.svelte"
     import InputTextArea from "$lib/common/input_text_area/InputTextArea.svelte"
     import PillButton from "$lib/common/button/PillButton.svelte"
+    import DateTimeDisplay from "$lib/common/date_time/DateTimeDisplay.svelte"
 
     import { Event, Job } from "../../des_api";
 
@@ -22,16 +23,12 @@
     }
 
     const clearEvent = ( ) => {
-        evt = new Event( )
-        
+        evt = new Event( ) 
     }
 
     $: msg_limit = evt.evt_msg.length >= evt.MaxMsg
     $: msg_limit_style = ( msg_limit ? "color: var(--red);" : "color: var(--grey_03);"  )
     
-    // $: title_limit = evt.evt_title.length >= evt.MaxTitle
-    // $: title_limit_style = ( title_limit ? "color: var(--red);" : "color: var(--grey_03);"  )
-
     $: { 
         evt.evt_title = evt.evt_title.slice( 0, evt.MaxTitle )
         evt.evt_msg = evt.evt_msg.slice( 0, evt.MaxMsg )  
@@ -47,6 +44,8 @@
         <div class="flx-row in">
             <p class="lbl">Type:</p>
             <div class="flx-row">{ event_type.evt_typ_name }</div> 
+
+            <DateTimeDisplay bind:date={ evt.evt_time }/>
         </div>
         
         <div class="flx-row in">
@@ -79,6 +78,8 @@
 
             </div>
 
+            <DateTimeDisplay bind:date={ evt.evt_time }/>
+
             <div class="flx-row count" style={ msg_limit_style }>
                 { #if msg_limit }
                     Maximum Characters: { evt.MaxMsg }
@@ -101,7 +102,7 @@
     .lbl {
         display: flex;
         flex-direction: row;
-        justify-content: flex-end;
+        justify-content: flex-start;
         align-items: center;
         color: var( --accent_a);
         font-size: 1rem;

@@ -59,7 +59,11 @@ export class LineChartModel {
         
         this.data = { 
             labels: [ ], 
-            datasets: [ ] 
+            datasets: [ 
+                new LineChartDataSet( [ ], "Selection", "y", true, 
+                    CHART_LINE_WIDTH, RGBA( BASE.AQUA, 0.3 ),  
+                    CHART_LINE_WIDTH, RGBA( BASE.AQUA, 0.7 ) ) 
+            ] 
         }
         
         this.options = {
@@ -81,7 +85,7 @@ export class LineChartModel {
                 intersect: false, 
                 mode: 'nearest',
                 axis: 'x',
-                includeINvisible: true, 
+                // includeInvisible: false, 
             },
             events: [ 'click' ],
             scales: { 
@@ -279,20 +283,17 @@ export class LineChartXScale {
     }
 }
 
-// export class LineChartXSelected {
-//     constructor( xmin, xmax ) {
-//         this.type = 'line'
-//         this.adjustScaleRange= false
-//         this.xScaleID = 'x'
-//         this.yScaleID = 'y_ch4'
-//         this.xMin = xmin
-//         this.xMax = xmax
-//         this.yMin = 0
-//         this.yMax = 1000
-//         this.borderColor = 'rgb(255, 99, 132)'
-//         this.borderWidth = 2
-//     }
-// }
+/* CHART SECECTION CURSOR */
+
+export class LineChartXSelectScale {
+    constructor( ) {
+        this.type = 'linear'
+        this.adjustScaleRange= false
+        this.min = 0
+        this.max = 0
+        this.display = false
+    }
+}
 
 export class XYPoint { 
     constructor( 
