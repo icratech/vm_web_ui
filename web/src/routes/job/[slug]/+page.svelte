@@ -4,7 +4,7 @@
     // $: job = data.resp.job
     // $: message = data.resp.message
     // $: status = data.resp.status
-    // $: { console.log( `./job/[slug]: ${ status.toUpperCase() }\t${ message }` ) }
+    // $: { debug( `./job/[slug]: ${ status.toUpperCase() }\t${ message }` ) }
 
     import PillButton from '$lib/common/button/PillButton.svelte'
     import InputText from '$lib/common/input_text/InputText.svelte'
@@ -17,30 +17,34 @@
     import btn_img_report from "$lib/images/btn-img-report.svg"
 
     import { onMount } from "svelte"
-	import { JOBS, Header, Event, Report, Section, SectionDataSet  } from "../../../lib/des_api"
+	import { JOBS, Header, Event, Report, Section, SectionDataSet, debug  } from "../../../lib/des_api"
     
     export let data
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
-    $: hdr = job.headers.pop( )
+
+    /* TODO : RETRIEVE LAST HEADER FROM LIST */
+    $: hdr = JSON.parse( job.reg.des_job_json ).hdr
+    // $: hdr = job.headers.pop( )
+    
     let new_hdr = new Header( )
 
     $: loaded = false
     onMount( async( ) => {
         loaded = await job.getJobData( )
-        console.log( job )
+        debug( job )
     } )
     let cur_rep = new Report( )
 
     let new_rep = new Report( )
     const makeReport = ( ) => {
-        console.log(  "new report title: ", new_rep.rep_title )
+        debug(  "new report title: ", new_rep.rep_title )
         job.newReport( new_rep )
         cur_rep = new_rep
         new_rep = new Report( )
     }
     let new_sec = new Section( )
     const makeSection = ( rep ) => {
-        console.log(  "new section name: ", new_sec.sce_name )
+        debug(  "new section name: ", new_sec.sce_name )
         rep.addSection( new_sec )
         new_sec = new Section( )
     }
@@ -91,14 +95,14 @@
                 <div class="flx-col btns">
     
                     <PillButton 
-                        on:click={ ( new_rep.rep_title != "" ? makeReport : console.log( "enter a report title" ) ) }
+                        on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
                         cls={ 'bg-pink' }
                         img={ btn_img_report }
                         hint={ 'New Report' } 
                     />
 
                     <PillButton 
-                        on:click={ ( new_sec.sec_name != "" ? makeSection( cur_rep ) : console.log( "enter a section name" ) ) }
+                        on:click={ ( new_sec.sec_name != "" ? makeSection( cur_rep ) : debug( "enter a section name" ) ) }
                         cls={ 'bg-pink' }
                         img={ btn_img_report }
                         hint={ 'New Section' } 

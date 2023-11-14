@@ -16,7 +16,7 @@
     
     $: { if( init != false & txt != "" ) { resize( ) } }
     
-    const resize = async( ) => { // console.log( `Resizing textarea: ${ guid }`)
+    const resize = async( ) => { // debug( `Resizing textarea: ${ guid }`)
         let txtArea = document.getElementById( guid )
         txtArea.parentNode.dataset.replicatedValue = txt
     }

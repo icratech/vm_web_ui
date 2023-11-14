@@ -27,14 +27,14 @@
             switch(e.button) {
                 case 0: // left
                 
-                    console.log( "ctx.addEventListener( 'mousedown', ( e ) ) -> chart: ", chart )
+                    debug( "ctx.addEventListener( 'mousedown', ( e ) ) -> chart: ", chart )
                     const canvasPosition = getRelativePosition( e, chart )
                     current = chart.scales.x.getValueForPixel( Math.floor( canvasPosition.x ) )
-                    console.log( "left click: ",  Math.floor( canvasPosition.x ), FormatDateTime( current  ) )
+                    debug( "left click: ",  Math.floor( canvasPosition.x ), FormatDateTime( current  ) )
 
                     break
                 case 1: // wheel
-                    console.log( "wheel click" )
+                    debug( "wheel click" )
                     break
                 case 2: // right
                     chart.resetZoom( )

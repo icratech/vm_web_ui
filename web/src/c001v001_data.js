@@ -74,8 +74,8 @@
 //         let x_min = set.pushSample( limit, point )
 //         let filt = set.data.filter( x => x.x >= x_min )
 //         let Ys = filt.map( p => p.y )
-//         let min = Math.min( ...Ys ) // console.log( min )
-//         let max = Math.max( ...Ys ) // console.log( max )
+//         let min = Math.min( ...Ys ) // debug( min )
+//         let max = Math.max( ...Ys ) // debug( max )
 //         if ( max - min > 0 ) {
 //             scale.min = min - ( ( max - min ) * scale_margin )
 //             scale.max = max +  ( ( max - min ) * scale_margin )
@@ -530,7 +530,7 @@
 
 //         let parse = Date.now( )
 
-//         console.log( `JobData -> getJobData( ) -> job_data\n
+//         debug( `JobData -> getJobData( ) -> job_data\n
 //         admins: ${ this.admins.length }\n
 //         configs: ${ this.configs.length }\n
 //         events: ${ this.events.length }\n
@@ -547,9 +547,9 @@
 //         \tvlv_pos: ${ this.xy_smp.vlv_pos.length }: ${ JSON.stringify( this.xy_smp.vlv_pos[ 0 ] ) }\n
 //         ` )
 
-//         console.log( `Fetch took ${ get - start } milliseconds... \n` )
-//         console.log( `Parse took ${ parse - get } milliseconds... \n` )
-//         console.log( `Total took ${ Date.now( ) - start } milliseconds... \n` )
+//         debug( `Fetch took ${ get - start } milliseconds... \n` )
+//         debug( `Parse took ${ parse - get } milliseconds... \n` )
+//         debug( `Total took ${ Date.now( ) - start } milliseconds... \n` )
 
 //         this.draw_chart = true
 //         return this

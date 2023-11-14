@@ -7,7 +7,7 @@
     $: place = ( is_integer ? 0 : 0.0 )
 
     $:  {
-        if (num === null || num === undefined ) { num = 0 } // console.log( "num: ", num )
+        if (num === null || num === undefined ) { num = 0 } // debug( "num: ", num )
         num = Number( is_integer ? num.toFixed(0) : num.toFixed(3) )
     }
 </script>

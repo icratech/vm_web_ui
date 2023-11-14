@@ -14,7 +14,7 @@
 
         /* UPDATES THE TIME... I'M SURE I HAD A REASON AT SOME POINT... */
         const interval = setInterval( ( ) => { 
-            let time = Date.now( ) //  console.log( "T: ", header.hdr_time )
+            let time = Date.now( ) //  debug( "T: ", header.hdr_time )
             device.adm.adm_time = time
             device.sta.sta_time = time
             device.hdr.hdr_time = time

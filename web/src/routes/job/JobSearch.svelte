@@ -24,7 +24,7 @@
         }
     } )
     const makeMap = ( ctx ) => {
-        // console.log( "JobSearch -> makeMap( )" )
+        // debug( "JobSearch -> makeMap( )" )
 
         map = new mapboxgl.Map(  {
             container: ctx,
@@ -34,11 +34,11 @@
         } )
         map.on( 'zoomend', ( ) => {
             search.getMapBounds( map ) 
-            dispatch( 'filter' ) //  console.log( "JobSearch -> map.on( zoomend ) -> Search region:", search )
+            dispatch( 'filter' ) //  debug( "JobSearch -> map.on( zoomend ) -> Search region:", search )
         } )
         map.on( 'dragend', ( ) => {
             search.getMapBounds( map ) 
-            dispatch( 'filter' ) // console.log( "JobSearch -> map.on( dragend ) -> Search region:", search )
+            dispatch( 'filter' ) // debug( "JobSearch -> map.on( dragend ) -> Search region:", search )
         } )
 
         $JOBS.forEach( j =>{ j.s_mark.addTo( map ) } ) 

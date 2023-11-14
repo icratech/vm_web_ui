@@ -5,20 +5,28 @@
     import { get } from 'svelte/store'
 
     import { goto } from '$app/navigation'
-    import { DEVICES, DEVICES_LOADED, get_devices, DemoDevice, DEMO_DEVICES, register_device } from '../../lib/des_api'
+    import { 
+        DEVICES, 
+        DEVICES_LOADED, 
+        get_devices, 
+        DemoDevice, 
+        DEMO_DEVICES, 
+        register_device,
+        debug 
+    } from '../../lib/des_api'
     import DemoDeviceCard from './DemoDeviceCard.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
 
     onMount( async( ) => { 
         
-        // console.log( "/demo/+page.svelte -> onMount( ) -> $DEVICES_LOADED: ", $DEVICES_LOADED )
+        // debug( "/demo/+page.svelte -> onMount( ) -> $DEVICES_LOADED: ", $DEVICES_LOADED )
         if( !$DEVICES_LOADED ) { await get_devices( ) }
 
-        // console.log( "/demo/+page.svelte -> onMount( ) -> $DEVICES: ", $DEVICES )
+        // debug( "/demo/+page.svelte -> onMount( ) -> $DEVICES: ", $DEVICES )
         $DEVICES.forEach( dev =>{
             if ( $DEMO_DEVICES.filter( sd => { return sd.dev.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
-                console.log( `New $DEMO_DEVICE: ${ dev.reg.des_dev_serial }` )
+                debug( `New $DEMO_DEVICE: `, dev.reg.des_dev_serial )
                 let demo = new DemoDevice( dev )
                 $DEMO_DEVICES = [ ...$DEMO_DEVICES, demo ]
             }  

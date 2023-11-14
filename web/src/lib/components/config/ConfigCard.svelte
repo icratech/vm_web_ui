@@ -13,7 +13,7 @@
     //         run_time = Math.abs( Date.now() - config.cfg_job_start ) / 36e5 
     //     } else { 
     //         run_time = Math.abs( config.cfg_job_end - config.cfg_job_start ) / 36e5 
-    //     } // console.log( JSON.stringify( config, null, 4 ) )
+    //     } // debug( JSON.stringify( config, null, 4 ) )
     // }
 
 </script>

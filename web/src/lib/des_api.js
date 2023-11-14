@@ -23,22 +23,26 @@ export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
 export const updateDevicesStore = async( ) => { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
+export const DEMO_DEVICES = writable( [ ] )
+
 export const JOBS = writable( [ ] )
 export const JOBS_LOADED = writable( false )
 export const updateJobsStore = ( ) => { JOBS.update( ( ) => { return [ ...get(JOBS) ] } ) }
-
-export const DEMO_DEVICES = writable( [ ] )
-
 
 export const device_class = "001"
 export const device_version= "001"
 export const client_app = `C${ device_class }V${ device_version }_client_app v0.0.0`
 
+/* TODO : REPLACE WITH ENV VARIABLES FOR PRODUCTION */
 const local = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des1.data2desk.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` ) 
 
+export const debugging = true
+export const debug = ( msg, obj ) => {
+    if ( debugging ) console.log( msg, obj )
+}
 
 /* DES API ROUTES *************************************************************************************/
 
@@ -53,24 +57,24 @@ export const sign_up_user = async( usu ) => {
     } )
     let res = await fetch( req )
     let auth = await res.json( )
-    console.log(`"\ndes_api.js -> sign_up_user( ) ->  RESPONSE -> \n${ JSON.stringify( auth, null, 4 ) }`)
+    debug(`"\ndes_api.js -> sign_up_user( ) ->  RESPONSE -> \n${ JSON.stringify( auth, null, 4 ) }`)
 
     if ( auth.status === "success" ) { 
         await login( usu.email, usu.password )
     } else {
-        console.log( "\n SIGN-UP FAILED: \n", auth.message )
+        debug( "\n SIGN-UP FAILED: \n", auth.message )
     }
 }
 
 export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
 export const get_user_list = async( ) => {
-    console.log( `des_api.js -> get_user_list( )` )
+    debug( `des_api.js -> get_user_list( )` )
 
     let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
     let res = await fetch( req )
     let json = await res.json( )
     
-    // console.log( `des_api.js -> get_users( ): users\n${ JSON.stringify( json.data.users, null, 4 ) }` )
+    // debug( `des_api.js -> get_users( ): users\n${ JSON.stringify( json.data.users, null, 4 ) }` )
     sessionStorage.setItem( "users", JSON.stringify( json.data.users ) ) 
 
     return json.data.users
@@ -87,13 +91,14 @@ export const login = async( email, password ) => {
     } )
     let res = await fetch( req )
     let auth = await res.json( )
-    console.log(`"\nAppHeader: login -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
+    debug(`"\nAppHeader: login -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
 
     if ( auth.status === "success" ) { 
-        console.log(`\nAppHeader: login -> SUCCESS:\n${ auth.token }\n` )
+        debug(`\nAppHeader: login -> SUCCESS:\n${ auth.token }\n` )
         sessionStorage.setItem( 'des_token', auth.token, { path: '/' } )
+        /* TODO: ADD / TEST REFRESH */
     } else {
-        console.log( "\n AUTH FAILED: \n", auth.message )
+        debug( "\n AUTH FAILED: \n", auth.message )
     }
     await get_user( auth.token )
 
@@ -116,12 +121,12 @@ export const logout = async( ) => {
     } )
     let res = await fetch( req )
     let logout_res = await res.json( ) 
-    console.log( `des_api.js -> logout( ) -> RESPONSE -> logout_res:\n${ JSON.stringify( logout_res, null, 4 ) }` )
+    debug( `des_api.js -> logout( ) -> RESPONSE -> logout_res:\n${ JSON.stringify( logout_res, null, 4 ) }` )
 
     sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
     AUTH.set( new User( ) ) 
 
-    console.log(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
+    debug(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
 }
 
 export const API_URL_USER_ME = `${ HTTP_SERVER }/api/user/me`
@@ -148,16 +153,16 @@ export const get_user = async( token ) => {
             usr.data.user.updated_at,
             token,
             true
-        ) ) // console.log("\ndes_api.js -> get_user( ) -> AUTHENTICATION SUCCESS!\n" )
+        ) ) // debug("\ndes_api.js -> get_user( ) -> AUTHENTICATION SUCCESS!\n" )
     } 
     else {
 
         AUTH.set( new User( ) )
         sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
-        // console.log("\ndes_api.js -> get_user( ) -> AUTHENTICATION FAILED!\n" ) 
+        // debug("\ndes_api.js -> get_user( ) -> AUTHENTICATION FAILED!\n" ) 
     }
     
-    console.log("\ndes_api.js -> get_user( ) -> AUTH: \n", get( AUTH ) )
+    debug("\ndes_api.js -> get_user( ) -> AUTH: \n", get( AUTH ) )
 }
 
 /* DEVICE API ROUTES **********************************************************************************/
@@ -181,7 +186,7 @@ export const register_device = async( serial ) => {
     reg.des_dev_serial = serial
     reg.des_dev_reg_user_id = au.id
     reg.des_dev_reg_app = client_app
-    console.log("des_api.js -> register_device( ) -> REQUEST reg:\n", reg )
+    debug("des_api.js -> register_device( ) -> REQUEST reg:\n", reg )
 
     let req = new Request( API_URL_C001_V001_DEVICE_REGISTER, { 
         method: "POST",
@@ -193,10 +198,10 @@ export const register_device = async( serial ) => {
     } )
     let res = await fetch( req )
     reg = await res.json( )
-    console.log("des_api.js -> register_device( ) ->  RESPONSE reg:\n", reg )
+    debug("des_api.js -> register_device( ) ->  RESPONSE reg:\n", reg )
     
     if ( reg.status === "success" ) { 
-        console.log("REGISTER DEVICE Request -> SUCCESS:\n", reg.des_dev_serial )
+        debug("REGISTER DEVICE Request -> SUCCESS:\n", reg.des_dev_serial )
     }
 
     await get_devices( )
@@ -205,7 +210,7 @@ export const register_device = async( serial ) => {
 export const get_devices = async( ) => {
 
     let au = get( AUTH )
-    console.log("\ndes_api.js -> get_devices( ) -> AUTH: \n", au )
+    debug("\ndes_api.js -> get_devices( ) -> AUTH: \n", au )
 
     DEVICES_LOADED.set( false )
     let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
@@ -222,7 +227,7 @@ export const get_devices = async( ) => {
 
         let store = get( DEVICES )
         let devs = json.data.devices 
-        // console.log( "get_devices( ) -> response:\n", devs )
+        // debug( "get_devices( ) -> response:\n", devs )
         
         devs.forEach( dev => {
             if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
@@ -242,9 +247,9 @@ export const get_devices = async( ) => {
 
         get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
         DEVICES_LOADED.set( true )
-        console.log( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
+        debug( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
     } else {
-        console.log( "des_api.js -> get_devices( ) -> NO DEVICES." )
+        debug( "des_api.js -> get_devices( ) -> NO DEVICES." )
     }
 
 }
@@ -263,12 +268,12 @@ export const API_URL_C001_V001_JOB_NEW_HDR = `${ HTTP_SERVER }/api/001/001/job/n
 export const API_URL_C001_V001_JOB_NEW_EVT = `${ HTTP_SERVER }/api/001/001/job/new_event`
 
 export const get_event_types = async( ) => {
-    console.log( `des_api.js -> get_event_types( )` )
+    debug( `des_api.js -> get_event_types( )` )
     let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
     let res = await fetch( req )
     let json = await res.json( )
     
-    // console.log( `des_api.js -> get_event_types( ): event_types\n${ JSON.stringify( json.data.event_types, null, 4 ) }` )
+    // debug( `des_api.js -> get_event_types( ): event_types\n${ JSON.stringify( json.data.event_types, null, 4 ) }` )
     sessionStorage.setItem( "event_types", JSON.stringify( json.data.event_types ) ) 
 
     return json.data.event_types
@@ -293,7 +298,7 @@ export const get_jobs = async( ) => {
 
         let store = get( JOBS )
         let jobs = json.data.jobs
-        // console.log( "get_jobs( ) -> response:\n", jobs )
+        // debug( "get_jobs( ) -> response:\n", jobs )
 
         jobs.forEach( j => {
             if ( store.filter( s =>{ return s.reg.des_job_name == j.reg.des_job_name } )[0] == undefined ) {
@@ -314,9 +319,9 @@ export const get_jobs = async( ) => {
 
         get( JOBS ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
         JOBS_LOADED.set( true )
-        console.log( "des_api.js -> get_jobs( ) -> JOBS: ", get( JOBS ) )
+        debug( "des_api.js -> get_jobs( ) -> JOBS: ", get( JOBS ) )
     } else {
-        console.log( "des_api.js -> get_jobs( ) -> NO JOBS." )
+        debug( "des_api.js -> get_jobs( ) -> NO JOBS." )
     }
 }
 
@@ -324,7 +329,7 @@ export const get_jobs = async( ) => {
 export const API_URL_C001_V001_JOB_SEARCH =  `${ HTTP_SERVER }/api/001/001/job/search`
 export const search_jobs = async( params ) => {
 
-    console.log("search_jobs( ) -> params: ", params )
+    debug("search_jobs( ) -> params: ", params )
     let au = get( AUTH )
 
     DEVICES_LOADED.set( false )
@@ -341,7 +346,7 @@ export const search_jobs = async( params ) => {
     let json = await res.json( )
 
     if ( json.status == "success") { 
-        console.log( "search_jobs( ) -> response:\n", json.data.jobs )
+        debug( "search_jobs( ) -> response:\n", json.data.jobs )
     } 
 }
 
@@ -505,13 +510,13 @@ export class Device {
         /* WEB SOCKET CONNECTION STATUS */
         this.socket = false
         
+        /* DEVICE SEARCH PAGE MAP MARKER HOVER EFFECT */
         this.highlight = false
 
         /* MAP DATA ( LIVE ) *****************************************************************/
         /** https://docs.mapbox.com/mapbox-gl-js/api/markers/#marker */
         /* DEVICE PAGE MAP MARKER */
         this.mark_el = document.createElement('div')
-        // this.mark_el.addEventListener('click', ( ) => { console.log( "Device PAGE Marker" ) } )
         this.mark = new mapboxgl.Marker( 
             this.mark_el, { anchor: 'bottom-right' } ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] ) 
 
@@ -533,32 +538,27 @@ export class Device {
     updateDeviceSearchMap( ) { }
     updateDevicePageMap( ) { }
     updateMarkerMode = ( ) => {
-        // console.log( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt )
-        // switch ( this.cfg.cfg_vlv_tgt ) {
-        // let mode = getMode( this.cfg, this.smp )    
+        // debug( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt ) 
         switch ( getMode( this.cfg, this.smp ) ) {
 
-            case MODE_BUILD: 
+            case MODES.BUILD: 
                 this.mark_el.className = 'marker build'; 
                 this.s_mark_el.className = 'marker build'; 
                 break;
 
-            case MODE_VENT: 
+            case MODES.VENT: 
                 this.mark_el.className = 'marker vent'; 
                 this.s_mark_el.className = 'marker vent'; 
                 break
 
-            case MODE_HI_FLOW: 
+            case MODES.HI_FLOW: 
                 this.mark_el.className = 'marker hi_flow'; 
                 this.s_mark_el.className = 'marker hi_flow';
                 break
 
-            case MODE_LO_FLOW: 
-                // if ( this.smp.smp_lo_flow > this.cfg.cfg_flow_tog ) { 
-                // } else {
-                    this.mark_el.className = 'marker lo_flow'; 
-                    this.s_mark_el.className = 'marker lo_flow'; 
-                // }
+            case MODES.LO_FLOW: 
+                this.mark_el.className = 'marker lo_flow'; 
+                this.s_mark_el.className = 'marker lo_flow'; 
                 break
         }
     }
@@ -566,7 +566,6 @@ export class Device {
     /* CHART METHODS ( LIVE ) ************************************************************/
     updateChartData( ) {
 
-        // this.cht.pushPoint( 
         this.pushPoint( 
             { x: this.smp.smp_time, y: this.smp.smp_ch4 },
             this.cht_ch4, this.cht.options.scales.y_ch4,
@@ -574,7 +573,6 @@ export class Device {
             this.cht_scale_margin
         )
         
-        // this.cht.pushPoint( 
         this.pushPoint( 
             { x: this.smp.smp_time, y: this.smp.smp_hi_flow },
             this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
@@ -582,7 +580,6 @@ export class Device {
             this.cht_scale_margin
         )
         
-        // this.cht.pushPoint( 
         this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_lo_flow },
             this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
@@ -590,7 +587,6 @@ export class Device {
             this.cht_scale_margin
         )
         
-        // this.cht.pushPoint( 
         this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_press },
             this.cht_press, this.cht.options.scales.y_press,
@@ -598,7 +594,6 @@ export class Device {
             this.cht_scale_margin
         )
         
-        // this.cht.pushPoint( 
         this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_bat_amp },
             this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
@@ -606,7 +601,6 @@ export class Device {
             this.cht_scale_margin
         )
         
-        // this.cht.pushPoint( 
         this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_bat_volt },
             this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
@@ -614,7 +608,6 @@ export class Device {
             this.cht_scale_margin
         )
         
-        // this.cht.pushPoint( 
         this.pushPoint(
             { x: this.smp.smp_time, y: this.smp.smp_mot_volt },
             this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
@@ -633,8 +626,8 @@ export class Device {
         // let x_min = set.pushSample( limit, point )
         // let filt = set.data.filter( x => x.x >= x_min )
         // let Ys = filt.map( p => p.y )
-        // let min = Math.min( ...Ys ) // console.log( min )
-        // let max = Math.max( ...Ys ) // console.log( max )
+        // let min = Math.min( ...Ys ) // debug( min )
+        // let max = Math.max( ...Ys ) // debug( max )
         // if ( max - min > 0 ) {
         //     scale.min = min - ( ( max - min ) * scale_margin )
         //     scale.max = max +  ( ( max - min ) * scale_margin )
@@ -662,7 +655,7 @@ export class Device {
     connectWS = async( ) => {
 
         let au = get( AUTH )
-        console.log( `class Device -> ${ this.reg.des_dev_serial } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
+        // debug( `class Device -> ${ this.reg.des_dev_serial } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
 
         let reg = encodeURIComponent(JSON.stringify( this.reg ) )
         let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.token }&des_reg=${ reg }`
@@ -670,14 +663,13 @@ export class Device {
         ws.onopen = ( e ) => {  
             this.socket = true
             updateDevicesStore( )
-            console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
+            // debug( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
         }
         ws.onerror = ( e ) => { 
-            // ws.send( "close" )
             ws.close( )
             this.socket = false
             updateDevicesStore( )
-            console.log( `class Device -> ${ this.reg.des_dev_serial } -> ws.onerror ERROR\n${ JSON.stringify( e )  }\n` ) 
+            // debug( `class Device -> ${ this.reg.des_dev_serial } -> ws.onerror ERROR\n${ JSON.stringify( e )  }\n` ) 
         }
         ws.onmessage = ( e ) => {
 
@@ -686,18 +678,18 @@ export class Device {
             
                 case "admin":
                     this.adm = msg.data
-                    console.log("new admin received from device: ", this.adm)
+                    debug("new admin received from device: " + this.adm )
                     break
 
                 case "state":
                     this.sta = msg.data
-                    console.log("new state received from device: ", this.sta)
+                    debug("new state received from device: " + this.sta)
                     this.reg.des_job_name = this.sta.sta_job_name
                     break
     
                 case "header":
                     this.hdr = msg.data
-                    console.log("new header received from device: ", this.hdr)
+                    debug("new header received from device: " + this.hdr)
                     this.reg.des_job_start = this.hdr.hdr_job_start
                     this.reg.des_job_end = this.hdr.hdr_job_end
                     this.reg.des_job_lng = this.hdr.hdr_geo_lng
@@ -709,12 +701,12 @@ export class Device {
                 case "config":
                     this.cfg = msg.data
                     this.updateMarkerMode( )
-                    console.log("new config received from device: ", this.cfg)
+                    debug("new config received from device: " + this.cfg)
                     break
                 
                 case "event":
                     this.evt = msg.data
-                    console.log("new event received from device: ", this.evt)
+                    debug("new event received from device: " + this.evt)
                     break
     
                 case "sample":
@@ -736,7 +728,7 @@ export class Device {
                         this.cht_hi_flow.hidden = false
 
                     }
-                    // console.log( `sample -> ${ this.reg.des_dev_serial }:\n` )
+                    // debug( `sample -> ${ this.reg.des_dev_serial }:\n` )
                     this.updateChartData( )
                     break
 
@@ -744,23 +736,22 @@ export class Device {
 
                 case "auth":
                     let auth = msg.data
-                    if ( auth.status === "fail" ) { this.disconnectWS( ) }
-                    console.log( auth.message ) 
+                    if ( auth.status === "fail" && this.socket ) { this.disconnectWS( ) }
+                    debug( auth.message ) 
                     break
 
                 default: 
-                    console.log( `Type unknown:\n${ e.data }\n` )
+                    debug( `Type unknown:\n${ e.data }\n` )
                     break
             }
             
-            // console.log( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
-            // this.update( ) 
+            // debug( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
             updateDevicesStore( )
         } 
         this.disconnectWS =  async( ) => {
             ws.send( "close" )
             ws.close( ) 
-            console.log( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
+            debug( `class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
             this.socket = false
             this.highlight = false
             updateDevicesStore( )
@@ -770,25 +761,11 @@ export class Device {
 
     /* HTTP METHODS **********************************************************************/
     startJob = async( ) => {
-        console.log( "Start new job for device: ", this.reg.des_dev_serial ) 
-
-        // this.job = new Job( )
+        debug( "Start new job for device: ", this.reg.des_dev_serial ) 
 
         let au = get( AUTH )
 
         if ( !this.socket ) { await this.connectWS( ) }
-
-        // this.adm.adm_user_id = au.id
-        // this.adm.adm_app = client_app
-
-        // this.sta.sta_user_id = au.id
-        // this.sta.sta_app = client_app
-
-        // this.hdr.hdr_user_id = au.id
-        // this.hdr.hdr_app = client_app
-
-        // this.cfg.cfg_user_id = au.id
-        // this.cfg.cfg_app = client_app
 
         this.reg.des_job_reg_user_id = au.id
         this.reg.des_job_reg_app = client_app
@@ -801,7 +778,7 @@ export class Device {
             reg: this.reg
         }
 
-        console.log( "Send START JOB Request:\n", dev ) 
+        debug( "Send START JOB Request:\n", dev ) 
         let req = new Request( API_URL_C001_V001_DEVICE_START, { 
             method: "POST",
             headers: { 
@@ -812,14 +789,14 @@ export class Device {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log("des_api.js -> device.startJob( ) ->  RESPONSE reg:\n", reg )
+        debug("des_api.js -> device.startJob( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
     cancelStartJob = async( ) => { 
-        console.log( "Cancel Start job request for device: ", this.reg.des_dev_serial ) 
+        debug( "Cancel Start job request for device: ", this.reg.des_dev_serial ) 
 
         let au = get( AUTH )
 
@@ -830,7 +807,7 @@ export class Device {
 
         let dev = { reg: this.reg }
 
-        console.log( "Send CANCEL START JOB Request:\n", dev ) 
+        debug( "Send CANCEL START JOB Request:\n", dev ) 
         let req = new Request( API_URL_C001_V001_DEVICE_CANCEL_START, { 
             method: "POST",
             headers: { 
@@ -841,15 +818,15 @@ export class Device {
         } )
         let res_raw = await fetch( req )
         let res = await res_raw.json( )
-        console.log("des_api.js -> device.cancelStartJob( ) ->  RESPONSE res:\n", res )
+        debug("des_api.js -> device.cancelStartJob( ) ->  RESPONSE res:\n", res )
 
         if ( res.status === "success" ) { 
-            console.log("Cancel Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("Cancel Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
             this.sta = res.data.device.sta
         }
     }
     endJob = async( ) => {
-        console.log( "End current job for device: ", this.reg.des_dev_serial ) 
+        debug( "End current job for device: ", this.reg.des_dev_serial ) 
 
         let au = get( AUTH )
 
@@ -862,7 +839,7 @@ export class Device {
             reg: this.reg
         }
 
-        console.log( "Send END JOB Request:\n", dev )  
+        debug( "Send END JOB Request:\n", dev )  
         let req = new Request( API_URL_C001_V001_DEVICE_END, { 
             method: "POST",
             headers: { 
@@ -873,16 +850,16 @@ export class Device {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log(`des_api.js -> device.endJob( ${ this.reg.des_job_name } ) ->  RESPONSE reg:\n`, reg )
+        debug(`des_api.js -> device.endJob( ${ this.reg.des_job_name } ) ->  RESPONSE reg:\n`, reg )
         
         if ( reg.status === "success" ) { 
-            console.log("End Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("End Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
             this.smp = new Sample( )
             this.resetChart( )
         }
     }
     setAdmin = async( ) => {
-        console.log( "Set Admin for device: ", this.reg.des_dev_serial ) 
+        debug( "Set Admin for device: ", this.reg.des_dev_serial ) 
         
         let au = get( AUTH )
         
@@ -898,7 +875,7 @@ export class Device {
             adm: this.adm,
             reg: this.reg
         }
-        console.log( "Send SET ADMIN Request:\n", dev ) 
+        debug( "Send SET ADMIN Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_ADM, { 
             method: "POST",
@@ -910,14 +887,14 @@ export class Device {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log("des_api.js -> device.setAdmin( ) ->  RESPONSE reg:\n", reg )
+        debug("des_api.js -> device.setAdmin( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("SET ADMIN Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("SET ADMIN Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
     setState = async( ) => {
-        console.log( "Set State for device: ", this.reg.des_dev_serial ) 
+        debug( "Set State for device: ", this.reg.des_dev_serial ) 
         
         let au = get( AUTH )
         
@@ -933,7 +910,7 @@ export class Device {
             sta: this.sta,
             reg: this.reg
         }
-        console.log( "Send DEVICE SET STATE Request:\n", dev ) 
+        debug( "Send DEVICE SET STATE Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_STA, { 
             method: "POST",
@@ -945,14 +922,14 @@ export class Device {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log("des_api.js -> device.setState( ) ->  RESPONSE reg:\n", reg )
+        debug("des_api.js -> device.setState( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("DEVICE SET STATE Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("DEVICE SET STATE Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
     setHeader = async( ) => {
-        console.log( "Set Header for device: ", this.reg.des_dev_serial ) 
+        debug( "Set Header for device: ", this.reg.des_dev_serial ) 
         
         let au = get( AUTH )
         
@@ -968,7 +945,7 @@ export class Device {
             hdr: this.hdr,
             reg: this.reg
         }
-        console.log( "Send DEVICE SET HEADER Request:\n", dev ) 
+        debug( "Send DEVICE SET HEADER Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_HDR, { 
             method: "POST",
@@ -980,14 +957,14 @@ export class Device {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log("des_api.js -> device.setHeader( ) ->  RESPONSE reg:\n", reg )
+        debug("des_api.js -> device.setHeader( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("DEVICE SET HEADER Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("DEVICE SET HEADER Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
     setConfig = async( ) => { 
-        console.log( "Set Config for device: ", this.reg.des_dev_serial ) 
+        debug( "Set Config for device: ", this.reg.des_dev_serial ) 
         
         let au = get( AUTH )
         
@@ -1003,7 +980,7 @@ export class Device {
             cfg: this.cfg,
             reg: this.reg
         }
-        console.log( "Send SET CONFIG Request:\n", dev ) 
+        debug( "Send SET CONFIG Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_CFG, { 
             method: "POST",
@@ -1015,10 +992,10 @@ export class Device {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log("des_api.js -> device.setConfig( ) ->  RESPONSE reg:\n", reg )
+        debug("des_api.js -> device.setConfig( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("SET CONFIG Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("SET CONFIG Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
     setMode = ( mode ) => {
@@ -1027,7 +1004,7 @@ export class Device {
         this.setConfig()
     }
     newEvent = async( evt ) => {
-        console.log( "Create Event for device: ", this.reg.des_dev_serial ) 
+        debug( "Create Event for device: ", this.reg.des_dev_serial ) 
         
         let au = get( AUTH )
         
@@ -1043,7 +1020,7 @@ export class Device {
             evt: evt,
             reg: this.reg
         }
-        console.log( "Send DEVICE CREATE EVENT Request:\n", dev ) 
+        debug( "Send DEVICE CREATE EVENT Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_EVT, { 
             method: "POST",
@@ -1055,13 +1032,14 @@ export class Device {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log("des_api.js -> device.createEvent( ) ->  RESPONSE reg:\n", reg )
+        debug("des_api.js -> device.createEvent( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("DEVICE CREATE EVENT Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("DEVICE CREATE EVENT Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
 }
+
 /* OPERATION CODES ( Event.EvtCode 0 : 999 ) *******************************************************/
 export const OP_CODES = {
     DES_REG_REQ: 0,    // USER REQUEST -> CHANGE DEVICE'S OPERATIONAL DATA EXCHANGE SERVER
@@ -1070,6 +1048,28 @@ export const OP_CODES = {
     JOB_START_REQ: 3,  // USER REQUEST -> START JOB
     JOB_STARTED: 4,    // DEVICE RESPONSE -> JOB STARTED
     JOB_END_REQ: 5    // USER REQUEST -> END JOB
+}
+
+/* MODE ( VALVE POSITIONS ) *************************************************************************/
+export const MODES = {
+    BUILD: 0,
+    VENT: 2,
+    HI_FLOW: 4,
+    LO_FLOW: 6
+}
+export const getMode = ( cfg, smp ) => {
+
+    switch ( cfg.cfg_vlv_tgt ) {
+
+        case MODES.BUILD: return MODES.BUILD
+
+        case MODES.VENT: return MODES.VENT
+
+        case MODES.HI_FLOW: 
+        case MODES.LO_FLOW:
+            return ( smp.smp_lo_flow > cfg.cfg_flow_tog ? MODES.HI_FLOW : MODES.LO_FLOW ) 
+    }
+
 }
 
 /* JOB DATA STRUCTURES ********************************************************************************/
@@ -1122,7 +1122,7 @@ export class Job {
     
     getJobData = async( ) => {
 
-        console.log( "job.getJobData( ) -> reg: ", this.reg )
+        debug( "job.getJobData( ) -> reg: ", this.reg )
         let au = get( AUTH )
     
         let req = new Request( API_URL_C001_V001_JOB_DATA, {
@@ -1154,7 +1154,7 @@ export class Job {
     /* CHART DATA */
     updateChartData = async( xyp ) => {
         
-        console.log(  "job.updateChartData( ) -> samples: ", this.samples.length )
+        debug(  "job.updateChartData( ) -> samples: ", this.samples.length )
         
         this.xypoints = xyp
         this.cht_ch4.data = xyp.ch4
@@ -1205,9 +1205,9 @@ export class Job {
         this.cht.options.plugins.zoom.zoom.onZoomComplete = this.chartZoomSelect
 
         this.cht.options.onClick = ( e ) => {
-            console.log( "job.cht.options.onClick( e ) -> e: ", e )
+            debug( "job.cht.options.onClick( e ) -> e: ", e )
             this.selection = Math.floor( e.chart.scales.x.getValueForPixel( e.x ) )
-            console.log( "job.cht.options.onClick( e ) -> this.selection: ", this.selection )
+            debug( "job.cht.options.onClick( e ) -> this.selection: ", this.selection )
 
             let xs = this.cht_press.data.map( d => d.x )
             if ( xs[0] > this.selection ) { this.selection = xs[0] }
@@ -1231,13 +1231,13 @@ export class Job {
     }
 
     chartZoomSelect = ( e ) => { 
-        console.log( "job.chartZoomSelect...\n", e.chart )
+        debug( "job.chartZoomSelect...\n", e.chart )
     
         let dats = e.chart.config._config.data.datasets
-        console.log( "job.chartZoomSelect... datasets\n", dats )
+        debug( "job.chartZoomSelect... datasets\n", dats )
 
         let scls = e.chart.scales
-        console.log( "job.chartZoomSelect... scales\n", scls )
+        debug( "job.chartZoomSelect... scales\n", scls )
     
         let xs = ( dats[CHT_DATASET_INDEX_CH4].data.map( v => { return v.x } ) ).filter( x => {
             return ( 
@@ -1249,23 +1249,23 @@ export class Job {
         let xmin = xs[0]
         let xmax = xs[xs.length-1]
     
-        console.log( `UnixMilli:  ${ xmin } -> ${ xmax }` )
-        console.log( `DateTime:  ${ FormatDateTime( xmin ) } -> ${ FormatDateTime( xmax ) }` )
+        debug( `UnixMilli:  ${ xmin } -> ${ xmax }` )
+        debug( `DateTime:  ${ FormatDateTime( xmin ) } -> ${ FormatDateTime( xmax ) }` )
     
         dats.forEach( ds => { 
             let scl = e.chart.scales[ds.yAxisID]
-            console.log( "job.chartZoomSelect( ) -> dats.forEach( ds ): -> scl.id  ", scl.id )
+            debug( "job.chartZoomSelect( ) -> dats.forEach( ds ): -> scl.id  ", scl.id )
             if ( scl.id != "y") {
                 let vStart = ds.data.filter( v => { return v.x == xmin } )[0]
                 let vEnd = ds.data.filter( v => { return v.x == xmax } )[0]
-                console.log( `${ ds.label }: vals: ${ vStart.y } -> ${ vEnd.y }, ${ scl.id }: scales: ${ scl.min } -> ${ scl.max }` )
+                debug( `${ ds.label }: vals: ${ vStart.y } -> ${ vEnd.y }, ${ scl.id }: scales: ${ scl.min } -> ${ scl.max }` )
             }
         } )
     
     }
 
     newHeader = async( hdr ) => {
-        console.log( "job.newHeader( ): ", this.reg.des_job_name ) 
+        debug( "job.newHeader( ): ", this.reg.des_job_name ) 
         
         let au = get( AUTH )
 
@@ -1279,7 +1279,7 @@ export class Job {
             hdr: hdr,
             reg: this.reg
         }
-        console.log( "Send JOB SET HEADER Request:\n", job ) 
+        debug( "Send JOB SET HEADER Request:\n", job ) 
         
         let req = new Request( API_URL_C001_V001_JOB_NEW_HDR, { 
             method: "POST",
@@ -1291,15 +1291,15 @@ export class Job {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log("des_api.js -> job.newHeader( ) ->  RESPONSE reg:\n", reg )
+        debug("des_api.js -> job.newHeader( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("JOB NEW HEADER Request -> SUCCESS:\n", this.reg.des_job_name )
+            debug("JOB NEW HEADER Request -> SUCCESS:\n", this.reg.des_job_name )
         }
     }
 
     newEvent = async( evt ) => {
-        console.log( "job.newEvent( ): ", this.reg.des_job_name ) 
+        debug( "job.newEvent( ): ", this.reg.des_job_name ) 
         
         let au = get( AUTH )
 
@@ -1313,7 +1313,7 @@ export class Job {
             evt: evt,
             reg: this.reg
         }
-        console.log( "Send JOB NEW EVENT Request:\n", job ) 
+        debug( "Send JOB NEW EVENT Request:\n", job ) 
         
         let req = new Request( API_URL_C001_V001_JOB_NEW_EVT, { 
             method: "POST",
@@ -1325,10 +1325,10 @@ export class Job {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        console.log("des_api.js -> job.newEvent( ) ->  RESPONSE reg:\n", reg )
+        debug("des_api.js -> job.newEvent( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
-            console.log("JOB NEW EVENT Request -> SUCCESS:\n", this.reg.des_job_name )
+            debug("JOB NEW EVENT Request -> SUCCESS:\n", this.reg.des_job_name )
         }
     }
 
@@ -1338,7 +1338,7 @@ export class Job {
 
         rep.rep_user_id = au.id
         rep.reg = this.reg
-        console.log( "job.createReport( ) -> rep: ", rep )
+        debug( "job.createReport( ) -> rep: ", rep )
     
         let req = new Request( API_URL_C001_V001_JOB_NEW_REPORT, {
             method: 'POST',
@@ -1354,11 +1354,11 @@ export class Job {
     
         if ( json.status == "success" ) {
             let j = JSON.parse( JSON.stringify( json.data ) )
-            console.log( "Report: \n", j )
+            debug( "Report: \n", j )
         }
         // rep.rep_job_id = this.reg.des_job_id
         // this.reports.push( rep )
-        // console.log( "Reports: ", this.reports )
+        // debug( "Reports: ", this.reports )
     }
 
 }
@@ -1419,7 +1419,6 @@ export class Section {
     }
 
  }
-
  export class SectionDataSet {
     constructor(
         /*  { metadata } */
@@ -1687,30 +1686,6 @@ export class Config {
     
 }
 
-/* MODE ( VALVE POSITIONS ) *************************************************************************/
-export const MODE_BUILD = 0
-export const MODE_VENT = 2
-export const MODE_HI_FLOW = 4
-export const MODE_LO_FLOW = 6
-export const getMode = ( cfg, smp ) => {
-
-    switch ( cfg.cfg_vlv_tgt ) {
-
-        case MODE_BUILD: 
-            return MODE_BUILD
-            break
-
-        case MODE_VENT: 
-            return MODE_VENT
-            break
-
-        case MODE_HI_FLOW: 
-        case MODE_LO_FLOW:
-            return ( smp.smp_lo_flow > cfg.cfg_flow_tog ? MODE_HI_FLOW : MODE_LO_FLOW ) 
-            break   
-    }
-
-}
 /* 
 WEB CLIENT -> HTTP -> DES ( JOB DB WRITE ) -> MQTT -> DEVICE  
   - Device loggs event to as is memory ( no reponse )
@@ -1997,20 +1972,20 @@ export class DemoDevice {
         let reg_js = encodeURIComponent(JSON.stringify( this.dev.reg ) ) 
         let url = `${ API_URL_GET_RUN_DEMO_SIM }?access_token=${ user.token }&sim=${ sim_js }&des_reg=${ reg_js }`
 
-        console.log( `connectSIM( ) ->  this.dev: ${ JSON.stringify( this.dev.reg.des_dev_serial, null, 4 ) }`  )
+        debug( `connectSIM( ) ->  this.dev: ${ JSON.stringify( this.dev.reg.des_dev_serial, null, 4 ) }`  )
         let ws = new WebSocket( url )
 
-        ws.onopen = ( e ) => { console.log( "class DemoDevice -> WebSocket OPEN" )  }
+        ws.onopen = ( e ) => { debug( "class DemoDevice -> WebSocket OPEN" )  }
         ws.onerror = ( e ) => {
             ws.close( )
             this.sim.run = false
-            console.log( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } ONERROR:\n`, JSON.stringify( e ) )
+            debug( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } ONERROR:\n`, JSON.stringify( e ) )
             this.update( )
         }
         ws.onmessage = ( msg ) => {
         
             let data =  JSON.parse( JSON.parse( msg.data ) )
-            console.log( `class DemoDevice: ${ this.dev.reg.des_dev_serial } ONMESSAGE:\n`, data )
+            debug( `class DemoDevice: ${ this.dev.reg.des_dev_serial } ONMESSAGE:\n`, data )
             this.update( )
         } 
         this.sim.run = true
@@ -2019,7 +1994,7 @@ export class DemoDevice {
                 ws.send( "close" )
                 ws.close( ) 
                 this.sim.run = false
-                console.log( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } -> WebSocket CLOSED: -> sim ${ this.sim.run }\n` )
+                debug( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } -> WebSocket CLOSED: -> sim ${ this.sim.run }\n` )
                 this.update( )
         }
         this.update( )
@@ -2050,7 +2025,7 @@ export class Sim {
         this.mtx_hi_flow = new DemoModeTransition( this.max_flow, 0, 600000, 500000 )
         this.mtx_lo_flow = new DemoModeTransition( ( this.max_flow > 2 ? 2 : this.max_flow ), 0, 600000, 500000 )
         this.mtx_press = new DemoModeTransition( this.pax_press, 0, 600000, 600000 )
-        // console.log( "modeVent( ):\n", this )
+        // debug( "modeVent( ):\n", this )
     }
 
     modeFlow( ) {
@@ -2058,7 +2033,7 @@ export class Sim {
         this.mtx_hi_flow = new DemoModeTransition( 0, this.max_flow, 600000, 500000 )
         this.mtx_lo_flow = new DemoModeTransition( 0, ( this.max_flow > 2 ? 2 : this.max_flow ), 600000, 500000 )
         this.mtx_press = new DemoModeTransition( this.pax_press, 0, 600000, 600000 )
-        // console.log( "modeFlow( ):\n", this )
+        // debug( "modeFlow( ):\n", this )
     }
 
     modeBuild( ) {
@@ -2066,7 +2041,7 @@ export class Sim {
         this.mtx_hi_flow = new DemoModeTransition( this.max_flow, 0, 600000, 500000 )
         this.mtx_lo_flow = new DemoModeTransition( ( this.max_flow > 2 ? 2 : this.max_flow ), 600000, 500000 )
         this.mtx_press = new DemoModeTransition( 0, this.pax_press, 600000, 600000 )
-        // console.log( "modeBuild( ):\n", this )
+        // debug( "modeBuild( ):\n", this )
     }
 
 }

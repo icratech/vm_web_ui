@@ -10,7 +10,7 @@
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
-    // console.log("Select List: ", list )
+    // debug("Select List: ", list )
 
   </script>
   

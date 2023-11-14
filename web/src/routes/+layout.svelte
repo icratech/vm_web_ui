@@ -6,7 +6,10 @@
 
     import { AUTH, 
         get_user, 
-        get_user_list, get_event_types, DEVICES, DEMO_DEVICES, } from '../lib/des_api';
+        get_user_list, 
+        get_event_types, 
+        DEVICES 
+    } from '../lib/des_api';
     import Header from './Header.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
     import btn_img_home from "$lib/images/btn-img-home.svg"
@@ -15,12 +18,12 @@
 
     onMount( async( ) => {
 
-        if ( sessionStorage.getItem( 'des_token') != 'none' ) { // console.log( "Current des_token: ", token )
-            await get_user( sessionStorage.getItem( 'des_token') ) 
+        if ( sessionStorage.getItem( 'des_token') != 'none' ) { // debug( "Current des_token: ", token )
+            get_user( sessionStorage.getItem( 'des_token') ) 
         }
 
-        await get_user_list( )
-        await get_event_types( )
+        get_user_list( )
+        get_event_types( )
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
         CAUSES THE SERVER TO UNSUBSCRIBE THIS DEVICE USER'S MQTT CLIENT FROM ALL TOPICS */

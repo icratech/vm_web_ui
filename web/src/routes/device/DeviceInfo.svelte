@@ -1,15 +1,13 @@
 <script>
 
-    // import { onMount } from 'svelte'
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher( )
 
-    import { Device, OP_CODES, Sample } from "../../lib/des_api"
+    import { Device, OP_CODES, Sample, debug } from "../../lib/des_api"
 
     import DeviceMode from "./DeviceMode.svelte"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
-    // import HeaderCardMobile from '../../lib/components/header/HeaderCardMobile.svelte'
     
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import btn_img_default from "$lib/images/btn-img-default.svg"
@@ -31,7 +29,7 @@
     $: cmdButtonHint = 'Not Set'
     $: cmdButtonIcon = btn_img_default
     $: cmdButtonFunc = ( ) => {
-        console.log( "device.sta.sta_logging: ", sta.sta_logging, OP_CODES.JOB_ENDED )
+        debug( "device.sta.sta_logging: ", sta.sta_logging, OP_CODES.JOB_ENDED )
     } 
 
     $: { switch ( sta.sta_logging ) {
@@ -63,8 +61,7 @@
                 cmdButtonColor = 'bg-pink' 
                 cmdButtonHint = 'Cancel End Job' 
                 cmdButtonIcon = btn_img_cmd
-                // cmdButtonFunc = ( ) => { /* cnacel end */ }
-                cmdButtonFunc = ( ) => { device.cancelStartJob( ) }
+                // cmdButtonFunc = ( ) => { /* TODO: cancel end */ }
                 break
 
         }
@@ -72,7 +69,6 @@
 
     $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
-    // $: socketButtonFunc =  async( ) => { ( device.socket ? await device.disconnectWS( ) : await device.connectWS( ) ) }
     $: socketButtonFunc =  ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) }
     
     const makeMap = ( ctx ) => {
@@ -138,7 +134,9 @@
         </div>
 
     </div>
+
     <br>
+    
     <div class="flx-col map">
         <div class="map-container" use:makeMap />
     </div>

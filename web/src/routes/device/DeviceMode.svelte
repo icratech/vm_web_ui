@@ -1,6 +1,6 @@
 
 <script>
-    import { COLORS, Device } from "../../lib/des_api"
+    import { COLORS, Device, MODES, getMode } from "../../lib/des_api"
     import { RGBA, BASE } from "../../lib/common/colors"
     
     export let device = new Device( )
@@ -14,33 +14,32 @@
     $: color_code_border = RGBA(color_code, 0.5)
     $: lbl = 'OFF'
     $: {
-        if ( hdr.hdr_job_start == 0 ) { color_code = BASE.LIGHT  }
+        if ( hdr.hdr_job_start == 0 ) { 
+            lbl = 'OFF'
+            color_code = BASE.LIGHT  
+        }
         else {
-            switch ( cfg.cfg_vlv_tgt ) {
+            switch ( getMode( cfg, smp ) ) {
 
-                case 0: 
+                case MODES.BUILD: 
                     lbl = 'BUILD'
                     color_code = COLORS.PRESS
                     break
 
-                case 2: 
+                case MODES.VENT: 
                     lbl = 'VENT'
                     color_code = BASE.AQUA
                     break
 
-                case 4: // HI FLOW
-                case 6: // LO FLOW
+                case MODES.HI_FLOW:
                     lbl = 'FLOW'
-                    if ( smp.smp_lo_flow > cfg.cfg_flow_tog ) {
-                        color_code = COLORS.HI_FLOW
-                    } else {
-                        color_code = COLORS.LO_FLOW
-                    }
+                    color_code = COLORS.HI_FLOW
                     break
 
-                default:
-                    lbl = 'OFF'
-                    color_code = BASE.LIGHT
+                case MODES.LO_FLOW:
+                    lbl = 'FLOW'
+                    color_code = COLORS.LO_FLOW
+                    break
             }
         }
     }

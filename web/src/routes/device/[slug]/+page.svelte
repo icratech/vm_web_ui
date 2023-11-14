@@ -51,6 +51,7 @@
     
             <div class="flx-row action">
 
+                <!-- TODO : MOVE TO MODAL FOR PRODUCTION; REPLACE WITH HEADER LIST VIEW -->
                 <div class="flx-col panel-cont">
                     <div class="flx-row panel-title-bar">
                         <div class="flx-row panel-title-btns">
@@ -86,6 +87,7 @@
                     </div>
                 </div>
 
+                <!-- TODO : MOVE TO MODAL FOR PRODUCTION; REPLACE WITH CONFIG LIST VIEW -->
                 <div class="flx-col panel-cont">
                     <div class="flx-row panel-title-bar">
                         <div class="flx-row panel-title-btns">   
@@ -118,6 +120,8 @@
                     </div>
                     <ConfigBuilder bind:config={ device.cfg }/>
                 </div>
+
+                <!-- TODO : MOVE TO MODAL FOR PRODUCTION; REPLACE WITH EVENT LIST VIEW -->
                 <div class="flx-col panel-cont">
                     <div class="flx-row panel-title-bar">
                         <h3 class="panel-title">Event</h3>

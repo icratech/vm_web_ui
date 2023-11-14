@@ -1,7 +1,5 @@
 <script>
 
-    import { goto } from '$app/navigation'
-
     import { AUTH, login, logout } from '../lib/des_api'
     import PillButton from '../lib/common/button/PillButton.svelte'
     import vent_medic_logo from "$lib/images/vent-medic-hdr-logo.svg"

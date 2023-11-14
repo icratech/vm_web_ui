@@ -3,19 +3,26 @@
 
     import { onMount } from 'svelte'
 
-    import { DEVICES, DEVICES_LOADED, DESSearchParam, get_user, get_devices, connect_devices, updateDevicesStore } from '../../lib/des_api'
+    import { 
+        AUTH, 
+        DEVICES, 
+        DEVICES_LOADED, 
+        DESSearchParam, 
+        get_devices, 
+        connect_devices, 
+        updateDevicesStore,
+        debug 
+    } from '../../lib/des_api'
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
     export let data
-    $: console.log( "/device/+page.svelte -> data ", data )
+    $: debug( "/device/+page.svelte -> data ", data )
     onMount( async( ) => { 
-        // console.log( "/device/+page.svelte -> onMount( ) -> $DEVICES_LOADED: ", $DEVICES_LOADED )
-        if( !$DEVICES_LOADED ) { 
-            // await get_user( sessionStorage.getItem( 'des_token') )
-            await get_devices( ) 
-        }
-        await connect_devices( ) 
+        // debug( "/device/+page.svelte -> onMount( ) -> $DEVICES_LOADED: ", $DEVICES_LOADED )
+        debug( "/device/+page.svelte -> onMount( ) -> $AUTH: ", $AUTH )
+        if( !$DEVICES_LOADED ) {  get_devices( ) }
+        connect_devices( ) 
     } )
 
     $: search = new DESSearchParam( )

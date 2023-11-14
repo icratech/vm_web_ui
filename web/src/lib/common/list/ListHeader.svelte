@@ -16,11 +16,11 @@
         if ( loaded ) {
             a2z = !a2z;
             Sort( columns.filter( c => { return c.Title === activeColumn} )[0] );
-        } // else { console.log("Does this ever happen?"); }
+        } // else { debug("Does this ever happen?"); }
     }
 
     const SetActive = (column) => {
-            activeColumn = column.Title; // console.log("Sort By: ", activeColumn);
+            activeColumn = column.Title; // debug("Sort By: ", activeColumn);
     }
     
     const GetChain = ( element, chain) => {

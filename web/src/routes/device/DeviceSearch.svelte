@@ -7,7 +7,7 @@
     import btn_img_reset from "$lib/images/btn-img-reset.svg"
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
-    import { DEVICES, DEVICES_LOADED, DESSearchParam, get_devices } from "../../lib/des_api";
+    import { DEVICES, DEVICES_LOADED, DESSearchParam, get_devices, debug } from "../../lib/des_api";
  
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
@@ -26,7 +26,7 @@
 
     let map
     const makeMap = ( ctx ) => {
-        // console.log( "DeviceSearch -> makeMap( )" )
+        // debug( "DeviceSearch -> makeMap( )" )
 
         map = new mapboxgl.Map(  {
             container: ctx,
@@ -36,11 +36,11 @@
         } )
         map.on( 'zoomend', ( ) => {
             search.getMapBounds( map ) 
-            dispatch( 'filter' ) //  console.log( "DeviceSearch -> map.on( zoomend ) -> Search region:", search )
+            dispatch( 'filter' ) //  debug( "DeviceSearch -> map.on( zoomend ) -> Search region:", search )
         } )
         map.on( 'dragend', ( ) => {
             search.getMapBounds( map ) 
-            dispatch( 'filter' ) // console.log( "DeviceSearch -> map.on( dragend ) -> Search region:", search )
+            dispatch( 'filter' ) // debug( "DeviceSearch -> map.on( dragend ) -> Search region:", search )
         } )
 
         $DEVICES.forEach( d =>{
@@ -50,7 +50,7 @@
             d.updateDeviceSearchMap = ( lng, lat ) => { 
                 d.s_mark.setLngLat( [ lng, lat ] ) 
                 d.updateMarkerMode( )
-                console.log( "updateDeviceSearchMap( ): ", d.s_mark.getOffset( ) )
+                debug( "updateDeviceSearchMap( ): ", d.s_mark.getOffset( ) )
             }  
         } ) 
         

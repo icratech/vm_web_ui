@@ -21,10 +21,10 @@ const chartAreaBorder = {
 }
 
 const defaultZoomHandler = ( e ) => {
-    console.log( "default zoom handler...\n", e.chart )
+    debug( "default zoom handler...\n", e.chart )
 
     let dats = e.chart.config._config.data.datasets
-    console.log( "default zoom handler... datasets\n", dats )
+    debug( "default zoom handler... datasets\n", dats )
 
     let xs = ( dats[0].data.map( v => { return v.x } ) ).filter( x => {
         return ( 
@@ -36,15 +36,15 @@ const defaultZoomHandler = ( e ) => {
     let xmin = xs[0]
     let xmax = xs[xs.length-1]
 
-    console.log( "default zoom min x unix:  ", xmin )
-    console.log( "default zoom min x time:  ", FormatDateTime( xmin ) )
-    console.log( "default zoom max x unix:  ", xmax )
-    console.log( "default zoom max x time:  ", FormatDateTime( xmax ) )
+    debug( "default zoom min x unix:  ", xmin )
+    debug( "default zoom min x time:  ", FormatDateTime( xmin ) )
+    debug( "default zoom max x unix:  ", xmax )
+    debug( "default zoom max x time:  ", FormatDateTime( xmax ) )
 
     dats.forEach( ds => { 
         let vStart = ds.data.filter( v => { return v.x == xmin } )[0]
         let vEnd = ds.data.filter( v => { return v.x == xmax } )[0]
-        console.log( `${ ds.label }:  ${ vStart.y } -> ${ vEnd.y }` )
+        debug( `${ ds.label }:  ${ vStart.y } -> ${ vEnd.y }` )
     } )
 
 }
@@ -151,8 +151,8 @@ export class LineChartModel {
         // let x_min = set.pushSample( limit, point )
         // let filt = set.data.filter( x => x.x >= x_min )
         // let Ys = filt.map( p => p.y )
-        // let min = Math.min( ...Ys ) // console.log( min )
-        // let max = Math.max( ...Ys ) // console.log( max )
+        // let min = Math.min( ...Ys ) // debug( min )
+        // let max = Math.max( ...Ys ) // debug( max )
         // if ( max - min > 0 ) {
         //     scale.min = min - ( ( max - min ) * scale_margin )
         //     scale.max = max +  ( ( max - min ) * scale_margin )
@@ -163,8 +163,8 @@ export class LineChartModel {
 
     autoScale( set, scale, margin ) {
         let Ys = set.data.map( p => p.y )
-        let min = Math.min( ...Ys ) // console.log( min )
-        let max = Math.max( ...Ys )  // console.log( max )
+        let min = Math.min( ...Ys ) // debug( min )
+        let max = Math.max( ...Ys )  // debug( max )
         if ( max - min > 0 ) {
             scale.min = min - ( ( max - min ) * margin )
             scale.max = max +  ( ( max - min ) * margin )
