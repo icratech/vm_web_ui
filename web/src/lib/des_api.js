@@ -245,11 +245,11 @@ export const get_devices = async( ) => {
         } )
         await connect_devices( )
 
-        get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+        store.sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
         DEVICES_LOADED.set( true )
-        debug( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
+        debug( "des_api.js -> get_devices( ) -> DEVICES: ", store )
     } else {
-        debug( "des_api.js -> get_devices( ) -> NO DEVICES." )
+        debug( "des_api.js -> get_devices( ) -> NO DEVICES: ", get( DEVICES ) )
     }
 
 }
@@ -317,11 +317,11 @@ export const get_jobs = async( ) => {
             }
         } )
 
-        get( JOBS ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+        store.sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
         JOBS_LOADED.set( true )
-        debug( "des_api.js -> get_jobs( ) -> JOBS: ", get( JOBS ) )
+        debug( "des_api.js -> get_jobs( ) -> JOBS: ", store )
     } else {
-        debug( "des_api.js -> get_jobs( ) -> NO JOBS." )
+        debug( "des_api.js -> get_jobs( ) -> NO JOBS.", get( JOBS ) )
     }
 }
 
@@ -509,6 +509,8 @@ export class Device {
 
         /* WEB SOCKET CONNECTION STATUS */
         this.socket = false
+        this.last_ping = 0 
+        this.allowCMD = false
         
         /* DEVICE SEARCH PAGE MAP MARKER HOVER EFFECT */
         this.highlight = false
@@ -533,6 +535,16 @@ export class Device {
     
     // /* TODO: ? MOVE THIS OUTSIDE OF THE DEVICE CLASS ? */
     // update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
+
+    checkPing( t ) {
+        debug(`new ping received from device ${ this.reg.des_dev_serial }: `, t )
+        if ( t - this.last_ping > Ping.MaxDuration ) {
+            this.allowCMD = false 
+        } else {
+            this.allowCMD = true
+        }
+        this.last_ping = t
+    }
 
     /* MAP METHODS ( LIVE ) **************************************************************/
     updateDeviceSearchMap( ) { }
@@ -676,6 +688,10 @@ export class Device {
             let msg = JSON.parse( JSON.parse( e.data ) )
             switch ( msg.type ) {
             
+                case "ping":
+                    this.checkPing( msg.data )
+                    break
+
                 case "admin":
                     this.adm = msg.data
                     debug("new admin received from device: ", this.adm )
@@ -1443,6 +1459,21 @@ export class Section {
         this.sds_y_max = dat_y_max
     }
 }
+
+/* 
+WEB CLIENT <- HTTP <- DES <- MQTT <- DEVICE
+    - While the device is connected to the broker it sends a Ping every 30 seconds
+    - ALL COMMANDS ARE DISABLED on the web client if more than 30 seconds has passed since the last Ping.
+    - This data is NOT stored on the device or the server.
+*/
+export class Ping {
+    constructor(
+        time = 0
+    ) {
+        this.time = time
+    }
+}
+Ping.prototype.MaxDuration = 30
 
 /* 
 WEB CLIENT -> HTTP -> DES -> MQTT -> DEVICE  

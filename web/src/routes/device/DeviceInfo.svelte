@@ -41,6 +41,7 @@
                 cmdButtonHint = 'Start Job'
                 cmdButtonIcon = btn_img_start
                 cmdButtonFunc = ( ) => { dispatch( 'start' ) }
+                smp = new Sample( )
                 break 
 
             case OP_CODES.JOB_STARTED: 
