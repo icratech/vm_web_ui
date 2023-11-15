@@ -1,5 +1,6 @@
 <script>
 
+    import { debug } from '../../des_api'
     import { FormatDateTime, FormatTimeCode } from '$lib/common/format'
 
     import { Chart } from "chart.js/auto"
@@ -17,7 +18,7 @@
 
     const makeConfig = ( data ) => { return data }
 
-    $: current = 0
+    // export let current = 0
     export let chartdata
     const makeChart = ( ctx, d ) => {
 
@@ -27,10 +28,10 @@
             switch(e.button) {
                 case 0: // left
                 
-                    debug( "ctx.addEventListener( 'mousedown', ( e ) ) -> chart: ", chart )
-                    const canvasPosition = getRelativePosition( e, chart )
-                    current = chart.scales.x.getValueForPixel( Math.floor( canvasPosition.x ) )
-                    debug( "left click: ",  Math.floor( canvasPosition.x ), FormatDateTime( current  ) )
+                    // debug( "ctx.addEventListener( 'mousedown', ( e ) ) -> chart: ", chart )
+                    // const canvasPosition = getRelativePosition( e, chart )
+                    // current = chart.scales.x.getValueForPixel( Math.floor( canvasPosition.x ) )
+                    // debug( "left click: ",  FormatDateTime( current ) )
 
                     break
                 case 1: // wheel

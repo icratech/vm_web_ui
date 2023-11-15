@@ -678,18 +678,18 @@ export class Device {
             
                 case "admin":
                     this.adm = msg.data
-                    debug("new admin received from device: " + this.adm )
+                    debug("new admin received from device: ", this.adm )
                     break
 
                 case "state":
                     this.sta = msg.data
-                    debug("new state received from device: " + this.sta)
+                    debug("new state received from device: ", this.sta)
                     this.reg.des_job_name = this.sta.sta_job_name
                     break
     
                 case "header":
                     this.hdr = msg.data
-                    debug("new header received from device: " + this.hdr)
+                    debug("new header received from device: ", this.hdr)
                     this.reg.des_job_start = this.hdr.hdr_job_start
                     this.reg.des_job_end = this.hdr.hdr_job_end
                     this.reg.des_job_lng = this.hdr.hdr_geo_lng
@@ -701,12 +701,12 @@ export class Device {
                 case "config":
                     this.cfg = msg.data
                     this.updateMarkerMode( )
-                    debug("new config received from device: " + this.cfg)
+                    debug("new config received from device: ", this.cfg)
                     break
                 
                 case "event":
                     this.evt = msg.data
-                    debug("new event received from device: " + this.evt)
+                    debug("new event received from device: ", this.evt)
                     break
     
                 case "sample":
@@ -737,7 +737,7 @@ export class Device {
                 case "auth":
                     let auth = msg.data
                     if ( auth.status === "fail" && this.socket ) { this.disconnectWS( ) }
-                    debug( auth.message ) 
+                    debug( "new auth message received from device: ", auth.message ) 
                     break
 
                 default: 
@@ -1098,6 +1098,8 @@ export class Job {
         
         this.highlight = false
         this.selection = 0
+        this.selected_smp = new Sample( )
+
         /* JOB SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
         this.s_mark_el.className = 'marker job'; 
@@ -1222,6 +1224,8 @@ export class Job {
                 { x: this.selection, y: Number.MIN_SAFE_INTEGER }, 
                 { x: this.selection, y: Number.MAX_SAFE_INTEGER } 
             ]
+            this.selected_smp = this.samples.filter( s => s.smp_time == this.selection )[0]
+
             updateJobsStore( )
         }
 

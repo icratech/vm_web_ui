@@ -12,12 +12,15 @@
 
     import HeaderCard from '../../../lib/components/header/HeaderCard.svelte'
     import ReportCard from '$lib/components/report/ReportCard.svelte'
+    import ReportCardTitle from '$lib/components/report/ReportCardTitle.svelte'
     import EventBuilderRep from '$lib/components/event/EventBuilderRep.svelte'
+    import BarGaugeCardReport from '../../../lib/components/gauge/BarGaugeCardReport.svelte'
 
     import btn_img_report from "$lib/images/btn-img-report.svg"
+    import btn_img_add from "$lib/images/btn-img-add.svg"
 
     import { onMount } from "svelte"
-	import { JOBS, Header, Event, Report, Section, SectionDataSet, debug  } from "../../../lib/des_api"
+	import { JOBS, Header, Event, Report, Section, SectionDataSet, debug, Sample  } from "../../../lib/des_api"
     
     export let data
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
@@ -26,6 +29,10 @@
     $: hdr = JSON.parse( job.reg.des_job_json ).hdr
     // $: hdr = job.headers.pop( )
     
+    /* TODO : RETRIEVE LAST HEADER FROM LIST */
+    $: cfg = JSON.parse( job.reg.des_job_json ).cfg
+    // $: cfg = job.configs.pop( )
+
     let new_hdr = new Header( )
 
     $: loaded = false
@@ -54,6 +61,10 @@
     let cur_evt = new Event( )
     $: { cur_evt.evt_time = job.selection } 
 
+    $: { 
+        console.log( "Job page selected time:", job.selection ) 
+        console.log( "Job page selected sample:", job.selected_smp ) 
+    }
 
 </script>
 <div class="flx-col container">
@@ -62,18 +73,31 @@
 
         <div class="flx-col status">
 
+            <div class="flx-col">
             <HeaderCard bind:hdr />
-            <!-- <div class="flx-col title">
-                <h3>Job Info</h3>
-                { job.reg.des_job_name }
-            </div> -->
+            </div>
+            
+            <br>
+
+            Reports
+            <div class="flx-row btns">
+                <!-- <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/> -->
+                
+                <PillButton 
+                    on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
+                    cls={ 'bg-aqua' }
+                    img={ btn_img_add }
+                    hint={ 'New Report' } 
+                />
+
+                <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
+            </div>
             
 
 
             <div class="flx-col report-list">
-            Reports
             { #each job.reports as rep ( rep.rep_id ) }
-                <ReportCard bind:rep={ rep } bind:job/>
+                <ReportCardTitle bind:rep={ rep } bind:job/>
                 <br>
             { /each }
             </div> 
@@ -91,6 +115,12 @@
             { /if }
     
             <div class="flx-row controls">
+
+
+                <div class="flx-col gauge">
+                    <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
+                    <!-- <BarGaugeCardReport bind:cfg /> -->
+                </div>
 
                 <div class="flx-col btns">
     
@@ -142,10 +172,6 @@
 
                 </div>
 
-                <div class="flx-col">
-                    
-                </div>
-
             </div>
 
         </div>
@@ -177,6 +203,7 @@
 
     .report-list {
         overflow: auto;
+        height: 100%;
     }
 
     .panel {
@@ -196,5 +223,9 @@
         gap: 1em;
     }
 
+    .gauge{
+        justify-content: flex-start; 
+        height: auto;
+    }
 
 </style>
