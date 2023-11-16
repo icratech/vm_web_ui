@@ -1,6 +1,7 @@
 <script>
 
     import { FormatDateTime } from '../../../lib/common/format'
+    import DateTimeDisplay from '../../../lib/common/date_time/DateTimeDisplay.svelte'
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import PillButton from '../../../lib/common/button/PillButton.svelte'
     import DeviceInfo from '../DeviceInfo.svelte'
@@ -20,12 +21,21 @@
     import btn_img_vlv_build from "$lib/images/btn-img-vlv-build.svg"
 
     export let data
-    import { DEVICES } from '../../../lib/des_api'
+    import { DEVICES, PING_LIMIT } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
     /* USED TO EXPOSE THE MODAL'S OPEN( ) METHOD 
     SO IT CAN BE CALLED FROM OTHER COMPONENTS */
     let modal
+
+    $: sec = 0
+    const countDown = ( ) => {
+        let now = Date.now()
+        sec = PING_LIMIT /1000 - Math.floor( ( now - device.ping.time ) / 1000 )
+        if ( sec < 0 ) { sec = 0 }
+        // console.log(`now: ${ now } - ${  device.ping.time } = ${ now -  device.ping.time } `)
+    }
+    setInterval(countDown, 1000)
 
 </script>
 <dvi class="flx-col container">
@@ -87,19 +97,21 @@
                         </div>
                     </div>
                     
-                    <div class="flx-col" style="padding-left: 1em;">
+                    <div class="flx-col" style="padding-left: 1em; gap: 0.5em;">
                         <div class="flx-row">
                             <p>Last Ping: </p>
-                            <p style="color: var(--pink)">{ FormatDateTime( device.last_ping.time ) }</p>
-                            <p style="color: var(--aqua)">{ device.last_ping.time }</p>
+                            <DateTimeDisplay date={ device.ping.time }/>
                         </div>
                         <div class="flx-row">
-                            <p>This Ping: </p>
-                            <p style="color: var(--pink)">{ FormatDateTime( device.ping.time ) }</p>
-                            <p style="color: var(--aqua)">{ device.ping.time }</p>
-                        </div>
-                        <div class="flx-row">
-                            <p>Ping Diff: </p><p style="color: var(--pink)">{ Math.floor( ( device.ping.time - device.last_ping.time ) / 1000 ) }</p>
+                            { #if device.ping.ok }
+                                <p style="color: var(--orange)">Connected:</p>
+                                <p>Next Ping: </p>
+                                <p style="color: var(--aqua)">{ sec }</p>
+                            { :else }
+                                <p style="color: var(--grey_a)">Timeout:</p>
+                                <p>Next Ping: </p>
+                                <p style="color: var(--red)">{ sec }</p>
+                            { /if }
                         </div>
 
                     </div>

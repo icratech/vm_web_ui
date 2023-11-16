@@ -499,7 +499,7 @@ export class Device {
         evt = new Event( ),
         smp = new Sample( ),
         reg = new DESRegistration( ), 
-        ping = new Ping( Date.now( ) )
+        ping = new Ping( )
     ) { 
         this.adm = adm
         this.sta = sta
@@ -512,8 +512,6 @@ export class Device {
 
         /* WEB SOCKET CONNECTION STATUS */
         this.socket = false
-        this.last_ping = new Ping( 0 ) 
-        this.allowCMD = false
         
         /* DEVICE SEARCH PAGE MAP MARKER HOVER EFFECT */
         this.highlight = false
@@ -539,19 +537,15 @@ export class Device {
     // /* TODO: ? MOVE THIS OUTSIDE OF THE DEVICE CLASS ? */
     // update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
-    checkPing( t ) {
-        // debug(`new ping received from device ${ this.reg.des_dev_serial }: `, t )
-        this.last_ping = this.ping
-        this.ping = t
-        
-        // debug(`diff: ${ this.ping.time - this.last_ping.time },\tlimit: ${ PING_LIMIT }: `, t )
-        if ( this.ping.time - this.last_ping.time > PING_LIMIT ) {
-            this.allowCMD = false 
-            debug(`device connection timeout -> ${ this.reg.des_dev_serial }: `, this.ping )
-        } else {
-            this.allowCMD = true
-        }
-    }
+    // checkPing( ) {
+    //     // debug(`diff: ${ this.ping.time - this.last_ping.time },\tlimit: ${ PING_LIMIT }: `, this.ping.time )
+    //     if ( this.ping.time - this.last_ping.time > PING_LIMIT ) {
+    //         this.allowCMD = false 
+    //         debug(`device connection timeout -> ${ this.reg.des_dev_serial }: `, this.ping )
+    //     } else {
+    //         this.allowCMD = true
+    //     }
+    // }
 
     /* MAP METHODS ( LIVE ) **************************************************************/
     updateDeviceSearchMap( ) { }
@@ -696,7 +690,8 @@ export class Device {
             switch ( msg.type ) {
             
                 case "ping":
-                    this.checkPing( msg.data )
+                    // debug(`new ping received from device ${ this.reg.des_dev_serial }: `, FormatDateTime( msg.data.time ) )
+                    this.ping = msg.data
                     break
 
                 case "admin":
@@ -1098,15 +1093,20 @@ export const getMode = ( cfg, smp ) => {
 /* 
 WEB CLIENT <- HTTP <- DES <- MQTT <- DEVICE
     - While the device is connected to the broker it sends a Ping every 30 seconds
-    - ALL COMMANDS ARE DISABLED on the web client if more than 30 seconds has passed since the last Ping.
+    - If more than 30 seconds has passed since the last Ping, the DES 
+            - sets device.ping.ok = false and 
+            - publishes the updated device.ping to ccc/vvv/serial/des/ping
+    - ALL COMMANDS ARE DISABLED at both the web client and server when device.ping.ok == false 
     - This data is NOT stored on the device or the server.
 */
-export const PING_LIMIT = 31000
+export const PING_LIMIT = 30000
 export class Ping {
     constructor(
-        time = 0
+        time = 0,
+        ok = false
     ) {
         this.time = time
+        this.ok = ok
     }
 }
 

@@ -108,7 +108,7 @@
 
             <div class="flx-row btns">
 
-                { #if device.allowCMD }
+                { #if device.ping.ok }
                 <PillButton 
                     bind:cls={ cmdButtonColor }
                     on:click={ cmdButtonFunc }

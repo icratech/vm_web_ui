@@ -14,8 +14,12 @@
     $: color_code_border = RGBA(color_code, 0.5)
     $: lbl = 'OFF'
     $: {
-        if ( hdr.hdr_job_start == 0 ) { 
+        if ( !device.ping.ok ) { 
             lbl = 'OFF'
+            color_code = BASE.RED  
+        }
+        else if ( hdr.hdr_job_start == 0 ) { 
+            lbl = 'READY'
             color_code = BASE.LIGHT  
         }
         else {
