@@ -238,7 +238,8 @@ export const get_devices = async( ) => {
                     dev.cfg,
                     dev.evt,
                     dev.smp,
-                    dev.reg
+                    dev.reg,
+                    dev.ping
                 )
                 DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
             }        
@@ -498,6 +499,7 @@ export class Device {
         evt = new Event( ),
         smp = new Sample( ),
         reg = new DESRegistration( ), 
+        ping = new Ping( Date.now( ) )
     ) { 
         this.adm = adm
         this.sta = sta
@@ -506,10 +508,11 @@ export class Device {
         this.evt = evt
         this.smp = smp
         this.reg = reg 
+        this.ping = ping
 
         /* WEB SOCKET CONNECTION STATUS */
         this.socket = false
-        this.last_ping = 0 
+        this.last_ping = new Ping( 0 ) 
         this.allowCMD = false
         
         /* DEVICE SEARCH PAGE MAP MARKER HOVER EFFECT */
@@ -537,13 +540,17 @@ export class Device {
     // update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
 
     checkPing( t ) {
-        debug(`new ping received from device ${ this.reg.des_dev_serial }: `, t )
-        if ( t - this.last_ping > Ping.MaxDuration ) {
+        // debug(`new ping received from device ${ this.reg.des_dev_serial }: `, t )
+        this.last_ping = this.ping
+        this.ping = t
+        
+        // debug(`diff: ${ this.ping.time - this.last_ping.time },\tlimit: ${ PING_LIMIT }: `, t )
+        if ( this.ping.time - this.last_ping.time > PING_LIMIT ) {
             this.allowCMD = false 
+            debug(`device connection timeout -> ${ this.reg.des_dev_serial }: `, this.ping )
         } else {
             this.allowCMD = true
         }
-        this.last_ping = t
     }
 
     /* MAP METHODS ( LIVE ) **************************************************************/
@@ -1088,6 +1095,21 @@ export const getMode = ( cfg, smp ) => {
 
 }
 
+/* 
+WEB CLIENT <- HTTP <- DES <- MQTT <- DEVICE
+    - While the device is connected to the broker it sends a Ping every 30 seconds
+    - ALL COMMANDS ARE DISABLED on the web client if more than 30 seconds has passed since the last Ping.
+    - This data is NOT stored on the device or the server.
+*/
+export const PING_LIMIT = 31000
+export class Ping {
+    constructor(
+        time = 0
+    ) {
+        this.time = time
+    }
+}
+
 /* JOB DATA STRUCTURES ********************************************************************************/
 export class Job {
     constructor(
@@ -1459,21 +1481,6 @@ export class Section {
         this.sds_y_max = dat_y_max
     }
 }
-
-/* 
-WEB CLIENT <- HTTP <- DES <- MQTT <- DEVICE
-    - While the device is connected to the broker it sends a Ping every 30 seconds
-    - ALL COMMANDS ARE DISABLED on the web client if more than 30 seconds has passed since the last Ping.
-    - This data is NOT stored on the device or the server.
-*/
-export class Ping {
-    constructor(
-        time = 0
-    ) {
-        this.time = time
-    }
-}
-Ping.prototype.MaxDuration = 30
 
 /* 
 WEB CLIENT -> HTTP -> DES -> MQTT -> DEVICE  

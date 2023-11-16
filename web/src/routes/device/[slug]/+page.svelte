@@ -1,5 +1,6 @@
 <script>
 
+    import { FormatDateTime } from '../../../lib/common/format'
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import PillButton from '../../../lib/common/button/PillButton.svelte'
     import DeviceInfo from '../DeviceInfo.svelte'
@@ -84,6 +85,23 @@
                         <div class="flx-row">
                             <p>Modem FW: </p><p style="color: var(--orange)">{ device.sta.sta_mod_fw }</p>
                         </div>
+                    </div>
+                    
+                    <div class="flx-col" style="padding-left: 1em;">
+                        <div class="flx-row">
+                            <p>Last Ping: </p>
+                            <p style="color: var(--pink)">{ FormatDateTime( device.last_ping.time ) }</p>
+                            <p style="color: var(--aqua)">{ device.last_ping.time }</p>
+                        </div>
+                        <div class="flx-row">
+                            <p>This Ping: </p>
+                            <p style="color: var(--pink)">{ FormatDateTime( device.ping.time ) }</p>
+                            <p style="color: var(--aqua)">{ device.ping.time }</p>
+                        </div>
+                        <div class="flx-row">
+                            <p>Ping Diff: </p><p style="color: var(--pink)">{ Math.floor( ( device.ping.time - device.last_ping.time ) / 1000 ) }</p>
+                        </div>
+
                     </div>
                 </div>
 

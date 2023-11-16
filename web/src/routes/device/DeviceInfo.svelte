@@ -108,13 +108,15 @@
 
             <div class="flx-row btns">
 
+                { #if device.allowCMD }
                 <PillButton 
                     bind:cls={ cmdButtonColor }
                     on:click={ cmdButtonFunc }
                     bind:img={ cmdButtonIcon }
                     bind:hint={ cmdButtonHint }
                 />
-
+                { /if }
+                
                 <PillButton 
                     cls={ socketButtonColor }
                     on:click={ socketButtonFunc }
