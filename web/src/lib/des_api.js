@@ -175,6 +175,7 @@ export const API_URL_C001_V001_DEVICE_STA =  `${ HTTP_SERVER }/api/001/001/devic
 export const API_URL_C001_V001_DEVICE_HDR =  `${ HTTP_SERVER }/api/001/001/device/header`
 export const API_URL_C001_V001_DEVICE_CFG =  `${ HTTP_SERVER }/api/001/001/device/config`
 export const API_URL_C001_V001_DEVICE_EVT =  `${ HTTP_SERVER }/api/001/001/device/event`
+export const API_URL_C001_V001_DEVICE_JOB_EVTS =  `${ HTTP_SERVER }/api/001/001/device/job_events`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
@@ -509,6 +510,13 @@ export class Device {
         this.smp = smp
         this.reg = reg 
         this.ping = ping
+
+        /* USED ON DEVICE PAGE TO DISPLAY ACTIVE JOB */
+        this.job = new Job( )
+        this.job_evts = [ ]
+
+        /* USED ON ADMIN PAGE TO DISPLAY CMDARCHIVE */
+        this.cmd = new Job()
 
         /* WEB SOCKET CONNECTION STATUS */
         this.socket = false
@@ -1056,6 +1064,38 @@ export class Device {
             debug("DEVICE CREATE EVENT Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
+    getActiveJobEvents = async( ) => {
+        debug( "Get Events for active job: ", this.reg.des_job_name ) 
+        
+        let au = get( AUTH )
+        
+        let dev = { reg: this.reg }
+
+        debug( "Send GET ACTIVE JOB EVENTS Request:\n", dev )
+
+        let req = new Request( API_URL_C001_V001_DEVICE_JOB_EVTS, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let evts = await res.json( )
+        
+        if ( evts.status === "success" ) { 
+            debug("GET ACTIVE JOB EVENTS Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            this.job_evts = evts.data.events
+        }
+        
+        debug("des_api.js -> device.getActiveJobEvents( ) ->  RESPONSE this.job_evts:\n", this.job_evts )
+    }
+    getActiveJobData = async( ) => {
+        this.job.reg = this.reg
+        await this.job.getJobData( )
+        debug("des_api.js -> device.getActiveJobData( ) ->  RESPONSE job:\n", this.job )
+    }
 }
 
 /* OPERATION CODES ( Event.EvtCode 0 : 999 ) *******************************************************/
@@ -1188,7 +1228,9 @@ export class Job {
             await this.updateChartData( j.xypoints )
             this.reports = j.reports
             return true
-        } 
+        } else {
+            debug("job.getJobData( ) -> ERROR ", JSON.stringify( json.message ) )
+        }
     }
 
     /* CHART DATA */

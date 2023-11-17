@@ -14,7 +14,8 @@
         register_device,
         debug 
     } from '../../lib/des_api'
-    import DemoDeviceCard from './DemoDeviceCard.svelte'
+    import DESAdminDeviceCard from './DESAdminDeviceCard.svelte'
+    import DesAdminDeviceInfo from './DESAdminDeviceInfo.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
 
@@ -39,35 +40,41 @@
 
 <dvi class="flx-col container">
 
-    <h1>DES ADMINISTRATION PAGE</h1>
+    <div class="flx-row content">
 
-    <div class="flx-row new-device">
+        <div class="flx-col status">
+            <h1>DES ADMINISTRATION PAGE</h1>
 
-        <PillButton 
-            cls='bg-accent'
-            on:click={ async( ) => { await register_device( serial ) } }
-            hint={ null } 
-        />
+            <div class="flx-row new-device">
 
-        <div class="flx-col input-container">
-            <label class="lbl">
-                Enter a serial # and click the circle over there.
-                <input name="serial"
-                    type="text" 
-                    bind:value={ serial } 
+                <PillButton 
+                    cls='bg-accent'
+                    on:click={ async( ) => { await register_device( serial ) } }
+                    hint={ null } 
                 />
-            </label>
-        </div>
-    
-    </div>
 
-    <div class="flx-col device-list">
-        { #each $DEMO_DEVICES as demo ( `demo_page_${ demo.dev.reg.des_dev_id }` ) }
-            <DemoDeviceCard 
-                bind:device={ demo }
-                on:go={ ( ) => { goto( `device/${ demo.dev.reg.des_dev_serial }` ) } }
-            />
-        { /each }
+                <div class="flx-col input-container">
+                    <label class="lbl">
+                        Enter a serial # and click the circle over there.
+                        <input name="serial"
+                            type="text" 
+                            bind:value={ serial } 
+                        />
+                    </label>
+                </div>
+            
+            </div>
+
+            <div class="flx-col device-list">
+                { #each $DEMO_DEVICES as device ( `demo_page_${ device.dev.reg.des_dev_id }` ) }
+                    <DesAdminDeviceInfo 
+                        bind:device={ device }
+                        on:go={ ( ) => { goto( `device/${ device.dev.reg.des_dev_serial }` ) } }
+                    />
+                { /each }
+            </div>
+        </div>
+
     </div>
 
 </dvi>
@@ -79,12 +86,26 @@
         gap: 1rem;
         overflow: hidden;
     }
+    
+    .content { 
+        height: 100%;
+    }
+    
+    .status {
+        max-width: 25%;
+        min-width: 25%;
+        /* width: auto; */
+        padding-right: 0.5em;
+        overflow: hidden;
+    }
+
     .new-device {
         padding: 1em;
         align-items: center;
     }
     .device-list {
         width: 100%;
+        overflow-x: hidden;
         overflow-y: auto;
         padding: 1em;
     }

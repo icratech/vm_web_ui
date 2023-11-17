@@ -1,4 +1,6 @@
 <script>
+    
+    import { onMount } from "svelte"
 
     import { FormatDateTime } from '../../../lib/common/format'
     import DateTimeDisplay from '../../../lib/common/date_time/DateTimeDisplay.svelte'
@@ -10,6 +12,7 @@
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     import HeaderBuilder from '../../../lib/components/header/HeaderBuilder.svelte'
     import ConfigBuilder from '../../../lib/components/config/ConfigBuilder.svelte'
+    import EventCard from "../../../lib/components/event/EventCard.svelte"
     import EventBuilderOp from '../../../lib/components/event/EventBuilderOp.svelte'
     
     import btn_img_adm from "$lib/images/btn-img-adm.svg"
@@ -24,7 +27,7 @@
     import { DEVICES, PING_LIMIT } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
-    /* USED TO EXPOSE THE MODAL'S OPEN( ) METHOD 
+    /* USED TO EXPOSE THE MODALS' OPEN( ) METHOD 
     SO IT CAN BE CALLED FROM OTHER COMPONENTS */
     let modal
 
@@ -36,6 +39,12 @@
         // console.log(`now: ${ now } - ${  device.ping.time } = ${ now -  device.ping.time } `)
     }
     setInterval(countDown, 1000)
+
+    let evts_loded = false
+    onMount( async( ) => { 
+        await device.getActiveJobEvents()
+        evts_loded = true
+    } )
 
 </script>
 <dvi class="flx-col container">
@@ -152,13 +161,19 @@
                 </div>
 
                 <!-- TODO : MOVE TO MODAL FOR PRODUCTION; REPLACE WITH EVENT LIST VIEW -->
-                <div class="flx-col panel-cont">
+                <div class="flx-col panel-cont evt">
                     <div class="flx-row panel-title-bar">
                         <h3 class="panel-title">Event</h3>
                     </div>
                     <EventBuilderOp bind:device />
                 </div>
 
+                <div class="flx-col evts">
+                    { #each device.job_evts as evt ( evt.evt_time ) }
+                        <EventCard bind:event={evt} />
+                    { /each }
+                </div>
+    
             </div>
 
         </div>
@@ -194,7 +209,17 @@
 
     .chart { min-height: 38em; }
 
+    .evt {
+        display: none;
+    }
+    .evts {
+        /* display: none; */
+        overflow-y: auto;
+        max-width: 27%;
+        padding-right: 0.5em;
+    }
     .action {
+        overflow-y: auto;
         justify-content: space-between;
         height: 100%;
     }

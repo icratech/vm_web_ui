@@ -41,6 +41,7 @@
     let home_btn_color = 'bg-orange'
     let device_btn_color = 'bg-accent'
     let job_btn_color = 'bg-accent'
+    let admin_btn_color = 'bg-purple'
     $: {
         switch ( page ) {
             case '' : { 
@@ -62,6 +63,13 @@
                 home_btn_color = 'bg-accent'
                 device_btn_color = 'bg-accent'
                 job_btn_color = 'bg-pink'
+                break
+            }
+            case 'des_admin': { 
+                page_name = "DES ADMINISTRATION"
+                home_btn_color = 'bg-accent'
+                device_btn_color = 'bg-accent'
+                job_btn_color = 'bg-accent'
                 break
             }
             default : { 
@@ -134,7 +142,7 @@
                 <div class="flx-col admin">
                     <PillButton 
                         on:click={ goto_des } 
-                        cls='bg-purple'  
+                        cls={ admin_btn_color } 
                         hint={ "If you don't know..." } 
                     />
                 </div>
