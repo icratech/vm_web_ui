@@ -41,6 +41,8 @@
         height: 2em;
         width: 10em;
         border-radius: 0.5em;
+        z-index: 99999;
+        position: relative;
     }
     .icon:hover .hint {
         display: flex;
@@ -50,7 +52,8 @@
         padding-right: 0.5em;
         width:max-content;
         visibility: visible;
-        z-index: 99;
+        z-index: 99999;
+        position: relative;
     }
 
 

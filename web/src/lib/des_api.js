@@ -167,6 +167,9 @@ export const get_user = async( token ) => {
 
 /* DEVICE API ROUTES **********************************************************************************/
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
+export const API_URL_C001_V001_DEVICE_CONNECT_DES =  `${ HTTP_SERVER }/api/001/001/device/connect`
+export const API_URL_C001_V001_DEVICE_DISCONNECT_DES =  `${ HTTP_SERVER }/api/001/001/device/disconnect`
+
 export const API_URL_C001_V001_DEVICE_START =  `${ HTTP_SERVER }/api/001/001/device/start`
 export const API_URL_C001_V001_DEVICE_CANCEL_START =  `${ HTTP_SERVER }/api/001/001/device/cancel_start`
 export const API_URL_C001_V001_DEVICE_END =  `${ HTTP_SERVER }/api/001/001/device/end`
@@ -240,7 +243,8 @@ export const get_devices = async( ) => {
                     dev.evt,
                     dev.smp,
                     dev.reg,
-                    dev.ping
+                    dev.ping,
+                    dev.des_ping
                 )
                 DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
             }        
@@ -500,7 +504,8 @@ export class Device {
         evt = new Event( ),
         smp = new Sample( ),
         reg = new DESRegistration( ), 
-        ping = new Ping( )
+        ping = new Ping( ), 
+        des_ping = new Ping( )
     ) { 
         this.adm = adm
         this.sta = sta
@@ -509,7 +514,19 @@ export class Device {
         this.evt = evt
         this.smp = smp
         this.reg = reg 
+
+        /* USED TO MONITOR THE PHYSICAL DEVICE'S BROKER CONNECTION 
+            THE PHYSICAL DEVICE SENDS A PING EVERY 30 SECONDS
+        */
         this.ping = ping
+        
+        /* USED TO MONITOR THE DES DEVICE CLIENT'S BROKER CONNECTION 
+            DES DEVICE CLIENT: 
+             - SUBSCRIBES TO DEVICE SIGNAL TOPICS 
+             - WRITES TO JOB AND CMD DATABASES
+             - PUBLISHES TO DEVICE COMMAND TOPICS 
+        */
+        this.des_ping = des_ping
 
         /* USED ON DEVICE PAGE TO DISPLAY ACTIVE JOB */
         this.job = new Job( )
@@ -701,7 +718,12 @@ export class Device {
                     // debug(`new ping received from device ${ this.reg.des_dev_serial }: `, FormatDateTime( msg.data.time ) )
                     this.ping = msg.data
                     break
-
+            
+                case "des_ping":
+                    // debug(`new des_ping received from des device client ${ this.reg.des_dev_serial }: `, FormatDateTime( msg.data.time ) )
+                    this.des_ping = msg.data
+                    break
+    
                 case "admin":
                     this.adm = msg.data
                     debug("new admin received from device: ", this.adm )
@@ -1091,11 +1113,57 @@ export class Device {
         
         debug("des_api.js -> device.getActiveJobEvents( ) ->  RESPONSE this.job_evts:\n", this.job_evts )
     }
-    getActiveJobData = async( ) => {
-        this.job.reg = this.reg
-        await this.job.getJobData( )
-        debug("des_api.js -> device.getActiveJobData( ) ->  RESPONSE job:\n", this.job )
+    // getActiveJobData = async( ) => {
+    //     this.job.reg = this.reg
+    //     await this.job.getJobData( )
+    //     debug("des_api.js -> device.getActiveJobData( ) ->  RESPONSE job:\n", this.job )
+    // }
+
+    /* HTTP METHODS ( ADMIN ) *************************************************************/
+    connectDESClient = async( ) => {
+        debug( "Connect DES Client: ", this.reg.des_dev_serial ) 
+        this.des_ping.time = 0
+        this.des_ping.ok = false
+        
+        let au = get( AUTH )
+        
+        if ( !this.socket ) { await this.connectWS( ) }
+
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+        let dev = { reg: this.reg }
+        debug( "Send Connect DES Client Request:\n", dev ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_CONNECT_DES, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let jsn = await res.json( )
+        debug("des_api.js -> device.connectDESClient( ) ->  RESPONSE reg:\n", jsn )
+
+        if ( jsn.status === "success" ) {
+            let d = JSON.parse( JSON.stringify( jsn.data.device ) )
+            this.adm = d.adm
+            this.sta = d.sta
+            this.hdr = d.hdr
+            this.cfg = d.cfg
+            this.evt = d.evt
+            this.smp = d.smp
+            this.reg = d.reg
+            this.ping = d.ping
+            this.des_ping = d.des_ping
+            return true
+        } else {
+            debug("device.connectDESClient(( ) -> ERROR ", JSON.stringify( jsn.message ) )
+            return false
+        }
     }
+
 }
 
 /* OPERATION CODES ( Event.EvtCode 0 : 999 ) *******************************************************/
@@ -1130,16 +1198,30 @@ export const getMode = ( cfg, smp ) => {
 
 }
 
-/* 
-WEB CLIENT <- HTTP <- DES <- MQTT <- DEVICE
-    - While the device is connected to the broker it sends a Ping every 30 seconds
-    - If more than 30 seconds has passed since the last Ping, the DES 
-            - sets device.ping.ok = false and 
-            - publishes the updated device.ping to ccc/vvv/serial/des/ping
-    - ALL COMMANDS ARE DISABLED at both the web client and server when device.ping.ok == false 
-    - This data is NOT stored on the device or the server.
+/* DEVICE Ping
+    WEB CLIENT <- HTTP (Websocket) <- DES <- MQTT <- DEVICE
+        - While the device is connected to the broker it sends a Ping every 30 seconds
+        - If more than 30 seconds has passed since the last Ping, the DES 
+                - sets device.ping.ok = false and 
+                - publishes the updated device.ping to ccc/vvv/serial/des/ping
+        - ALL COMMANDS ARE DISABLED at both the web client and server when device.ping.ok == false 
+        - This data is NOT stored on the device or the server.
 */
 export const PING_LIMIT = 30000
+
+
+/* DES DEVICE CLIENT Ping   
+    WEB CLIENT <- HTTP (Websocket) <- DES 
+        - While the DES device client is connected to the broker, the DES
+            - sets device.des_ping.time = now utc unix milli
+            - sets device.des_ping.ok = true and
+            - publishes the updated device.ping to ccc/vvv/serial/des/des_ping
+        - If more than 10 seconds has passed since the last DES DEVICE CLIENT Ping, 
+            - WebSocket connected users can take action...
+        - This data is NOT stored on the device or the server.
+*/
+export const DES_PING_LIMIT = 10000
+
 export class Ping {
     constructor(
         time = 0,
@@ -1215,10 +1297,10 @@ export class Job {
             body: JSON.stringify( this.reg )
         } )
         let res = await fetch( req )
-        let json = await res.json( )
+        let jsn = await res.json( )
 
-        if ( json.status == "success" ) {
-            let j = JSON.parse( JSON.stringify( json.data.job ) )
+        if ( jsn.status == "success" ) {
+            let j = JSON.parse( JSON.stringify( jsn.data.job ) )
             this.admins = j.admins
             this.states = j.states
             this.headers = j.headers
@@ -1229,7 +1311,7 @@ export class Job {
             this.reports = j.reports
             return true
         } else {
-            debug("job.getJobData( ) -> ERROR ", JSON.stringify( json.message ) )
+            debug("job.getJobData( ) -> ERROR ", JSON.stringify( jsn.message ) )
         }
     }
 

@@ -15,7 +15,7 @@
         debug 
     } from '../../lib/des_api'
     import DESAdminDeviceCard from './DESAdminDeviceCard.svelte'
-    import DesAdminDeviceInfo from './DESAdminDeviceInfo.svelte'
+    import DESAdminDeviceInfo from './DESAdminDeviceInfo.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
 
@@ -65,14 +65,19 @@
             
             </div>
 
+        </div>
+
+        <div class="flx-col panel">
+
             <div class="flx-col device-list">
                 { #each $DEMO_DEVICES as device ( `demo_page_${ device.dev.reg.des_dev_id }` ) }
-                    <DesAdminDeviceInfo 
+                    <DESAdminDeviceCard
                         bind:device={ device }
                         on:go={ ( ) => { goto( `device/${ device.dev.reg.des_dev_serial }` ) } }
                     />
                 { /each }
             </div>
+
         </div>
 
     </div>
@@ -82,9 +87,9 @@
 
 <style>
     .container {
+        overflow: hidden;
         height: 100%;
         gap: 1rem;
-        overflow: hidden;
     }
     
     .content { 
@@ -94,17 +99,16 @@
     .status {
         max-width: 25%;
         min-width: 25%;
-        /* width: auto; */
+        width: auto;
         padding-right: 0.5em;
-        overflow: hidden;
     }
 
     .new-device {
         padding: 1em;
         align-items: center;
     }
+
     .device-list {
-        width: 100%;
         overflow-x: hidden;
         overflow-y: auto;
         padding: 1em;

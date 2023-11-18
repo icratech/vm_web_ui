@@ -5,9 +5,11 @@
     import DeviceMode from "../device/DeviceMode.svelte"
 
     
-    import { DemoDevice, OP_CODES, Sample, debug, PING_LIMIT } from "../../lib/des_api"
+    import { DemoDevice, OP_CODES, Sample, debug, PING_LIMIT, DES_PING_LIMIT } from "../../lib/des_api"
 
     import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
+    import btn_img_confirm from "$lib/images/btn-img-confirm.svg"
+    import btn_img_reset from "$lib/images/btn-img-reset.svg"
     
     export let device = new DemoDevice( )
     $: cfg = device.dev.cfg
@@ -15,14 +17,52 @@
     $: sta = device.dev.sta
     $: smp = ( device.dev.smp ? device.dev.smp : new Sample( ) )
 
-    $: sec = 0
+    $: des_ping_sec = 0
+    
+    $: dev_ping_sec = 0
     const countDown = ( ) => {
         let now = Date.now()
-        sec = PING_LIMIT /1000 - Math.floor( ( now - device.dev.ping.time ) / 1000 )
-        if ( sec < 0 ) { sec = 0 }
+        dev_ping_sec = PING_LIMIT /1000 - Math.floor( ( now - device.dev.ping.time ) / 1000 )
+        if ( dev_ping_sec < 0 ) { 
+            dev_ping_sec = 0 
+            device.dev.ping.ok = false
+        } else {
+            device.dev.ping.ok = true
+        }
         // console.log(`now: ${ now } - ${  device.dev.ping.time } = ${ now -  device.dev.ping.time } `)
+        
+        des_ping_sec = DES_PING_LIMIT /1000 - Math.floor( ( now - device.dev.des_ping.time ) / 1000 )
+        if ( des_ping_sec < 0 ) { des_ping_sec = 0  }
     }
     setInterval(countDown, 1000)
+
+
+    $: DESDevConnColor = 'bg-accent'
+    $: DESDevConnHint = 'DES Client OK'
+    $: DESDevConnImage = btn_img_confirm 
+    $: DESDevConnFucn = ( ) => { }
+    $: {
+        if ( !device.dev.des_ping.ok ) { 
+            DESDevConnColor = 'bg-yellow' 
+            DESDevConnHint = 'DES Connecting...'
+            DESDevConnImage = btn_img_cmd
+            DESDevConnFucn = ( ) => { }
+        } else if ( !device.dev.ping.ok ) { 
+            DESDevConnColor = 'bg-grey' 
+            DESDevConnHint = 'Reset DES Client'
+            DESDevConnImage = btn_img_reset
+            DESDevConnFucn = ( ) => { 
+                device.dev.des_ping.time = 0
+                device.dev.des_ping.ok = false
+                device.dev.connectDESClient
+            }
+        } else { 
+            DESDevConnColor = 'bg-accent' 
+            DESDevConnHint = 'DES Client OK'
+            DESDevConnImage = btn_img_confirm
+            DESDevConnFucn = ( ) => { }
+        }
+    }
 
 </script>
 
@@ -43,17 +83,22 @@
             <DeviceMode bind:device={ device.dev } />
             
             <div class="flx-row btns">
+
+                <PillButton 
+                    on:click={ DESDevConnFucn }
+                    cls={ DESDevConnColor }
+                    img={ DESDevConnImage }
+                    hint={ DESDevConnHint } 
+                />
+
                 <PillButton 
                     cls={ 'bg-pink' }
                     hint={ "Jobs" } 
                 />
+
                 <PillButton 
                     cls={ 'bg-purple' }
                     hint={ "Logs" } 
-                />
-                <PillButton 
-                    cls={ 'bg-aqua' }
-                    hint={ "?" } 
                 />
 
             </div> 
@@ -76,19 +121,28 @@
         </div>
 
         <div class="flx-row field">
-            <div class="flx-row field-name" 
-                style="color:{ ( device.dev.ping.ok ? 'var(--green)' : 'var(--grey_03)' ) };"
-            >{ ( device.dev.ping.ok ? 'Connected' : 'Timeout' ) }</div>
+            <div class="flx-row field-name">Device Ping</div>
             <div class="vert-line"/>
-            <div class="flx-row field-value" style="color:{ ( device.dev.ping.ok ? 'var(--light_a)' : 'var(--red)' ) };">{ sec }</div>
+            <div class="flx-row"><DateTimeDisplay date={ device.dev.ping.time }/></div>
+            
+            <div class="flx-row field-name" style="color:{ ( device.dev.ping.ok ? 'var(--green)' : 'var(--grey_03)' ) };" >
+                { ( device.dev.ping.ok ? 'Connected' : 'Timeout' ) }
+                <div class="flx-row field-value timeout-value" style="color:{ ( device.dev.ping.ok ? 'var(--light_a)' : 'var(--red)' ) };">
+                    { dev_ping_sec }</div>
+            </div>
         </div>
 
         <div class="flx-row field">
-            <div class="flx-row field-name">Last Ping</div>
+            <div class="flx-row field-name">DES Ping</div>
             <div class="vert-line"/>
-            <div class="flx-row"><DateTimeDisplay date={ device.dev.ping.time }/></div>
+            <div class="flx-row"><DateTimeDisplay date={ device.dev.des_ping.time }/></div>
+            
+            <div class="flx-row field-name" style="color:{ ( device.dev.des_ping.ok ? 'var(--accent_aa)' : 'var(--grey_03)' ) };" >
+                { ( device.dev.des_ping.ok ? 'Connected' : 'Timeout' ) }
+                <div class="flx-row field-value timeout-value" style="color:{ ( device.dev.des_ping.ok ? 'var(--light_a)' : 'var(--red)' ) };">
+                    { des_ping_sec }</div>
+            </div>
         </div>
-
 
     </div>
 
@@ -106,6 +160,7 @@
         height:100%;
         padding: 1em;
         gap: 0.5em;
+        position: relative;
     }
     .layout {  
         padding: 0; 
@@ -142,6 +197,10 @@
     .field { 
         height: 2em; 
         gap: 0;         
+    }
+    .timeout-value {
+        min-width: 2em; 
+        max-width: 2em;
     }
 
     .field-name {
