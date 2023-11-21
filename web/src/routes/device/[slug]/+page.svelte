@@ -12,8 +12,11 @@
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     import HeaderBuilder from '../../../lib/components/header/HeaderBuilder.svelte'
     import HeaderCard from "../../../lib/components/header/HeaderCard.svelte"
+    import HeaderPanel from "../../../lib/components/header/HeaderPanel.svelte"
+    import DeviceConn from "../DeviceConn.svelte"
     import ConfigBuilder from '../../../lib/components/config/ConfigBuilder.svelte'
     import ConfigCard from "../../../lib/components/config/ConfigCard.svelte"
+    import ConfigPanel from "../../../lib/components/config/ConfigPanel.svelte"
     import EventCard from "../../../lib/components/event/EventCard.svelte"
     import EventPanel from "../../../lib/components/event/EventPanel.svelte"
     import EventBuilderOp from '../../../lib/components/event/EventBuilderOp.svelte'
@@ -28,29 +31,42 @@
     import btn_img_edit from "$lib/images/btn-img-edit.svg"
 
     export let data
-    import { DEVICES, PING_LIMIT } from '../../../lib/des_api'
+    import { DEVICES, PING_LIMIT, DES_PING_LIMIT } from '../../../lib/des_api'
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
     /* USED TO EXPOSE THE MODALS' OPEN( ) METHOD 
     SO IT CAN BE CALLED FROM OTHER COMPONENTS */
     let modal
 
-    $: sec = 0
-    const countDown = ( ) => {
-        let now = Date.now()
-        sec = PING_LIMIT /1000 - Math.floor( ( now - device.ping.time ) / 1000 )
-        if ( sec < 0 ) { sec = 0 }
-        // console.log(`now: ${ now } - ${  device.ping.time } = ${ now -  device.ping.time } `)
-    }
-    setInterval(countDown, 1000)
+    // $: des_ping_sec = 0
+    // $: dev_ping_sec = 0
+    // $: sec = 0
+    // const countDown = ( ) => {
+    //     let now = Date.now()
+    //     sec = PING_LIMIT /1000 - Math.floor( ( now - device.ping.time ) / 1000 )
+    //     if ( sec < 0 ) { sec = 0 }
+    //     // console.log(`now: ${ now } - ${  device.ping.time } = ${ now -  device.ping.time } `)
+    //     dev_ping_sec = PING_LIMIT /1000 - Math.floor( ( now - device.ping.time ) / 1000 )
+    //     if ( dev_ping_sec < 0 ) { 
+    //         dev_ping_sec = 0 
+    //         device.ping.ok = false
+    //     } else {
+    //         device.ping.ok = true
+    //     }
+    //     // console.log(`now: ${ now } - ${  device.dev.ping.time } = ${ now -  device.dev.ping.time } `)
+        
+    //     des_ping_sec = DES_PING_LIMIT /1000 - Math.floor( ( now - device.des_ping.time ) / 1000 )
+    //     if ( des_ping_sec < 0 ) { des_ping_sec = 0  }
+    // }
+    // setInterval(countDown, 1000)
 
-    let evts_loded = false
-    onMount( async( ) => { 
-        await device.getActiveJobEvents()
-        evts_loded = true
-    } )
-    $: show_evt_list = true
-    $: eventButtonHint = ( show_evt_list ? "Events" : "New Event" )
+    // let evts_loded = false
+    // onMount( async( ) => { 
+    //     await device.getActiveJobEvents()
+    //     evts_loded = true
+    // } )
+    // $: show_evt_list = true
+    // $: eventButtonHint = ( show_evt_list ? "Events" : "New Event" )
 
 </script>
 
@@ -80,96 +96,13 @@
 
                 <!-- TODO : MOVE TO MODAL FOR PRODUCTION; REPLACE WITH HEADER LIST VIEW -->
                 <div class="flx-col panel-cont">
-                    <div class="flx-row panel-title-bar">
-                        <div class="flx-row panel-title-btns">
-                            <PillButton
-                                cls={ 'bg-light' } 
-                                img={ btn_img_adm }
-                                on:click={ device.setAdmin }
-                                hint='Send Admin'
-                            />
-                            <PillButton
-                                cls={ 'bg-light' } 
-                                img={ btn_img_sta }
-                                on:click={ device.setState }
-                                hint='Send State'
-                            />
-                            <PillButton
-                                cls={ 'bg-light' }
-                                img={ btn_img_hdr }
-                                on:click={ device.setHeader }
-                                hint='Send Header'
-                            />
-                        </div>
-                        <h3 class="panel-title">Header</h3>
-                    </div>
-                    <HeaderCard bind:hdr={ device.hdr }/>
-                    <!-- <HeaderBuilder bind:hdr={ device.hdr }/> -->
-                    <div class="flx-row" style="padding-left: 1em;">
-                        <div class="flx-row">
-                            <p>Logger FW: </p><p style="color: var(--orange)">{ device.sta.sta_log_fw }</p>
-                        </div>
-                        <div class="flx-row">
-                            <p>Modem FW: </p><p style="color: var(--orange)">{ device.sta.sta_mod_fw }</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flx-col" style="padding-left: 1em; gap: 0.5em;">
-                        <div class="flx-row">
-                            <p>Last Ping: </p>
-                            <DateTimeDisplay date={ device.ping.time }/>
-                        </div>
-                        <div class="flx-row">
-                            { #if device.ping.ok }
-                                <p style="color: var(--orange)">Connected:</p>
-                                <p>Next Ping: </p>
-                                <p style="color: var(--aqua)">{ sec }</p>
-                            { :else }
-                                <p style="color: var(--grey_a)">Timeout:</p>
-                                <p>Next Ping: </p>
-                                <p style="color: var(--red)">{ sec }</p>
-                            { /if }
-                        </div>
-
-                    </div>
+                    <HeaderPanel bind:device />
                 </div>
 
-                <!-- TODO : MOVE TO MODAL FOR PRODUCTION; REPLACE WITH CONFIG LIST VIEW -->
                 <div class="flx-col panel-cont">
-                    <div class="flx-row panel-title-bar">
-                        <div class="flx-row panel-title-btns">   
-                            <PillButton
-                                cls={ 'bg-light' }
-                                img={ btn_img_cfg }
-                                on:click={ device.setConfig }
-                                hint='Send Config'
-                            />
-                            <PillButton
-                                cls={ 'bg-aqua' }
-                                img={ btn_img_vlv_vent }
-                                on:click={ ( ) => { device.setMode( 2 ) } }
-                                hint='VENT'
-                            />    
-                            <PillButton
-                                cls={ 'bg-orange' }
-                                img={ btn_img_vlv_flow }
-                                on:click={ ( ) => { device.setMode( 4 ) } }
-                                hint='FLOW'
-                            />
-                            <PillButton
-                                cls={ 'bg-green' }
-                                img={ btn_img_vlv_build }
-                                on:click={ ( ) => { device.setMode( 0 ) } }
-                                hint='BUILD'
-                            />
-                        </div>
-                        <h3 class="panel-title">Configuration</h3>
-                    </div>
-                    <!-- <ConfigCard bind:cfg={ device.cfg }/> -->
-                    <ConfigBuilder bind:config={ device.cfg }/>
+                    <ConfigPanel bind:device />
                 </div>
 
-                <!-- TODO : MOVE TO MODAL FOR PRODUCTION; REPLACE WITH EVENT LIST VIEW -->
                 <div class="flx-col panel-cont">
                     <EventPanel bind:device />
                 </div>
@@ -216,29 +149,16 @@
     }
 
     .panel-cont { 
-        /* background-color: var(--light_003); */
+        background-color: var(--light_002);
+        border-bottom: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01);
+        border-radius: 0.5em;
+        padding: 1em;
         gap: 0.5em; 
+        /* min-width: 30%;
         min-width: 30%;
-        min-width: 30%;
-        width: 33%;
+        width: 30%; */
     }
-
-    .panel-title-bar {
-        justify-content: space-between;
-        padding-left: 1em;
-        padding-top: 0;
-        padding-right: 0.5em;
-        width: 100%;
-    }
-    .panel-title-btns {
-        flex-direction: row;
-        width: auto;
-    }
-    .panel-title {
-        align-items: flex-end;
-        width: 100%;
-    }
-
 
     /* LAP TOP */
     @media(max-width: 1440px) {

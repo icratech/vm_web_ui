@@ -30,7 +30,7 @@
 
 <div class="flx-row panel">
     <HeaderBuilder bind:hdr={ device.hdr }/>
-    <ConfigBuilder bind:config={ device.cfg }/>
+    <ConfigBuilder bind:cfg={ device.cfg }/>
 </div>
 
 <style>

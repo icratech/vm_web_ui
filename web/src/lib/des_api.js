@@ -754,6 +754,7 @@ export class Device {
                 
                 case "event":
                     this.evt = msg.data
+                    this.job_evts.unshift( this.evt )
                     debug("new event received from device: ", this.evt)
                     break
     
@@ -1039,10 +1040,10 @@ export class Device {
             body: JSON.stringify( dev )
         } )
         let res = await fetch( req )
-        let reg = await res.json( )
-        debug("des_api.js -> device.setConfig( ) ->  RESPONSE reg:\n", reg )
+        let json = await res.json( )
+        debug("des_api.js -> device.setConfig( ) ->  RESPONSE reg:\n", json )
 
-        if ( reg.status === "success" ) { 
+        if ( json.status === "success" ) { 
             debug("SET CONFIG Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
@@ -1052,7 +1053,7 @@ export class Device {
         this.setConfig()
     }
     newEvent = async( evt ) => {
-        debug( "Create Event for device: ", this.reg.des_dev_serial ) 
+        // debug( "Create Event for device: ", this.reg.des_dev_serial ) 
         
         let au = get( AUTH )
         
@@ -1067,8 +1068,7 @@ export class Device {
         let dev = {
             evt: evt,
             reg: this.reg
-        }
-        debug( "Send DEVICE CREATE EVENT Request:\n", dev ) 
+        } //  debug( "Send DEVICE CREATE EVENT Request:\n", dev ) 
         
         let req = new Request( API_URL_C001_V001_DEVICE_EVT, { 
             method: "POST",
@@ -1080,20 +1080,22 @@ export class Device {
         } )
         let res = await fetch( req )
         let reg = await res.json( )
-        debug("des_api.js -> device.createEvent( ) ->  RESPONSE reg:\n", reg )
+        // debug("des_api.js -> device.createEvent( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
             debug("DEVICE CREATE EVENT Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
     getActiveJobEvents = async( ) => {
-        debug( "Get Events for active job: ", this.reg.des_job_name ) 
+        // debug( "Get Events for active job: ", this.reg.des_job_name ) 
         
         let au = get( AUTH )
         
+        if ( !this.socket ) { await this.connectWS( ) }
+        
         let dev = { reg: this.reg }
 
-        debug( "Send GET ACTIVE JOB EVENTS Request:\n", dev )
+        // debug( "Send GET ACTIVE JOB EVENTS Request:\n", dev )
 
         let req = new Request( API_URL_C001_V001_DEVICE_JOB_EVTS, { 
             method: "POST",
@@ -1107,18 +1109,12 @@ export class Device {
         let evts = await res.json( )
         
         if ( evts.status === "success" ) { 
-            debug("GET ACTIVE JOB EVENTS Request -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("GET ACTIVE JOB EVENTS Response -> SUCCESS:\n", this.reg.des_dev_serial )
             this.job_evts = evts.data.events
-        }
-        
-        await updateDevicesStore( )
-        debug("des_api.js -> device.getActiveJobEvents( ) ->  RESPONSE this.job_evts:\n", this.job_evts )
+        }  
+        if ( this.job_evts === null ) { this.job_evts = [ ] }
+        debug( "ACTIVE JOB EVENTS:\n", this.job_evts )
     }
-    // getActiveJobData = async( ) => {
-    //     this.job.reg = this.reg
-    //     await this.job.getJobData( )
-    //     debug("des_api.js -> device.getActiveJobData( ) ->  RESPONSE job:\n", this.job )
-    // }
 
     /* HTTP METHODS ( ADMIN ) *************************************************************/
     connectDESClient = async( ) => {
@@ -1853,8 +1849,8 @@ export class Config {
         this.cfg_diag_trans = cfg_diag_trans // milliseconds
     }
     
-    
 }
+
 
 /* 
 WEB CLIENT -> HTTP -> DES ( JOB DB WRITE ) -> MQTT -> DEVICE  

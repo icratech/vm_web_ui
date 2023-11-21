@@ -205,8 +205,8 @@
                 background-color: var(--light_002);
                 border-bottom: solid 0.05em var(--light_01);
                 border-right: solid 0.05em var(--light_01);
-                padding: 1em;
                 border-radius: 0.5em;
+                padding: 1em;
                 gap: 0.5em;
                 height: 100%;
             }
@@ -300,6 +300,7 @@
                 --orange: rgb(245, 120, 0);
                 --orange_a: rgb(245, 120, 0, 0.8);
                 --orange_aa: rgb(245, 120, 0, 0.2);
+                --orange_05: rgb(245, 120, 0, 0.5);
                 --orange_01: rgb(245, 120, 0, 0.1);
                 --orange_007: rgb(245, 120, 0, 0.07);
                 --orange_005: rgb(245, 120, 0, 0.05);
@@ -317,8 +318,9 @@
                 --green_01: rgb(60, 210, 0, 0.1);
 
                 --aqua: rgb(50, 230, 230);
-                --aqua_a: rgb(50, 230, 230, 0.7);
+                --aqua_a: rgb(50, 230, 230, 0.8);
                 --aqua_aa: rgb(50, 230, 230, 0.5);
+                --aqua_04: rgb(50, 230, 230, 0.4);
                 --aqua_01: rgb(50, 230, 230, 0.075);
                 --aqua_007: rgb(50, 230, 230, 0.07);
                 --aqua_005: rgb(50, 230, 230, 0.05);
@@ -426,6 +428,10 @@
             .bg-orange { background-color: var(--orange_a); color: var(--light) }
             .bg-orange:hover { background-color: var(--orange); }
             .bg-orange:focus { outline: 0.1rem solid var(--orange_a); outline-offset: 0.15rem; }
+
+            .bg-orange_a { background-color: var(--orange_05); color: var(--light) }
+            .bg-orange_a:hover { background-color: var(--orange); }
+            .bg-orange_a:focus { outline: 0.1rem solid var(--orange_05); outline-offset: 0.15rem; }
 
             .bg-yellow { background-color: var(--yellow_a); color: var(--dark) }
             .bg-yellow:hover { background-color: var(--yellow); }

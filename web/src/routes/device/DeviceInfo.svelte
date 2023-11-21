@@ -7,6 +7,7 @@
 
     import DeviceMode from "./DeviceMode.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
+    import DeviceConn from './DeviceConn.svelte'
     import ConfigCard from '../../lib/components/config/ConfigCard.svelte'
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
     
@@ -52,19 +53,20 @@
                 cmdButtonFunc = ( ) => { device.endJob( ) }
                 break 
             
+            case OP_CODES.JOB_END_REQ:
             case OP_CODES.JOB_START_REQ:
                 cmdButtonColor = 'bg-orange' 
-                cmdButtonHint = 'Cancel Start Job' 
+                cmdButtonHint = 'Get Device State' 
                 cmdButtonIcon = btn_img_cmd
-                cmdButtonFunc = ( ) => { device.cancelStartJob( ) }
+                cmdButtonFunc = ( ) => { device.setState( ) }
                 break
 
-            case OP_CODES.JOB_END_REQ: 
-                cmdButtonColor = 'bg-pink' 
-                cmdButtonHint = 'Cancel End Job' 
-                cmdButtonIcon = btn_img_cmd
-                // cmdButtonFunc = ( ) => { /* TODO: cancel end */ }
-                break
+            // case OP_CODES.JOB_END_REQ: 
+            //     cmdButtonColor = 'bg-pink' 
+            //     cmdButtonHint = 'Cancel End Job' 
+            //     cmdButtonIcon = btn_img_cmd
+            //     // cmdButtonFunc = ( ) => { /* TODO: cancel end */ }
+            //     break
 
         }
     }
@@ -131,11 +133,13 @@
                     
         <div class="flx-col status">
 
-            <HeaderCard bind:hdr />
-
-            <!-- <ConfigCard bind:cfg /> -->
+            <DeviceConn bind:device />
 
             <BarGaugeCard bind:cfg bind:smp/>
+
+            { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
+            <HeaderCard bind:hdr />
+            { /if }
 
         </div>
 

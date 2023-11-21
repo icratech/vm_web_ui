@@ -26,7 +26,7 @@
     <div class="flx-row field">
         <div class="flx-row title">SSP</div>
         <div class="vert-line"/>
-        <div class="flx-row value">{ cfg.cfg_ssp_rate }<div class="unit">L/min</div></div>
+        <div class="flx-row value">{ cfg.cfg_ssp_rate }<div class="unit">kPa/hr</div></div>
         <div class="flx-row value">{ cfg.cfg_ssp_dur / 3600000 }<div class="unit">hrs</div></div>
         <div class="flx-row value"></div>
     </div>
@@ -65,11 +65,11 @@
         <div class="flx-row value">{ cfg.cfg_diag_trans / 1000 }<div class="unit">sec</div></div>
     </div>
     
-    <!-- <br>
+    <br>
     <div class="flx-col footer">
         <UserBadge uid={ cfg.cfg_user_id } />
-        <DateTimeDisplay date={ cfg.cfg_time } />
-    </div> -->
+        <div style="padding-right: 0.5em;"><DateTimeDisplay date={ cfg.cfg_time } /></div>
+    </div>
 
 </div>
 
@@ -122,10 +122,11 @@
         width: 3em;
     }
 
-    /* .footer {
+    .footer {
         align-items: flex-end;
+        padding-right: 3em;
         gap: 0.5em;
-    } */
+    }
 
     /* .date { color: var(--orange_a); } */
 
