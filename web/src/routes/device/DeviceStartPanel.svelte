@@ -3,8 +3,8 @@
 
     import { onMount } from 'svelte'
     
-    import HeaderPanel from '../../lib/components/header/HeaderBuilder.svelte'
-    import ConfigPanel from '../../lib/components/config/ConfigBuilder.svelte'
+    import HeaderBuilder from '../../lib/components/header/HeaderBuilder.svelte'
+    import ConfigBuilder from '../../lib/components/config/ConfigBuilder.svelte'
 
     import { Device } from '../../lib/des_api'
 
@@ -29,8 +29,8 @@
 
 
 <div class="flx-row panel">
-    <HeaderPanel bind:hdr={ device.hdr }/>
-    <ConfigPanel bind:config={ device.cfg }/>
+    <HeaderBuilder bind:hdr={ device.hdr }/>
+    <ConfigBuilder bind:config={ device.cfg }/>
 </div>
 
 <style>

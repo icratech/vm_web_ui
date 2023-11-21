@@ -1111,6 +1111,7 @@ export class Device {
             this.job_evts = evts.data.events
         }
         
+        await updateDevicesStore( )
         debug("des_api.js -> device.getActiveJobEvents( ) ->  RESPONSE this.job_evts:\n", this.job_evts )
     }
     // getActiveJobData = async( ) => {
@@ -1124,7 +1125,7 @@ export class Device {
         debug( "Connect DES Client: ", this.reg.des_dev_serial ) 
         this.des_ping.time = 0
         this.des_ping.ok = false
-        
+
         let au = get( AUTH )
         
         if ( !this.socket ) { await this.connectWS( ) }
@@ -1165,6 +1166,9 @@ export class Device {
     }
 
 }
+
+export const MIN_SAMPLE_PERIOD = 1000
+export const DEFAULT_CFG_SSP_DUR =  23400000.0
 
 /* OPERATION CODES ( Event.EvtCode 0 : 999 ) *******************************************************/
 export const OP_CODES = {
@@ -1810,20 +1814,20 @@ export class Config {
         cfg_scvd = 596.8, // m
         cfg_scvd_mult = 10.5, // kPa / m
         cfg_ssp_rate = 1.95, // kPa / hour
-        cfg_ssp_dur = 6.0, // hour
+        cfg_ssp_dur = DEFAULT_CFG_SSP_DUR, // hour
         cfg_hi_scvf = 201.4, //  L/min ( 290 m3/day )
         cfg_flow_tog = 1.85, //  L/min 
     
         cfg_vlv_tgt = 2, // vent
         cfg_vlv_pos = 2, // vent
     
-        cfg_op_sample = 1000, // milliseconds
-        cfg_op_log = 10000, // milliseconds
-        cfg_op_trans = 60000, // milliseconds
+        cfg_op_sample = MIN_SAMPLE_PERIOD, // milliseconds
+        cfg_op_log = MIN_SAMPLE_PERIOD * 10, // milliseconds
+        cfg_op_trans = MIN_SAMPLE_PERIOD * 60, // milliseconds
         
-        cfg_diag_sample = 10000, // milliseconds
-        cfg_diag_log = 100000, // milliseconds
-        cfg_diag_trans = 600000, // milliseconds
+        cfg_diag_sample = MIN_SAMPLE_PERIOD * 10, // milliseconds
+        cfg_diag_log = MIN_SAMPLE_PERIOD * 100, // milliseconds
+        cfg_diag_trans = MIN_SAMPLE_PERIOD * 600, // milliseconds
      ) {
         this.cfg_time = cfg_time
         this.cfg_addr = cfg_addr

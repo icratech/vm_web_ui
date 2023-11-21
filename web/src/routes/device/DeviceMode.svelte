@@ -61,6 +61,9 @@
 
 <style>
     .mode { 
+        display: flex;
+        flex-direction: row;
+        align-items: center;
         padding: 0 1em; 
         border-radius: 0.25em; 
         font-size: 1.3em; 

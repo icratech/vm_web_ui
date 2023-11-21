@@ -2,6 +2,7 @@
 <script>
     
     import DateTimeDisplay from "$lib/common/date_time/DateTimeDisplay.svelte"
+    import UserBadge from "../user/UserBadge.svelte";
 	import { Header } from "../../des_api"
 
     export let hdr = new Header( )
@@ -58,7 +59,13 @@
         { /if }
         
     </div>
-    
+<!--     
+    <br>
+    <div class="flx-col footer">
+        <UserBadge uid={ hdr.hdr_user_id } />
+        <DateTimeDisplay date={ hdr.hdr_time } />
+    </div> -->
+
 </div>
 
 <style>
@@ -87,6 +94,11 @@
     .date { color: var(--orange_a); }
 
     .value { align-items: center; }
+
+    /* .footer {
+        align-items: flex-end;
+        gap: 0.5em;
+    } */
 
 
     /* LAP TOP */

@@ -11,8 +11,11 @@
     import Modal from '../../../lib/common/modal/Modal.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     import HeaderBuilder from '../../../lib/components/header/HeaderBuilder.svelte'
+    import HeaderCard from "../../../lib/components/header/HeaderCard.svelte"
     import ConfigBuilder from '../../../lib/components/config/ConfigBuilder.svelte'
+    import ConfigCard from "../../../lib/components/config/ConfigCard.svelte"
     import EventCard from "../../../lib/components/event/EventCard.svelte"
+    import EventPanel from "../../../lib/components/event/EventPanel.svelte"
     import EventBuilderOp from '../../../lib/components/event/EventBuilderOp.svelte'
     
     import btn_img_adm from "$lib/images/btn-img-adm.svg"
@@ -22,6 +25,7 @@
     import btn_img_vlv_vent from "$lib/images/btn-img-vlv-vent.svg"
     import btn_img_vlv_flow from "$lib/images/btn-img-vlv-flow.svg"
     import btn_img_vlv_build from "$lib/images/btn-img-vlv-build.svg"
+    import btn_img_edit from "$lib/images/btn-img-edit.svg"
 
     export let data
     import { DEVICES, PING_LIMIT } from '../../../lib/des_api'
@@ -45,6 +49,8 @@
         await device.getActiveJobEvents()
         evts_loded = true
     } )
+    $: show_evt_list = true
+    $: eventButtonHint = ( show_evt_list ? "Events" : "New Event" )
 
 </script>
 
@@ -97,7 +103,8 @@
                         </div>
                         <h3 class="panel-title">Header</h3>
                     </div>
-                    <HeaderBuilder bind:hdr={ device.hdr }/>
+                    <HeaderCard bind:hdr={ device.hdr }/>
+                    <!-- <HeaderBuilder bind:hdr={ device.hdr }/> -->
                     <div class="flx-row" style="padding-left: 1em;">
                         <div class="flx-row">
                             <p>Logger FW: </p><p style="color: var(--orange)">{ device.sta.sta_log_fw }</p>
@@ -158,23 +165,15 @@
                         </div>
                         <h3 class="panel-title">Configuration</h3>
                     </div>
+                    <!-- <ConfigCard bind:cfg={ device.cfg }/> -->
                     <ConfigBuilder bind:config={ device.cfg }/>
                 </div>
 
                 <!-- TODO : MOVE TO MODAL FOR PRODUCTION; REPLACE WITH EVENT LIST VIEW -->
-                <div class="flx-col panel-cont evt">
-                    <div class="flx-row panel-title-bar">
-                        <h3 class="panel-title">Event</h3>
-                    </div>
-                    <EventBuilderOp bind:device />
+                <div class="flx-col panel-cont">
+                    <EventPanel bind:device />
                 </div>
 
-                <div class="flx-col evts">
-                    { #each device.job_evts as evt ( evt.evt_time ) }
-                        <EventCard bind:event={evt} />
-                    { /each }
-                </div>
-    
             </div>
 
         </div>
@@ -210,23 +209,17 @@
 
     .chart { min-height: 38em; }
 
-    .evt {
-        display: none;
-    }
-    .evts {
-        /* display: none; */
-        overflow-y: auto;
-        max-width: 27%;
-        padding-right: 0.5em;
-    }
     .action {
-        overflow-y: auto;
+        overflow: hidden;
         justify-content: space-between;
         height: 100%;
     }
 
     .panel-cont { 
+        /* background-color: var(--light_003); */
         gap: 0.5em; 
+        min-width: 30%;
+        min-width: 30%;
         width: 33%;
     }
 

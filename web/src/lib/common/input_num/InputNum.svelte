@@ -1,14 +1,15 @@
 <script>
 
-    export let num = 0
+    export let num = 0.0
     export let width = "7em"
     export let enabled = false
     export let is_integer = false
     $: place = ( is_integer ? 0 : 0.0 )
 
     $:  {
-        if (num === null || num === undefined ) { num = 0 } // debug( "num: ", num )
-        num = Number( is_integer ? num.toFixed(0) : num.toFixed(3) )
+        if (num != null || num != undefined ) { 
+            num = Number( is_integer ? num.toFixed(0) : num.toFixed(3) )
+        } // debug( "num: ", num )
     }
 </script>
 

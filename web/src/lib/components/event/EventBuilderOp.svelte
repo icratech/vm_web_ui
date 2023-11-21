@@ -1,6 +1,9 @@
 
 <script>
 
+    import { createEventDispatcher } from "svelte"
+    let dispatch = createEventDispatcher( )
+
     import btn_img_cancel from "$lib/images/btn-img-cancel.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm.svg"
 
@@ -14,15 +17,18 @@
     $: evt = new Event( )
     $: event_type = (JSON.parse( sessionStorage.event_types )).filter( t => { return t.evt_typ_code == 2000 } )[0]
         
-    const sendEvent = ( ) => { 
+    const sendEvent = async( ) => { 
         evt.evt_code = event_type.evt_typ_code
-        device.newEvent( evt )  
+        device.job_evts = [ ]
+        await device.newEvent( evt )  
         clearEvent( )
+        // dispatch( 'complete' )
     }
 
     const clearEvent = ( ) => {
         evt = new Event( )
-        
+        // evt.evt_msg = `One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin. He lay on his armour-like back, and if he lifted his head a little he could see his brown belly, slightly domed and divided by arches into stiff sections. The bedding was hardly able to cover it and seemed ready to slide off any moment. His many legs, pitifully thin compared with the size of the rest of him, waved about helplessly as he looked. "What's happened to me?" he thought. It was`
+        dispatch( 'complete' )
     }
 
     $: msg_limit = evt.evt_msg.length >= evt.MaxMsg

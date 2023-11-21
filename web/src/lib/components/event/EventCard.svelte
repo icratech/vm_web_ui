@@ -57,7 +57,7 @@
     </div>
         
     <div class="flx-row src">
-        <!-- <DateTimeDisplay date={ event.evt_time } /> -->
+        <DateTimeDisplay date={ event.evt_time } />
         <UserBadge uid={ event.evt_user_id } />
     </div>
 
@@ -76,8 +76,9 @@
         background-size: cover; */
         justify-content: space-between;
         padding: 0.5em;
+        max-height: 9em;
         min-height: 9em;
-        height: 100%;
+        height: 9em;
         gap: 0;
     }
     .title-bar { 
@@ -107,6 +108,7 @@
     }
     .src { 
         align-items: center; 
-        padding-top: 0.5em;
+        padding:  0.5em 1.5em;
+        /* padding-top: 0.5em; */
     }
 </style>

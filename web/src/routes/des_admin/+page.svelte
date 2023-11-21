@@ -65,20 +65,22 @@
             
             </div>
 
-        </div>
-
-        <div class="flx-col panel">
-
             <div class="flx-col device-list">
                 { #each $DEMO_DEVICES as device ( `demo_page_${ device.dev.reg.des_dev_id }` ) }
-                    <DESAdminDeviceCard
+                    <DESAdminDeviceInfo
                         bind:device={ device }
                         on:go={ ( ) => { goto( `device/${ device.dev.reg.des_dev_serial }` ) } }
                     />
                 { /each }
             </div>
 
+            <div class="flx-col panel">
+
+    
+            </div>
+
         </div>
+
 
     </div>
 
@@ -99,8 +101,15 @@
     .status {
         max-width: 25%;
         min-width: 25%;
-        width: auto;
+        width: 25%;
+        height: 100%;
         padding-right: 0.5em;
+    }
+
+    .panel {
+        padding: 0 1em;
+        padding-left: 0;
+        height: auto;
     }
 
     .new-device {
@@ -109,9 +118,11 @@
     }
 
     .device-list {
-        overflow-x: hidden;
+        overflow-x: visible;
         overflow-y: auto;
         padding: 1em;
+        width: 100%;
+        height: 100%;
     }
 
     .input-container {
@@ -125,12 +136,10 @@
     input {
         color: var(--light);
         background-color: var(--aqua_01);
-        padding: 0.5rem;
-        border-radius: 0.5rem;
-        /* border-top: solid 0.05em var(--dark); */
-        border-right: solid 0.05em var(--light_01);
         border-bottom: solid 0.05em var(--light_01);
-        /* border-left: solid 0.05em var(--dark); */
+        border-right: solid 0.05em var(--light_01);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
         width: 100%;
     }
 

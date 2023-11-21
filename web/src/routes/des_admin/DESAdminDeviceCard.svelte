@@ -19,22 +19,22 @@
 
     <DESAdminDeviceInfo bind:device />
 
-    <div class="flx-col "> </div>
+    <!-- <div class="flx-col "> </div>
 
-    <div class="flx-col "> </div>
+    <div class="flx-col "> </div> -->
 
 </div>
 
 <style>
     
-    .container {
+    /* .container {
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
         justify-content: space-between;
         border-radius: 0.5em;
         padding: 1em;
-    }
+    } */
 
 </style>
 

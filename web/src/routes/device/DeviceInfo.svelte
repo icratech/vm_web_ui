@@ -6,8 +6,9 @@
     import { Device, OP_CODES, Sample, debug } from "../../lib/des_api"
 
     import DeviceMode from "./DeviceMode.svelte"
-    import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
+    import ConfigCard from '../../lib/components/config/ConfigCard.svelte'
+    import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
     
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import btn_img_default from "$lib/images/btn-img-default.svg"
@@ -131,6 +132,8 @@
         <div class="flx-col status">
 
             <HeaderCard bind:hdr />
+
+            <!-- <ConfigCard bind:cfg /> -->
 
             <BarGaugeCard bind:cfg bind:smp/>
 

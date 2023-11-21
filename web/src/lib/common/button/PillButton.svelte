@@ -24,25 +24,25 @@
         cursor: pointer;
         border-radius: 50%;
         min-width: 2.5em;
+        max-width: 2.5em;
         width: 2.5em;
         min-height: 2.5em;
+        max-height: 2.5em;
         height: 2.5em;
     }
     .icon .hint {
-        visibility: hidden;
+        display: none;
+        position: relative;
+        color: var(--light_a);
         background-color: var(--dark);
         border-bottom: solid 0.1em var(--light_01);
         border-right: solid 0.1em var(--light_01);
-        color: var(--light_a);
+        border-radius: 0.5em;
         font-size: 1.2em;
-        position: relative;
         top: 0.75em;
         left: 2.5em;
         height: 2em;
-        width: 10em;
-        border-radius: 0.5em;
-        z-index: 99999;
-        position: relative;
+        /* width:max-content; */
     }
     .icon:hover .hint {
         display: flex;
@@ -52,8 +52,6 @@
         padding-right: 0.5em;
         width:max-content;
         visibility: visible;
-        z-index: 99999;
-        position: relative;
     }
 
 

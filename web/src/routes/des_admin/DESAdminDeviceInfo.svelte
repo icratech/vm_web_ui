@@ -74,13 +74,6 @@
 
         <div class="flx-row title-bar">   
 
-            <div class="flx-row ser-cont">
-                <div class="flx-row fg-accent ser-lbl">Serial #</div>
-                <div class="vert-line"/>
-                <div class="flx-row ser">{ device.dev.reg.des_dev_serial }</div>
-            </div>  
-
-            <DeviceMode bind:device={ device.dev } />
             
             <div class="flx-row btns">
 
@@ -92,22 +85,31 @@
                 />
 
                 <PillButton 
-                    cls={ 'bg-pink' }
+                    cls={ 'bg-accent' }
                     hint={ "Jobs" } 
                 />
 
                 <PillButton 
-                    cls={ 'bg-purple' }
+                    cls={ 'bg-accent' }
                     hint={ "Logs" } 
                 />
 
+                <DeviceMode bind:device={ device.dev } />
+
             </div> 
+
+            <div class="flx-row ser-cont">
+                <div class="flx-row fg-accent ser-lbl">Serial #</div>
+                <div class="vert-line"/>
+                <div class="flx-row ser">{ device.dev.reg.des_dev_serial }</div>
+            </div>  
 
         </div>
 
     </div>
 
     <div class="flx-col" style="gap: 0;">
+        
         <div class="flx-row field">
             <div class="flx-row field-name">Modem FW</div>
             <div class="vert-line"/>
@@ -160,7 +162,6 @@
         height:100%;
         padding: 1em;
         gap: 0.5em;
-        position: relative;
     }
     .layout {  
         padding: 0; 
@@ -170,13 +171,12 @@
     .title-bar {
         justify-content: space-between;
         align-items: center;
-        padding: 0;
-        padding-top: 0.5em;
+        padding-bottom: 0.5em;
     }
     
     .ser-cont { 
-        width: auto;
-        height: 2em; 
+        justify-content: flex-start;
+        width: 15em; 
         gap: 0;         
     }
     .ser-lbl { 
@@ -194,6 +194,11 @@
         width: auto;
     }
 
+    .btns { 
+        justify-content: flex-start; 
+        gap: 1em;
+    }
+
     .field { 
         height: 2em; 
         gap: 0;         
@@ -204,7 +209,7 @@
     }
 
     .field-name {
-        color: var( --accent_a);
+        color: var( --grey_a);
         justify-content: flex-end;
         align-items: center;
         padding-right: 0.75em;
@@ -215,15 +220,8 @@
     /* .date { color: var(--orange_a); } */
 
     .field-value { 
-        /* color: var( --orange_a); */
+        color: var( --orange_a);
         align-items: center; 
-    }
-
-    .btns { 
-        justify-content: flex-end; 
-        align-items: center; 
-        width: auto;
-        gap: 1em;
     }
 
 </style>
