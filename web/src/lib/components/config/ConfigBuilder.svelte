@@ -74,7 +74,7 @@
             />
         </div>
 
-        <br>
+        <!-- <br> -->
         <div class="flx-row in">Surface Casing Vent Depth - Max Pressure 
             <span class="fg-orange">{ cfg.cfg_scvd * cfg.cfg_scvd_mult }</span> kPa
         </div>
@@ -105,106 +105,129 @@
             <div class="flx-row value"></div>
         </div>
 
-
-
-        <br>
-        <div class="flx-row in">Stabilized Shut-In Pressure - SSP Alarm</div>
+        <!-- <br> -->
+        <div class="flx-row in">Stabilized Shut-In Pressure</div>
         <div class="flx-row field">
             <div class="flx-row title">SSP</div>
             <div class="vert-line"/>
-            <div class="flx-row value">{ cfg.cfg_ssp_rate }</div>
-            <div class="flx-row unit">L/min</div>
+            <div class="flx-row value">
+                <InputNum
+                    enabled={true}
+                    bind:num={cfg.cfg_ssp_rate}
+                    width=6em
+                />
+            </div>
+            <div class="flx-row unit">Rate kPa/hr</div>
             
             <div class="vert-line"/>
-            <div class="flx-row value">{ cfg.cfg_ssp_dur / 3600000 }</div>
-            <div class="flx-row unit">hrs</div>
+            <div class="flx-row value">
+                <InputNum 
+                    enabled={true}
+                    bind:num={ssp_dur}
+                    width=6em
+                />
+            </div>
+            <div class="flx-row unit">Duration hrs</div>
             <div class="flx-row value"></div>
         </div>
-        <div class="flx-row in">
-            <div class="lbl-left">Rate( kPa/hr ):</div> 
-            <InputNum
-                enabled={true}
-                bind:num={cfg.cfg_ssp_rate}
-                width=6em
-            />
-            <InputNum 
-                enabled={true}
-                bind:num={ssp_dur}
-                width=6em
-            />
-            <div class="lbl">Dur. ( hr )</div> 
-        </div>
 
-        <br>
+        <!-- <br> -->
         <div class="flx-row in">Flow Alarm Settings </div>
-        <div class="flx-row in">
-            <div class="lbl-left">Max ( L/min ):</div> 
-            <InputNum 
-                enabled={true}
-                is_integer={false}
-                bind:num={cfg.cfg_hi_scvf}
-                width=6em
-            />
-            <InputNum 
-                enabled={true}
-                is_integer={false}
-                bind:num={cfg.cfg_flow_tog}
-                width=6em
-            />
-            <div class="lbl">Toggle ( L/min )</div> 
+    
+        <div class="flx-row field">
+            <div class="flx-row title">Flow</div>
+            <div class="vert-line"/>
+            <div class="flx-row value">
+                <InputNum 
+                    enabled={true}
+                    is_integer={false}
+                    bind:num={cfg.cfg_hi_scvf}
+                    width=6em
+                />
+            </div>
+            <div class="flx-row unit">Max L/min</div>
+            <div class="flx-row value">
+                <InputNum 
+                    enabled={true}
+                    is_integer={false}
+                    bind:num={cfg.cfg_flow_tog}
+                    width=6em
+                />
+            </div>
+            <div class="flx-row unit">Toggle L/min</div>
+            <div class="flx-row value"></div>
         </div>
         
-        <br>
-        <div class="flx-row in">
-            <div >Measurements  </div>
-            <p class="lbl-top">Sample</p>
-            <p class="lbl-top">Log</p>
-            <p class="lbl-top">Transmit</p>
+        <!-- <br> -->
+        <div class="flx-row in">Measurements</div>
+        <div class="flx-row field">
+            <div class="flx-row title"></div>
+            <div class="vert-line"/>
+            <div class="flx-row col-head">Sample</div>
+            <div class="flx-row col-head">Log</div>
+            <div class="flx-row col-head">Transmit</div>
         </div>
-        <div class="flx-row in">
-            <div class="lbl-left">Std. ( sec ):</div> 
-            <InputNum
-                enabled={true}
-                is_integer={true}
-                bind:num={op_sample}
-                width=6em
-            />
-            <InputNum 
-                enabled={true}
-                is_integer={true}
-                bind:num={op_log}
-                width=6em
-            />
-            <InputNum 
-                enabled={true}
-                is_integer={true}
-                bind:num={op_trans}
-                width=6em
-            />
+        <div class="flx-row field"><div class="flx-row title">Operation</div>
+            <div class="vert-line"/>
+            <div class="flx-row value">
+                <InputNum
+                    enabled={true}
+                    is_integer={true}
+                    bind:num={op_sample}
+                    width=6em
+                />
+                <div class="flx-row sec">sec</div>
+            </div>
+            <div class="flx-row value">    
+              <InputNum 
+                    enabled={true}
+                    is_integer={true}
+                    bind:num={op_log}
+                    width=6em
+                />
+                <div class="flx-row sec">sec</div>
+            </div>
+            <div class="flx-row value">    
+              <InputNum 
+                    enabled={true}
+                    is_integer={true}
+                    bind:num={op_trans}
+                    width=6em
+                />
+                <div class="flx-row sec">sec</div>
+            </div>
         </div>
-
-
-        <div class="flx-row in">
-            <div class="lbl-left">Diag. ( sec ):</div> 
-            <InputNum
-                enabled={true}
-                is_integer={true}
-                bind:num={diag_sample}
-                width=6em
-            />
-            <InputNum 
-                enabled={true}
-                is_integer={true}
-                bind:num={diag_log}
-                width=6em
-            />
-            <InputNum 
-                enabled={true}
-                is_integer={true}
-                bind:num={diag_trans}
-                width=6em
-            />
+        <div class="flx-row field"> <div class="flx-row title">Diagnostic</div>
+            <div class="vert-line"/>
+            <div class="flx-row value">
+                <InputNum
+                    enabled={true}
+                    is_integer={true}
+                    bind:num={diag_sample}
+                    width=6em
+                />
+                <div class="flx-row sec">sec</div>
+            </div>
+            <div class="flx-row value">
+                <InputNum 
+                    enabled={true}
+                    is_integer={true}
+                    bind:num={diag_log}
+                    width=6em
+                />
+                <div class="flx-row sec">sec</div>
+            </div>
+            <div class="flx-row value">
+                <InputNum 
+                    enabled={true}
+                    is_integer={true}
+                    bind:num={diag_trans}
+                    width=6em
+                />
+                <div class="flx-row sec">sec</div>
+            </div>
         </div>
+        
     </div>  
 
 </div>
@@ -220,24 +243,11 @@
         align-items: center;
         gap: 0.5em;
     }
-    .lbl {
-        color: var(--accent_a);
-    }
-    .lbl-left { 
-        color: var(--accent_a);
-        min-width: 7em;
-        text-align: end;
-    }
-    .lbl-top {
-        width: 6em; 
-        text-align: center;
-    }
-
-
     
     .field { 
         height: 2em; 
-        gap: 0;         
+        gap: 0;   
+        padding-bottom: 1em;      
     }
 
     .title {
@@ -245,15 +255,16 @@
         justify-content: flex-end;
         align-items: center;
         padding-right: 0.75em;
-        max-width: 7m;
-        min-width: 7em;
-        width: 7em;
+        max-width: 6em;
+        min-width: 6em;
+        width: 6em;
     }
 
     .col-head { 
         color: var(--accent_a); 
-        justify-content: center; 
+        justify-content: flex-start; 
         align-items: center; 
+        padding-left: 0.5em;
         max-width: 9em;
         min-width: 9em;
         width: 9em;
@@ -261,14 +272,19 @@
     .value { 
         align-items: center; 
         padding-left: 0.5em;
+        gap: 0.5em;
     }
     .unit { 
         color: var(--orange_a); 
         align-items: center; 
+        justify-content: flex-start;
         padding-left: 0.5em;
-        max-width: 3em;
-        min-width: 3em;
-        width: 3em;
+    }
+
+    .sec { 
+        color: var(--orange_a); 
+        align-items: center; 
+        justify-content: flex-start;
     }
 
 

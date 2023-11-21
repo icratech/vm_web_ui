@@ -3,7 +3,8 @@
     import PillButton from "../../common/button/PillButton.svelte"
     import HeaderBuilder from "./HeaderBuilder.svelte"
     import HeaderCard from "./HeaderCard.svelte"
-    import { Device, debug } from "../../des_api"
+    import DeviceConn from "../../../routes/device/DeviceConn.svelte"
+    import { Device, OP_CODES, debug } from "../../des_api"
 
     import btn_img_edit from "$lib/images/btn-img-edit.svg"
     import btn_img_cancel from "$lib/images/btn-img-cancel.svg"
@@ -37,12 +38,14 @@
     <div class="flx-row panel-title-bar">
         <div class="flx-row panel-title-btns">
 
+            { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
             <PillButton
                 cls={ editButtonColor }
                 img={ editButtonImg }
                 on:click={ editButtonFunc }
                 hint={ editButtonHint }
             />
+            { /if }
 
             { #if edit }
 
@@ -72,6 +75,8 @@
 
     { /if }
 
+    <!-- <div></div>
+    <DeviceConn bind:device /> -->
 </div>
 
 <style>

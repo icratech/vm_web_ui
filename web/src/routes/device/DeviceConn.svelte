@@ -32,6 +32,24 @@
 <div class="flx-col container">
         
     <div class="flx-row field">
+        <div class="flx-row field-name">Firmware</div>
+        <div class="vert-line"/>
+
+        <div class="flx-row fw">
+            <div class="flx-row fw-sub-l">
+                <div class="flx-row field-sub">Logger</div>
+                <div class="flx-row field-value">{ device.sta.sta_log_fw }</div>
+            </div>
+
+            <div class="flx-row fw-sub-r">
+                <div class="flx-row field-sub">Modem</div>
+                <div class="flx-row field-value">{ device.sta.sta_mod_fw }</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="flx-row field">
         <div class="flx-row field-name">Device Conn</div>
         <div class="vert-line"/>
         <div class="flx-row"><DateTimeDisplay date={ device.ping.time }/></div>
@@ -53,24 +71,6 @@
             <div class="flx-row field-value timeout-value" style="color:{ ( device.des_ping.ok ? 'var(--light_a)' : 'var(--red)' ) };">
                 { des_ping_sec }</div>
         </div>
-    </div>
-
-    <div class="flx-row field">
-        <div class="flx-row field-name">Firmware</div>
-        <div class="vert-line"/>
-
-        <div class="flx-row fw">
-            <div class="flx-row fw-sub-l">
-                <div class="flx-row field-sub">Logger</div>
-                <div class="flx-row field-value">{ device.sta.sta_log_fw }</div>
-            </div>
-
-            <div class="flx-row fw-sub-r">
-                <div class="flx-row field-sub">Modem</div>
-                <div class="flx-row field-value">{ device.sta.sta_mod_fw }</div>
-            </div>
-        </div>
-
     </div>
 
 </div>

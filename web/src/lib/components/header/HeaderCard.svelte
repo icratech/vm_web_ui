@@ -59,12 +59,12 @@
         { /if }
         
     </div>
-<!--     
+    
     <br>
     <div class="flx-col footer">
         <UserBadge uid={ hdr.hdr_user_id } />
-        <DateTimeDisplay date={ hdr.hdr_time } />
-    </div> -->
+        <div style="padding-right: 0.5em;"><DateTimeDisplay date={ hdr.hdr_time } /></div>
+    </div>
 
 </div>
 
@@ -95,11 +95,11 @@
 
     .value { align-items: center; }
 
-    /* .footer {
+    .footer {
         align-items: flex-end;
+        padding-right: 1em;
         gap: 0.5em;
-    } */
-
+    }
 
     /* LAP TOP */
     @media(max-width: 1440px) {

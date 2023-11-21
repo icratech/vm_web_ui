@@ -3,7 +3,7 @@
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher( )
 
-    import { Device, OP_CODES, Sample, debug } from "../../lib/des_api"
+    import { Device, OP_CODES, Sample, validateFloatValue, debug } from "../../lib/des_api"
 
     import DeviceMode from "./DeviceMode.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
@@ -61,13 +61,6 @@
                 cmdButtonFunc = ( ) => { device.setState( ) }
                 break
 
-            // case OP_CODES.JOB_END_REQ: 
-            //     cmdButtonColor = 'bg-pink' 
-            //     cmdButtonHint = 'Cancel End Job' 
-            //     cmdButtonIcon = btn_img_cmd
-            //     // cmdButtonFunc = ( ) => { /* TODO: cancel end */ }
-            //     break
-
         }
     }
 
@@ -80,7 +73,7 @@
         let map = new mapboxgl.Map(  {
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
-            center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
+            center: [ validateFloatValue( hdr.hdr_geo_lng ), validateFloatValue( hdr.hdr_geo_lat ) ],
             zoom : ( sta.sta_logging == OP_CODES.JOB_STARTED ? 5.5 : 1 ),
             interactive: true
         } )
@@ -133,13 +126,12 @@
                     
         <div class="flx-col status">
 
-            <DeviceConn bind:device />
 
             <BarGaugeCard bind:cfg bind:smp/>
 
-            { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
-            <HeaderCard bind:hdr />
-            { /if }
+            <!-- { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
+                <HeaderCard bind:hdr />
+            { /if } -->
 
         </div>
 
@@ -151,6 +143,8 @@
         <div class="map-container" use:makeMap />
     </div>
 
+    <DeviceConn bind:device />
+    <div></div>
 </div>
 
 <style>

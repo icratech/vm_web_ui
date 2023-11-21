@@ -65,19 +65,29 @@
             
             </div>
 
-            <div class="flx-col device-list">
+            <!-- <div class="flx-col device-list">
                 { #each $DEMO_DEVICES as device ( `demo_page_${ device.dev.reg.des_dev_id }` ) }
                     <DESAdminDeviceInfo
                         bind:device={ device }
                         on:go={ ( ) => { goto( `device/${ device.dev.reg.des_dev_serial }` ) } }
                     />
                 { /each }
+            </div> -->
+
+        </div>
+
+        <div class="flx-col panel">
+
+
+            <div class="flx-col device-list">
+                { #each $DEMO_DEVICES as device ( `demo_page_${ device.dev.reg.des_dev_id }` ) }
+                    <DESAdminDeviceCard
+                        bind:device={ device }
+                        on:go={ ( ) => { goto( `device/${ device.dev.reg.des_dev_serial }` ) } }
+                    />
+                { /each }
             </div>
 
-            <div class="flx-col panel">
-
-    
-            </div>
 
         </div>
 

@@ -5,7 +5,7 @@
     import PillButton from "../../common/button/PillButton.svelte"
     import EventBuilderOp from "./EventBuilderOp.svelte"
     import EventCard from "./EventCard.svelte"
-	import { Device } from "../../des_api"
+	import { Device, OP_CODES } from "../../des_api"
 
     import btn_img_edit from "$lib/images/btn-img-edit.svg"
     
@@ -28,12 +28,14 @@
     <div class="flx-row panel-title-bar">
         <div class="flx-row panel-title-btns">
 
+            { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
             <PillButton
                 cls={ 'bg-accent' }
                 img={ btn_img_edit }
                 on:click={ ( ) => { show_evt_list = !show_evt_list } }
                 hint={ eventButtonHint }
             />
+            { /if }
 
         </div>
         <h3 class="panel-title">{ title }</h3>

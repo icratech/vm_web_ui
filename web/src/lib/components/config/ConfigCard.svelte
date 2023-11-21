@@ -45,8 +45,8 @@
         <div class="flx-row title"></div>
         <div class="vert-line"/>
         <div class="flx-row col-head">Sample </div>
-        <div class="flx-row col-head">Log (sec)</div>
-        <div class="flx-row col-head">Transmit (sec)</div>
+        <div class="flx-row col-head">Log</div>
+        <div class="flx-row col-head">Transmit</div>
     </div>
     
     <div class="flx-row field">
@@ -102,8 +102,9 @@
 
     .col-head { 
         color: var(--accent_a); 
-        justify-content: center; 
+        justify-content: flex-start; 
         align-items: center; 
+        padding-left: 2em;
         max-width: 9em;
         min-width: 9em;
         width: 9em;
@@ -124,7 +125,7 @@
 
     .footer {
         align-items: flex-end;
-        padding-right: 3em;
+        padding-right: 1em;
         gap: 0.5em;
     }
 

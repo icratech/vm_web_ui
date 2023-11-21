@@ -9,32 +9,51 @@
     import { createEventDispatcher } from "svelte"
     let dispatch = createEventDispatcher( )
 
-    // export let reg = new DESRegistration( )
-
     export let device = new Device( )
+
+    let exp = false
+    const toggle = ( ) => {
+        exp = ! exp
+    }
 
 </script>
 
-<div class="flx-row container">
+<div class="flx-col container">
 
-    <DESAdminDeviceInfo bind:device />
+    <div class="flx-row">
+        <DESAdminDeviceInfo bind:device />
+        <div class="flx-col ">
+            <PillButton 
+                on:click={ toggle }
+                cls={ 'bg-purple' }
+                hint={ "Whatever" } 
+            />
+        </div>
+        <div class="flx-col "> </div>
+    </div>
 
-    <!-- <div class="flx-col "> </div>
+    { #if exp }
+    <div class="flx-row results">
 
-    <div class="flx-col "> </div> -->
+    </div>
+    { /if }
 
 </div>
 
 <style>
     
-    /* .container {
+    .container {
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
         justify-content: space-between;
         border-radius: 0.5em;
         padding: 1em;
-    } */
+    }
+
+    .results {
+        height: 50em;
+    }
 
 </style>
 

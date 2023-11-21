@@ -740,8 +740,8 @@ export class Device {
                     debug("new header received from device: ", this.hdr)
                     this.reg.des_job_start = this.hdr.hdr_job_start
                     this.reg.des_job_end = this.hdr.hdr_job_end
-                    this.reg.des_job_lng = this.hdr.hdr_geo_lng
-                    this.reg.des_job_lat = this.hdr.hdr_geo_lat
+                    this.reg.des_job_lng = validateFloatValue( this.hdr.hdr_geo_lng )
+                    this.reg.des_job_lat = validateFloatValue( this.hdr.hdr_geo_lat )
                     this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                     this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                     break
@@ -1198,6 +1198,9 @@ export const getMode = ( cfg, smp ) => {
 
 }
 
+export const validateFloatValue = ( val ) => {
+    return ( val === -999.25 || val === -9999.25 ? val = null : val )
+}
 /* DEVICE Ping
     WEB CLIENT <- HTTP (Websocket) <- DES <- MQTT <- DEVICE
         - While the device is connected to the broker it sends a Ping every 30 seconds

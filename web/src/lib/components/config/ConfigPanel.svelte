@@ -3,7 +3,7 @@
     import PillButton from "../../common/button/PillButton.svelte"
     import ConfigBuilder from "./ConfigBuilder.svelte"
     import ConfigCard from "./ConfigCard.svelte"
-    import { Device, debug } from "../../des_api"
+    import { Device, OP_CODES, debug } from "../../des_api"
 
     import btn_img_edit from "$lib/images/btn-img-edit.svg"
     import btn_img_cancel from "$lib/images/btn-img-cancel.svg"
@@ -36,12 +36,14 @@
     <div class="flx-row panel-title-bar">
         <div class="flx-row panel-title-btns">
 
+            { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
             <PillButton
                 cls={ editButtonColor }
                 img={ editButtonImg }
                 on:click={ editButtonFunc }
                 hint={ editButtonHint }
             />
+            { /if }
 
             { #if edit }
 
