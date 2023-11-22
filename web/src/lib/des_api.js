@@ -828,7 +828,9 @@ export class Device {
 
         this.reg.des_job_reg_user_id = au.id
         this.reg.des_job_reg_app = client_app
-
+        
+        this.cfg = validateCFG( this.cfg )
+        
         let dev = {
             adm: this.adm,
             sta: this.sta,
@@ -1032,6 +1034,7 @@ export class Device {
         
         this.cfg.cfg_user_id = au.id
         this.cfg.cfg_app = client_app
+        this.cfg = validateCFG( this.cfg )
 
         this.reg.des_job_reg_user_id = au.id
         this.reg.des_job_reg_app = client_app
@@ -1906,9 +1909,29 @@ export class Config {
         this.cfg_diag_log = cfg_diag_log // milliseconds
         this.cfg_diag_trans = cfg_diag_trans // milliseconds
     }
-    
-}
 
+}
+export const     validateCFG = ( cfg ) => { 
+    cfg.cfg_scvd = parseFloat( cfg.cfg_scvd )
+    cfg.cfg_scvd_mult = parseFloat( cfg.cfg_scvd_mult )
+
+    cfg.cfg_ssp_rate = parseFloat( cfg.cfg_ssp_rate )
+    cfg.cfg_ssp_dur = Math.floor( parseInt( cfg.cfg_ssp_dur ) )
+    
+    cfg.cfg_hi_scvf = parseFloat( cfg.cfg_hi_scvf )
+    cfg.cfg_flow_tog = parseFloat( cfg.cfg_flow_tog )
+
+    cfg.cfg_op_sample = Math.floor( parseInt( cfg.cfg_op_sample ) )
+    cfg.cfg_op_log = Math.floor( parseInt( cfg.cfg_op_log ) )
+    cfg.cfg_op_trans = Math.floor( parseInt( cfg.cfg_op_trans ) )
+    
+    cfg.cfg_diag_sample = Math.floor( parseInt( cfg.cfg_diag_sample ) )
+    cfg.cfg_diag_log = Math.floor( parseInt( cfg.cfg_diag_log ) )
+    cfg.cfg_diag_trans = Math.floor( parseInt( cfg.cfg_diag_trans ) )
+
+    debug( "validateCFG: cfg: ", cfg )
+    return cfg
+}
 
 /* 
 WEB CLIENT -> HTTP -> DES ( JOB DB WRITE ) -> MQTT -> DEVICE  

@@ -11,6 +11,7 @@
     export let cfg = new Config( )
 
     let ssp_dur = cfg.cfg_ssp_dur / 3600000
+
     let op_sample = cfg.cfg_op_sample / 1000
     let op_log = cfg.cfg_op_log / 1000
     let op_trans = cfg.cfg_op_trans / 1000
@@ -22,24 +23,26 @@
         cfg.cfg_ssp_dur = Math.floor(ssp_dur * 3600000) //  debug( "config.cfg_ssp_dur: ", cfg.cfg_ssp_dur )
 
         /* MESUREMENT SETTINGS */
-        if ( op_sample < MIN_SAMPLE_PERIOD / 1000 ) { op_sample = MIN_SAMPLE_PERIOD / 1000 } 
+        if ( op_sample < MIN_SAMPLE_PERIOD / 1000 ) { op_sample = Math.floor( MIN_SAMPLE_PERIOD / 1000 ) } 
         cfg.cfg_op_sample = op_sample * 1000 // debug( "cfg.cfg_op_sample: ", config.cfg_op_sample )
         
-        if ( op_log < cfg.cfg_op_sample / 1000 ) { op_log = cfg.cfg_op_sample / 1000 } 
+        if ( op_log < cfg.cfg_op_sample / 1000 ) { op_log = Math.floor( cfg.cfg_op_sample / 1000 ) } 
         cfg.cfg_op_log = op_log * 1000  // debug( "cfg.cfg_op_log: ", config.cfg_op_log )
         
-        if ( op_trans < cfg.cfg_op_sample / 1000 ) { op_trans = cfg.cfg_op_sample / 1000 } 
+        if ( op_trans < cfg.cfg_op_sample / 1000 ) { op_trans = Math.floor( cfg.cfg_op_sample / 1000 ) } 
         cfg.cfg_op_trans = op_trans * 1000 // debug( "cfg.cfg_op_trans: ", config.cfg_op_trans )
+   
         
         /* DIAGNOSTIC SETTINGS */
-        if ( diag_sample < MIN_SAMPLE_PERIOD / 1000 ) { diag_sample = MIN_SAMPLE_PERIOD / 1000 } 
+        if ( diag_sample < MIN_SAMPLE_PERIOD / 1000 ) { diag_sample = Math.floor( MIN_SAMPLE_PERIOD / 1000 ) } 
         cfg.cfg_diag_sample = diag_sample * 1000 // debug( "cfg.cfg_diag_sample: ", config.cfg_diag_sample )
         
-        if ( diag_log < cfg.cfg_diag_sample / 1000 ) { diag_log = cfg.cfg_diag_sample / 1000 } 
-        cfg.cfg_diag_log = diag_log * 1000  // debug( "cfg.cfg_diag_log: ", config.cfg_diag_log )
+        if ( diag_log < cfg.cfg_diag_sample / 1000 ) { diag_log = Math.floor( cfg.cfg_diag_sample / 1000 ) } 
+        cfg.cfg_diag_log = Math.floor( diag_log ) * 1000  // debug( "cfg.cfg_diag_log: ", config.cfg_diag_log )
         
-        if ( diag_trans < cfg.cfg_diag_sample / 1000 ) { diag_trans = cfg.cfg_diag_sample / 1000 } 
+        if ( diag_trans < cfg.cfg_diag_sample / 1000 ) { diag_trans = Math.floor( cfg.cfg_diag_sample / 1000 ) } 
         cfg.cfg_diag_trans = diag_trans * 1000 // debug( "cfg.cfg_diag_trans: ", config.cfg_diag_trans )
+      
     }
 
     $: ventButtonColor = ( cfg.cfg_vlv_tgt == MODES.VENT ? 'bg-aqua' : 'bg-grey')
