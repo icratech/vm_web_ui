@@ -179,6 +179,7 @@ export const API_URL_C001_V001_DEVICE_HDR =  `${ HTTP_SERVER }/api/001/001/devic
 export const API_URL_C001_V001_DEVICE_CFG =  `${ HTTP_SERVER }/api/001/001/device/config`
 export const API_URL_C001_V001_DEVICE_EVT =  `${ HTTP_SERVER }/api/001/001/device/event`
 export const API_URL_C001_V001_DEVICE_JOB_EVTS =  `${ HTTP_SERVER }/api/001/001/device/job_events`
+export const API_URL_C001_V001_DEVICE_DBG =  `${ HTTP_SERVER }/api/001/001/device/debug`
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
@@ -231,7 +232,7 @@ export const get_devices = async( ) => {
 
         let store = get( DEVICES )
         let devs = json.data.devices 
-        // debug( "get_devices( ) -> response:\n", devs )
+        debug( "get_devices( ) -> response:\n", devs )
         
         devs.forEach( dev => {
             if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
@@ -244,7 +245,8 @@ export const get_devices = async( ) => {
                     dev.smp,
                     dev.reg,
                     dev.ping,
-                    dev.des_ping
+                    dev.des_ping,
+                    dev.dbg
                 )
                 DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
             }        
@@ -505,7 +507,8 @@ export class Device {
         smp = new Sample( ),
         reg = new DESRegistration( ), 
         ping = new Ping( ), 
-        des_ping = new Ping( )
+        des_ping = new Ping( ),
+        dbg = new Debug()
     ) { 
         this.adm = adm
         this.sta = sta
@@ -527,6 +530,12 @@ export class Device {
              - PUBLISHES TO DEVICE COMMAND TOPICS 
         */
         this.des_ping = des_ping
+
+        /* USED TO ALTER THE DEBUG SETTINGS FOR A GIVEN DEVICE
+            THIS INFORMATION IS NOT LOGGED TO THE DATABASE 
+            OR SENT TO THE PHYSICAL DEVICE
+        */
+        this.dbg = dbg
 
         /* USED ON DEVICE PAGE TO DISPLAY ACTIVE JOB */
         this.job = new Job( )
@@ -656,6 +665,7 @@ export class Device {
     }
     pushPoint( point, set = [ ], scale, limit, scale_margin ) {
 
+        point.y = validateMeasuredValue( point.y )
         let len = set.data.push( point ) 
         for ( len; len > limit; len-- ) {
             set.data.shift( )
@@ -740,8 +750,8 @@ export class Device {
                     debug("new header received from device: ", this.hdr)
                     this.reg.des_job_start = this.hdr.hdr_job_start
                     this.reg.des_job_end = this.hdr.hdr_job_end
-                    this.reg.des_job_lng = validateFloatValue( this.hdr.hdr_geo_lng )
-                    this.reg.des_job_lat = validateFloatValue( this.hdr.hdr_geo_lat )
+                    this.reg.des_job_lng = validateMeasuredValue( this.hdr.hdr_geo_lng )
+                    this.reg.des_job_lat = validateMeasuredValue( this.hdr.hdr_geo_lat )
                     this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                     this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                     break
@@ -841,6 +851,7 @@ export class Device {
         debug("des_api.js -> device.startJob( ) ->  RESPONSE reg:\n", reg )
 
         if ( reg.status === "success" ) { 
+            this.job_evts = [ ]
             debug("Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
@@ -1115,8 +1126,40 @@ export class Device {
         if ( this.job_evts === null ) { this.job_evts = [ ] }
         debug( "ACTIVE JOB EVENTS:\n", this.job_evts )
     }
+    setDebug = async( ) => {
+        debug( "Set Debug for device: ", this.reg.des_dev_serial ) 
+        
+        let au = get( AUTH )
+        
+        if ( !this.socket ) { await this.connectWS( ) }
+        
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
 
-    /* HTTP METHODS ( ADMIN ) *************************************************************/
+        let dev = {
+            dbg: this.dbg,
+            reg: this.reg
+        }
+        debug( "Send DEVICE SET DEBUG Request:\n", dev ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_DBG, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let json = await res.json( )
+        debug("des_api.js -> device.setDebug( ) ->  RESPONSE reg:\n", json )
+
+        if ( json.status === "success" ) { 
+            debug("DEVICE SET DEBUG Request -> SUCCESS:\n", this.reg.des_dev_serial )
+        }
+    }
+
+    /* HTTP METHODS ( DES_ADMIN ) *************************************************************/
     connectDESClient = async( ) => {
         debug( "Connect DES Client: ", this.reg.des_dev_serial ) 
         this.des_ping.time = 0
@@ -1198,7 +1241,12 @@ export const getMode = ( cfg, smp ) => {
 
 }
 
-export const validateFloatValue = ( val ) => {
+/* USED TO VALIDATE MEASURED VALUES RECEIVED FROM THE DEVICE
+    WHERE THE VALUE IS ONE OF THE ERROR VALUES, NULL IS RETURNED 
+    - VALUE -999.25 => 'NOT MEASURED ( INTENTIONALLY )'
+    - VALUE -9999.25 => 'MEASUREMENT FAILED'
+*/
+export const validateMeasuredValue = ( val ) => {
     return ( val === -999.25 || val === -9999.25 ? val = null : val )
 }
 /* DEVICE Ping
@@ -1232,6 +1280,13 @@ export class Ping {
     ) {
         this.time = time
         this.ok = ok
+    }
+}
+export class Debug {
+    constructor(
+        mqtt_delay = 0
+    ) {
+        this.mqtt_delay = mqtt_delay
     }
 }
 

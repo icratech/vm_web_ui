@@ -4,7 +4,10 @@
     import InputNum from "$lib/common/input_num/InputNum.svelte"
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
     import DESAdminDeviceInfo from "./DESAdminDeviceInfo.svelte"
-    import { Device, AUTH } from "../../lib/des_api"
+    
+    import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
+
+    import { Device, debug } from "../../lib/des_api"
 
     import { createEventDispatcher } from "svelte"
     let dispatch = createEventDispatcher( )
@@ -13,6 +16,7 @@
 
     let exp = false
     const toggle = ( ) => {
+        debug("DESAdminDeviceCard -> device: ", device)
         exp = ! exp
     }
 
@@ -28,6 +32,25 @@
                 cls={ 'bg-purple' }
                 hint={ "Whatever" } 
             />
+            <div class="flx-row input">
+                
+                <PillButton 
+                    on:click={ device.dev.setDebug }
+                    cls={ 'bg-orange' }
+                    img={ btn_img_cmd }
+                    hint={ "Update Debug Settings" } 
+                />
+                
+                <InputNum
+                    enabled={true}
+                    is_integer={true}
+                    bind:num={device.dev.dbg.mqtt_delay}
+                    width=6em
+                />
+
+                <div class="flx-row">MQTT Message Delay ( sec )</div>
+
+            </div>
         </div>
         <div class="flx-col "> </div>
     </div>
@@ -49,6 +72,10 @@
         justify-content: space-between;
         border-radius: 0.5em;
         padding: 1em;
+    }
+
+    .input {
+        align-items: center;
     }
 
     .results {
