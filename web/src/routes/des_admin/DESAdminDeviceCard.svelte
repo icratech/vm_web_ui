@@ -33,23 +33,31 @@
                 hint={ "Whatever" } 
             />
             <div class="flx-row input">
-                
                 <PillButton 
                     on:click={ device.dev.setDebug }
                     cls={ 'bg-orange' }
                     img={ btn_img_cmd }
                     hint={ "Update Debug Settings" } 
                 />
-                
                 <InputNum
                     enabled={true}
                     is_integer={true}
                     bind:num={device.dev.dbg.mqtt_delay}
                     width=6em
                 />
-
                 <div class="flx-row">MQTT Message Delay ( sec )</div>
+            </div>
 
+            <div class="flx-row input">
+                <PillButton 
+                    on:click={ device.dev.testMsgLimit }
+                    cls={ 'bg-blue' }
+                    img={ btn_img_cmd }
+                    hint={ "1.5 kB MQTT Test Message" } 
+                />
+                <div class="flx-row">1484 bytes to:
+                    <span class="fg-orange">001/001/{ device.dev.sta.sta_serial }/cmd/msg_limit</span>
+                </div>
             </div>
         </div>
         <div class="flx-col "> </div>
