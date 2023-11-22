@@ -111,7 +111,7 @@
     }
     
     .fw {
-        justify-content: space-between;
+        justify-content: flex-start;
         padding-right: 0.8em;
     }
     .fw-sub-l {
@@ -119,7 +119,7 @@
         gap: 0.75em;
     }
     .fw-sub-r {
-        justify-content: flex-end;
+        justify-content: flex-start;
         gap: 0.75em;
     }
     /* .date { color: var(--orange_a); } */

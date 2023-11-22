@@ -76,7 +76,7 @@
 
         <!-- <br> -->
         <div class="flx-row in">Surface Casing Vent Depth - Max Pressure 
-            <span class="fg-orange">{ cfg.cfg_scvd * cfg.cfg_scvd_mult }</span> kPa
+            <span class="fg-orange">{ Number( cfg.cfg_scvd * cfg.cfg_scvd_mult ).toFixed( 3 ) }</span> kPa
         </div>
         <div class="flx-row field">
             <div class="flx-row title">SCVD</div>
@@ -96,7 +96,7 @@
                 <InputNum 
                     enabled={true}
                     is_integer={false}
-                    bind:num={cfg.cfg_scvd_mult}
+                    bind:num={ cfg.cfg_scvd_mult }
                     width=6em
                 />
             </div>

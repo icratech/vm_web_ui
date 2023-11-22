@@ -16,8 +16,8 @@
     <div class="flx-row field">
         <div class="flx-row title">SCVD</div>
         <div class="vert-line"/>
-        <div class="flx-row value">{ cfg.cfg_scvd }<div class="unit">m</div></div>
-        <div class="flx-row value">{ cfg.cfg_scvd_mult }<div class="unit">kPa/m</div></div>
+        <div class="flx-row value">{ Number( cfg.cfg_scvd ).toFixed(3) }<div class="unit">m</div></div>
+        <div class="flx-row value">{ Number( cfg.cfg_scvd_mult ).toFixed(3) }<div class="unit">kPa/m</div></div>
         <div class="flx-row value"></div>
     </div>
     
@@ -26,16 +26,16 @@
     <div class="flx-row field">
         <div class="flx-row title">SSP</div>
         <div class="vert-line"/>
-        <div class="flx-row value">{ cfg.cfg_ssp_rate }<div class="unit">kPa/hr</div></div>
-        <div class="flx-row value">{ cfg.cfg_ssp_dur / 3600000 }<div class="unit">hrs</div></div>
+        <div class="flx-row value">{ Number( cfg.cfg_ssp_rate ).toFixed(3) }<div class="unit">kPa/hr</div></div>
+        <div class="flx-row value">{ Number( cfg.cfg_ssp_dur / 3600000 ).toFixed(3) }<div class="unit">hrs</div></div>
         <div class="flx-row value"></div>
     </div>
     
     <div class="flx-row field">
         <div class="flx-row title">Flow</div>
         <div class="vert-line"/>
-        <div class="flx-row value">{ cfg.cfg_hi_scvf }<div class="unit">L/min</div></div>
-        <div class="flx-row value">{ cfg.cfg_flow_tog }<div class="unit">L/min</div></div>
+        <div class="flx-row value">{ Number( cfg.cfg_hi_scvf ).toFixed(3) }<div class="unit">L/min</div></div>
+        <div class="flx-row value">{ Number( cfg.cfg_flow_tog ).toFixed(3) }<div class="unit">L/min</div></div>
         <div class="flx-row value"></div>
     </div>
     
