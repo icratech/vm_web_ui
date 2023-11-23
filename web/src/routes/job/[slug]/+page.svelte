@@ -97,7 +97,7 @@
 
             <div class="flx-col report-list">
             { #each job.reports as rep ( rep.rep_id ) }
-                <ReportCardTitle bind:rep={ rep } bind:job/>
+                <ReportCard bind:rep={ rep } bind:job/>
                 <br>
             { /each }
             </div> 

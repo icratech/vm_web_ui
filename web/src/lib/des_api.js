@@ -725,6 +725,29 @@ export class Device {
             let msg = JSON.parse( JSON.parse( e.data ) )
             switch ( msg.type ) {
             
+                case "start":
+                    this.adm = msg.data.adm
+
+                    this.sta = msg.data.sta
+                    this.reg.des_job_name = this.sta.sta_job_name
+
+                    this.hdr = msg.data.hdr
+                    this.reg.des_job_start = this.hdr.hdr_job_start
+                    this.reg.des_job_end = this.hdr.hdr_job_end
+                    this.reg.des_job_lng = validateMeasuredValue( this.hdr.hdr_geo_lng )
+                    this.reg.des_job_lat = validateMeasuredValue( this.hdr.hdr_geo_lat )
+                    this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                    this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                   
+                    this.cfg = msg.data.cfg
+                    this.updateMarkerMode( )
+
+                    this.evt = msg.data.evt
+                    this.job_evts.unshift( this.evt )
+                    
+                    debug("new job start received from device: ", msg.data)
+                    break
+
                 case "ping":
                     // debug(`new ping received from device ${ this.reg.des_dev_serial }: `, FormatDateTime( msg.data.time ) )
                     this.ping = msg.data
