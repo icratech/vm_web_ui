@@ -1,28 +1,23 @@
 <script>
 
-    // export let data
-    // $: job = data.resp.job
-    // $: message = data.resp.message
-    // $: status = data.resp.status
-    // $: { debug( `./job/[slug]: ${ status.toUpperCase() }\t${ message }` ) }
-
     import PillButton from '$lib/common/button/PillButton.svelte'
     import InputText from '$lib/common/input_text/InputText.svelte'
     import LineChart from '$lib/common/chart/LineChart.svelte'
 
     import HeaderCard from '../../../lib/components/header/HeaderCard.svelte'
     import ReportCard from '$lib/components/report/ReportCard.svelte'
-    import ReportCardTitle from '$lib/components/report/ReportCardTitle.svelte'
-    import EventBuilderRep from '$lib/components/event/EventBuilderRep.svelte'
+    import EventPanelRep from '../../../lib/components/event/EventPanelRep.svelte'
     import BarGaugeCardReport from '../../../lib/components/gauge/BarGaugeCardReport.svelte'
 
     import btn_img_report from "$lib/images/btn-img-report.svg"
     import btn_img_add from "$lib/images/btn-img-add.svg"
 
     import { onMount } from "svelte"
-	import { JOBS, Header, Event, Report, Section, SectionDataSet, debug, Sample  } from "../../../lib/des_api"
+	import { Header, Event, Report, Section, SectionDataSet, debug, Sample  } from "../../../lib/des_api"
     
     export let data
+    import { getContext } from 'svelte'
+    $: JOBS = getContext(  'jobs' )
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
 
     /* TODO : RETRIEVE LAST HEADER FROM LIST */
@@ -38,6 +33,8 @@
     $: loaded = false
     onMount( async( ) => {
         loaded = await job.getJobData( )
+        hdr = job.headers.pop( )
+        cfg = job.configs.pop( )
         debug( job )
     } )
     let cur_rep = new Report( )
@@ -55,11 +52,10 @@
         rep.addSection( new_sec )
         new_sec = new Section( )
     }
-    
 
     $: evt_code = 2001
     let cur_evt = new Event( )
-    $: { cur_evt.evt_time = job.selection } 
+    $: {  cur_evt.evt_time = job.selection } 
 
     $: { 
         console.log( "Job page selected time:", job.selection ) 
@@ -161,16 +157,19 @@
                     <InputText bind:txt={ new_sec.sec_name } place={ "Please enter a section name" } enabled={ true } />
 
                 </div>
+                { #if loaded }
+                <div class="flx-col control-cont">
 
-                <div class="flx-col">
-
-                    <EventBuilderRep 
+                    <EventPanelRep
                         bind:job
-                        bind:evt={ cur_evt }
+                        bind:cur_evt
                         bind:evt_code
                     />
 
                 </div>
+                { :else }
+                <h3>loading...</h3>
+                { /if }
 
             </div>
 
@@ -211,6 +210,21 @@
         padding: 0 1em;
         padding-left: 0;
         height: auto;
+    }
+
+    .controls {
+        overflow: hidden;
+        justify-content: space-between;
+        height: 100%;
+    }
+
+    .control-cont { 
+        background-color: var(--light_002);
+        border-bottom: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01);
+        border-radius: 0.5em;
+        padding: 1em;
+        gap: 0.5em; 
     }
 
     .chart { min-height: 38em; }

@@ -18,10 +18,22 @@
     $: pwMatch = ( newUser.password !== "" && newUser.password == newUser.password_confirm )
     $: valid = ( nameLength && validEmail && pwLength && pwMatch ) 
 
+    import { getContext } from 'svelte'
+    const DEVICES = getContext(  'devices' )
+    const DEVICES_LOADED = getContext(  'devices_loaded' )
+
+    $: { console.log( "devices loaded: ", $DEVICES_LOADED ) }
+
 </script>
 
 <div class="flx-col container" >
 
+    { #if $DEVICES_LOADED }
+        <div>DEVICES LOADED</div>
+        { #each $DEVICES as device }
+            <div class="flx-row">{ device.reg.des_dev_serial }</div>
+        { /each }
+    { :else }
     <div class="flx-col welcome">
         <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
     
@@ -67,6 +79,7 @@
         </div>
 
     </div>
+    { /if }
 
 </div>
 

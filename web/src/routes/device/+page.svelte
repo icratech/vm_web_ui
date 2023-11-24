@@ -1,30 +1,13 @@
 
 <script>
 
-    import { onMount } from 'svelte'
-
-    import { 
-        AUTH, 
-        DEVICES, 
-        DEVICES_LOADED, 
-        DESSearchParam, 
-        get_devices, 
-        connect_devices, 
-        updateDevicesStore,
-        debug 
-    } from '../../lib/des_api'
+    import { getContext } from 'svelte'
+    import { DESSearchParam, updateDevicesStore, debug } from '../../lib/des_api'
+    
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
-    export let data
-    $: debug( "/device/+page.svelte -> data ", data )
-    onMount( async( ) => { 
-        // debug( "/device/+page.svelte -> onMount( ) -> $DEVICES_LOADED: ", $DEVICES_LOADED )
-        debug( "/device/+page.svelte -> onMount( ) -> $AUTH: ", $AUTH )
-        if( !$DEVICES_LOADED ) {  get_devices( ) }
-        connect_devices( ) 
-    } )
-
+    $: DEVICES = getContext( 'devices' )
     $: search = new DESSearchParam( )
 
     const checkBounds = ( d ) => { 
@@ -56,7 +39,7 @@
         
         <div class="flx-col device-list">
             { #each $DEVICES.filter( d => {  return  checkBounds( d ) && checkTextFilter( d, search ) } ) as device ( device.reg.des_job_name ) }
-                <DeviceCard bind:device={ device } />
+                <DeviceCard bind:device />
             { /each }
         </div>
 

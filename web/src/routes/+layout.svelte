@@ -4,11 +4,14 @@
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
-    import { AUTH, 
+    import { 
         get_user, 
         get_user_list, 
         get_event_types, 
-        DEVICES 
+        get_devices, DEVICES, DEVICES_LOADED,
+		get_jobs, JOBS, JOBS_LOADED,
+        AUTH
+
     } from '../lib/des_api';
     import Header from './Header.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
@@ -16,14 +19,23 @@
     import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
     import btn_img_report from "$lib/images/btn-img-report.svg"
 
+    import { setContext } from 'svelte'
+    setContext( 'devices', DEVICES )
+    setContext( 'devices_loaded', DEVICES_LOADED )
+    setContext( 'jobs', JOBS )
+    setContext( 'jobs_loaded', JOBS_LOADED )
+
     onMount( async( ) => {
 
         if ( sessionStorage.getItem( 'des_token') != 'none' ) { // debug( "Current des_token: ", token )
-            get_user( sessionStorage.getItem( 'des_token') ) 
-        }
+            await get_user( sessionStorage.getItem( 'des_token') ) 
+        } 
 
-        get_user_list( )
-        get_event_types( )
+        await get_user_list( )
+        await get_event_types( )
+        await get_devices( )
+        await get_jobs( )
+
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
         CAUSES THE SERVER TO UNSUBSCRIBE THIS DEVICE USER'S MQTT CLIENT FROM ALL TOPICS */
@@ -101,6 +113,8 @@
         goto( '/des_admin' ) 
         page = 'des'
     }
+
+    
 
 </script>
 

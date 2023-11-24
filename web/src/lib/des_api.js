@@ -231,12 +231,12 @@ export const get_devices = async( ) => {
 
     if ( json.status == "success") { 
 
-        let store = get( DEVICES )
+        // let store = get( DEVICES )
         let devs = json.data.devices 
         debug( "get_devices( ) -> response:\n", devs )
         
         devs.forEach( dev => {
-            if( store.filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+            if( get( DEVICES ).filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
                 let device = new Device(
                     dev.adm,
                     dev.sta,
@@ -254,9 +254,9 @@ export const get_devices = async( ) => {
         } )
         await connect_devices( )
 
-        store.sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+        get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
         DEVICES_LOADED.set( true )
-        debug( "des_api.js -> get_devices( ) -> DEVICES: ", store )
+        debug( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
     } else {
         debug( "des_api.js -> get_devices( ) -> NO DEVICES: ", get( DEVICES ) )
     }
@@ -267,6 +267,14 @@ export const connect_devices = async( ) => {
     get( DEVICES ).forEach( async( d ) => { if ( !d.socket ) { await d.connectWS( ) } } )
 }
 
+export const check_device_exists = async( serial ) => {
+    debug( "Checking existance of ", serial )
+    await get_devices( )
+    let exists = get( DEVICES ).filter( ( d ) => { return d.reg.des_dev_serial == serial } )[0]
+    debug( serial, exists )
+    return exists
+}
+
 /* JOB API ROUTES *************************************************************************************/
 
 export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
@@ -275,6 +283,7 @@ export const API_URL_C001_V001_JOB_DATA = `${ HTTP_SERVER }/api/001/001/job/data
 export const API_URL_C001_V001_JOB_NEW_REPORT =  `${ HTTP_SERVER }/api/001/001/job/new_report`
 export const API_URL_C001_V001_JOB_NEW_HDR = `${ HTTP_SERVER }/api/001/001/job/new_header`
 export const API_URL_C001_V001_JOB_NEW_EVT = `${ HTTP_SERVER }/api/001/001/job/new_event`
+export const API_URL_C001_V001_JOB_EVTS = `${ HTTP_SERVER }/api/001/001/job/event_list`
 
 export const get_event_types = async( ) => {
     debug( `des_api.js -> get_event_types( )` )
@@ -1135,7 +1144,7 @@ export class Device {
         
         let au = get( AUTH )
         
-        if ( !this.socket ) { await this.connectWS( ) }
+        // if ( !this.socket ) { await this.connectWS( ) }
         
         let dev = { reg: this.reg }
 
@@ -1616,6 +1625,36 @@ export class Job {
         if ( reg.status === "success" ) { 
             debug("JOB NEW EVENT Request -> SUCCESS:\n", this.reg.des_job_name )
         }
+    }
+    getJobEvents = async( ) => {
+        debug( "GET JOB EVENTS: ", this.reg.des_job_name ) 
+        
+        let au = get( AUTH )
+        
+        // if ( !this.socket ) { await this.connectWS( ) }
+        
+        let job = { reg: this.reg }
+
+        debug( "Send GET JOB EVENTS Request:\n", job )
+
+        let req = new Request( API_URL_C001_V001_JOB_EVTS, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( job )
+        } )
+        let res = await fetch( req )
+        let evts = await res.json( )
+        
+        if ( evts.status === "success" ) { 
+            debug("GET JOB EVENTS Response -> SUCCESS:\n", this.reg.des_job_name )
+            this.events = evts.data.evts
+        }  
+
+        if ( this.events === null ) { this.events = [ ] }
+        debug( "JOB EVENTS:\n", this.events )
     }
 
     newReport = async( rep ) => { 

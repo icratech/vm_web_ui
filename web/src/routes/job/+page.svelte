@@ -1,18 +1,13 @@
+
 <script>
 
-    import { onMount } from 'svelte'
+    import { getContext } from 'svelte'
+    import { DESSearchParam, updateJobsStore, debug } from '../../lib/des_api'
 
-    import { JOBS, JOBS_LOADED, DESSearchParam, get_jobs, updateJobsStore, debug } from '../../lib/des_api'
     import JobSearch from './JobSearch.svelte'
     import JobCard from './JobCard.svelte'
 
-    export let data
-    $: debug( "/job/+page.svelte -> data ", data )
-    onMount( async( ) => { 
-        // debug( "/job/+page.svelte -> onMount( ) -> $JOBS_LOADED: ", $JOBS_LOADED )
-        if( !$JOBS_LOADED ) { await get_jobs( ) }
-    } )
-
+    $: JOBS = getContext( 'jobs' )
     $: search = new DESSearchParam( )
 
     const checkBounds = ( j ) => { 

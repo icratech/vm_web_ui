@@ -7,10 +7,11 @@
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     import HeaderPanel from "../../../lib/components/header/HeaderPanel.svelte"
     import ConfigPanel from "../../../lib/components/config/ConfigPanel.svelte"
-    import EventPanel from "../../../lib/components/event/EventPanel.svelte"
-
+    import EventPanelOp from "../../../lib/components/event/EventPanelOp.svelte"
+    
     export let data
-    import { DEVICES } from '../../../lib/des_api'
+    import { getContext } from 'svelte'
+    $: DEVICES = getContext(  'devices' )
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
     /* USED TO EXPOSE THE MODALS' OPEN( ) METHOD 
@@ -52,7 +53,7 @@
                 </div>
 
                 <div class="flx-col panel-cont">
-                    <EventPanel bind:device />
+                    <EventPanelOp bind:device />
                 </div>
 
             </div>

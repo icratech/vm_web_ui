@@ -1,9 +1,8 @@
 // export const ssr = false
 
-import { DEVICES_LOADED, debug } from '../../../lib/des_api'
+import { DEVICES_LOADED, check_device_exists, debug } from '../../../lib/des_api'
 import { redirect } from '@sveltejs/kit'
 import { get } from 'svelte/store'
-
 
 export const load = async( loadEvent ) => {
     debug( "'/device/[slug]/page.js -> loadEvent.params.slug ", loadEvent.params.slug ) 
