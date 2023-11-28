@@ -21,14 +21,14 @@
         if ( evt_type.evt_typ_code < 999 ) {
             evtColorCode = 'fg-green_a'
             evtEmailColor = 'fg-green_a'
-            bgColor = 'var(--green_01)'
+            bgColor = 'var(--green_02)'
         } else if ( evt_type.evt_typ_code > 999 && evt_type.evt_typ_code < 2000 ) {
             evtColorCode = 'fg-pink'
             evtEmailColor = 'fg-pink'
             bgColor = 'var(--red_02)'
         } else {
             evtColorCode = 'fg-accent'
-            bgColor = 'var(--aqua_003)'
+            bgColor = 'var(--aqua_005)'
         }
     }
 

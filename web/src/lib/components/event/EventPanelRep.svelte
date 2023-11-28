@@ -7,7 +7,7 @@
     import EventCard from "./EventCard.svelte"
 	import { Job, Event, OP_CODES } from "../../des_api"
 
-    import btn_img_edit from "$lib/images/btn-img-edit.svg"
+    import btn_img_edit from "$lib/images/btn-img-edit-aqua.svg"
     
     onMount( async( ) => { await job.getJobEvents( ) } )
     export let job = new Job( )
@@ -32,7 +32,6 @@
         <div class="flx-row panel-title-btns">
 
             <PillButton
-                cls={ 'bg-accent' }
                 img={ btn_img_edit }
                 on:click={ ( ) => { show_evt_list = !show_evt_list } }
                 hint={ eventButtonHint }

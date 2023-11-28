@@ -6,7 +6,7 @@
 
     import { createEventDispatcher } from 'svelte';
 
-    import btn_img_reset from "$lib/images/btn-img-reset.svg"
+    import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
     import { 
@@ -71,7 +71,6 @@
     <div class="flx-row search">
 
         <PillButton
-            cls={ 'bg-accent' }
             img={ btn_img_reset }
             hint={ 'Reset filters' } 
             on:click={ ( ) => { 

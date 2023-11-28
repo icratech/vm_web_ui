@@ -16,8 +16,20 @@
     import Header from './Header.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
     import btn_img_home from "$lib/images/btn-img-home.svg"
+    import btn_img_home_aqua from "$lib/images/btn-img-home-aqua.svg"
+    import btn_img_home_orange from "$lib/images/btn-img-home-orange.svg"
+
     import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
+    import btn_img_gauge_aqua from "$lib/images/btn-img-gauge-aqua.svg"
+    import btn_img_gauge_grey from "$lib/images/btn-img-gauge-grey.svg"
+    import btn_img_gauge_orange from "$lib/images/btn-img-gauge-orange.svg"
+
     import btn_img_report from "$lib/images/btn-img-report.svg"
+    import btn_img_report_aqua from "$lib/images/btn-img-edit-aqua.svg"
+    import btn_img_report_grey from "$lib/images/btn-img-edit-grey.svg"
+    import btn_img_report_pink from "$lib/images/btn-img-edit-pink.svg"
+
+    import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
 
     import { setContext } from 'svelte'
     setContext( 'devices', DEVICES )
@@ -50,45 +62,45 @@
 
     $: page = "";
     let page_name = "HOME"
-    let home_btn_color = 'bg-orange'
-    let device_btn_color = 'bg-accent'
-    let job_btn_color = 'bg-accent'
+    let home_btn_image = btn_img_home_orange
+    let device_btn_image = btn_img_gauge_aqua
+    let job_btn_image = btn_img_report_aqua
     let admin_btn_color = 'bg-purple'
     $: {
         switch ( page ) {
             case '' : { 
                 page_name = "HOME"
-                home_btn_color = 'bg-orange'
-                device_btn_color = 'bg-accent'
-                job_btn_color = 'bg-accent'
+                home_btn_image = btn_img_home_orange
+                device_btn_image = btn_img_gauge_orange
+                job_btn_image = btn_img_report_aqua
                 break
             }
             case 'device': {  
                 page_name = "DEVICES"
-                home_btn_color = 'bg-accent'
-                device_btn_color = 'bg-orange'
-                job_btn_color = 'bg-accent'
+                home_btn_image = btn_img_home_aqua
+                device_btn_image = btn_img_gauge_orange
+                job_btn_image = btn_img_report_aqua
                 break
             }
             case 'job': { 
                 page_name = "JOBS"
-                home_btn_color = 'bg-accent'
-                device_btn_color = 'bg-accent'
-                job_btn_color = 'bg-pink'
+                home_btn_image = btn_img_home_aqua
+                device_btn_image = btn_img_gauge_aqua
+                job_btn_image = btn_img_report_pink
                 break
             }
             case 'des_admin': { 
                 page_name = "DES ADMINISTRATION"
-                home_btn_color = 'bg-accent'
-                device_btn_color = 'bg-accent'
-                job_btn_color = 'bg-accent'
+                home_btn_image = btn_img_home_aqua
+                device_btn_image = btn_img_gauge_aqua
+                job_btn_image = btn_img_report_aqua
                 break
             }
             default : { 
                 page_name = ""
-                home_btn_color = 'bg-accent'
-                device_btn_color = 'bg-accent'
-                job_btn_color = 'bg-accent'
+                home_btn_image = btn_img_home_aqua
+                device_btn_image = btn_img_gauge_aqua
+                job_btn_image = btn_img_report_aqua
                 break
             }
         }
@@ -131,20 +143,17 @@
                 <div class="flx-col ops">
                     <PillButton 
                         on:click={ goto_home } 
-                        cls={ home_btn_color }
-                        img={ btn_img_home } 
+                        img={ home_btn_image } 
                         hint={ null } 
                     />
                     <PillButton 
                         on:click={ goto_device } 
-                        cls={ device_btn_color }
-                        img={ btn_img_gauge } 
+                        img={ device_btn_image } 
                         hint={ 'Device list' }  
                     />
                     <PillButton 
                         on:click={ goto_job } 
-                        cls={ job_btn_color }
-                        img={ btn_img_report } 
+                        img={ job_btn_image } 
                         hint={ 'Job list' } 
                     />
                 </div>
@@ -156,7 +165,7 @@
                 <div class="flx-col admin">
                     <PillButton 
                         on:click={ goto_des } 
-                        cls={ admin_btn_color } 
+                        img={ btn_img_cmd_purple } 
                         hint={ "If you don't know..." } 
                     />
                 </div>

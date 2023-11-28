@@ -9,7 +9,13 @@
     import EventCard from "../../lib/components/event/EventCard.svelte"
     
     import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
+    import btn_img_gauge_aqua from "$lib/images/btn-img-gauge-aqua.svg"
+    import btn_img_gauge_grey from "$lib/images/btn-img-gauge-grey.svg"
+    import btn_img_gauge_red from "$lib/images/btn-img-gauge-red.svg"
     import btn_img_watch from "$lib/images/btn-img-view.svg"
+    import btn_img_watch_aqua from "$lib/images/btn-img-view-aqua.svg"
+    import btn_img_watch_orange from "$lib/images/btn-img-view-orange.svg"
+    import btn_img_watch_pink from "$lib/images/btn-img-view-pink.svg"
     
     import { Device, Sample } from "../../lib/des_api"
     
@@ -22,7 +28,8 @@
 
     $: active = ( hdr.hdr_job_start != 0 )
 
-    $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
+    $: socketButtonImage = ( device.socket ? btn_img_watch_orange : btn_img_watch_aqua )
+    // $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
     $: highlight = ( device.highlight ? 'highlight' : '' ) 
 
@@ -47,15 +54,13 @@
     
                 <PillButton 
                     on:click={ ( ) => { goto( `device/${device.reg.des_dev_serial }` ) } }
-                    cls={ 'bg-accent' }
-                    img={ btn_img_gauge }
+                    img={ btn_img_gauge_aqua }
                     hint={ 'Device Controls' } 
                 />
                  
                 <PillButton 
-                    cls={ socketButtonColor }
                     on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) } }
-                    img={ btn_img_watch }
+                    img={ socketButtonImage }
                     hint={ socketButtonText } 
                 />
         

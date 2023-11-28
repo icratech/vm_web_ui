@@ -19,7 +19,7 @@
 <style>
 
     .icon {
-        outline: 0.2em solid var(--dark_a); outline-offset: -0.1em;
+        /* outline: 0.2em solid var(--dark_a); outline-offset: -0.1em; */
         background-size: cover;
         cursor: pointer;
         border-radius: 50%;
@@ -29,6 +29,7 @@
         min-height: 2.5em;
         max-height: 2.5em;
         height: 2.5em;
+        opacity: 0.8;
     }
     .icon .hint {
         display: none;
@@ -39,10 +40,13 @@
         border-right: solid 0.1em var(--light_01);
         border-radius: 0.5em;
         font-size: 1.2em;
-        top: 0.75em;
-        left: 2.5em;
+        top: 1.5em;
+        left: 1.5em;
         height: 2em;
         /* width:max-content; */
+    }
+    .icon:hover {
+        opacity: 1;
     }
     .icon:hover .hint {
         display: flex;
@@ -51,7 +55,8 @@
         padding-left: 0.5em;
         padding-right: 0.5em;
         width:max-content;
-        visibility: visible;
+        /* visibility: visible; */
+        /* opacity: 1; */
     }
 
 

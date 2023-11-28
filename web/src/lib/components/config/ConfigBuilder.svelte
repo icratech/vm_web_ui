@@ -3,9 +3,12 @@
 
     import InputNum from "$lib/common/input_num/InputNum.svelte"
     import PillButton from "../../common/button/PillButton.svelte"
-    import btn_img_vlv_vent from "$lib/images/btn-img-vlv-vent.svg"
-    import btn_img_vlv_flow from "$lib/images/btn-img-vlv-flow.svg"
-    import btn_img_vlv_build from "$lib/images/btn-img-vlv-build.svg"
+    import btn_img_vlv_vent_grey from "$lib/images/btn-img-vlv-vent-grey.svg"
+    import btn_img_vlv_vent_aqua from "$lib/images/btn-img-vlv-vent-aqua.svg"
+    import btn_img_vlv_flow_grey from "$lib/images/btn-img-vlv-flow-grey.svg"
+    import btn_img_vlv_flow_orange from "$lib/images/btn-img-vlv-flow-orange.svg"
+    import btn_img_vlv_build_grey from "$lib/images/btn-img-vlv-build-grey.svg"
+    import btn_img_vlv_build_green from "$lib/images/btn-img-vlv-build-green.svg"
 
     import { Config, MODES, MIN_SAMPLE_PERIOD, debug } from '../../des_api'
     export let cfg = new Config( )
@@ -45,9 +48,9 @@
       
     }
 
-    $: ventButtonColor = ( cfg.cfg_vlv_tgt == MODES.VENT ? 'bg-aqua' : 'bg-grey')
-    $: flowButtonColor = ( cfg.cfg_vlv_tgt == MODES.HI_FLOW ? 'bg-orange' : 'bg-grey')
-    $: buildButtonColor = ( cfg.cfg_vlv_tgt == MODES.BUILD ? 'bg-green' : 'bg-grey')
+    $: btn_img_vlv_vent = ( cfg.cfg_vlv_tgt == MODES.VENT ? btn_img_vlv_vent_aqua : btn_img_vlv_vent_grey)
+    $: btn_img_vlv_flow = ( cfg.cfg_vlv_tgt == MODES.HI_FLOW ? btn_img_vlv_flow_orange : btn_img_vlv_flow_grey)
+    $: btn_img_vlv_build = ( cfg.cfg_vlv_tgt == MODES.BUILD ? btn_img_vlv_build_green : btn_img_vlv_build_grey)
 
 </script>
 
@@ -58,19 +61,16 @@
         <div class="flx-row in">Valve Position</div>
         <div class="flx-row panel-title-btns">   
             <PillButton
-                cls={ ventButtonColor }
                 img={ btn_img_vlv_vent }
                 on:click={ ( ) => { cfg.cfg_vlv_tgt = MODES.VENT } }
                 hint='VENT'
             />    
             <PillButton
-                cls={ flowButtonColor }
                 img={ btn_img_vlv_flow }
                 on:click={ ( ) => { cfg.cfg_vlv_tgt = MODES.HI_FLOW } }
                 hint='FLOW'
             />
             <PillButton
-                cls={ buildButtonColor }
                 img={ btn_img_vlv_build }
                 on:click={ ( ) => { cfg.cfg_vlv_tgt = MODES.BUILD } }
                 hint='BUILD'

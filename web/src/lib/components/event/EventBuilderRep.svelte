@@ -1,8 +1,8 @@
 
 <script>
 
-    import btn_img_cancel from "$lib/images/btn-img-cancel.svg"
-    import btn_img_confirm from "$lib/images/btn-img-confirm.svg"
+    import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
+    import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
 
     import InputText from "$lib/common/input_text/InputText.svelte"
     import InputTextArea from "$lib/common/input_text_area/InputTextArea.svelte"
@@ -63,7 +63,6 @@
             <div class="flx-row btns">
                 
                 <PillButton 
-                    cls={ 'bg-red' }
                     img={ btn_img_cancel }
                     on:click={ clearEvent }
                     hint={ 'Cancel' } 
@@ -71,7 +70,6 @@
 
                 <PillButton 
                     on:click={ sendEvent }
-                    cls={ 'bg-green' }
                     img={ btn_img_confirm }
                     hint={ 'Send Event' } 
                 />

@@ -13,10 +13,22 @@
     
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import btn_img_default from "$lib/images/btn-img-default.svg"
+
     import btn_img_start from "$lib/images/btn-img-start.svg"
+    import btn_img_start_green from "$lib/images/btn-img-start-green.svg"
+    import btn_img_start_grey from "$lib/images/btn-img-start-grey.svg"
+
     import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
+    import btn_img_cmd_orange from "$lib/images/btn-img-cmd-orange.svg"
+
     import btn_img_stop from "$lib/images/btn-img-stop.svg"
+    import btn_img_stop_red from "$lib/images/btn-img-stop-red.svg"
+    import btn_img_stop_grey from "$lib/images/btn-img-stop-grey.svg"
+
     import btn_img_watch from "$lib/images/btn-img-view.svg"
+    import btn_img_watch_aqua from "$lib/images/btn-img-view-aqua.svg"
+    import btn_img_watch_orange from "$lib/images/btn-img-view-orange.svg"
+    import btn_img_watch_pink from "$lib/images/btn-img-view-pink.svg"
     
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
@@ -27,7 +39,7 @@
     $: sta = device.sta
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    $: cmdButtonColor = 'bg-accent'
+    // $: cmdButtonColor = 'bg-accent'
     $: cmdButtonHint = 'Not Set'
     $: cmdButtonIcon = btn_img_default
     $: cmdButtonFunc = ( ) => {
@@ -39,32 +51,29 @@
             case OP_CODES.DES_REG_REQ: 
             case OP_CODES.DES_REGISTERED: 
             case OP_CODES.JOB_ENDED: 
-                cmdButtonColor = 'bg-green'
                 cmdButtonHint = 'Start Job'
-                cmdButtonIcon = btn_img_start
+                cmdButtonIcon = btn_img_start_green
                 cmdButtonFunc = ( ) => { dispatch( 'start' ) }
                 smp = new Sample( )
                 break 
 
             case OP_CODES.JOB_STARTED: 
-                cmdButtonColor = 'bg-red'
                 cmdButtonHint = 'End Job'
-                cmdButtonIcon = btn_img_stop
+                cmdButtonIcon = btn_img_stop_red
                 cmdButtonFunc = ( ) => { device.endJob( ) }
                 break 
             
             case OP_CODES.JOB_END_REQ:
             case OP_CODES.JOB_START_REQ:
-                cmdButtonColor = 'bg-orange' 
                 cmdButtonHint = 'Get Device State' 
-                cmdButtonIcon = btn_img_cmd
+                cmdButtonIcon = btn_img_cmd_orange
                 cmdButtonFunc = ( ) => { device.setState( ) }
                 break
 
         }
     }
 
-    $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
+    $: socketButtonImage = ( device.socket ? btn_img_watch_orange : btn_img_watch_aqua )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
     $: socketButtonFunc =  ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) }
     
@@ -106,7 +115,6 @@
 
                 { #if device.ping.ok }
                 <PillButton 
-                    bind:cls={ cmdButtonColor }
                     on:click={ cmdButtonFunc }
                     bind:img={ cmdButtonIcon }
                     bind:hint={ cmdButtonHint }
@@ -114,9 +122,8 @@
                 { /if }
                 
                 <PillButton 
-                    cls={ socketButtonColor }
                     on:click={ socketButtonFunc }
-                    img={ btn_img_watch }
+                    img={ socketButtonImage }
                     hint={ socketButtonText } 
                 />
 

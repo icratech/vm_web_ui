@@ -5,16 +5,15 @@
     import ConfigCard from "./ConfigCard.svelte"
     import { Device, OP_CODES, debug } from "../../des_api"
 
-    import btn_img_edit from "$lib/images/btn-img-edit.svg"
-    import btn_img_cancel from "$lib/images/btn-img-cancel.svg"
-    import btn_img_confirm from "$lib/images/btn-img-confirm.svg"
+    import btn_img_edit from "$lib/images/btn-img-edit-aqua.svg"
+    import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
+    import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
 
     export let device = new Device( )
     $: cfg = device.cfg
     let clone_cfg = structuredClone( cfg )
 
     $: edit = false
-    $: editButtonColor = ( edit ? 'bg-red' : 'bg-accent' )
     $: editButtonImg = ( edit ? btn_img_cancel : btn_img_edit )
     $: editButtonHint = ( edit ? "Cancel" : "Edit Configuration" )
     $: editButtonFunc = ( ) => {
@@ -38,7 +37,6 @@
 
             { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
             <PillButton
-                cls={ editButtonColor }
                 img={ editButtonImg }
                 on:click={ editButtonFunc }
                 hint={ editButtonHint }
@@ -48,7 +46,6 @@
             { #if edit }
 
                 <PillButton
-                    cls={ 'bg-green' }
                     img={ btn_img_confirm }
                     on:click={ editConfig }
                     hint={ "Confirm" }

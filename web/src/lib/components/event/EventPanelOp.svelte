@@ -7,7 +7,7 @@
     import EventCard from "./EventCard.svelte"
 	import { Device, OP_CODES } from "../../des_api"
 
-    import btn_img_edit from "$lib/images/btn-img-edit.svg"
+    import btn_img_edit from "$lib/images/btn-img-edit-aqua.svg"
     
     onMount( async( ) => { await device.getActiveJobEvents( ) } )
     export let device = new Device( )
@@ -30,7 +30,6 @@
 
             { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
             <PillButton
-                cls={ 'bg-accent' }
                 img={ btn_img_edit }
                 on:click={ ( ) => { show_evt_list = !show_evt_list } }
                 hint={ eventButtonHint }

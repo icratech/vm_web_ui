@@ -28,12 +28,12 @@
 
 <div class="flx-col container" >
 
-    { #if $DEVICES_LOADED }
+    <!-- { #if $DEVICES_LOADED }
         <div>DEVICES LOADED</div>
         { #each $DEVICES as device }
             <div class="flx-row">{ device.reg.des_dev_serial }</div>
         { /each }
-    { :else }
+    { :else } -->
     <div class="flx-col welcome">
         <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
     
@@ -79,7 +79,7 @@
         </div>
 
     </div>
-    { /if }
+    <!-- { /if } -->
 
 </div>
 

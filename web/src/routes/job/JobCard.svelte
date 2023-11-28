@@ -7,7 +7,7 @@
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
     import EventCard from '../../lib/components/event/EventCard.svelte'
 
-    import btn_img_report from "$lib/images/btn-img-report.svg"
+    import btn_img_report from "$lib/images/btn-img-edit-aqua.svg"
 
     import { Job } from "../../lib/des_api"
     
@@ -35,7 +35,6 @@
 
                 <PillButton 
                     on:click={ ( ) => { goto( `job/${ job.reg.des_job_name }` ) } }
-                    cls={ 'bg-accent' }
                     img={ btn_img_report }
                     hint={ 'Job Reports' } 
                 />
