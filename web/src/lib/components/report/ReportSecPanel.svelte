@@ -1,19 +1,11 @@
-
 <script>
-    
-    import DateTimeDisplay from "$lib/common/date_time/DateTimeDisplay.svelte"
-    import PillButton from '$lib/common/button/PillButton.svelte'
 
-    import ReportCardTitle from './ReportCardTitle.svelte'
     import ReportSecTitle from './ReportSecTitle.svelte'
-    import EventCard from "../event/EventCard.svelte";
-
-	import { Job, Report, debug } from "../../des_api"
+    import EventCard from "../event/EventCard.svelte"
+    
+    import { Job, Report, debug } from "../../des_api"
     export let job = new Job( )
     export let rep = new Report( )
-    export let selected = false
-
-    let exp = false
 
     const testFunc = ( sec ) => {
         let cfg = job.configs.reduce( ( pre, cur ) => { 
@@ -37,54 +29,48 @@
         } )
         debug( "Section Sample.SmpHiFlow: ", smp.smp_hi_flow )
     }
+
 </script>
 
 <div class="flx-col container">
 
-    <ReportCardTitle bind:rep on:exp={ ( ) => { exp = !exp } } on:report-selected />
-
-    { #if exp }
     <div class="flx-col section-list">
         { #each rep.rep_secs as sec ( sec.sec_id ) }
-            <div class="flx-co">
+        <div class="flx-col sec-li" on:click={ ( ) => { testFunc( sec ) } } on:keydown>
+            
+            <ReportSecTitle bind:job bind:sec />
+            
+            { #each sec.sec_anns as ann ( ann.ann_id ) }
+            { #if ann.evt.evt_addr == job.reg.des_dev_serial }
+                <EventCard bind:event={ ann.evt } />
+            { /if }
+            { /each }
 
-                <ReportSecTitle bind:job bind:sec on:section-selected />
-
-                <!-- { #each sec.sec_anns as ann ( ann.ann_id ) }
-                    { #if ann.evt.evt_addr == job.reg.des_dev_serial }
-                        <EventCard bind:event={ ann.evt } />
-                    { /if }
-                { /each } -->
-
-            </div> 
-
+        </div> 
         { /each }
     </div>
-    { /if } 
-    
+
 </div>
 
 <style>
     
     .container {
-        background-color: var(--light_002);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
-        border-radius: 0.5em;
-        /* padding: 0.5em; */
+        height: 100%;
         gap: 1rem;
     }
 
+
     .section-list {
+        overflow: auto;
         padding-right: 0.5em;
-        gap: 0.5em;
+        gap: 1em;
     }
 
-    /* .sec-li {
+    .sec-li {
         background-color: var(--light_003);
         border-radius: 0.5em;
-        padding-bottom: 1em;
+        padding: 1em;
         gap: 0.5em;
-    } */
+    }
 
 </style>

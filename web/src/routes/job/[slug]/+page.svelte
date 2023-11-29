@@ -1,24 +1,39 @@
 <script>
-
+   
+    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
+    mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
+    
     import PillButton from '$lib/common/button/PillButton.svelte'
     import InputText from '$lib/common/input_text/InputText.svelte'
     import LineChart from '$lib/common/chart/LineChart.svelte'
 
     import HeaderCard from '../../../lib/components/header/HeaderCard.svelte'
+    import ReportPanel from '../../../lib/components/report/ReportPanel.svelte'
     import ReportCard from '$lib/components/report/ReportCard.svelte'
+    import ReportCardTitle from '../../../lib/components/report/ReportCardTitle.svelte'
+    import ReportSecPanel from '../../../lib/components/report/ReportSecPanel.svelte'
     import EventPanelRep from '../../../lib/components/event/EventPanelRep.svelte'
     import BarGaugeCardReport from '../../../lib/components/gauge/BarGaugeCardReport.svelte'
 
-    import btn_img_report from "$lib/images/btn-img-report.svg"
-    import btn_img_add from "$lib/images/btn-img-add.svg"
+    import btn_img_report from "$lib/images/btn-img-edit-pink.svg"
+    import btn_img_add from "$lib/images/btn-img-add-pink.svg"
+
+    import btn_img_edit_pink from "$lib/images/btn-img-edit-pink.svg"
+    import btn_img_edit_green from "$lib/images/btn-img-edit-green.svg"
+    import btn_img_edit_aqua from "$lib/images/btn-img-edit-aqua.svg"
+    import btn_img_edit_orange from "$lib/images/btn-img-edit-orange.svg"
+    import btn_img_edit_yellow from "$lib/images/btn-img-edit-yellow.svg"
 
     import { onMount } from "svelte"
-	import { Header, Event, Report, Section, SectionDataSet, debug, Sample  } from "../../../lib/des_api"
+	import { Header, OP_CODES, Event, Report, Section, SectionDataSet, debug, Sample, validateMeasuredValue  } from "../../../lib/des_api"
     
     export let data
     import { getContext } from 'svelte'
     $: JOBS = getContext(  'jobs' )
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
+    $: btn_img_evt_list = btn_img_edit_pink
+    $: selected_title = 'Report'
+    $: selected_title_cls = 'fg-pink'
 
     /* TODO : RETRIEVE LAST HEADER FROM LIST */
     $: hdr = JSON.parse( job.reg.des_job_json ).hdr
@@ -28,13 +43,31 @@
     $: cfg = JSON.parse( job.reg.des_job_json ).cfg
     // $: cfg = job.configs.pop( )
 
+    $: evts = [ ]
+ 
     let new_hdr = new Header( )
+
+    const reportEvents = ( ) => { 
+        return job.events.filter( e => { 
+            return ( e.evt_addr == job.reg.des_dev_serial || e.evt_code > OP_CODES.OPERATOR_EVENT )
+        } )
+    }
+    const sectionEvents = ( sec ) => { 
+        return job.events.filter( e => { 
+            // debug( "Section Event: ", e ) 
+            return ( 
+                ( e.evt_time >= sec.detail.sec_start && e.evt_time <= sec.detail.sec_end ) && 
+                ( e.evt_addr == job.reg.des_dev_serial || e.evt_code > 2000 )
+            )
+        } )
+    }
 
     $: loaded = false
     onMount( async( ) => {
         loaded = await job.getJobData( )
         hdr = job.headers.pop( )
         cfg = job.configs.pop( )
+        evts = reportEvents( )
         debug( job )
     } )
     let cur_rep = new Report( )
@@ -57,9 +90,23 @@
     let cur_evt = new Event( )
     $: {  cur_evt.evt_time = job.selection } 
 
-    $: { 
-        console.log( "Job page selected time:", job.selection ) 
-        console.log( "Job page selected sample:", job.selected_smp ) 
+    // $: { 
+    //     console.log( "Job page selected time:", job.selection ) 
+    //     console.log( "Job page selected sample:", job.selected_smp ) 
+    // }
+
+    const makeMap = ( ctx ) => {
+
+    let map = new mapboxgl.Map(  {
+            container: ctx,
+            style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
+            center: [ validateMeasuredValue( hdr.hdr_geo_lng ), validateMeasuredValue( hdr.hdr_geo_lat ) ],
+            zoom :  5.5,
+            interactive: true
+        } )
+
+        job.s_mark.addTo( map )
+
     }
 
 </script>
@@ -69,109 +116,124 @@
 
         <div class="flx-col status">
 
+            { #if loaded }
+            <div class="flx-col map map-cont">
+                <div class="map-container" use:makeMap />
+            </div>
+            { /if }
+        
             <div class="flx-col">
-            <HeaderCard bind:hdr />
+                <HeaderCard bind:hdr />
             </div>
-            
-            <br>
-
-            Reports
-            <div class="flx-row btns">
-                <!-- <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/> -->
-                
-                <PillButton 
-                    on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
-                    cls={ 'bg-aqua' }
-                    img={ btn_img_add }
-                    hint={ 'New Report' } 
-                />
-
-                <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
-            </div>
-            
-
 
             <div class="flx-col report-list">
-            { #each job.reports as rep ( rep.rep_id ) }
-                <ReportCard bind:rep={ rep } bind:job/>
-                <br>
-            { /each }
-            </div> 
+                <ReportPanel 
+                    bind:job 
+                    on:section-selected={ ( sec ) => { // debug( "Selected Section: ", sec.detail ) 
+                        job.chartZoomTo( sec.detail.sec_start, sec.detail.sec_end )
+                        evts = sectionEvents( sec ) // debug( "Section Events: ", evts )
+                        btn_img_evt_list = btn_img_edit_green
+                        selected_title = sec.detail.sec_name
+                        selected_title_cls = 'fg-green'
+                    } } 
+                    on:report-selected={ ( rep ) => { // debug( "Selected Report: ", rep.detail ) 
+                        job.chartZoomTo( hdr.hdr_start, hdr.hdr_end )
+                        evts = reportEvents( ) // debug( "Report Events: ", evts )
+                        btn_img_evt_list = btn_img_edit_pink
+                        selected_title = rep.detail.rep_title
+                    } } 
+                />
+            </div>
 
         </div>
 
         <div class="flx-col panel">
     
-            { #if loaded }
+            { #if !loaded }
+            <div class="flx-row loading">
+                <h1>loading...</h1>
+            </div>
+            { :else }
+
             <div class="flx-col chart">
                 <LineChart bind:chartdata={ job.cht } />
             </div>
-            { :else }
-            <h3>loading...</h3>
-            { /if }
-    
+            
             <div class="flx-row controls">
 
 
-                <div class="flx-col gauge">
-                    <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
-                    <!-- <BarGaugeCardReport bind:cfg /> -->
+                <div class="flx-col report-list">
+                    <ReportPanel 
+                        bind:job 
+                        on:section-selected={ ( sec ) => { // debug( "Selected Section: ", sec.detail ) 
+                            job.chartZoomTo( sec.detail.sec_start, sec.detail.sec_end )
+                            evts = sectionEvents( sec ) // debug( "Section Events: ", evts )
+                            btn_img_evt_list = btn_img_edit_green
+                            selected_title = sec.detail.sec_name
+                            selected_title_cls = 'fg-green'
+                        } } 
+                        on:report-selected={ ( rep ) => { // debug( "Selected Report: ", rep.detail ) 
+                            job.chartZoomTo( hdr.hdr_start, hdr.hdr_end )
+                            evts = reportEvents( ) // debug( "Report Events: ", evts )
+                            btn_img_evt_list = btn_img_edit_pink
+                            selected_title = rep.detail.rep_title
+                        } } 
+                    />
                 </div>
 
-                <div class="flx-col btns">
+                <div class="flx-col control-cont">
+                    <EventPanelRep bind:job bind:cur_evt bind:evt_code bind:evts 
+                        bind:btn_img_evt_list 
+                        bind:title={ selected_title }
+                        bind:title_cls={ selected_title_cls }
+                    />
+                </div>
+
+                <div class="flx-col gauge">
+                    <div class="flx-col">
+                        <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
+                    </div>
+                </div>
+
+                <!-- <div class="flx-col btns">
     
                     <PillButton 
                         on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
-                        cls={ 'bg-pink' }
                         img={ btn_img_report }
                         hint={ 'New Report' } 
                     />
 
                     <PillButton 
                         on:click={ ( new_sec.sec_name != "" ? makeSection( cur_rep ) : debug( "enter a section name" ) ) }
-                        cls={ 'bg-pink' }
                         img={ btn_img_report }
                         hint={ 'New Section' } 
                     />
 
                     <PillButton 
                         on:click={ ( ) => { job.newHeader( new_hdr ) } }
-                        cls={ 'bg-pink' }
                         img={ btn_img_report }
                         hint={ 'New Header' } 
                     />
 
                     <PillButton 
                     on:click={ ( ) => { job.newEvent( cur_evt ) } }
-                        cls={ 'bg-pink' }
                         img={ btn_img_report }
                         hint={ 'New Event' } 
                     />
 
-                </div>
+                </div> -->
 
-                <div class="flx-col txts">
+                <!-- <div class="flx-col txts">
 
                     <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
                     
                     <InputText bind:txt={ new_sec.sec_name } place={ "Please enter a section name" } enabled={ true } />
 
-                </div>
-                { #if loaded }
-                <div class="flx-col control-cont">
-
-                    <EventPanelRep
-                        bind:job
-                        bind:cur_evt
-                        bind:evt_code
-                    />
-
-                </div>
-                { :else }
-                <h3>loading...</h3>
-                { /if }
+                </div> -->
 
             </div>
+            { /if }
+    
 
         </div>
     
@@ -199,7 +261,10 @@
         width: auto;
         padding-right: 0.5em;
     }
-
+    .map-cont {
+        min-height: 28em;
+        height: 28em;
+    }
     .report-list {
         overflow: auto;
         height: 100%;
@@ -212,23 +277,28 @@
         height: auto;
     }
 
+    .loading {
+        justify-content: center;
+        align-items: center;
+        height: 50%;
+    }
+
+    .chart { min-height: 30em; }
+
     .controls {
         overflow: hidden;
         justify-content: space-between;
         height: 100%;
     }
 
-    .control-cont { 
+    /* .control-cont { 
         background-color: var(--light_002);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
         border-radius: 0.5em;
         padding: 1em;
         gap: 0.5em; 
-    }
-
-    .chart { min-height: 38em; }
-
+    } */
 
     .btns { 
         justify-content: flex-start; 
@@ -237,7 +307,7 @@
         gap: 1em;
     }
 
-    .gauge{
+    .gauge {
         justify-content: flex-start; 
         height: auto;
     }

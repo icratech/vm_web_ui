@@ -1,5 +1,5 @@
 <script>
-    export let cls 
+    export let cls = ''
     import def from "$lib/images/btn-img-default.svg"
     export let img = def
     export let hint 
@@ -9,7 +9,10 @@
 </script>
 
 
-    <div class="icon img { cls }"  style="background-image: url( { img } );" on:click  on:keydown >
+    <div 
+        class="icon img { cls }"  
+        style="background-image: url( { img } );" 
+        on:click  on:keydown >
         { #if hint != null }
         <div class="hint">{ hint }</div>
         { /if }
@@ -22,6 +25,8 @@
         /* outline: 0.2em solid var(--dark_a); outline-offset: -0.1em; */
         background-size: cover;
         cursor: pointer;
+        border-bottom: solid 0.2em var(--light_01);
+        border-right: solid 0.2em var(--light_01);
         border-radius: 50%;
         min-width: 2.5em;
         max-width: 2.5em;

@@ -1287,7 +1287,11 @@ export const OP_CODES = {
     JOB_ENDED: 2,      // DEVICE RESPONSE -> JOB ENDED
     JOB_START_REQ: 3,  // USER REQUEST -> START JOB
     JOB_STARTED: 4,    // DEVICE RESPONSE -> JOB STARTED
-    JOB_END_REQ: 5    // USER REQUEST -> END JOB
+    JOB_END_REQ: 5,    // USER REQUEST -> END JOB
+
+    SYSTEM_EVENT: 1000,    // 1000 TO 1999 ARE ALARMS AND NOTIFICATIONS CREATED BY DEVICE / DES DURING THE JOB
+    OPERATOR_EVENT: 2000,    // OPERATOR CREATED AN EVENT DURING THE JOB
+    REPORT_EVENT: 2001    // REPORT EDITOR CREATED AN EVENT AFTER THE JOB
 }
 
 /* MODE ( VALVE POSITIONS ) *************************************************************************/
@@ -1297,6 +1301,7 @@ export const MODES = {
     HI_FLOW: 4,
     LO_FLOW: 6
 }
+
 export const getMode = ( cfg, smp ) => {
 
     switch ( cfg.cfg_vlv_tgt ) {
@@ -1407,7 +1412,8 @@ export class Job {
         this.s_mark = new mapboxgl.Marker( 
             this.s_mark_el, { anchor: 'bottom-right' } 
             ).setLngLat( [ this.reg.des_job_lng, this.reg.des_job_lat  ] )
-
+        
+        this.cht = NewChartData( )
         this.resetChart( )
     }
     
@@ -1482,7 +1488,7 @@ export class Job {
 
     }
 
-    resetChart( ) {
+    resetChart= ( ) =>  {
         /* CHART DATA **************************************************************/
         this.cht = NewChartData( )
 
@@ -1526,13 +1532,13 @@ export class Job {
     }
 
     chartZoomSelect = ( e ) => { 
-        debug( "job.chartZoomSelect...\n", e.chart )
+        // debug( "job.chartZoomSelect...\n", e.chart )
     
         let dats = e.chart.config._config.data.datasets
-        debug( "job.chartZoomSelect... datasets\n", dats )
+        // debug( "job.chartZoomSelect... datasets\n", dats )
 
         let scls = e.chart.scales
-        debug( "job.chartZoomSelect... scales\n", scls )
+        // debug( "job.chartZoomSelect... scales\n", scls )
     
         let xs = ( dats[CHT_DATASET_INDEX_CH4].data.map( v => { return v.x } ) ).filter( x => {
             return ( 
@@ -1544,19 +1550,30 @@ export class Job {
         let xmin = xs[0]
         let xmax = xs[xs.length-1]
     
-        debug( `UnixMilli:  ${ xmin } -> ${ xmax }` )
-        debug( `DateTime:  ${ FormatDateTime( xmin ) } -> ${ FormatDateTime( xmax ) }` )
+        debug( `chartZoomSelect( ):`, { 
+            unix_min: xmin, 
+            unix_max: xmax, 
+            date_min: FormatDateTime( xmin ), 
+            date_max:  FormatDateTime( xmax ) 
+        } )
     
         dats.forEach( ds => { 
             let scl = e.chart.scales[ds.yAxisID]
-            debug( "job.chartZoomSelect( ) -> dats.forEach( ds ): -> scl.id  ", scl.id )
+            // debug( "job.chartZoomSelect( ) -> dats.forEach( ds ): -> scl.id  ", scl.id )
             if ( scl.id != "y") {
                 let vStart = ds.data.filter( v => { return v.x == xmin } )[0]
                 let vEnd = ds.data.filter( v => { return v.x == xmax } )[0]
-                debug( `${ ds.label }: vals: ${ vStart.y } -> ${ vEnd.y }, ${ scl.id }: scales: ${ scl.min } -> ${ scl.max }` )
+                // debug( `${ ds.label }: vals: ${ vStart.y } -> ${ vEnd.y }, ${ scl.id }: scales: ${ scl.min } -> ${ scl.max }` )
             }
         } )
     
+    }
+
+    chartZoomTo = ( xmin, xmax ) => {
+        this.cht.options.scales.x.min = xmin
+        this.cht.options.scales.x.max = xmax
+        this.selection = 0
+        updateJobsStore( )
     }
 
     newHeader = async( hdr ) => {
@@ -1605,7 +1622,7 @@ export class Job {
         this.reg.des_job_reg_app = client_app
 
         let job = {
-            evt: evt,
+            events: [ evt ],
             reg: this.reg
         }
         debug( "Send JOB NEW EVENT Request:\n", job ) 
@@ -1619,10 +1636,12 @@ export class Job {
             body: JSON.stringify( job )
         } )
         let res = await fetch( req )
-        let reg = await res.json( )
-        debug("des_api.js -> job.newEvent( ) ->  RESPONSE reg:\n", reg )
+        let json = await res.json( )
+        debug("des_api.js -> job.newEvent( ) ->  RESPONSE json:\n", json )
 
-        if ( reg.status === "success" ) { 
+        if ( json.status === "success" ) { 
+            job.events.push( json.data.evt )
+            job.events.sort( ( a, b ) => { return a.evt_time - b.evt_time  }  )
             debug("JOB NEW EVENT Request -> SUCCESS:\n", this.reg.des_job_name )
         }
     }
@@ -1657,6 +1676,9 @@ export class Job {
         debug( "JOB EVENTS:\n", this.events )
     }
 
+    getSelectedEvents = ( xmin, xmax ) => {
+        
+    }
     newReport = async( rep ) => { 
         
         let au = get( AUTH ) 
@@ -1684,6 +1706,9 @@ export class Job {
         // rep.rep_job_id = this.reg.des_job_id
         // this.reports.push( rep )
         // debug( "Reports: ", this.reports )
+    }
+    getReports = async( ) => {
+
     }
 
 }
@@ -2009,7 +2034,7 @@ export class Config {
     }
 
 }
-export const     validateCFG = ( cfg ) => { 
+export const validateCFG = ( cfg ) => { 
     cfg.cfg_scvd = parseFloat( cfg.cfg_scvd )
     cfg.cfg_scvd_mult = parseFloat( cfg.cfg_scvd_mult )
 

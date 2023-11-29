@@ -1,6 +1,8 @@
 
 <script>
+    export let cls = 'fg-accent'
     export let showTime = true
+    export let showDate = true
     export let date = 0
     $: d = new Date( date )
     $: ye = ( date == 0 ? 'yyyy' : d.getFullYear( ) )
@@ -15,20 +17,22 @@
 
 <div class="flx-row container">
 
+    { #if showDate }
     <div class="flx-row seg">
         <div class={ col }>{ ye }</div>
         <div>-</div>
-        <div class={ ( date == 0 ? 'off' :  'fg-accent' ) }>{ mo }</div>
+        <div class={ ( date == 0 ? 'off' :  cls ) }>{ mo }</div>
         <div>-</div>
         <div class={ col }>{ da }</div>
     </div>
+    { /if }
     
     { #if showTime }
     <div class="flx-row seg">
         <div class={ col }>{ hr }</div>
-        <div class="fg-accent">:</div>
+        <div class={ cls }>:</div>
         <div class={ col }>{ mn }</div>
-        <div class="fg-accent">:</div>
+        <div class={ cls }>:</div>
         <div class={ col }>{ sc }</div>
     </div>
     { /if }

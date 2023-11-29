@@ -62,8 +62,8 @@
     
     <br>
     <div class="flx-col footer">
-        <UserBadge uid={ hdr.hdr_user_id } />
-        <div style="padding-right: 0.5em;"><DateTimeDisplay date={ hdr.hdr_time } /></div>
+        <!-- <UserBadge uid={ hdr.hdr_user_id } />
+        <div style="padding-right: 0.5em;"><DateTimeDisplay date={ hdr.hdr_time } /></div> -->
     </div>
 
 </div>

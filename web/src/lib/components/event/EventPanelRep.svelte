@@ -7,20 +7,26 @@
     import EventCard from "./EventCard.svelte"
 	import { Job, Event, OP_CODES } from "../../des_api"
 
-    import btn_img_edit from "$lib/images/btn-img-edit-aqua.svg"
+    import btn_img_edit_pink from "$lib/images/btn-img-edit-pink.svg"
     
-    onMount( async( ) => { await job.getJobEvents( ) } )
+    // onMount( async( ) => { await job.getJobEvents( ) } )
     export let job = new Job( )
     export let cur_evt = new Event( )
     export let evt_code = 2001
 
 
+    export let evts = [ ]
+    export let title = "Event List"
+    export let title_cls = 'fg-pink'
+    export let btn_img_evt_list = btn_img_edit_pink
     $: show_evt_list = true
-    $: title = ( show_evt_list ? "Event List" : "Create Event" )
+    $: title = ( show_evt_list ? title : "Create Event" )
     $: eventButtonHint = ( show_evt_list ? "New Event" : "Events" )
 
     const reloadEvents = ( ) => {
-        job.getJobEvents( )
+        // show_evt_list = true
+        // evt_list = [ ]
+        // job.getJobEvents( )
         show_evt_list = !show_evt_list
     }
 
@@ -32,19 +38,19 @@
         <div class="flx-row panel-title-btns">
 
             <PillButton
-                img={ btn_img_edit }
+                img={ btn_img_evt_list }
                 on:click={ ( ) => { show_evt_list = !show_evt_list } }
                 hint={ eventButtonHint }
             />
 
         </div>
-        <h3 class="panel-title">{ title }</h3>
+        <h3 class="panel-title { title_cls }">{ title }</h3>
     </div>
 
     { #if show_evt_list }
 
     <div class="flx-col evts">
-        { #each job.events as evt ( evt.evt_time ) }
+        { #each evts as evt ( evt.evt_time ) }
             <EventCard bind:event={ evt } />
         { /each }
     </div>
@@ -91,6 +97,7 @@
     .evts {
         overflow-y: auto;
         padding-right: 0.5em;
+        gap: 0.75em;
     }
 
 </style>
