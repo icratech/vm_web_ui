@@ -10,22 +10,32 @@
     import HeaderCard from '../../../lib/components/header/HeaderCard.svelte'
     import ReportPanel from '../../../lib/components/report/ReportPanel.svelte'
     import ReportCard from '$lib/components/report/ReportCard.svelte'
-    import ReportCardTitle from '../../../lib/components/report/ReportCardTitle.svelte'
+    import ReportTitle from '../../../lib/components/report/ReportTitle.svelte'
+    import ReportSecTitle from '../../../lib/components/report/ReportSecTitle.svelte'
     import ReportSecPanel from '../../../lib/components/report/ReportSecPanel.svelte'
     import EventPanelRep from '../../../lib/components/event/EventPanelRep.svelte'
     import BarGaugeCardReport from '../../../lib/components/gauge/BarGaugeCardReport.svelte'
 
-    import btn_img_report from "$lib/images/btn-img-edit-pink.svg"
-    import btn_img_add from "$lib/images/btn-img-add-pink.svg"
+    import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
+    import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
+    import btn_img_add from "$lib/images/btn-img-add-aqua.svg"
 
     import btn_img_edit_pink from "$lib/images/btn-img-edit-pink.svg"
     import btn_img_edit_green from "$lib/images/btn-img-edit-green.svg"
     import btn_img_edit_aqua from "$lib/images/btn-img-edit-aqua.svg"
     import btn_img_edit_orange from "$lib/images/btn-img-edit-orange.svg"
     import btn_img_edit_yellow from "$lib/images/btn-img-edit-yellow.svg"
+    
+    import btn_img_add_pink from "$lib/images/btn-img-add-pink.svg"
+    import btn_img_add_green from "$lib/images/btn-img-add-green.svg"
+    import btn_img_add_aqua from "$lib/images/btn-img-add-aqua.svg"
+    import btn_img_add_orange from "$lib/images/btn-img-add-orange.svg"
+    import btn_img_add_yellow from "$lib/images/btn-img-add-yellow.svg"
+
+    import { RGBA, BASE } from '$lib/common/colors'
 
     import { onMount } from "svelte"
-	import { Header, OP_CODES, Event, Report, Section, SectionDataSet, debug, Sample, validateMeasuredValue  } from "../../../lib/des_api"
+	import { Config, Header, OP_CODES, Event, Report, Section, SectionDataSet, debug, Sample, validateMeasuredValue, COLORS, MODES, getMode  } from "../../../lib/des_api"
     
     export let data
     import { getContext } from 'svelte'
@@ -36,27 +46,86 @@
     $: selected_title_cls = 'fg-pink'
 
     /* TODO : RETRIEVE LAST HEADER FROM LIST */
-    $: hdr = JSON.parse( job.reg.des_job_json ).hdr
-    // $: hdr = job.headers.pop( )
-    
-    /* TODO : RETRIEVE LAST HEADER FROM LIST */
-    $: cfg = JSON.parse( job.reg.des_job_json ).cfg
-    // $: cfg = job.configs.pop( )
-
-    $: evts = [ ]
+    $: hdr = new Header( )
  
     let new_hdr = new Header( )
 
+    $: rep = new Report( )
+    const reportSelected = ( report ) => { 
+        job.deselectSection( rep )
+        rep = report // debug( "Selected Report: ", rep ) 
+        job.selectReport( rep )
+        job.chartZoomTo( hdr.hdr_start, hdr.hdr_end )
+        sec = new Section( )
+        cfg = new Config( )
+        reportEvents( ) // debug( "Report Events: ", evts )
+        btn_img_evt_list = btn_img_edit_pink
+        selected_title = rep.rep_title
+    }
+
+    $: sec = new Section( )
+    $: cfg = new Config( )
+    const sectionSelected = ( section ) => { 
+        job.deselectSection( rep )
+        sec = section // debug( "Selected Section: ", sec ) 
+        job.selectSectionMode( sec )
+        job.chartZoomTo( sec.sec_start, sec.sec_end )
+        sectionEvents( sec ) // debug( "Section Events: ", evts )
+        btn_img_evt_list = btn_img_edit_green
+        selected_title = sec.sec_name
+        selected_title_cls = 'fg-green'
+    } 
+
+    $: color_code = BASE.PINK
+    $: color_code_fg = 'fg-pink'
+    $: btn_img_add_evt = btn_img_edit_pink
+    $: color_code_border = RGBA(color_code, 0.5)
+    $: { // debug( "Selected Section Mode SMP: ", sec.smp ) // debug( "Selected Section Mode CFG: ", sec.cfg )
+        if ( sec.cfg.cfg_time > 0 && sec.smp.smp_time > 0  ){
+
+            switch ( getMode( sec.cfg, sec.smp ) ) {
+
+                case MODES.BUILD: 
+                    color_code = COLORS.PRESS
+                    color_code_fg = 'fg-green'
+                    btn_img_add_evt = btn_img_add_green
+                    break
+
+                case MODES.VENT: 
+                    color_code = BASE.AQUA
+                    color_code_fg = 'fg-aqua'
+                    btn_img_add_evt = btn_img_add_aqua
+                    break
+
+                case MODES.HI_FLOW:
+                    color_code = COLORS.HI_FLOW
+                    color_code_fg = 'fg-orange'
+                    btn_img_add_evt = btn_img_add_orange
+                    break
+
+                case MODES.LO_FLOW:
+                    color_code = COLORS.LO_FLOW
+                    color_code_fg = 'fg-yellow'
+                    btn_img_add_evt = btn_img_add_yellow
+                    break
+            }
+        } else {
+            color_code = BASE.PINK
+            color_code_fg = 'fg-pink'
+            btn_img_add_evt = btn_img_add_pink
+        }
+    }
+
+    $: evts = [ ]
     const reportEvents = ( ) => { 
-        return job.events.filter( e => { 
+        evts = job.events.filter( e => { 
             return ( e.evt_addr == job.reg.des_dev_serial || e.evt_code > OP_CODES.OPERATOR_EVENT )
         } )
     }
     const sectionEvents = ( sec ) => { 
-        return job.events.filter( e => { 
-            // debug( "Section Event: ", e ) 
+        evts = job.events.filter( e => {  // debug( "Section Event: ", e ) 
             return ( 
-                ( e.evt_time >= sec.detail.sec_start && e.evt_time <= sec.detail.sec_end ) && 
+                ( e.evt_time >= sec.sec_start && e.evt_time <= sec.sec_end ) && 
                 ( e.evt_addr == job.reg.des_dev_serial || e.evt_code > 2000 )
             )
         } )
@@ -64,21 +133,23 @@
 
     $: loaded = false
     onMount( async( ) => {
-        loaded = await job.getJobData( )
+        await job.getJobData( )
         hdr = job.headers.pop( )
-        cfg = job.configs.pop( )
-        evts = reportEvents( )
-        debug( job )
+        
+        if ( job.reports.length > 0 ) {  // debug( "Selecting Report: ", job.reports[0].rep_title ) 
+            reportSelected( job.reports[0] ) 
+        }
+        loaded = true
     } )
-    let cur_rep = new Report( )
 
+    let making_report = false
     let new_rep = new Report( )
     const makeReport = ( ) => {
         debug(  "new report title: ", new_rep.rep_title )
         job.newReport( new_rep )
-        cur_rep = new_rep
         new_rep = new Report( )
     }
+
     let new_sec = new Section( )
     const makeSection = ( rep ) => {
         debug(  "new section name: ", new_sec.sce_name )
@@ -87,13 +158,8 @@
     }
 
     $: evt_code = 2001
-    let cur_evt = new Event( )
-    $: {  cur_evt.evt_time = job.selection } 
-
-    // $: { 
-    //     console.log( "Job page selected time:", job.selection ) 
-    //     console.log( "Job page selected sample:", job.selected_smp ) 
-    // }
+    $: evt = new Event( )
+    $: {  evt.evt_time = job.selection } 
 
     const makeMap = ( ctx ) => {
 
@@ -102,11 +168,9 @@
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: [ validateMeasuredValue( hdr.hdr_geo_lng ), validateMeasuredValue( hdr.hdr_geo_lat ) ],
             zoom :  5.5,
-            interactive: true
+            interactive: false
         } )
-
         job.s_mark.addTo( map )
-
     }
 
 </script>
@@ -126,23 +190,44 @@
                 <HeaderCard bind:hdr />
             </div>
 
+            <div class="flx-row new-rep">
+
+                { #if making_report }
+                
+                    <PillButton 
+                        on:click={ ( ) => { making_report = false } }
+                        img={ btn_img_cancel }
+                        hint={ 'Cancel' } 
+                    />
+
+                    <PillButton 
+                        on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
+                        img={ btn_img_confirm }
+                        hint={ 'Confirm' } 
+                    />
+
+                    <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
+
+                { :else }
+
+                    <PillButton 
+                        on:click={ ( ) => { making_report = true } }
+                        img={ btn_img_add }
+                        hint={ null } 
+                    />
+
+                    <div class="flx-row new-rep-lbl">New Report</div>
+
+                { /if }
+            </div>
+
             <div class="flx-col report-list">
-                <ReportPanel 
-                    bind:job 
-                    on:section-selected={ ( sec ) => { // debug( "Selected Section: ", sec.detail ) 
-                        job.chartZoomTo( sec.detail.sec_start, sec.detail.sec_end )
-                        evts = sectionEvents( sec ) // debug( "Section Events: ", evts )
-                        btn_img_evt_list = btn_img_edit_green
-                        selected_title = sec.detail.sec_name
-                        selected_title_cls = 'fg-green'
-                    } } 
-                    on:report-selected={ ( rep ) => { // debug( "Selected Report: ", rep.detail ) 
-                        job.chartZoomTo( hdr.hdr_start, hdr.hdr_end )
-                        evts = reportEvents( ) // debug( "Report Events: ", evts )
-                        btn_img_evt_list = btn_img_edit_pink
-                        selected_title = rep.detail.rep_title
-                    } } 
+                { #each job.reports as rep ( rep.rep_id ) }
+                <ReportTitle 
+                    bind:job bind:rep 
+                    on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
                 />
+                { /each }
             </div>
 
         </div>
@@ -162,30 +247,23 @@
             <div class="flx-row controls">
 
 
-                <div class="flx-col report-list">
-                    <ReportPanel 
-                        bind:job 
-                        on:section-selected={ ( sec ) => { // debug( "Selected Section: ", sec.detail ) 
-                            job.chartZoomTo( sec.detail.sec_start, sec.detail.sec_end )
-                            evts = sectionEvents( sec ) // debug( "Section Events: ", evts )
-                            btn_img_evt_list = btn_img_edit_green
-                            selected_title = sec.detail.sec_name
-                            selected_title_cls = 'fg-green'
-                        } } 
-                        on:report-selected={ ( rep ) => { // debug( "Selected Report: ", rep.detail ) 
-                            job.chartZoomTo( hdr.hdr_start, hdr.hdr_end )
-                            evts = reportEvents( ) // debug( "Report Events: ", evts )
-                            btn_img_evt_list = btn_img_edit_pink
-                            selected_title = rep.detail.rep_title
-                        } } 
+                <div class="flx-col rep-sections">
+                    
+                    <ReportCard
+                        bind:job bind:rep 
+                        on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
+                        on:section-selected={ ( e ) => { sectionSelected( e.detail ) } }
                     />
+
                 </div>
 
                 <div class="flx-col control-cont">
-                    <EventPanelRep bind:job bind:cur_evt bind:evt_code bind:evts 
-                        bind:btn_img_evt_list 
+                    <EventPanelRep bind:job bind:cur_evt={evt} bind:evt_code bind:evts 
+                        bind:rep_title={ rep.rep_title }
                         bind:title={ selected_title }
-                        bind:title_cls={ selected_title_cls }
+                        bind:btn_img_add_evt 
+                        bind:color_code_border
+                        bind:color_code_fg
                     />
                 </div>
 
@@ -246,7 +324,7 @@
     .container {
         overflow: hidden;
         height: 100%;
-        gap: 1rem;
+        gap: 1em;
     }
 
     .content { 
@@ -260,14 +338,28 @@
         min-width: 25%;
         width: auto;
         padding-right: 0.5em;
+        gap: 0.5em;
+    }
+    .new-rep {
+        border-bottom: solid 0.1em var(--accent_aa);
+        padding: 0 1em;
+        padding-bottom: 0.5em;
+        margin-bottom: 0.5em;
+        gap: 0.75em;
+    }
+    .new-rep-lbl {
+        align-items: center;
+        font-size: 1.2em;
     }
     .map-cont {
         min-height: 28em;
         height: 28em;
     }
     .report-list {
+        padding-right: 0.5em;
         overflow: auto;
         height: 100%;
+        gap: 0.75em;
     }
 
     .panel {
@@ -291,20 +383,8 @@
         height: 100%;
     }
 
-    /* .control-cont { 
-        background-color: var(--light_002);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
-        border-radius: 0.5em;
-        padding: 1em;
-        gap: 0.5em; 
-    } */
-
-    .btns { 
-        justify-content: flex-start; 
-        align-items: center; 
-        width: auto;
-        gap: 1em;
+    .rep-sections {
+        height: 100%;;
     }
 
     .gauge {

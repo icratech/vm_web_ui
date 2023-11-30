@@ -6,34 +6,56 @@
     import PillButton from '../../common/button/PillButton.svelte'
     import btn_img_remove from "$lib/images/btn-img-remove-red.svg"
     import btn_img_edit from "$lib/images/btn-img-edit-pink.svg"
+    import btn_img_add from "$lib/images/btn-img-add-pink.svg"
     import btn_img_exp from "$lib/images/btn-img-exp-orange.svg"
     import btn_img_collapse from "$lib/images/btn-img-collapse-orange.svg"
-	import { 
-        // Job, 
-        Report 
-    } from "../../des_api"
-
-    // export let job = new Job( )
+	import { Job, Report } from "../../des_api"
+    import { RGBA, BASE } from '$lib/common/colors'
+    export let job = new Job( )
     export let rep = new Report( )
+    export let highlight = true
 
-    let exp = false
-    const toggleExp = ( ) => {
-        exp = !exp
-        dispatch( "exp" )
+    let edit = false
+    const toggleEdit = ( ) => {
+        edit = !edit
+        dispatch( "edit" )
     }
+
+    let color = BASE.PINK
+    let border_color = RGBA(color, 0.7)
+    let bg_color = RGBA(color, 0.1)
 
 </script>
 
-<div class="flx-row container">
+<div class="flx-row container"
+    style="border: solid 0.1em { ( rep.selected && highlight ? border_color : 'transparent' ) };  
+    background-color: { ( rep.selected && highlight ? bg_color : '' ) };" 
+    on:keydown on:click={ ( ) => { 
+        dispatch( "report-selected", rep,  job ) 
+        rep.selected = true
+    } } 
+>   
 
     <div class="flx-row">
 
-        <PillButton 
-            img={ btn_img_edit }
-            hint={ 'Edit' }
-        />
+        <div class="flx-col btns"> 
 
-        <div class="flx-col title-block" on:click={ ( ) => { dispatch( "report-selected", rep ) } } on:keydown>
+            <PillButton 
+                on:click={ toggleEdit }
+                img={ btn_img_edit }
+                hint={ 'Edit' }
+            />
+
+            { #if edit }
+            <PillButton 
+                img={ btn_img_add }
+                hint={ 'Add Section' }
+            />
+            { /if }
+
+        </div>
+
+        <div class="flx-col title-block">
             <div class="flx-row title">{ rep.rep_title }</div>
             <div class="flx-row secs">
                 <div class="lbl">Sections:</div>
@@ -43,20 +65,6 @@
 
     </div>
        
-    <div class="flx-row btns"> 
-
-        <PillButton 
-            img={ btn_img_remove }
-            hint={ 'Remove' }
-        />
-
-        <PillButton 
-            on:click={ toggleExp }
-            img={ ( exp ? btn_img_collapse : btn_img_exp )  }
-            hint={ null }
-        />
-
-    </div>
 
 </div>
 
@@ -95,10 +103,9 @@
     }
 
     .btns { 
-        justify-content: flex-end; 
-        /* align-items: flex-start;  */
+        align-items: flex-start; 
         width: auto;
-        gap: 1em;
+        gap: 0.5em;
     }
 
 

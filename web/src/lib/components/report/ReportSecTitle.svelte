@@ -14,7 +14,7 @@
 
     import DateTimeDisplay from '../../common/date_time/DateTimeDisplay.svelte'
 
-    import { COLORS, MODES, Job, Section, getMode } from '../../des_api'
+    import { COLORS, MODES, Job, Section, getMode, debug } from '../../des_api'
     import { RGBA, BASE } from '$lib/common/colors'
 
     export let job = new Job( )
@@ -34,10 +34,8 @@
     ) ? pre : cur } )
 
     $: color_code = BASE.LIGHT
-    $: color_code_txt = RGBA(color_code,1)
     $: color_code_fg = 'fg-accent'
     $: color_code_btn = btn_img_edit_aqua
-    // $: color_code_bg = RGBA(color_code, 0.2)
     $: color_code_border = RGBA(color_code, 0.5)
     $: {
         switch ( getMode( cfg, smp ) ) {
@@ -75,11 +73,18 @@
 
 </script>
 
-<div class="flx-col container" on:click={ ( ) => { dispatch( "section-selected", sec ) } } on:keydown>
+<div class="flx-col container" 
+    style="border: solid 0.1em { ( sec.selected ? color_code_border : 'transparent' ) };  
+    background-color: { ( sec.selected ? RGBA(color_code, 0.1) : '' ) };" 
+    on:keydown on:click={ ( ) => { 
+        dispatch( "section-selected", sec )
+        sec.selected = true
+    } } 
+>
 
     <div class="flx-row">
 
-        <div class="flx-row title" style="color: { color_code_txt }; border-bottom: solid 0.1em { color_code_border };">
+        <div class="flx-row title { color_code_fg }" style="border-bottom: solid 0.1em { color_code_border };">
             { sec.sec_name }
         </div>
 
@@ -109,7 +114,7 @@
 
         <div class="flx-col start">
             <div class="flx-row field">
-                    <div class="flx-row field-title" style="color: { color_code_txt };">Start</div>
+                    <div class="flx-row field-title { color_code_fg }">Start</div>
                     <div class="vert-line"/> 
                     <div class="flx-row date"><DateTimeDisplay date={ sec.sec_start } cls={ color_code_fg } showTime={ false } /></div>
             </div>        
@@ -121,7 +126,7 @@
         </div>
         <div class="flx-col end">
             <div class="flx-row field">
-                    <div class="flx-row field-title" style="color: { color_code_txt };">End</div>
+                    <div class="flx-row field-title { color_code_fg }">End</div>
                     <div class="vert-line"/> 
                     <div class="flx-row date"><DateTimeDisplay date={ sec.sec_end } cls={ color_code_fg } showTime={ false } /></div>
                 </div>        
@@ -166,7 +171,6 @@
     }
     
     .field-title {
-        color: var(--pink_a); 
         justify-content: flex-end;
         align-items: center;
         padding-right: 0.75em;

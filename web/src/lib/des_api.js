@@ -1710,6 +1710,33 @@ export class Job {
     getReports = async( ) => {
 
     }
+    selectReport = ( rep ) => {
+        this.reports.forEach( r => { 
+            ( r.rep_id == rep.rep_id ? r.selected = true : r.selected = false )
+        } )
+        updateJobsStore( )
+    }
+    deselectSection = ( rep ) => { 
+        rep.rep_secs.forEach( s => { s.selected = false } )
+        updateJobsStore( )
+    }
+    /* USED FOR REPORT SECTION COLOR CODING */
+    selectSectionMode = ( sec ) => {
+        sec.smp = this.samples.reduce( ( pre, cur ) => { return ( 
+            pre && 
+            pre.smp_time > sec.sec_start && 
+            pre.smp_time < sec.sec_end && 
+            pre.smp_hi_flow > cur.smp_hi_flow 
+        ) ? pre : cur } )
+
+        sec.cfg = this.configs.reduce( ( pre, cur ) => { return ( 
+            pre &&
+            pre.cfg_time >= sec.sec_start &&
+            pre.cfg_time < sec.sec_end
+        ) ? pre : cur } )
+        
+        updateJobsStore( )
+    }
 
 }
 
@@ -1734,6 +1761,8 @@ export class Report {
         this.rep_secs = rep_secs
 
         this.reg = reg
+
+        this.selected = false
     }
     
     addSection = ( sec ) => { 
@@ -1759,8 +1788,11 @@ export class Section {
         this.sec_end = sec_end
         this.sec_name = sec_name
         this.sec_dats = sec_dats
+        
+        this.selected = false
+        this.smp = new Sample( )
+        this.cfg = new Config( )
     }
-
     addSectionDataSet = ( sds ) => {
         sds.sec_id = this.sec_id
         /* TODO: VALIDATE */

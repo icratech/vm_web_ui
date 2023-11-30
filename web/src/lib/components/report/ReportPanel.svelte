@@ -2,7 +2,7 @@
 
     import PillButton from '../../common/button/PillButton.svelte'
     import InputText from '$lib/common/input_text/InputText.svelte'
-    import ReportCardTitle from './ReportCardTitle.svelte'
+    import ReportTitle from './ReportTitle.svelte'
     import ReportCard from './ReportCard.svelte'
     import { Job, Report, debug } from "../../des_api"
 

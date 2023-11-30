@@ -33,8 +33,23 @@
 </script>
 
 <div class="flx-col container">
-
     <div class="flx-col section-list">
+        { #each rep.rep_secs as sec ( sec.sec_id ) }
+            <div class="flx-co">
+
+                <ReportSecTitle bind:job bind:sec on:section-selected />
+
+                <!-- { #each sec.sec_anns as ann ( ann.ann_id ) }
+                    { #if ann.evt.evt_addr == job.reg.des_dev_serial }
+                        <EventCard bind:event={ ann.evt } />
+                    { /if }
+                { /each } -->
+
+            </div> 
+
+        { /each }
+    </div>
+    <!-- <div class="flx-col section-list">
         { #each rep.rep_secs as sec ( sec.sec_id ) }
         <div class="flx-col sec-li" on:click={ ( ) => { testFunc( sec ) } } on:keydown>
             
@@ -48,7 +63,7 @@
 
         </div> 
         { /each }
-    </div>
+    </div> -->
 
 </div>
 
