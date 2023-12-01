@@ -8,10 +8,10 @@
     import { DemoDevice, OP_CODES, Sample, debug } from "../../lib/des_api"
 
     import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
-    import btn_img_confirm from "$lib/images/btn-img-confirm.svg"
-    import btn_img_reset from "$lib/images/btn-img-reset.svg"
-    import btn_img_start from "$lib/images/btn-img-start.svg"
-    import btn_img_stop from "$lib/images/btn-img-stop.svg"
+    import btn_img_confirm from "$lib/images/btn-img-confirm-aqua.svg"
+    import btn_img_reset from "$lib/images/btn-img-reset-grey.svg"
+    import btn_img_start from "$lib/images/btn-img-start-green.svg"
+    import btn_img_stop from "$lib/images/btn-img-stop-red.svg"
     
     export let device = new DemoDevice( )
     $: cfg = device.dev.cfg
@@ -68,21 +68,18 @@
 
                 <PillButton 
                     on:click={ DESDevConnFucn }
-                    cls={ DESDevConnColor }
                     img={ DESDevConnImage }
                     hint={ DESDevConnHint } 
                 />
 
                 <PillButton 
                     on:click={ device.dev.startJob }
-                    cls={ 'bg-green' }
                     img={ btn_img_start }
                     hint={ "Start Job" } 
                 />
 
                 <PillButton 
                     on:click={ device.dev.endJob }
-                    cls={ 'bg-red' }
                     img={ btn_img_stop }
                     hint={ "End Job" } 
                 />

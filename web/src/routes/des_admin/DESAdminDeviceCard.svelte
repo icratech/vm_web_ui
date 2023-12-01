@@ -5,7 +5,9 @@
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
     import DESAdminDeviceInfo from "./DESAdminDeviceInfo.svelte"
     
-    import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
+    import btn_img_cmd from "$lib/images/btn-img-cmd-orange.svg"
+    import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
+    import btn_img_start_grey from "$lib/images/btn-img-start-grey.svg"
 
     import { Device, debug } from "../../lib/des_api"
 
@@ -28,14 +30,13 @@
         <DESAdminDeviceInfo bind:device />
         <div class="flx-col ">
             <PillButton 
-                on:click={ toggle }
-                cls={ 'bg-purple' }
-                hint={ "Whatever" } 
+                on:click={ device.dev.simOfflineStart( ) }
+                img={ btn_img_start_grey }
+                hint={ "Simulate Offline Job Start" } 
             />
             <div class="flx-row input">
                 <PillButton 
                     on:click={ device.dev.setDebug }
-                    cls={ 'bg-orange' }
                     img={ btn_img_cmd }
                     hint={ "Update Debug Settings" } 
                 />
@@ -51,8 +52,7 @@
             <div class="flx-row input">
                 <PillButton 
                     on:click={ device.dev.testMsgLimit }
-                    cls={ 'bg-blue' }
-                    img={ btn_img_cmd }
+                    img={ btn_img_cmd_purple }
                     hint={ "1.5 kB MQTT Test Message" } 
                 />
                 <div class="flx-row">1484 bytes to:

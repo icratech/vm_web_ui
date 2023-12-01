@@ -81,11 +81,4 @@
         gap: 1em;
     }
 
-    .sec-li {
-        background-color: var(--light_003);
-        border-radius: 0.5em;
-        padding: 1em;
-        gap: 0.5em;
-    }
-
 </style>

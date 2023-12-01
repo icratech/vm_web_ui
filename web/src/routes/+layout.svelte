@@ -18,16 +18,19 @@
     import btn_img_home from "$lib/images/btn-img-home.svg"
     import btn_img_home_aqua from "$lib/images/btn-img-home-aqua.svg"
     import btn_img_home_orange from "$lib/images/btn-img-home-orange.svg"
+    import btn_img_home_green from "$lib/images/btn-img-home-green.svg"
 
     import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
     import btn_img_gauge_aqua from "$lib/images/btn-img-gauge-aqua.svg"
     import btn_img_gauge_grey from "$lib/images/btn-img-gauge-grey.svg"
     import btn_img_gauge_orange from "$lib/images/btn-img-gauge-orange.svg"
+    import btn_img_gauge_green from "$lib/images/btn-img-gauge-green.svg"
 
     import btn_img_report from "$lib/images/btn-img-report.svg"
     import btn_img_report_aqua from "$lib/images/btn-img-edit-aqua.svg"
     import btn_img_report_grey from "$lib/images/btn-img-edit-grey.svg"
     import btn_img_report_pink from "$lib/images/btn-img-edit-pink.svg"
+    import btn_img_report_green from "$lib/images/btn-img-edit-green.svg"
 
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
 
@@ -62,45 +65,45 @@
 
     $: page = "";
     let page_name = "HOME"
-    let home_btn_image = btn_img_home_orange
-    let device_btn_image = btn_img_gauge_aqua
-    let job_btn_image = btn_img_report_aqua
+    let home_btn_image = btn_img_home_green
+    let device_btn_image = btn_img_gauge_green
+    let job_btn_image = btn_img_report_green
     let admin_btn_color = 'bg-purple'
     $: {
         switch ( page ) {
             case '' : { 
                 page_name = "HOME"
                 home_btn_image = btn_img_home_orange
-                device_btn_image = btn_img_gauge_orange
-                job_btn_image = btn_img_report_aqua
+                device_btn_image = btn_img_gauge_green
+                job_btn_image = btn_img_report_green
                 break
             }
             case 'device': {  
                 page_name = "DEVICES"
-                home_btn_image = btn_img_home_aqua
+                home_btn_image = btn_img_home_green
                 device_btn_image = btn_img_gauge_orange
-                job_btn_image = btn_img_report_aqua
+                job_btn_image = btn_img_report_green
                 break
             }
             case 'job': { 
                 page_name = "JOBS"
-                home_btn_image = btn_img_home_aqua
-                device_btn_image = btn_img_gauge_aqua
+                home_btn_image = btn_img_home_green
+                device_btn_image = btn_img_gauge_green
                 job_btn_image = btn_img_report_pink
                 break
             }
             case 'des_admin': { 
                 page_name = "DES ADMINISTRATION"
-                home_btn_image = btn_img_home_aqua
-                device_btn_image = btn_img_gauge_aqua
-                job_btn_image = btn_img_report_aqua
+                home_btn_image = btn_img_home_green
+                device_btn_image = btn_img_gauge_green
+                job_btn_image = btn_img_report_green
                 break
             }
             default : { 
                 page_name = ""
-                home_btn_image = btn_img_home_aqua
-                device_btn_image = btn_img_gauge_aqua
-                job_btn_image = btn_img_report_aqua
+                home_btn_image = btn_img_home_green
+                device_btn_image = btn_img_gauge_green
+                job_btn_image = btn_img_report_green
                 break
             }
         }

@@ -381,6 +381,7 @@
         overflow: hidden;
         justify-content: space-between;
         height: 100%;
+        gap:2em;
     }
 
     .rep-sections {

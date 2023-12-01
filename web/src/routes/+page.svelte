@@ -3,7 +3,8 @@
     import { onMount } from 'svelte';
     import Modal from "../lib/common/modal/Modal.svelte"
     import PillButton from "../lib/common/button/PillButton.svelte"
-    import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
+    // import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
+    import vent_medic_logo from "$lib/images/vent-medic-logo-green.svg"
     import vent_medic_nested from "$lib/images/vent-medic-ship.webp"
     import vent_medic_deployed from "$lib/images/vent-medic-deployed.webp"
     import UserRegistration from "./UserRegistration.svelte"

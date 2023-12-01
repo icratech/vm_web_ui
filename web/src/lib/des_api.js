@@ -181,6 +181,8 @@ export const API_URL_C001_V001_DEVICE_EVT =  `${ HTTP_SERVER }/api/001/001/devic
 export const API_URL_C001_V001_DEVICE_JOB_EVTS =  `${ HTTP_SERVER }/api/001/001/device/job_events`
 export const API_URL_C001_V001_DEVICE_DBG =  `${ HTTP_SERVER }/api/001/001/device/debug`
 export const API_URL_C001_V001_DEVICE_MSG_LIMIT =  `${ HTTP_SERVER }/api/001/001/device/msg_limit`
+export const API_URL_C001_V001_DEVICE_SIM_OLS = `${ HTTP_SERVER }/api/001/001/device/sim_offline_start`
+
 export const API_URL_C001_V001_DEVICE_LIST =  `${ HTTP_SERVER }/api/001/001/device/list`
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/device/ws`
 
@@ -1227,6 +1229,35 @@ export class Device {
 
         if ( json.status === "success" ) { 
             debug("DEVICE TEST MQTT MESSAGE LIMIT Request -> SUCCESS:\n", this.reg.des_dev_serial )
+        }
+    }
+    simOfflineStart = async ( ) => {
+        debug( "TEST OFFLINE START for device: ", this.reg.des_dev_serial ) 
+        
+        let au = get( AUTH )
+        
+        if ( !this.socket ) { await this.connectWS( ) }
+        
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
+
+        let dev = { reg: this.reg }
+        debug( "Send TEST OFFLINE START Request:\n", dev ) 
+        
+        let req = new Request( API_URL_C001_V001_DEVICE_SIM_OLS, { 
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${ au.token }` 
+            },
+            body: JSON.stringify( dev )
+        } )
+        let res = await fetch( req )
+        let json = await res.json( )
+        debug("des_api.js -> device.simOfflineStart( ) ->  RESPONSE json:\n", json )
+
+        if ( json.status === "success" ) { 
+            debug("DEVICE TEST OFFLINE START Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
 

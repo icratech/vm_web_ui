@@ -2,7 +2,8 @@
 
     import { AUTH, login, logout } from '../lib/des_api'
     import PillButton from '../lib/common/button/PillButton.svelte'
-    import vent_medic_logo from "$lib/images/vent-medic-hdr-logo.svg"
+    // import vent_medic_logo from "$lib/images/vent-medic-hdr-logo.svg"
+    import vent_medic_logo from "$lib/images/vent-medic-hdr-logo-green.svg"
 
 	import { createEventDispatcher } from 'svelte'
 	const dispatch = createEventDispatcher()
@@ -86,7 +87,7 @@
         gap: 0;  
     }
     .page-block {
-        color: var(--orange_a);
+        color: var(--green_a);
         align-items: flex-end;
         padding: 2em;
     }
@@ -106,7 +107,7 @@
         padding-bottom: 0.75em;
     }
     .data-desk { font-style: oblique; color: var(--light); }
-    .two { color: var(--accent);  }
+    .two { color: var(--green);  }
     
 
     .login {

@@ -3,8 +3,8 @@ import { BASE, RGBA } from "../colors"
 import { FormatDateTime } from "../format"
 
 
-export const CHART_LINE_WIDTH = 2.5
-export const CHART_MARKER_RADIUS = 1
+export const CHART_LINE_WIDTH = 1.5
+export const CHART_MARKER_RADIUS = 0.5
 
 const chartAreaBorder = {
     id: 'chartAreaBorder',
