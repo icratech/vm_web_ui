@@ -13,8 +13,9 @@
     import ReportTitle from '../../../lib/components/report/ReportTitle.svelte'
     import ReportSecTitle from '../../../lib/components/report/ReportSecTitle.svelte'
     import ReportSecPanel from '../../../lib/components/report/ReportSecPanel.svelte'
-    import EventPanelRep from '../../../lib/components/event/EventPanelRep.svelte'
     import BarGaugeCardReport from '../../../lib/components/gauge/BarGaugeCardReport.svelte'
+    import ConfigCard from '../../../lib/components/config/ConfigCard.svelte'
+    import EventPanelRep from '../../../lib/components/event/EventPanelRep.svelte'
 
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
@@ -58,6 +59,11 @@
         job.chartZoomTo( hdr.hdr_start, hdr.hdr_end )
         sec = new Section( )
         cfg = new Config( )
+        // cfg = job.configs.reduce( ( pre, cur ) => { return ( 
+        //     pre &&
+        //     pre.cfg_time >= sec.sec_start &&
+        //     pre.cfg_time < sec.sec_end
+        // ) ? pre : cur } )
         reportEvents( ) // debug( "Report Events: ", evts )
         btn_img_evt_list = btn_img_edit_pink
         selected_title = rep.rep_title
@@ -65,10 +71,15 @@
 
     $: sec = new Section( )
     $: cfg = new Config( )
-    const sectionSelected = ( section ) => { 
+    const sectionSelected = async( section ) => { 
         job.deselectSection( rep )
         sec = section // debug( "Selected Section: ", sec ) 
         job.selectSectionMode( sec )
+        cfg = job.configs.reduce( ( pre, cur ) => { return ( 
+            pre &&
+            pre.cfg_time >= sec.sec_start &&
+            pre.cfg_time < sec.sec_end
+        ) ? pre : cur } ) 
         job.chartZoomTo( sec.sec_start, sec.sec_end )
         sectionEvents( sec ) // debug( "Section Events: ", evts )
         btn_img_evt_list = btn_img_edit_green
@@ -257,6 +268,7 @@
 
                 </div>
 
+
                 <div class="flx-col control-cont">
                     <EventPanelRep bind:job bind:cur_evt={evt} bind:evt_code bind:evts 
                         bind:rep_title={ rep.rep_title }
@@ -268,11 +280,16 @@
                 </div>
 
                 <div class="flx-col gauge">
+                    <br>
                     <div class="flx-col">
                         <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
                     </div>
+                    <br>
+                    <div class="flx-col">
+                        <ConfigCard bind:cfg />
+                    </div>
                 </div>
-
+                
                 <!-- <div class="flx-col btns">
     
                     <PillButton 
