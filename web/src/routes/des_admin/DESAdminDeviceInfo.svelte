@@ -7,7 +7,7 @@
     
     import { DemoDevice, OP_CODES, Sample, debug } from "../../lib/des_api"
 
-    import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
+    import btn_img_cmd from "$lib/images/btn-img-cmd-yellow.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-aqua.svg"
     import btn_img_reset from "$lib/images/btn-img-reset-grey.svg"
     import btn_img_start from "$lib/images/btn-img-start-green.svg"
@@ -22,13 +22,21 @@
     $: DESDevConnColor = 'bg-accent'
     $: DESDevConnHint = 'DES Client OK'
     $: DESDevConnImage = btn_img_confirm 
-    $: DESDevConnFucn = ( ) => { }
+    $: DESDevConnFucn = ( ) => { 
+            device.dev.des_ping.time = 0
+            device.dev.des_ping.ok = false
+            device.dev.connectDESClient( )
+        }
     $: {
         if ( !device.dev.des_ping.ok ) { 
             DESDevConnColor = 'bg-yellow' 
             DESDevConnHint = 'DES Connecting...'
             DESDevConnImage = btn_img_cmd
-            DESDevConnFucn = ( ) => { }
+            DESDevConnFucn = ( ) => { 
+                device.dev.des_ping.time = 0
+                device.dev.des_ping.ok = false
+                device.dev.connectDESClient( )
+            }
         } else if ( !device.dev.ping.ok ) { 
             DESDevConnColor = 'bg-grey' 
             DESDevConnHint = 'Reset DES Client'
@@ -36,7 +44,7 @@
             DESDevConnFucn = ( ) => { 
                 device.dev.des_ping.time = 0
                 device.dev.des_ping.ok = false
-                device.dev.connectDESClient
+                device.dev.connectDESClient( )
             }
         } else { 
             DESDevConnColor = 'bg-accent' 

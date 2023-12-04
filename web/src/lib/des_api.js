@@ -167,7 +167,7 @@ export const get_user = async( token ) => {
 
 /* DEVICE API ROUTES **********************************************************************************/
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
-export const API_URL_C001_V001_DEVICE_CONNECT_DES =  `${ HTTP_SERVER }/api/001/001/device/connect`
+export const API_URL_C001_V001_DEVICE_CHECK_DES_CONN =  `${ HTTP_SERVER }/api/001/001/device/check_des_conn`
 export const API_URL_C001_V001_DEVICE_DISCONNECT_DES =  `${ HTTP_SERVER }/api/001/001/device/disconnect`
 
 export const API_URL_C001_V001_DEVICE_START =  `${ HTTP_SERVER }/api/001/001/device/start`
@@ -1269,14 +1269,14 @@ export class Device {
 
         let au = get( AUTH )
         
-        if ( !this.socket ) { await this.connectWS( ) }
+        if ( this.socket ) { await this.disconnectWS( ) }
 
         this.reg.des_job_reg_user_id = au.id
         this.reg.des_job_reg_app = client_app
         let dev = { reg: this.reg }
         debug( "Send Connect DES Client Request:\n", dev ) 
         
-        let req = new Request( API_URL_C001_V001_DEVICE_CONNECT_DES, { 
+        let req = new Request( API_URL_C001_V001_DEVICE_CHECK_DES_CONN, { 
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
@@ -1290,6 +1290,7 @@ export class Device {
 
         if ( jsn.status === "success" ) {
             let d = JSON.parse( JSON.stringify( jsn.data.device ) )
+            debug("des_api.js -> device.connectDESClient( ) ->  SUCCESS device:\n", d )
             this.adm = d.adm
             this.sta = d.sta
             this.hdr = d.hdr
@@ -1297,8 +1298,9 @@ export class Device {
             this.evt = d.evt
             this.smp = d.smp
             this.reg = d.reg
-            this.ping = d.ping
-            this.des_ping = d.des_ping
+            // this.ping = new Ping()
+            // this.des_ping = new Ping()
+            await this.connectWS( )
             return true
         } else {
             debug("device.connectDESClient(( ) -> ERROR ", JSON.stringify( jsn.message ) )
@@ -2432,6 +2434,7 @@ export class DemoDevice {
         }
         this.update( )
    }
+
 }
 export class Sim {
     constructor(

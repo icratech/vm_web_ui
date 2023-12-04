@@ -9,7 +9,7 @@
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
     import btn_img_start_grey from "$lib/images/btn-img-start-grey.svg"
 
-    import { Device, debug } from "../../lib/des_api"
+    import { DemoDevice, Device, debug } from "../../lib/des_api"
 
     import { createEventDispatcher } from "svelte"
     let dispatch = createEventDispatcher( )
@@ -60,7 +60,13 @@
                 </div>
             </div>
         </div>
-        <div class="flx-col "> </div>
+        <div class="flx-col "> 
+            <PillButton 
+                on:click={ ( ) => { } }
+                img={ btn_img_start_grey }
+                hint={ "Simulate Device Disconnect" } 
+            />
+        </div>
     </div>
 
     { #if exp }
