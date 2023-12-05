@@ -150,6 +150,7 @@
         if ( job.reports.length > 0 ) {  // debug( "Selecting Report: ", job.reports[0].rep_title ) 
             reportSelected( job.reports[0] ) 
         }
+        debug("Header:", hdr)
         loaded = true
     } )
 
@@ -178,8 +179,9 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: [ validateMeasuredValue( hdr.hdr_geo_lng ), validateMeasuredValue( hdr.hdr_geo_lat ) ],
+            // center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
             zoom :  5.5,
-            interactive: false
+            interactive: true
         } )
         job.s_mark.addTo( map )
     }

@@ -124,6 +124,7 @@
                     <div class="flx-row date"><DateTimeDisplay date={ sec.sec_start } cls={ color_code_fg } showDate={ false } /></div>
             </div>
         </div>
+
         <div class="flx-col end">
             <div class="flx-row field">
                     <div class="flx-row field-title { color_code_fg }">End</div>
@@ -136,7 +137,9 @@
                     <div class="flx-row date"><DateTimeDisplay date={ sec.sec_end } cls={ color_code_fg } showDate={ false } /></div>
             </div>
         </div>
+
     </div>
+    
 </div>
 
 <style>

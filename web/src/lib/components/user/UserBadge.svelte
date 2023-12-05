@@ -17,8 +17,8 @@
 </script>
 
 <div class="flx-row content">
-    <div class="name">{ user.name }</div>
-    <div class="email { cls }">{ user.email }</div>
+    <div class="name { cls }">{ user.name }</div>
+    <!-- <div class="email { cls }">{ user.email }</div> -->
 </div>
 
 <style>
@@ -29,12 +29,12 @@
         gap: 1em;
     }
     .name { 
-        color: var(--light_a); 
+        /* color: var(--light_a);  */
         font-size: 1.2em;
         font-style: oblique;
     }
-    .email {
+    /* .email {
         font-size: 1.1em;
         font-style: oblique;
-    }
+    } */
 </style>

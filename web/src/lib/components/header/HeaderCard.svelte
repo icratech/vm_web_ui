@@ -41,30 +41,45 @@
         <div class="vert-line"/>
         <div class="flx-row value">{ hdr.hdr_well_lic }</div>
     </div>
-    
-    <div class="flx-row field">
-        <div class="flx-row title date">Start</div>
-        <div class="vert-line"/>
 
-        <DateTimeDisplay bind:date={ hdr.hdr_job_start } showTime={ !running } />
+    <div class="flx-row ro-fields">
 
-        <div class="vert-line" style="margin-left: 1em;"/> 
-
-        { #if running }
-        <div class="flx-row title date">End</div>
-        <div class="vert-line"/>   
-                <DateTimeDisplay bind:date={ hdr.hdr_time } showTime={ false }/>
-        <!-- { :else }
-            <div class="flx-row title date">In progress</div> -->
-        { /if }
+        <!-- DATES  -->
+        <div class="flx-col start">
+            <div class="flx-row field">
+                <div class="flx-row field-title title">Start</div>
+                <div class="vert-line"/>
+                <div class="flx-row value"><DateTimeDisplay date={ hdr.hdr_job_start } showTime={ true} /></div>
+            </div>    
+            <div class="flx-row field">
+                <div class="flx-row field-title title">End</div>
+                <div class="vert-line"/>
+                <!-- <div class="flx-row value"><DateTimeDisplay date={ hdr.hdr_job_start } showDate={ false} /></div> -->
+                <div class="flx-row value"><DateTimeDisplay date={ hdr.hdr_job_end } showTime={ true } /></div>
+            </div>
+        </div>
+        
+        <!-- GEO LOC -->
+        <div class="flx-col end">
+            <div class="flx-row field">
+                <div class="flx-row field-title geo-title">Lng.</div>
+                <div class="vert-line"/>
+                <div class="flx-row value">{ hdr.hdr_geo_lng.toFixed(5) }</div>
+            </div>  
+            <div class="flx-row field">
+                <div class="flx-row field-title geo-title">Lat.</div>
+                <div class="vert-line"/>
+                <div class="flx-row value">{ hdr.hdr_geo_lat.toFixed(5) }</div>
+            </div>
+        </div>
         
     </div>
-    
+
     <br>
-    <div class="flx-col footer">
+    <!-- <div class="flx-col footer"> -->
         <!-- <UserBadge uid={ hdr.hdr_user_id } />
         <div style="padding-right: 0.5em;"><DateTimeDisplay date={ hdr.hdr_time } /></div> -->
-    </div>
+    <!-- </div> -->
 
 </div>
 
@@ -81,6 +96,31 @@
         height: 2em; 
         gap: 0;         
     }
+    .field-title {
+        justify-content: flex-end;
+        align-items: center;
+        padding-right: 0.75em;
+        max-width: 6em;
+        min-width: 6em;
+        width: 6em;
+    }
+    
+    .ro-fields {
+        justify-content: space-between;
+        padding: 0;
+        gap:0;
+    }
+
+    .geo-title { color: var(--orange_a); }
+
+    .start {
+        align-items: flex-start;
+        gap: 0;
+    }
+    .end {
+        align-items: flex-end;
+        gap: 0;
+    }
     
     .title {
         color: var( --accent_a);
@@ -91,15 +131,17 @@
         min-width: 6em;
     }
 
-    .date { color: var(--orange_a); }
 
-    .value { align-items: center; }
+    .value { 
+        align-items: center; 
+        /* width: 11em; */
+    }
 
-    .footer {
+    /* .footer {
         align-items: flex-end;
         padding-right: 1em;
         gap: 0.5em;
-    }
+    } */
 
     /* LAP TOP */
     @media(max-width: 1440px) {

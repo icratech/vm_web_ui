@@ -17,18 +17,6 @@ export const openModals = ( initial ) => {
 }
 export const waitMilli = ( ms ) => new Promise( ( res ) => setTimeout( res, ms ) )
 
-export const AUTH = writable( { } )
-
-export const DEVICES = writable( [ ] )
-export const DEVICES_LOADED = writable( false )
-export const updateDevicesStore = async( ) => { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
-
-export const DEMO_DEVICES = writable( [ ] )
-
-export const JOBS = writable( [ ] )
-export const JOBS_LOADED = writable( false )
-export const updateJobsStore = ( ) => { JOBS.update( ( ) => { return [ ...get(JOBS) ] } ) }
-
 export const device_class = "001"
 export const device_version= "001"
 export const client_app = `C${ device_class }V${ device_version }_client_app v0.0.0`
@@ -44,9 +32,20 @@ export const debug = ( msg, obj ) => {
     if ( debugging ) console.log( msg, obj )
 }
 
+
 /* DES API ROUTES *************************************************************************************/
 
+export const AUTH = writable( { } )
+export const USERS = writable( [ ] )
+export const USERS_LOADED = writable( false )
+export const updateUsersStore = async( ) => { USERS.update( ( ) => { return [ ...get( USERS ) ] } ) }
+
 export const API_URL_USE_SIGNUP =  `${ HTTP_SERVER }/api/user/signup`
+export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
+export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
+export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
+export const API_URL_USER_ME = `${ HTTP_SERVER }/api/user/me`
+
 export const sign_up_user = async( usu ) => {
 
     let req = new Request(API_URL_USE_SIGNUP, { 
@@ -66,7 +65,6 @@ export const sign_up_user = async( usu ) => {
     }
 }
 
-export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
 export const get_user_list = async( ) => {
     debug( `des_api.js -> get_user_list( )` )
 
@@ -80,7 +78,6 @@ export const get_user_list = async( ) => {
     return json.data.users
 }
 
-export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
 export const login = async( email, password ) => {
 
     let req = new Request(API_URL_USER_LOGIN, { 
@@ -106,7 +103,6 @@ export const login = async( email, password ) => {
     if ( get(AUTH).role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
 }
 
-export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
 export const logout = async( ) => {
 
     /* DISCONNECT ALL DEVICE WS ON LOGOUT */
@@ -129,7 +125,6 @@ export const logout = async( ) => {
     debug(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
 }
 
-export const API_URL_USER_ME = `${ HTTP_SERVER }/api/user/me`
 export const get_user = async( token ) => {
 
     // let token = sessionStorage.getItem( 'des_token' )
@@ -165,7 +160,15 @@ export const get_user = async( token ) => {
     debug("\ndes_api.js -> get_user( ) -> AUTH: \n", get( AUTH ) )
 }
 
+
 /* DEVICE API ROUTES **********************************************************************************/
+
+export const DEVICES = writable( [ ] )
+export const DEVICES_LOADED = writable( false )
+export const updateDevicesStore = async( ) => { DEVICES.update( ( ) => { return [ ...get( DEVICES ) ] } ) }
+
+export const DEMO_DEVICES = writable( [ ] )
+
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ HTTP_SERVER }/api/001/001/device/register`
 export const API_URL_C001_V001_DEVICE_CHECK_DES_CONN =  `${ HTTP_SERVER }/api/001/001/device/check_des_conn`
 export const API_URL_C001_V001_DEVICE_DISCONNECT_DES =  `${ HTTP_SERVER }/api/001/001/device/disconnect`
@@ -273,7 +276,6 @@ export const disconnect_devices = async( ) => {
     get( DEVICES ).forEach( async( d ) => { if ( !d.socket ) { await d.disconnectWS( ) } } )
 }
 
-
 export const check_device_exists = async( serial ) => {
     debug( "Checking existance of ", serial )
     await get_devices( )
@@ -283,6 +285,10 @@ export const check_device_exists = async( serial ) => {
 }
 
 /* JOB API ROUTES *************************************************************************************/
+
+export const JOBS = writable( [ ] )
+export const JOBS_LOADED = writable( false )
+export const updateJobsStore = ( ) => { JOBS.update( ( ) => { return [ ...get( JOBS ) ] } ) }
 
 export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ HTTP_SERVER }/api/001/001/job/event/list`
 export const API_URL_C001_V001_JOB_LIST = `${ HTTP_SERVER }/api/001/001/job/list`
@@ -349,32 +355,6 @@ export const get_jobs = async( ) => {
         debug( "des_api.js -> get_jobs( ) -> NO JOBS.", get( JOBS ) )
     }
 }
-
-/* NOT IMPLEMENTED */
-export const API_URL_C001_V001_JOB_SEARCH =  `${ HTTP_SERVER }/api/001/001/job/search`
-export const search_jobs = async( params ) => {
-
-    debug("search_jobs( ) -> params: ", params )
-    let au = get( AUTH )
-
-    DEVICES_LOADED.set( false )
-    DEVICES.update( d => { return [ ] } )
-    let req = new Request( API_URL_C001_V001_JOB_SEARCH, { 
-        method: "POST",
-        headers: { 
-            "Content-Type": "application/json",
-            // "Authorization": `Bearer ${ au.token }` 
-        },
-        body: JSON.stringify( params )
-    } )
-    let res = await fetch( req )
-    let json = await res.json( )
-
-    if ( json.status == "success") { 
-        debug( "search_jobs( ) -> response:\n", json.data.jobs )
-    } 
-}
-
 
 /* DES DATA STRUCTURES  *****************************************************************************/
 export class User {
@@ -1883,6 +1863,9 @@ export class Admin {
     
         adm_mot_hi_amp = 1.9, // Amps
     
+        adm_press = 6894.8, // kPa
+        adm_press_min = 689.5, // kPa
+        adm_press_max = 6894.8, // kPa
         // adm_tilt_tgt = 90.0, // °
         // adm_tilt_mgn = 3.0, // °
         // adm_azim_tgt = 180.0, // °
@@ -1891,22 +1874,22 @@ export class Admin {
         adm_hfs_flow = 200.0, // L/min
         adm_hfs_flow_min =150.0, // L/min
         adm_hfs_flow_max = 250.0, // L/min
-        adm_hfs_press =160.0, // psia
-        adm_hfs_press_min = 23.0, // psia
-        adm_hfs_press_max = 200.0, // psia
-        adm_hfs_diff = 65.0, // psi
-        adm_hfs_diff_min = 10.0, // psi
-        adm_hfs_diff_max = 75.0, // psi
+        adm_hfs_press =1103.1, // kPa
+        adm_hfs_press_min = 158.6, // kPa
+        adm_hfs_press_max = 1378.9, // kPa
+        adm_hfs_diff = 448.2, // psi
+        adm_hfs_diff_min = 68.9, // kPa
+        adm_hfs_diff_max = 517.1, // kPa
     
         adm_lfs_flow = 1.85, // L/min
         adm_lfs_flow_min = 0.5, // L/min
         adm_lfs_flow_max = 2.0, // L/min
-        adm_lfs_press = 60.0, // psia
-        adm_lfs_press_min = 20.0, // psia
-        adm_lfs_press_max = 80.0, // psia
-        adm_lfs_diff = 9.0, // psi
-        adm_lfs_diff_min = 2.0, // psi
-        adm_lfs_diff_max = 10.0, // psi
+        adm_lfs_press = 413.7, // kPa
+        adm_lfs_press_min = 137.9, // kPa
+        adm_lfs_press_max = 551.5, // kPa
+        adm_lfs_diff = 62.0, // kPa
+        adm_lfs_diff_min = 13.8, // kPa
+        adm_lfs_diff_max = 68.9, // kPa
      ) {
         this.adm_time = adm_time,
         this.adm_addr = adm_addr,
@@ -1917,40 +1900,35 @@ export class Admin {
         this.adm_def_port = adm_def_port,
         this.adm_op_host = adm_op_host,
         this.adm_op_port = adm_op_port,
-    
-        // this.adm_class = adm_class,
-        // this.adm_version = adm_version,
-        // this.adm_serial = adm_serial,
-    
+        
         this.adm_bat_hi_amp = adm_bat_hi_amp, // Amps
         this.adm_bat_lo_volt = adm_bat_lo_volt, // Volts
     
         this.adm_mot_hi_amp = adm_mot_hi_amp, // Amps
     
-        // this.adm_tilt_tgt = adm_tilt_tgt, // °
-        // this.adm_tilt_mgn = adm_tilt_mgn, // °
-        // this.adm_azim_tgt = adm_azim_tgt, // °
-        // this.adm_azim_mgn = adm_azim_mgn, // °
-    
+        this.adm_press = adm_press, // kPa
+        this.adm_press_min = adm_press_min, // kPa
+        this.adm_press_max = adm_press_max, // kPa
+
         this.adm_hfs_flow = adm_hfs_flow, // L/min
         this.adm_hfs_flow_min =adm_hfs_flow_min, // L/min
         this.adm_hfs_flow_max = adm_hfs_flow_max, // L/min
-        this.adm_hfs_press = adm_hfs_press, // psia
-        this.adm_hfs_press_min = adm_hfs_press_min, // psia
-        this.adm_hfs_press_max = adm_hfs_press_max, // psia
-        this.adm_hfs_diff = adm_hfs_diff, // psi
-        this.adm_hfs_diff_min = adm_hfs_diff_min, // psi
-        this.adm_hfs_diff_max = adm_hfs_diff_max, // psi
+        this.adm_hfs_press = adm_hfs_press, // kPa
+        this.adm_hfs_press_min = adm_hfs_press_min, // kPa
+        this.adm_hfs_press_max = adm_hfs_press_max, // kPa
+        this.adm_hfs_diff = adm_hfs_diff, // kPa
+        this.adm_hfs_diff_min = adm_hfs_diff_min, // kPa
+        this.adm_hfs_diff_max = adm_hfs_diff_max, // kPa
     
         this.adm_lfs_flow = adm_lfs_flow, // L/min
         this.adm_lfs_flow_min = adm_lfs_flow_min, // L/min
         this.adm_lfs_flow_max = adm_lfs_flow_max, // L/min
-        this.adm_lfs_press = adm_lfs_press, // psia
-        this.adm_lfs_press_min = adm_lfs_press_min, // psia
-        this.adm_lfs_press_max = adm_lfs_press_max, // psia
-        this.adm_lfs_diff = adm_lfs_diff, // psi
-        this.adm_lfs_diff_min = adm_lfs_diff_min, // psi
-        this.adm_lfs_diff_max = adm_lfs_diff_max // psi
+        this.adm_lfs_press = adm_lfs_press, // kPa
+        this.adm_lfs_press_min = adm_lfs_press_min, // kPa
+        this.adm_lfs_press_max = adm_lfs_press_max, // kPa
+        this.adm_lfs_diff = adm_lfs_diff, // kPa
+        this.adm_lfs_diff_min = adm_lfs_diff_min, // kPa
+        this.adm_lfs_diff_max = adm_lfs_diff_max // kPa
     }
 }
 
