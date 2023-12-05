@@ -1295,8 +1295,9 @@ export class Device {
 
 }
 
-export const MIN_SAMPLE_PERIOD = 200
-export const DEFAULT_CFG_SSP_DUR =  23400000.0
+export const MIN_SAMPLE_PERIOD = 200 /* TODO: SET TO 1000 */
+export const DEFAULT_CFG_SSP_DUR =  2 * 3600 * 1000  // 21,600,000 (six hours)
+export const DEFAULT_CFG_SSCVF_DUR = 2 * 3600 * 1000  // 7,200,000 (two hours)
 
 /* OPERATION CODES ( Event.EvtCode 0 : 999 ) *******************************************************/
 export const OP_CODES = {
@@ -2042,9 +2043,10 @@ export class Config {
         cfg_scvd = 596.8, // m
         cfg_scvd_mult = 10.5, // kPa / m
         cfg_ssp_rate = 1.95, // kPa / hour
-        cfg_ssp_dur = DEFAULT_CFG_SSP_DUR, // hour
+        cfg_ssp_dur = DEFAULT_CFG_SSP_DUR, // milliseconds
         cfg_hi_scvf = 201.4, //  L/min ( 290 m3/day )
         cfg_flow_tog = 1.85, //  L/min 
+        cfg_sscvf_dur = DEFAULT_CFG_SSCVF_DUR, // milliseconds
     
         cfg_vlv_tgt = 2, // vent
         cfg_vlv_pos = 2, // vent
@@ -2065,9 +2067,10 @@ export class Config {
         this.cfg_scvd = cfg_scvd // m
         this.cfg_scvd_mult = cfg_scvd_mult // kPa / m
         this.cfg_ssp_rate = cfg_ssp_rate // kPa / hour
-        this.cfg_ssp_dur = cfg_ssp_dur // hour
+        this.cfg_ssp_dur = cfg_ssp_dur // milliseconds
         this.cfg_hi_scvf = cfg_hi_scvf //  L/min ( 290 m3/day )
         this.cfg_flow_tog = cfg_flow_tog //  L/min 
+        this.cfg_sscvf_dur = cfg_sscvf_dur // milliseconds
     
         this.cfg_vlv_tgt = cfg_vlv_tgt // vent
         this.cfg_vlv_pos = cfg_vlv_pos // vent
@@ -2091,6 +2094,7 @@ export const validateCFG = ( cfg ) => {
     
     cfg.cfg_hi_scvf = parseFloat( cfg.cfg_hi_scvf )
     cfg.cfg_flow_tog = parseFloat( cfg.cfg_flow_tog )
+    cfg.cfg_sscvf_dur = Math.floor( parseInt( cfg.cfg_sscvf_dur ) )
 
     cfg.cfg_op_sample = Math.floor( parseInt( cfg.cfg_op_sample ) )
     cfg.cfg_op_log = Math.floor( parseInt( cfg.cfg_op_log ) )
