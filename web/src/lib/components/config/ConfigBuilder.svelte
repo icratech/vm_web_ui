@@ -175,7 +175,7 @@
             <div class="flx-row value">
                 <InputNum
                     enabled={true}
-                    is_integer={true}
+                    is_integer={false}
                     bind:num={op_sample}
                     width=6em
                 />

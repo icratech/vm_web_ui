@@ -29,7 +29,7 @@
     import btn_img_report from "$lib/images/btn-img-report.svg"
     import btn_img_report_aqua from "$lib/images/btn-img-edit-aqua.svg"
     import btn_img_report_grey from "$lib/images/btn-img-edit-grey.svg"
-    import btn_img_report_pink from "$lib/images/btn-img-edit-pink.svg"
+    import btn_img_report_pink from "$lib/images/btn-img-edit-orange.svg"
     import btn_img_report_green from "$lib/images/btn-img-edit-green.svg"
 
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
@@ -65,8 +65,8 @@
 
     $: page = "";
     let page_name = "HOME"
-    let home_btn_image = btn_img_home_green
-    let device_btn_image = btn_img_gauge_green
+    let home_btn_image = btn_img_home_aqua
+    let device_btn_image = btn_img_gauge_aqua
     let job_btn_image = btn_img_report_green
     let admin_btn_color = 'bg-purple'
     $: {
@@ -74,36 +74,36 @@
             case '' : { 
                 page_name = "HOME"
                 home_btn_image = btn_img_home_orange
-                device_btn_image = btn_img_gauge_green
-                job_btn_image = btn_img_report_green
+                device_btn_image = btn_img_gauge_aqua
+                job_btn_image = btn_img_report_aqua
                 break
             }
             case 'device': {  
                 page_name = "DEVICES"
-                home_btn_image = btn_img_home_green
+                home_btn_image = btn_img_home_aqua
                 device_btn_image = btn_img_gauge_orange
-                job_btn_image = btn_img_report_green
+                job_btn_image = btn_img_report_aqua
                 break
             }
             case 'job': { 
                 page_name = "JOBS"
-                home_btn_image = btn_img_home_green
-                device_btn_image = btn_img_gauge_green
+                home_btn_image = btn_img_home_aqua
+                device_btn_image = btn_img_gauge_aqua
                 job_btn_image = btn_img_report_pink
                 break
             }
             case 'des_admin': { 
                 page_name = "DES ADMINISTRATION"
-                home_btn_image = btn_img_home_green
-                device_btn_image = btn_img_gauge_green
-                job_btn_image = btn_img_report_green
+                home_btn_image = btn_img_home_aqua
+                device_btn_image = btn_img_gauge_aqua
+                job_btn_image = btn_img_report_aqua
                 break
             }
             default : { 
                 page_name = ""
-                home_btn_image = btn_img_home_green
-                device_btn_image = btn_img_gauge_green
-                job_btn_image = btn_img_report_green
+                home_btn_image = btn_img_home_aqua
+                device_btn_image = btn_img_gauge_aqua
+                job_btn_image = btn_img_report_aqua
                 break
             }
         }

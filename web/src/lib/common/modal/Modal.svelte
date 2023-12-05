@@ -2,8 +2,8 @@
 
 <script>
 
-    import btn_img_cancel from "$lib/images/btn-img-cancel.svg"
-    import btn_img_confirm from "$lib/images/btn-img-confirm.svg"
+    import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
+    import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
     
     import PillButton from "../button/PillButton.svelte";
     import { openModals } from "../../des_api"
@@ -78,7 +78,6 @@
                 </slot>
                 
                 <PillButton 
-                    cls={ 'bg-red' }
                     img={ btn_img_cancel }
                     on:click={ close }
                     hint={ 'Cancel' } 
@@ -96,7 +95,6 @@
                     
                 { #if valid }
                 <PillButton 
-                    cls={ 'bg-green' }
                     img={ btn_img_confirm }
                     on:click={ confirm }
                     hint={ 'Confirm' } 

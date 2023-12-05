@@ -102,7 +102,7 @@ export const login = async( email, password ) => {
     }
     await get_user( auth.token )
 
-    if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  }
+    if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  } else { await connect_devices( ) }
     if ( get(AUTH).role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
 }
 
@@ -110,7 +110,7 @@ export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
 export const logout = async( ) => {
 
     /* DISCONNECT ALL DEVICE WS ON LOGOUT */
-    get( DEVICES ).forEach( async( dev ) => { await dev.disconnectWS( ) } )
+    await disconnect_devices( )
 
     let au = get( AUTH )
 
@@ -268,6 +268,11 @@ export const get_devices = async( ) => {
 export const connect_devices = async( ) => { 
     get( DEVICES ).forEach( async( d ) => { if ( !d.socket ) { await d.connectWS( ) } } )
 }
+
+export const disconnect_devices = async( ) => { 
+    get( DEVICES ).forEach( async( d ) => { if ( !d.socket ) { await d.disconnectWS( ) } } )
+}
+
 
 export const check_device_exists = async( serial ) => {
     debug( "Checking existance of ", serial )
@@ -1310,7 +1315,7 @@ export class Device {
 
 }
 
-export const MIN_SAMPLE_PERIOD = 1000
+export const MIN_SAMPLE_PERIOD = 200
 export const DEFAULT_CFG_SSP_DUR =  23400000.0
 
 /* OPERATION CODES ( Event.EvtCode 0 : 999 ) *******************************************************/

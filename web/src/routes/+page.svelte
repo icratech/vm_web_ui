@@ -3,12 +3,13 @@
     import { onMount } from 'svelte';
     import Modal from "../lib/common/modal/Modal.svelte"
     import PillButton from "../lib/common/button/PillButton.svelte"
-    // import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
-    import vent_medic_logo from "$lib/images/vent-medic-logo-green.svg"
+    import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
+    // import vent_medic_logo from "$lib/images/vent-medic-logo-green.svg"
     import vent_medic_nested from "$lib/images/vent-medic-ship.webp"
     import vent_medic_deployed from "$lib/images/vent-medic-deployed.webp"
     import UserRegistration from "./UserRegistration.svelte"
     import { UserSignUp, sign_up_user } from "../lib/des_api"
+    import btn_img_edit from '../lib/images/btn-img-edit-aqua.svg'
 
     let modal
     let newUser = new UserSignUp( )
@@ -73,7 +74,7 @@
             Sign-Up
             <PillButton 
                 on:click={ async( ) => { modal.open( ) } }
-                cls='bg-accent' 
+                img={ btn_img_edit } 
                 hint={ null }
             />
 
