@@ -298,6 +298,8 @@ export const API_URL_C001_V001_JOB_NEW_HDR = `${ HTTP_SERVER }/api/001/001/job/n
 export const API_URL_C001_V001_JOB_NEW_EVT = `${ HTTP_SERVER }/api/001/001/job/new_event`
 export const API_URL_C001_V001_JOB_EVTS = `${ HTTP_SERVER }/api/001/001/job/event_list`
 
+export const API_URL_C001_V001_JOB_USER_WS =  `${ WS_SERVER }/api/001/001/job/ws`
+
 export const get_event_types = async( ) => {
     debug( `des_api.js -> get_event_types( )` )
     let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
@@ -565,19 +567,6 @@ export class Device {
         this.resetChart( )
     }
     
-    // /* TODO: ? MOVE THIS OUTSIDE OF THE DEVICE CLASS ? */
-    // update( ) { DEVICES.update( ( ) => { return [ ...get(DEVICES) ] } ) }
-
-    // checkPing( ) {
-    //     // debug(`diff: ${ this.ping.time - this.last_ping.time },\tlimit: ${ PING_LIMIT }: `, this.ping.time )
-    //     if ( this.ping.time - this.last_ping.time > PING_LIMIT ) {
-    //         this.allowCMD = false 
-    //         debug(`device connection timeout -> ${ this.reg.des_dev_serial }: `, this.ping )
-    //     } else {
-    //         this.allowCMD = true
-    //     }
-    // }
-
     /* MAP METHODS ( LIVE ) **************************************************************/
     updateDeviceSearchMap( ) { }
     updateDevicePageMap( ) { }
@@ -784,6 +773,9 @@ export class Device {
                 
                 case "event":
                     this.evt = msg.data
+                    if ( this.sta.sta_logging == OP_CODES.JOB_START_REQ && this.evt.evt_code == OP_CODES.GPS_ACQ ) {
+                        this.sta.sta_logging = OP_CODES.GPS_ACQ
+                    }
                     this.job_evts.unshift( this.evt )
                     debug("new event received from device: ", this.evt)
                     break
@@ -826,7 +818,7 @@ export class Device {
                     break
     
                 default: 
-                    debug( `Type unknown:\n${ e.data }\n` )
+                    debug( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE: Type unknown:\n${ e.data }\n` )
                     break
             }
             
@@ -856,9 +848,12 @@ export class Device {
         this.reg.des_job_reg_app = client_app
         
         this.sta.sta_logging = OP_CODES.JOB_START_REQ
+        this.ping = new Ping( )
 
         this.cfg = validateCFG( this.cfg )
         
+        updateDevicesStore( )
+
         let dev = {
             adm: this.adm,
             sta: this.sta,
@@ -1309,6 +1304,9 @@ export const OP_CODES = {
     JOB_START_REQ: 3,  // USER REQUEST -> START JOB
     JOB_STARTED: 4,    // DEVICE RESPONSE -> JOB STARTED
     JOB_END_REQ: 5,    // USER REQUEST -> END JOB
+    JOB_OFFLINE_START: 6, // DES NOTIFICATION -> A JOB WAS STARTED OFFLINE
+    JOB_OFFLINE_END: 7, // DES NOTIFICATION -> A JOB WAS ENDED OFFLINE
+    GPS_ACQ: 8, // DEVICE NOTIFICATION -> DEVICE LTE IS OFF WHILE ACQUIRING GPS
 
     SYSTEM_EVENT: 1000,    // 1000 TO 1999 ARE ALARMS AND NOTIFICATIONS CREATED BY DEVICE / DES DURING THE JOB
     OPERATOR_EVENT: 2000,    // OPERATOR CREATED AN EVENT DURING THE JOB
@@ -1411,6 +1409,9 @@ export class Job {
         this.reports = []
         this.reg = reg
         
+        /* WEB SOCKET CONNECTION STATUS */
+        this.socket = false
+
         this.highlight = false
         this.selection = 0
         this.selected_smp = new Sample( )
@@ -1508,7 +1509,6 @@ export class Job {
         this.cht.autoScale( this.cht_lo_flow,  this.cht.options.scales.y_lo_flow, 0.1 )
 
     }
-
     resetChart= ( ) =>  {
         /* CHART DATA **************************************************************/
         this.cht = NewChartData( )
@@ -1551,7 +1551,6 @@ export class Job {
         this.cht_point_limit = 0
         this.cht_scale_margin = 0.1
     }
-
     chartZoomSelect = ( e ) => { 
         // debug( "job.chartZoomSelect...\n", e.chart )
     
@@ -1589,12 +1588,66 @@ export class Job {
         } )
     
     }
-
     chartZoomTo = ( xmin, xmax ) => {
         this.cht.options.scales.x.min = xmin
         this.cht.options.scales.x.max = xmax
         this.selection = 0
         updateJobsStore( )
+    }
+
+    /* WEBSOCKET METHODS **************************************************************/
+    disconnectWS = async( ) => { }
+    connectWS = async( ) => {
+        
+        let au = get( AUTH )
+        // debug( `class Job -> ${ this.reg..des_job_name } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
+
+        let reg = encodeURIComponent(JSON.stringify( this.reg ) )
+        let url = `${ API_URL_C001_V001_JOB_USER_WS }?access_token=${ au.token }&des_reg=${ reg }`
+        const ws = new WebSocket( url )
+        ws.onopen = ( e ) => {  
+            this.socket = true
+            updateJobsStore( )
+            // debug( `class Job -> ${ this.reg.des_job_name } -> WebSocket OPEN` ) 
+        }
+        ws.onerror = ( e ) => { 
+            ws.close( )
+            this.socket = false
+            updateJobsStore( )
+            // debug( `class Job -> ${ this.reg.des_job_name } -> ws.onerror ERROR\n${ JSON.stringify( e )  }\n` ) 
+        }
+        ws.onmessage = ( e ) => {
+
+            let msg = JSON.parse( JSON.parse( e.data ) )
+            switch ( msg.type ) {
+
+                case "update": /*  */ break
+
+                case "report": break
+
+                case "section": break
+
+                case "ssp": break
+
+                case "sscvf": break
+
+                default: 
+                    debug( `class Job -> ${ this.reg.des_job_name } ONMESSAGE: Type unknown:\n${ e.data }\n` )
+                    break
+            }
+            
+            // debug( `class Job -> ${ this.reg.des_job_name } ONMESSAGE:\n`, msg.data )
+            updateJobsStore( )
+        }
+        this.disconnectWS =  async( ) => {
+            ws.send( "close" )
+            ws.close( ) 
+            debug( `class Job -> ${ this.reg.des_job_name } -> WebSocket CLOSED` ) 
+            this.socket = false
+            updateJobsStore( )
+        }
+        await waitMilli(1000)
+
     }
 
     newHeader = async( hdr ) => {
@@ -1630,7 +1683,6 @@ export class Job {
             debug("JOB NEW HEADER Request -> SUCCESS:\n", this.reg.des_job_name )
         }
     }
-
     newEvent = async( evt ) => {
         debug( "job.newEvent( ): ", this.reg.des_job_name ) 
         
@@ -1696,7 +1748,6 @@ export class Job {
         if ( this.events === null ) { this.events = [ ] }
         debug( "JOB EVENTS:\n", this.events )
     }
-
     getSelectedEvents = ( xmin, xmax ) => {
         
     }

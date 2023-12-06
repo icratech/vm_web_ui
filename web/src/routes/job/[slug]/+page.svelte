@@ -156,10 +156,11 @@
 
     let making_report = false
     let new_rep = new Report( )
-    const makeReport = ( ) => {
+    const makeReport = async ( ) => {
         debug(  "new report title: ", new_rep.rep_title )
-        job.newReport( new_rep )
+        await job.newReport( new_rep )
         new_rep = new Report( )
+        making_report = false
     }
 
     let new_sec = new Section( )
@@ -179,9 +180,8 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: [ validateMeasuredValue( hdr.hdr_geo_lng ), validateMeasuredValue( hdr.hdr_geo_lat ) ],
-            // center: [ hdr.hdr_geo_lng, hdr.hdr_geo_lat ],
             zoom :  5.5,
-            interactive: true
+            interactive: false
         } )
         job.s_mark.addTo( map )
     }

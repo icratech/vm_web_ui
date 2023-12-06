@@ -18,8 +18,10 @@
     import btn_img_start_green from "$lib/images/btn-img-start-green.svg"
     import btn_img_start_grey from "$lib/images/btn-img-start-grey.svg"
 
-    import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
+    // import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
+    import btn_img_cmd_pink from "$lib/images/btn-img-cmd-pink.svg"
     import btn_img_cmd_orange from "$lib/images/btn-img-cmd-orange.svg"
+    import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
 
     import btn_img_stop from "$lib/images/btn-img-stop.svg"
     import btn_img_stop_red from "$lib/images/btn-img-stop-red.svg"
@@ -66,10 +68,15 @@
             case OP_CODES.JOB_END_REQ:
             case OP_CODES.JOB_START_REQ:
                 cmdButtonHint = 'Get Device State' 
-                cmdButtonIcon = btn_img_cmd_orange
+                cmdButtonIcon = btn_img_cmd_purple
                 cmdButtonFunc = ( ) => { device.setState( ) }
                 break
 
+            case OP_CODES.GPS_ACQ:
+                cmdButtonHint = 'Acquiring GPS' 
+                cmdButtonIcon = btn_img_cmd_pink
+                cmdButtonFunc = ( ) => { }
+                break
         }
     }
 

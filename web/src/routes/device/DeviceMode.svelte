@@ -1,11 +1,11 @@
 
 <script>
-    import { COLORS, Device, MODES, getMode } from "../../lib/des_api"
+    import { COLORS, Device, OP_CODES, MODES, getMode } from "../../lib/des_api"
     import { RGBA, BASE } from "../../lib/common/colors"
     
     export let device = new Device( )
-    $: cfg = device.cfg
     $: hdr = device.hdr
+    $: cfg = device.cfg
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
     $: color_code = BASE.LIGHT
@@ -15,8 +15,16 @@
     $: lbl = 'OFF'
     $: {
         if ( !device.ping.ok ) { 
-            lbl = 'OFF'
-            color_code = BASE.RED  
+            if ( device.sta.sta_logging == OP_CODES.GPS_ACQ ) {
+                lbl = 'GPS'
+                color_code = BASE.PINK  
+            } else if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ ) {
+                lbl = 'CMD'
+                color_code = BASE.PURPLE  
+            } else {
+                lbl = 'OFF'
+                color_code = BASE.RED  
+            }
         }
         else if ( hdr.hdr_job_start == 0 ) { 
             lbl = 'READY'
