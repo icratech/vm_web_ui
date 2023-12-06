@@ -34,7 +34,7 @@
 </div>
 
 <style>
-    
+
     /* LAP TOP */
     @media(max-width: 1440px) {
 

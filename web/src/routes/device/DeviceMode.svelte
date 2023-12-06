@@ -14,23 +14,19 @@
     $: color_code_border = RGBA(color_code, 0.5)
     $: lbl = 'OFF'
     $: {
-        if ( !device.ping.ok ) { 
-            if ( device.sta.sta_logging == OP_CODES.GPS_ACQ ) {
+        /* TODO:  CLEAN THIS MESS UP */
+        if ( device.sta.sta_logging == OP_CODES.GPS_ACQ ) {
                 lbl = 'GPS'
                 color_code = BASE.PINK  
-            } else if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ ) {
+        } else if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ ) {
                 lbl = 'CMD'
                 color_code = BASE.PURPLE  
-            } else {
-                lbl = 'OFF'
-                color_code = BASE.RED  
-            }
         }
         else if ( hdr.hdr_job_start == 0 ) { 
             lbl = 'READY'
             color_code = BASE.LIGHT  
         }
-        else {
+        else if ( device.sta.sta_logging == OP_CODES.JOB_STARTED ) {
             switch ( getMode( cfg, smp ) ) {
 
                 case MODES.BUILD: 
@@ -53,6 +49,9 @@
                     color_code = COLORS.LO_FLOW
                     break
             }
+        } else {
+            lbl = 'OFF'
+            color_code = BASE.RED 
         }
     }
 </script>

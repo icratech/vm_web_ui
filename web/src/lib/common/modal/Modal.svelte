@@ -126,6 +126,7 @@
         width: 100%;
         height: 100vh;
 
+        padding: 1em;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -151,8 +152,8 @@
     }
     .flx-col.content-wrapper {
         z-index: 11;
-        width: 50%;
-        /* max-width: 70vw; */
+        /* max-width: 75%; */
+        width: auto;
         border-radius: 0.5em;
         padding: 1.5em;
         background-color: var(--light_003);
@@ -160,15 +161,15 @@
         border-right: solid 0.05em var(--light_01);
     }
     div.content {
-        background-image: url( "$lib/images/bg-img-blue.svg" );
-        -webkit-background-size: cover;
+        /* background-image: url( "$lib/images/bg-img-blue.svg" ); */
+        /* -webkit-background-size: cover;
         -moz-background-size: cover;
         -o-background-size: cover;
         background-size: cover;
         border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
+        border-right: solid 0.05em var(--light_01); */
         /* max-height: 50vh; */
-        border-radius: 0.5em;
+        /* border-radius: 0.5em; */
         padding:1.5em;
         gap: 1.5em;
         overflow: hidden;

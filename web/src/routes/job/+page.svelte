@@ -1,6 +1,8 @@
 
 <script>
 
+    import { goto } from '$app/navigation'
+
     import { getContext } from 'svelte'
     import { DESSearchParam, updateJobsStore, debug } from '../../lib/des_api'
 
@@ -27,6 +29,10 @@
             stat.hdr.hdr_well_lic.toUpperCase( ).includes( s.token.toUpperCase( ) )
         )
     }
+    
+    const jobSelected = ( j ) => { 
+        goto( `job/${ j.reg.des_job_name }` )
+    }
 
 </script>
 
@@ -40,7 +46,7 @@
 
         <div class="flx-col job-list">
             { #each $JOBS.filter( j => {  return  checkBounds( j ) && checkTextFilter( j, search ) } ) as job ( job.reg.des_job_name ) }
-                <JobCard bind:job={ job } />
+                <JobCard bind:job={ job } on:job-selected={ ( e ) => { jobSelected( e.detail ) } }/>
             { /each }
         </div>
 

@@ -31,12 +31,20 @@
         <div class="flx-row value"></div>
     </div>
     
+    <br>
+    <div class="flx-row field">
+        <div class="flx-row title"></div>
+        <div class="vert-line"/>
+        <div class="flx-row col-head">Max </div>
+        <div class="flx-row col-head">Toggle</div>
+        <div class="flx-row col-head">Stable</div>
+    </div>
     <div class="flx-row field">
         <div class="flx-row title">Flow</div>
         <div class="vert-line"/>
         <div class="flx-row value">{ Number( cfg.cfg_hi_scvf ).toFixed(3) }<div class="unit">L/min</div></div>
         <div class="flx-row value">{ Number( cfg.cfg_flow_tog ).toFixed(3) }<div class="unit">L/min</div></div>
-        <div class="flx-row value"></div>
+        <div class="flx-row value">{ Number( cfg.cfg_sscvf_dur / 3600000 ).toFixed(3) }<div class="unit">hrs</div></div>
     </div>
     
     <br>

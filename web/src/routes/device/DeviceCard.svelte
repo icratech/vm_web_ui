@@ -1,8 +1,10 @@
 <script>
 
-    import { goto } from '$app/navigation'
+    import { createEventDispatcher } from "svelte"
+    let dispatch = createEventDispatcher( )
     
     import DeviceMode from "./DeviceMode.svelte"
+    import DeviceConn from "./DeviceConn.svelte"
     import PillButton from "$lib/common/button/PillButton.svelte"
     import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
@@ -29,13 +31,13 @@
     $: active = ( hdr.hdr_job_start != 0 )
 
     $: socketButtonImage = ( device.socket ? btn_img_watch_orange : btn_img_watch_aqua )
-    // $: socketButtonColor = ( device.socket ? 'bg-orange' : 'bg-accent' )
     $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
     $: highlight = ( device.highlight ? 'highlight' : '' ) 
 
 </script>
 
-<div class="flx-row container { highlight } ">
+<div class="flx-row container { highlight }"
+    on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } >
 
 
     <div class="flx-col layout">
@@ -50,26 +52,20 @@
 
             <DeviceMode bind:device />
         
-            <div class="flx-row btns">
-    
-                <PillButton 
-                    on:click={ ( ) => { goto( `device/${device.reg.des_dev_serial }` ) } }
-                    img={ btn_img_gauge_aqua }
-                    hint={ 'Device Controls' } 
-                />
-                 
+            <!-- <div class="flx-row btns">
                 <PillButton 
                     on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) } }
                     img={ socketButtonImage }
                     hint={ socketButtonText } 
                 />
-        
-            </div>
+            </div> -->
     
         </div>
 
         { #if active }
             <BarGaugeCard bind:cfg bind:smp/>     
+        <!-- { :else }
+            <DeviceConn bind:device /> -->
         { /if }
 
     </div>
@@ -104,7 +100,8 @@
         border-radius: 0.5em;
         padding: 1em;
     }
-    .highlight { background-color: var(--light_009); }
+    .container:hover { background-color: var(--light_007); }
+    .highlight { background-color: var(--light_007); }
 
     .layout {  
         padding: 0; 

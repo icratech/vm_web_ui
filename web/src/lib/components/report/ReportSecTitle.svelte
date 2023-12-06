@@ -19,12 +19,11 @@
 
     export let job = new Job( )
     export let sec = new Section( )
-    $: cfg = job.configs.reduce( ( pre, cur ) => { 
-        return ( 
-            pre &&
-            pre.cfg_time >= sec.sec_start &&
-            pre.cfg_time < sec.sec_end
-        ) ? pre : cur } )
+    $: cfg = job.configs.reduce( ( pre, cur ) => { return ( 
+        pre &&
+        pre.cfg_time >= sec.sec_start &&
+        pre.cfg_time < sec.sec_end
+    ) ? pre : cur } )
 
     $: smp = job.samples.reduce( ( pre, cur ) => { return ( 
         pre && 

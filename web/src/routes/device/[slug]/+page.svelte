@@ -5,6 +5,7 @@
 
     import Modal from '../../../lib/common/modal/Modal.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
+    import DeviceConn from '../DeviceConn.svelte'
     import HeaderPanel from "../../../lib/components/header/HeaderPanel.svelte"
     import ConfigPanel from "../../../lib/components/config/ConfigPanel.svelte"
     import EventPanelOp from "../../../lib/components/event/EventPanelOp.svelte"
@@ -16,7 +17,8 @@
 
     /* USED TO EXPOSE THE MODALS' OPEN( ) METHOD 
     SO IT CAN BE CALLED FROM OTHER COMPONENTS */
-    let modal
+    let startModal
+    let endModal
 
 </script>
 
@@ -24,7 +26,7 @@
 
     <div class="flx-row content">
 
-        <Modal bind:this={ modal } on:confirm={ async( ) => { device.startJob( ) } }>
+        <Modal bind:this={ startModal } on:confirm={ async( ) => { device.startJob( ) } }>
             <h3 class='fg-accent' slot="title">Start a new job</h3>
             <div slot="content" class="flx-row">
                 <DeviceStartPanel bind:device />
@@ -32,8 +34,18 @@
             <div slot="footer">Send command</div>
         </Modal>
      
+        <Modal bind:this={ endModal } on:confirm={ async( ) => { device.endJob( ) } }>
+            <h3 class='fg-accent' slot="title">End job</h3>
+            <div slot="content" class="flx-col end-modal">
+                <h3>Are you sure you want to proceed?</h3>
+                <h4>Click confirm to end the current job.</h4>
+                <h4>This action cannot be undone.</h4>
+            </div>
+            <div slot="footer">Send command</div>
+        </Modal>
+     
         <div class="flx-col status">
-            <DeviceInfo bind:device on:start={ async( ) => { modal.open( ) } }/>
+            <DeviceInfo bind:device on:start={ startModal.open } on:end={ endModal.open } />
         </div>
         
         <div class="flx-col panel">
@@ -46,6 +58,8 @@
 
                 <div class="flx-col panel-cont">
                     <HeaderPanel bind:device />
+
+                    <DeviceConn bind:device />
                 </div>
 
                 <div class="flx-col panel-cont">
@@ -106,6 +120,9 @@
         gap: 0.5em; 
     }
 
+    .end-modal {
+        width: auto;
+    }
     /* LAP TOP */
     @media(max-width: 1440px) {
         .status {

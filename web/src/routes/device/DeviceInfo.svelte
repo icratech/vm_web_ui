@@ -62,7 +62,7 @@
             case OP_CODES.JOB_STARTED: 
                 cmdButtonHint = 'End Job'
                 cmdButtonIcon = btn_img_stop_red
-                cmdButtonFunc = ( ) => { device.endJob( ) }
+                cmdButtonFunc = ( ) => { dispatch( 'end' ) }
                 break 
             
             case OP_CODES.JOB_END_REQ:
@@ -138,15 +138,8 @@
 
         </div>
                     
-        <div class="flx-col status">
-
-
+        <div class="flx-col gauge">
             <BarGaugeCard bind:cfg bind:smp/>
-
-            <!-- { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
-                <HeaderCard bind:hdr />
-            { /if } -->
-
         </div>
 
     </div>
@@ -157,7 +150,6 @@
         <div class="map-container" use:makeMap />
     </div>
 
-    <DeviceConn bind:device />
     <div></div>
 </div>
 

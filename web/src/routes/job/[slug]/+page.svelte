@@ -157,10 +157,10 @@
     let making_report = false
     let new_rep = new Report( )
     const makeReport = async ( ) => {
+        making_report = false
         debug(  "new report title: ", new_rep.rep_title )
         await job.newReport( new_rep )
         new_rep = new Report( )
-        making_report = false
     }
 
     let new_sec = new Section( )
@@ -176,7 +176,7 @@
 
     const makeMap = ( ctx ) => {
 
-    let map = new mapboxgl.Map(  {
+    let map = new mapboxgl.Map( {
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: [ validateMeasuredValue( hdr.hdr_geo_lng ), validateMeasuredValue( hdr.hdr_geo_lat ) ],
@@ -203,8 +203,8 @@
                 <HeaderCard bind:hdr />
             </div>
 
+            { #if loaded }
             <div class="flx-row new-rep">
-
                 { #if making_report }
                 
                     <PillButton 
@@ -242,6 +242,7 @@
                 />
                 { /each }
             </div>
+            { /if }
 
         </div>
 

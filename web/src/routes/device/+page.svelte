@@ -1,6 +1,8 @@
 
 <script>
 
+    import { goto } from '$app/navigation'
+    
     import { getContext } from 'svelte'
     import { DESSearchParam, updateDevicesStore, debug } from '../../lib/des_api'
     
@@ -27,6 +29,10 @@
         )
     }
 
+    const deviceSelected = ( d ) => { 
+        goto( `device/${d.reg.des_dev_serial }` ) 
+    }
+
 </script>
 
 <dvi class="flx-col container">
@@ -39,7 +45,7 @@
         
         <div class="flx-col device-list">
             { #each $DEVICES.filter( d => {  return  checkBounds( d ) && checkTextFilter( d, search ) } ) as device ( device.reg.des_job_name ) }
-                <DeviceCard bind:device />
+                <DeviceCard bind:device on:device-selected={ ( e ) => { deviceSelected( e.detail ) } } />
             { /each }
         </div>
 

@@ -52,9 +52,9 @@
 
 <style>
 
-    /* .container {
-        width: 42em;
-    }     */
+    .container {
+        min-width: 35em;
+    }    
 
     .in {
         gap: 0.5em;

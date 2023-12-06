@@ -14,6 +14,7 @@
     export let cfg = new Config( )
 
     let ssp_dur = cfg.cfg_ssp_dur / 3600000
+    let sscvf_dur = cfg.cfg_sscvf_dur / 3600000
 
     let op_sample = cfg.cfg_op_sample / 1000
     let op_log = cfg.cfg_op_log / 1000
@@ -79,7 +80,13 @@
 
         <!-- <br> -->
         <div class="flx-row in">Surface Casing Vent Depth - Max Pressure 
-            <span class="fg-orange">{ Number( cfg.cfg_scvd * cfg.cfg_scvd_mult ).toFixed( 3 ) }</span> kPa
+            <span class="fg-accent">{ Number( cfg.cfg_scvd * cfg.cfg_scvd_mult ).toFixed( 3 ) }</span> kPa
+        </div>
+        <div class="flx-row field">
+            <div class="flx-row title"></div>
+            <div class="flx-row col-head">Depth (m)</div>
+            <div class="flx-row col-head">Multiplier (kPa/m)</div>
+            <div class="flx-row col-head"></div>
         </div>
         <div class="flx-row field">
             <div class="flx-row title">SCVD</div>
@@ -89,21 +96,16 @@
                     enabled={true}
                     is_integer={false}
                     bind:num={cfg.cfg_scvd}
-                    width=6em
                 />
             </div>
-            <div class="flx-row unit">m</div>
 
-            <div class="vert-line"/>
             <div class="flx-row value">
                 <InputNum 
                     enabled={true}
                     is_integer={false}
                     bind:num={ cfg.cfg_scvd_mult }
-                    width=6em
                 />
             </div>
-            <div class="flx-row unit">kPa/m</div>
 
             <div class="flx-row value"></div>
         </div>
@@ -111,31 +113,40 @@
         <!-- <br> -->
         <div class="flx-row in">Stabilized Shut-In Pressure</div>
         <div class="flx-row field">
+            <div class="flx-row title"></div>
+            <div class="vert-line"/>
+            <div class="flx-row col-head">Rate (kPa/hr)</div>
+            <div class="flx-row col-head">Duration (hrs)</div>
+            <div class="flx-row col-head"></div>
+        </div>
+        <div class="flx-row field">
             <div class="flx-row title">SSP</div>
             <div class="vert-line"/>
             <div class="flx-row value">
                 <InputNum
                     enabled={true}
                     bind:num={cfg.cfg_ssp_rate}
-                    width=6em
                 />
             </div>
-            <div class="flx-row unit">Rate kPa/hr</div>
             
-            <div class="vert-line"/>
             <div class="flx-row value">
                 <InputNum 
                     enabled={true}
                     bind:num={ssp_dur}
-                    width=6em
                 />
             </div>
-            <div class="flx-row unit">Duration hrs</div>
             <div class="flx-row value"></div>
         </div>
 
         <!-- <br> -->
         <div class="flx-row in">Flow Alarm Settings </div>
+        <div class="flx-row field">
+            <div class="flx-row title"></div>
+            <div class="vert-line"/>
+            <div class="flx-row col-head">Max (L/min)</div>
+            <div class="flx-row col-head">Toggle (L/min)</div>
+            <div class="flx-row col-head">Stable (hrs)</div>
+        </div>
     
         <div class="flx-row field">
             <div class="flx-row title">Flow</div>
@@ -145,20 +156,22 @@
                     enabled={true}
                     is_integer={false}
                     bind:num={cfg.cfg_hi_scvf}
-                    width=6em
                 />
             </div>
-            <div class="flx-row unit">Max L/min</div>
             <div class="flx-row value">
                 <InputNum 
                     enabled={true}
                     is_integer={false}
                     bind:num={cfg.cfg_flow_tog}
-                    width=6em
                 />
             </div>
-            <div class="flx-row unit">Toggle L/min</div>
-            <div class="flx-row value"></div>
+            <div class="flx-row value">
+                <InputNum 
+                    enabled={true}
+                    is_integer={false}
+                    bind:num={sscvf_dur}
+                />
+            </div>
         </div>
         
         <!-- <br> -->
@@ -166,9 +179,9 @@
         <div class="flx-row field">
             <div class="flx-row title"></div>
             <div class="vert-line"/>
-            <div class="flx-row col-head">Sample</div>
-            <div class="flx-row col-head">Log</div>
-            <div class="flx-row col-head">Transmit</div>
+            <div class="flx-row col-head">Sample (sec)</div>
+            <div class="flx-row col-head">Log (sec)</div>
+            <div class="flx-row col-head">Transmit (sec)</div>
         </div>
         <div class="flx-row field"><div class="flx-row title">Operation</div>
             <div class="vert-line"/>
@@ -177,27 +190,21 @@
                     enabled={true}
                     is_integer={false}
                     bind:num={op_sample}
-                    width=6em
                 />
-                <div class="flx-row sec">sec</div>
             </div>
             <div class="flx-row value">    
               <InputNum 
                     enabled={true}
                     is_integer={true}
                     bind:num={op_log}
-                    width=6em
                 />
-                <div class="flx-row sec">sec</div>
             </div>
             <div class="flx-row value">    
               <InputNum 
                     enabled={true}
                     is_integer={true}
                     bind:num={op_trans}
-                    width=6em
                 />
-                <div class="flx-row sec">sec</div>
             </div>
         </div>
         <div class="flx-row field"> <div class="flx-row title">Diagnostic</div>
@@ -207,27 +214,21 @@
                     enabled={true}
                     is_integer={true}
                     bind:num={diag_sample}
-                    width=6em
                 />
-                <div class="flx-row sec">sec</div>
             </div>
             <div class="flx-row value">
                 <InputNum 
                     enabled={true}
                     is_integer={true}
                     bind:num={diag_log}
-                    width=6em
                 />
-                <div class="flx-row sec">sec</div>
             </div>
             <div class="flx-row value">
                 <InputNum 
                     enabled={true}
                     is_integer={true}
                     bind:num={diag_trans}
-                    width=6em
                 />
-                <div class="flx-row sec">sec</div>
             </div>
         </div>
         
@@ -236,6 +237,10 @@
 </div>
 
 <style>
+
+    .container {
+        min-width: 35em;
+    }  
 
     .cont {
         gap: 0.75em;
@@ -254,7 +259,7 @@
     }
 
     .title {
-        color: var( --accent_a);
+        color: var( --accent);
         justify-content: flex-end;
         align-items: center;
         padding-right: 0.75em;
@@ -264,7 +269,7 @@
     }
 
     .col-head { 
-        color: var(--accent_a); 
+        color: var(--orange); 
         justify-content: flex-start; 
         align-items: center; 
         padding-left: 0.5em;
@@ -277,18 +282,18 @@
         padding-left: 0.5em;
         gap: 0.5em;
     }
-    .unit { 
+    /* .unit { 
         color: var(--orange_a); 
         align-items: center; 
         justify-content: flex-start;
         padding-left: 0.5em;
-    }
+    } */
 
-    .sec { 
+    /* .sec { 
         color: var(--orange_a); 
         align-items: center; 
         justify-content: flex-start;
-    }
+    } */
 
 
 </style>
