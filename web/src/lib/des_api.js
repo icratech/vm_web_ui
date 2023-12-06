@@ -855,6 +855,8 @@ export class Device {
         this.reg.des_job_reg_user_id = au.id
         this.reg.des_job_reg_app = client_app
         
+        this.sta.sta_logging = OP_CODES.JOB_START_REQ
+
         this.cfg = validateCFG( this.cfg )
         
         let dev = {

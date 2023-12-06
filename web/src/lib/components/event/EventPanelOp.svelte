@@ -20,7 +20,6 @@
         device.getActiveJobEvents( )
         show_evt_list = !show_evt_list
     }
-
 </script>
 
 <div class="flx-col container">
@@ -42,7 +41,7 @@
 
     { #if show_evt_list }
     <div class="flx-col evts">
-        { #each device.job_evts as evt ( evt.evt_time ) }
+        { #each device.job_evts as evt, index ( index ) }
             <EventCard bind:event={ evt } />
         { /each }
     </div>
