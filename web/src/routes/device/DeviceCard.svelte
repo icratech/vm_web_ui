@@ -36,8 +36,10 @@
 
 </script>
 
+<!-- style="width: { ( active ? 100 : 33 ) }%;" -->
 <div class="flx-row container { highlight }"
-    on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } >
+    on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } 
+>
 
 
     <div class="flx-col layout">
@@ -64,8 +66,6 @@
 
         { #if active }
             <BarGaugeCard bind:cfg bind:smp/>     
-        <!-- { :else }
-            <DeviceConn bind:device /> -->
         { /if }
 
     </div>

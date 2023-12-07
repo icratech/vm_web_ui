@@ -1,9 +1,44 @@
 <script>
 
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
-	import { Device, PING_LIMIT, DES_PING_LIMIT } from "../../lib/des_api";
+	import { Device, OP_CODES, PING_LIMIT, DES_PING_LIMIT } from "../../lib/des_api";
 
     export let device = new Device( )
+
+    $: evt_type = (JSON.parse( sessionStorage.event_types )).filter( t => t.evt_typ_code == device.sta.sta_logging )[0]
+    
+    $: evtColorCode = 'fg-accent'
+    $: {
+        switch ( evt_type.evt_typ_code )
+        {
+            case OP_CODES.DES_REG_REQ:
+            case OP_CODES.JOB_START_REQ:
+            case OP_CODES.JOB_END_REQ:
+                evtColorCode = 'fg-purple'
+                break
+
+            case OP_CODES.JOB_STARTED: 
+                evtColorCode = 'fg-green_08'
+                break
+
+            case OP_CODES.DES_REGISTERED:
+            case OP_CODES.JOB_ENDED:
+                evtColorCode = 'fg-grey_05'
+                break
+
+            case OP_CODES.JOB_OFFLINE_START: 
+            case OP_CODES.JOB_OFFLINE_END:
+                evtColorCode = 'fg-yellow'
+                break
+                
+            case OP_CODES.GPS_ACQ:
+                evtColorCode = 'fg-pink'
+                break
+        }
+
+    }
+
+
     $: des_ping_sec = 0
     $: dev_ping_sec = 0
     $: sec = 0
@@ -30,31 +65,15 @@
 
 
 <div class="flx-col container">
-    <div class="flx-row field">
-        <div class="flx-row field-name">Device Conn</div>
-        <div class="vert-line"/>
-        <div class="flx-row"><DateTimeDisplay date={ device.ping.time }/></div>
-        
-        <div class="flx-row field-name" style="color:{ ( device.ping.ok ? 'var(--green)' : 'var(--grey_03)' ) };" >
-            { ( device.ping.ok ? 'Connected' : 'Timeout' ) }
-            <div class="flx-row field-value timeout-value" style="color:{ ( device.ping.ok ? 'var(--light_a)' : 'var(--red)' ) };">
-                { dev_ping_sec }</div>
-        </div>
-    </div>
 
     <div class="flx-row field">
-        <div class="flx-row field-name">DES Conn</div>
+        <div class="flx-row field-name">State</div>
         <div class="vert-line"/>
-        <div class="flx-row"><DateTimeDisplay date={ device.des_ping.time }/></div>
-        
-        <div class="flx-row field-name" style="color:{ ( device.des_ping.ok ? 'var(--accent_aa)' : 'var(--grey_03)' ) };" >
-            { ( device.des_ping.ok ? 'Connected' : 'Timeout' ) }
-            <div class="flx-row field-value timeout-value" style="color:{ ( device.des_ping.ok ? 'var(--light_a)' : 'var(--red)' ) };">
-                { des_ping_sec }</div>
-        </div>
+        <div class="flx-row field-text-l { evtColorCode }">{ evt_type.evt_typ_name }</div>
+        <div class="flx-row  field-value timeout-value">( { device.sta.sta_logging } )</div>
+        <div class="flx-row field-text-r"><DateTimeDisplay date={ device.sta.sta_time }/></div>
     </div>
 
-        
     <div class="flx-row field">
         <div class="flx-row field-name">Firmware</div>
         <div class="vert-line"/>
@@ -70,9 +89,35 @@
                 <div class="flx-row field-value">{ device.sta.sta_mod_fw }</div>
             </div>
         </div>
+    </div>
+
+
+    <div class="flx-row field">
+        <div class="flx-row field-name">Pings</div>
+        <div class="vert-line"/>
+        
+        <div class="flx-row fw">
+            <div class="flx-row fw-sub-l">
+                <div class="flx-row field-sub">Device</div> 
+                <div class="flx-row field-value timeout-value" style="color:{ ( device.ping.ok ? 'var(--green_a)' : 'var(--red)' ) };">
+                    { dev_ping_sec }
+                </div>
+            </div>
+
+            <div class="flx-row fw-sub-r">
+                <div class="flx-row field-sub">Server</div>
+                <div class="flx-row field-value timeout-value" style="color:{ ( device.des_ping.ok ? 'var(--aqua_a)' : 'var(--red)' ) };">
+                    { des_ping_sec }
+                </div>
+            </div>
+
+        </div>
+
 
     </div>
 
+
+ 
 </div>
 
 <style>
@@ -93,16 +138,16 @@
     }
 
     .field-name {
-        color: var( --grey_a);
-        font-size: 0.9em;
+        color: var( --grey_07);
         justify-content: flex-end;
         align-items: center;
         padding-right: 0.75em;
-        max-width: 6.75em;
-        min-width: 6.75em;
+        max-width: 6em;
+        min-width: 6em;
     }
 
     .field-sub {
+        color: var( --grey_07);
         justify-content: flex-end;
         align-items: center;
         max-width: 3.75em;
@@ -125,12 +170,21 @@
     /* .date { color: var(--orange_a); } */
 
     .field-value { 
-        color: var( --orange_a);
+        /* color: var( --orange_a); */
         justify-content: flex-start;
         align-items: center; 
         max-width: 3.75em;
         min-width: 3.75em;
     }
 
+    .field-text-l { 
+        justify-content: flex-start;
+        align-items: center; 
+    }
+
+    .field-text-r { 
+        justify-content: flex-end;
+        align-items: center; 
+    }
 
 </style>

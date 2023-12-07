@@ -2193,11 +2193,11 @@ Event.prototype.MaxTitle = 36
 
 export class EventType {
     constructor(
-        evt_type_code = 0,
+        evt_typ_code = 0,
         evt_typ_name = "",
         evt_typ_desc = "",
     ) {
-        this.evt_type_code = evt_type_code
+        this.evt_typ_code = evt_typ_code
         this.evt_typ_name = evt_typ_name
         this.evt_typ_desc = evt_typ_desc
     }

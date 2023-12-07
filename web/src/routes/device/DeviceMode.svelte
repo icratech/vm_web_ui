@@ -9,49 +9,71 @@
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
     $: color_code = BASE.LIGHT
-    $: color_code_txt = RGBA(color_code,1)
+    $: color_code_txt_alpha = 1
+    $: color_code_txt = RGBA(color_code, color_code_txt_alpha)
     $: color_code_bg = RGBA(color_code, 0.2)
     $: color_code_border = RGBA(color_code, 0.5)
     $: lbl = 'OFF'
     $: {
-        /* TODO:  CLEAN THIS MESS UP */
-        if ( device.sta.sta_logging == OP_CODES.GPS_ACQ ) {
-                lbl = 'GPS'
-                color_code = BASE.PINK  
-        } else if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ ) {
+        lbl = 'OFF'
+        color_code = BASE.RED
+        color_code_txt_alpha = 1
+        switch ( device.sta.sta_logging )
+        {
+            case OP_CODES.DES_REG_REQ:
+            case OP_CODES.JOB_START_REQ:
+            case OP_CODES.JOB_END_REQ:
                 lbl = 'CMD'
-                color_code = BASE.PURPLE  
-        }
-        else if ( hdr.hdr_job_start == 0 ) { 
-            lbl = 'READY'
-            color_code = BASE.LIGHT  
-        }
-        else if ( device.sta.sta_logging == OP_CODES.JOB_STARTED ) {
-            switch ( getMode( cfg, smp ) ) {
+                color_code = BASE.PURPLE
+                break
 
-                case MODES.BUILD: 
-                    lbl = 'BUILD'
-                    color_code = COLORS.PRESS
-                    break
+            case OP_CODES.GPS_ACQ:
+                lbl = 'GPS'
+                color_code = BASE.PINK
+                break
 
-                case MODES.VENT: 
-                    lbl = 'VENT'
-                    color_code = BASE.AQUA
-                    break
+            case OP_CODES.JOB_STARTED: 
+                if ( device.ping.ok ) {
+                    switch ( getMode( cfg, smp ) ) {
+                        case MODES.BUILD: 
+                            lbl = 'BUILD'
+                            color_code = COLORS.PRESS
+                            break
 
-                case MODES.HI_FLOW:
-                    lbl = 'FLOW'
-                    color_code = COLORS.HI_FLOW
-                    break
+                        case MODES.VENT: 
+                            lbl = 'VENT'
+                            color_code = BASE.AQUA
+                            break
 
-                case MODES.LO_FLOW:
-                    lbl = 'FLOW'
-                    color_code = COLORS.LO_FLOW
-                    break
-            }
-        } else {
-            lbl = 'OFF'
-            color_code = BASE.RED 
+                        case MODES.HI_FLOW:
+                            lbl = 'FLOW'
+                            color_code = COLORS.HI_FLOW
+                            break
+
+                        case MODES.LO_FLOW:
+                            lbl = 'FLOW'
+                            color_code = COLORS.LO_FLOW
+                            break
+                    }
+                }
+                break
+
+            case OP_CODES.DES_REGISTERED:
+            case OP_CODES.JOB_ENDED:
+                if ( device.ping.ok ) {
+                    lbl = 'READY'
+                    color_code = BASE.GREY
+                    color_code_txt_alpha = 0.8
+                }
+                break
+
+            case OP_CODES.JOB_OFFLINE_START: 
+            case OP_CODES.JOB_OFFLINE_END:
+                if ( device.ping.ok ) {  
+                    lbl = 'SYNC'
+                    color_code = BASE.PINK
+                }
+                break
         }
     }
 </script>

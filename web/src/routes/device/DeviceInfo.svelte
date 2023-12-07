@@ -136,8 +136,8 @@
 
             </div> 
 
-        </div>
-                    
+        </div>  
+
         <div class="flx-col gauge">
             <BarGaugeCard bind:cfg bind:smp/>
         </div>
@@ -167,7 +167,7 @@
     .layout {  
         padding: 0; 
         padding-right: 0.5em;
-        gap: 0; 
+        gap: 1em; 
     }
     .title-bar {
         justify-content: space-between;
