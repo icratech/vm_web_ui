@@ -250,8 +250,6 @@ export const get_devices = async( ) => {
                     dev.evt,
                     dev.smp,
                     dev.reg,
-                    dev.ping,
-                    dev.des_ping,
                     dev.dbg
                 )
                 DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
@@ -505,8 +503,6 @@ export class Device {
         evt = new Event( ),
         smp = new Sample( ),
         reg = new DESRegistration( ), 
-        ping = new Ping( ), 
-        des_ping = new Ping( ),
         dbg = new Debug()
     ) { 
         this.adm = adm
@@ -520,7 +516,7 @@ export class Device {
         /* USED TO MONITOR THE PHYSICAL DEVICE'S BROKER CONNECTION 
             THE PHYSICAL DEVICE SENDS A PING EVERY 30 SECONDS
         */
-        this.ping = ping
+        this.ping = new Ping( )
         
         /* USED TO MONITOR THE DES DEVICE CLIENT'S BROKER CONNECTION 
             DES DEVICE CLIENT: 
@@ -528,7 +524,7 @@ export class Device {
              - WRITES TO JOB AND CMD DATABASES
              - PUBLISHES TO DEVICE COMMAND TOPICS 
         */
-        this.des_ping = des_ping
+        this.des_ping = new Ping( )
 
         /* USED TO ALTER THE DEBUG SETTINGS FOR A GIVEN DEVICE
             THIS INFORMATION IS NOT LOGGED TO THE DATABASE 
@@ -691,8 +687,13 @@ export class Device {
         let au = get( AUTH )
         // debug( `class Device -> ${ this.reg.des_dev_serial } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
 
+        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_app = client_app
         let reg = encodeURIComponent(JSON.stringify( this.reg ) )
-        let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.token }&des_reg=${ reg }`
+
+        let dev = encodeURIComponent(JSON.stringify( { reg : this.reg } ) )
+
+        let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.token }&device=${ dev }`
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => {  
             this.socket = true
@@ -716,25 +717,40 @@ export class Device {
                     this.sta = msg.data.sta
                     this.reg.des_job_name = this.sta.sta_job_name
 
-                    this.hdr = msg.data.hdr
-                    this.reg.des_job_start = this.hdr.hdr_job_start
-                    this.reg.des_job_end = this.hdr.hdr_job_end
-                    this.reg.des_job_lng = validateMeasuredValue( this.hdr.hdr_geo_lng )
-                    this.reg.des_job_lat = validateMeasuredValue( this.hdr.hdr_geo_lat )
-                    this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
-                    this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
-                   
+                    if ( msg.data.hdr.hdr_addr == this.reg.des_dev_serial ) {
+                        this.hdr = msg.data.hdr
+                        this.reg.des_job_start = this.hdr.hdr_job_start
+                        this.reg.des_job_end = this.hdr.hdr_job_end
+                        this.reg.des_job_lng = validateMeasuredValue( this.hdr.hdr_geo_lng )
+                        this.reg.des_job_lat = validateMeasuredValue( this.hdr.hdr_geo_lat )
+                        this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                        this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )     
+                    }
+
                     this.cfg = msg.data.cfg
                     this.updateMarkerMode( )
 
                     this.evt = msg.data.evt
                     this.job_evts.unshift( this.evt )
                     
-                    debug("new job start received from device: ", msg.data)
+                    debug("new job start received: ", msg.data)
                     break
 
+                case "end_sig":
+                    debug("new end received from device: ", msg.data)
+                    // if ( msg.data.sta_addr == this.reg.des_dev_serial ) {
+                    this.smp = new Sample( )
+                    this.resetChart( )
+                    // }
+                    break    
+                
+                case "end_cmd":
+                    debug("new end received from other user: ", msg.data)
+                    this.sta.sta_logging = msg.data.evt.evt_code
+                    break    
+                    
                 case "ping":
-                    // debug(`new ping received from device ${ this.reg.des_dev_serial }: `, FormatDateTime( msg.data.time ) )
+                    debug(`new ping received from device ${ this.reg.des_dev_serial }: `, FormatDateTime( msg.data.time ) )
                     this.ping = msg.data
                     break
             
@@ -917,7 +933,6 @@ export class Device {
 
         if ( !this.socket ) { await this.connectWS( ) }
 
-        this.hdr.hdr_job_end = -1
         this.reg.des_job_reg_app = client_app
         this.reg.des_job_reg_user_id = au.id
         let dev = {
@@ -939,8 +954,8 @@ export class Device {
         
         if ( reg.status === "success" ) { 
             debug("End Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
-            this.smp = new Sample( )
-            this.resetChart( )
+            // this.smp = new Sample( )
+            // this.resetChart( )
         }
     }
     setAdmin = async( ) => {

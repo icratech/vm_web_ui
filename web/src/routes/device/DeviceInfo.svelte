@@ -65,9 +65,14 @@
                 cmdButtonFunc = ( ) => { dispatch( 'end' ) }
                 break 
             
-            case OP_CODES.JOB_END_REQ:
             case OP_CODES.JOB_START_REQ:
-                cmdButtonHint = 'Get Device State' 
+                cmdButtonHint = 'Job Start Pending' 
+                cmdButtonIcon = btn_img_cmd_purple
+                cmdButtonFunc = ( ) => { device.setState( ) }
+                break
+
+            case OP_CODES.JOB_END_REQ:
+                cmdButtonHint = 'Job End Pending' 
                 cmdButtonIcon = btn_img_cmd_purple
                 cmdButtonFunc = ( ) => { device.setState( ) }
                 break
