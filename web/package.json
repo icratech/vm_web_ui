@@ -33,6 +33,7 @@
 		"js-guid": "^1.0.2",
 		"mapbox-gl": "^3.0.0-beta.1",
 		"moment": "^2.29.4",
+		"pdf-lib": "^1.17.1",
 		"svelte-media": "^0.1.5",
 		"svelte-preprocess": "^5.0.4",
 		"uuid": "^9.0.1"

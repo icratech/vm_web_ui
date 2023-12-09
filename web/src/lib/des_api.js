@@ -5,6 +5,7 @@ import { BASE, RGBA } from './common/colors'
 import { FormatDateTime } from "./common/format"
 import { getRelativePosition } from 'chart.js/helpers'
 
+
 export const openModals = ( initial ) => {
     const isOpen = writable( initial )
     const { set, update } = isOpen
@@ -1824,7 +1825,6 @@ export class Job {
         
         updateJobsStore( )
     }
-
 }
 
 export class Report {
@@ -1858,6 +1858,7 @@ export class Report {
         rep_secs.push( sec )
         /* TODO: HTTP POST TO DES */
     }
+
 }
 export class Section {
     constructor(

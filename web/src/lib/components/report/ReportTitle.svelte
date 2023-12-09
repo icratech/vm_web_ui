@@ -11,7 +11,7 @@
     import btn_img_collapse from "$lib/images/btn-img-collapse-orange.svg"
 	import { Job, Report } from "../../des_api"
     import { RGBA, BASE } from '$lib/common/colors'
-    export let job = new Job( )
+    // export let job = new Job( )
     export let rep = new Report( )
     export let highlight = true
 
@@ -31,7 +31,7 @@
     style="border: solid 0.1em { ( rep.selected && highlight ? border_color : 'transparent' ) };  
     background-color: { ( rep.selected && highlight ? bg_color : '' ) };" 
     on:keydown on:click={ ( ) => { 
-        dispatch( "report-selected", rep,  job ) 
+        dispatch( "report-selected", rep ) 
         rep.selected = true
     } } 
 >   
@@ -46,12 +46,14 @@
                 hint={ 'Edit' }
             />
 
-            { #if edit }
+            <!-- { #if edit } -->
             <PillButton 
-                img={ btn_img_add }
-                hint={ 'Add Section' }
+                on:click={ ( ) => { dispatch( "print-pdf", rep ) } }
+                cls={ 'bg-accent' }
+                hint={ 'Print PDF' }
             />
-            { /if }
+            
+            <!-- { /if } -->
 
         </div>
 

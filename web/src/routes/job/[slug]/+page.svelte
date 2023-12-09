@@ -1,5 +1,9 @@
 <script>
-   
+
+    import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+    // import fs from 'fs'
+    // import { printReportPDF } from '../../../lib/server/report'
+     
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
@@ -186,6 +190,40 @@
         job.s_mark.addTo( map )
     }
 
+    const printReportPDF = async( r ) => {
+        let pdfDoc = await PDFDocument.create( )
+        let timesRomanFont = await pdfDoc.embedFont( StandardFonts.TimesRoman )
+        let page = pdfDoc.addPage( )
+        let { width, height } = page.getSize( )
+        let fontSize = 30
+        page.drawText( r.rep_title, { 
+            x: 50,
+            y: height - 4 * fontSize,
+            size: fontSize,
+            font: timesRomanFont,
+            color: rgb( .2, .2, .2 ),
+        } ) 
+        let pdfBytes = await pdfDoc.save( ) // debug( "PDF file size: ", pdfBytes.length )
+
+        let doc = new Blob( [ pdfBytes ], { type: 'text/rtf' } )
+
+        if ( window.navigator && window.navigator.msSaveOrOpenBlob ) {
+            window.navigator.msSaveOrOpenBlob( doc )
+        } else {
+            const objUrl = window.URL.createObjectURL( doc )
+
+            let link = document.createElement( 'a' )
+            link.href = objUrl
+            link.download = 'report.pdf'
+            link.click( )
+
+            // For Firefox it is necessary to delay revoking the ObjectURL.
+            setTimeout( ( ) => { window.URL.revokeObjectURL( objUrl ) }, 250)
+        }
+    }
+
+    $: uri = ""
+
 </script>
 <div class="flx-col container">
 
@@ -237,8 +275,9 @@
             <div class="flx-col report-list">
                 { #each job.reports as rep ( rep.rep_id ) }
                 <ReportTitle 
-                    bind:job bind:rep 
+                    bind:rep 
                     on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
+                    on:print-pdf={ ( e ) => { printReportPDF( e.detail ) } }
                 />
                 { /each }
             </div>
