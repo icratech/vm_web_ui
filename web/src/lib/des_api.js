@@ -1308,7 +1308,7 @@ export class Device {
 
 }
 
-export const MIN_SAMPLE_PERIOD = 200 /* TODO: SET TO 1000 */
+export const MIN_SAMPLE_PERIOD = 1000 /* TODO: SET TO 1000 */
 export const DEFAULT_CFG_SSP_DUR =  2 * 3600 * 1000  // 21,600,000 (six hours)
 export const DEFAULT_CFG_SSCVF_DUR = 2 * 3600 * 1000  // 7,200,000 (two hours)
 

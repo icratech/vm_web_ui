@@ -1,6 +1,8 @@
 <script>
 
-    import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+    import { PDFDocument, PDFImage, StandardFonts, rgb } from 'pdf-lib'
+    import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
+    import vent_medic_nested from "$lib/images/vent-medic-report-cover.png"
     // import fs from 'fs'
     // import { printReportPDF } from '../../../lib/server/report'
      
@@ -44,6 +46,7 @@
     
     export let data
     import { getContext } from 'svelte'
+	import { callback } from 'chart.js/helpers';
     $: JOBS = getContext(  'jobs' )
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
     $: btn_img_evt_list = btn_img_edit_pink
@@ -190,19 +193,67 @@
         job.s_mark.addTo( map )
     }
 
+    const getImageBytes = async( img ) => {
+        return await ( await fetch( img ) ).arrayBuffer( )
+    }
+
+    const centerImage = ( pgW, imgW ) => {
+        let wDiff = pgW - imgW
+        return wDiff / 2
+    }
+    const getTextWidth = ( text, font ) => {
+        // re-use canvas object for better performance
+        const canvas = getTextWidth.canvas || ( getTextWidth.canvas = document.createElement( "canvas" ) );
+        const context = canvas.getContext( "2d") ;
+        context.font = font;
+        const metrics = context.measureText( text );
+        return metrics.width;
+    }
+
     const printReportPDF = async( r ) => {
         let pdfDoc = await PDFDocument.create( )
         let timesRomanFont = await pdfDoc.embedFont( StandardFonts.TimesRoman )
         let page = pdfDoc.addPage( )
         let { width, height } = page.getSize( )
         let fontSize = 30
+        let lineCount = 4
         page.drawText( r.rep_title, { 
-            x: 50,
+            x: centerImage( page.getWidth( ), getTextWidth( r.rep_title , timesRomanFont ) ),
             y: height - 4 * fontSize,
             size: fontSize,
             font: timesRomanFont,
             color: rgb( .2, .2, .2 ),
         } ) 
+
+        debug( "pdf -> page.getTrimBox( ): ", page.getTrimBox( ) )
+        debug( "pdf -> page.getTrimBox( ): ", page.get )
+
+        let imgBytes = await getImageBytes( vent_medic_nested )
+        let imgVMNestedPng = await pdfDoc.embedPng( imgBytes )
+        let dimVMNestedPNG = imgVMNestedPng.scale( 0.175 )
+
+        page.drawImage( imgVMNestedPng, {
+            x: centerImage( page.getWidth(), dimVMNestedPNG.width ),
+            y: 5 * fontSize,
+            width: dimVMNestedPNG.width,
+            height: dimVMNestedPNG.height,
+        } )
+
+        r.rep_secs.forEach( s => {
+            let sp = pdfDoc.addPage( )
+            let { width, height } = sp.getSize( )
+            let fontSize = 30
+            
+            sp.drawText( s.sec_name, { 
+                x: 50,
+                y: height - 4 * fontSize,
+                size: fontSize,
+                font: timesRomanFont,
+                color: rgb( .2, .2, .2 ),
+            } )
+
+        } )
+
         let pdfBytes = await pdfDoc.save( ) // debug( "PDF file size: ", pdfBytes.length )
 
         let doc = new Blob( [ pdfBytes ], { type: 'text/rtf' } )
