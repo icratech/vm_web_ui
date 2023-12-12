@@ -726,8 +726,8 @@ export class Device {
                         this.hdr = msg.data.hdr
                         this.reg.des_job_start = this.hdr.hdr_job_start
                         this.reg.des_job_end = this.hdr.hdr_job_end
-                        this.reg.des_job_lng = validateMeasuredValue( this.hdr.hdr_geo_lng )
-                        this.reg.des_job_lat = validateMeasuredValue( this.hdr.hdr_geo_lat )
+                        this.reg.des_job_lng = this.hdr.hdr_geo_lng 
+                        this.reg.des_job_lat = this.hdr.hdr_geo_lat
                         this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                         this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )     
                     }
