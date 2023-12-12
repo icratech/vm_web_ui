@@ -1,5 +1,7 @@
 <script>
 
+    import { Chart } from "chart.js/auto"
+    import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
     import { PDFDocument, PDFImage, StandardFonts, rgb } from 'pdf-lib'
     import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
     import vent_medic_nested from "$lib/images/vent-medic-report-cover.png"
@@ -149,8 +151,28 @@
         } )
     }
 
+    let canvas
+    $: chtPrintData = job.cht
+    let chtCanvas
+    const makeChart = async( ctx, d ) => {
+
+        let chart = new Chart( ctx, d )
+
+        return {
+            update( u ) {
+                chart.data.datasets = u.data.datasets
+                chart.options.scales = u.options.scales
+                chart.update( )
+            },
+            destroy( ) { 
+                chart.destroy( ) 
+            }
+        }
+    }
+
     $: loaded = false
     onMount( async( ) => {
+
         await job.getJobData( )
         hdr = job.headers.pop( )
         
@@ -158,6 +180,13 @@
             reportSelected( job.reports[0] ) 
         }
         debug("Header:", hdr)
+        
+        canvas = document.getElementById( 'sec_plot' ) 
+        canvas.width = 495
+        canvas.height = 700
+        chtPrintData = job.cht
+        chtCanvas = makeChart( canvas, chtPrintData )
+
         loaded = true
     } )
 
@@ -210,13 +239,177 @@
         return metrics.width;
     }
 
+    const pdfWriteSectionPlot = async( doc, page, sec, yStart ) => {
+
+        let recY = yStart - 30
+        let start = sec.sec_start
+        let end = sec.sec_end 
+        // job.printChartImage( sec.sec_start, sec.sec_end )
+        let imgFileName = `${ Date.now( ) }-plot.png`
+        // let imgBytes = [ ]
+        // const done = async( ) => { 
+        //     // let link = document.createElement( 'a' )
+        //     // link.href = canvas.toDataURL( )
+        //     // link.download = imgFileName
+        //     // link.click( )
+        //     // imgBytes = await fetch( link.href ).then( res => res.arrayBuffer( ) )
+
+            
+        //     let img = document.createElement( 'img' )
+        //     img.src = canvas.toDataURL( )
+        //     // debug( "img src: ", img.src )
+        //     // img.rotate="90"
+        //     // imgBytes = await fetch( img.src ).then( res => res.arrayBuffer( ) )
+        //     let imgBytes = await getImageBytes( vent_medic_nested )
+        //     debug( "imgBytes: ", imgBytes )
+
+        //     let pngImage = await doc.embedPng( imgBytes )
+        //     debug( "pngImage: ", pngImage )
+        //     let imgScale = pngImage.scale( 0.175 )
+            
+        //     page.drawImage( pngImage, {
+        //         x: centerImage( page.getWidth(), imgScale.width ), 
+        //         y: 150,
+        //         width: imgScale.width, 
+        //         height: imgScale.height,
+        //     } )
+        // }
+        // chtPrintData = job.cht
+        // chtPrintData.options.scales.x.min = start
+        // chtPrintData.options.scales.x.max = end
+        // chtPrintData.options.onAnimationComplete = done
+        // chtCanvas = makeChart( canvas, chtPrintData )
+        // chtPrintData = chtPrintData
+        // chtCanvas = await makeChart( canvas, chtPrintData )
+
+        // let link = document.createElement( 'a' )
+        // link.href = canvas.toDataURL( )
+        // link.download = imgFileName
+        // link.click( )
+        // imgBytes = await fetch( link.href ).then( res => res.arrayBuffer( ) )
+        // let img = document.createElement( 'img' )
+        // img.src = canvas.toDataURL( )
+        let imgBytes = await getImageBytes( vent_medic_nested )
+        debug( "imgBytes: ", imgBytes )
+
+        let pngImage = await doc.embedPng( imgBytes )
+        debug( "pngImage: ", pngImage )
+        let imgScale = pngImage.scale( 0.175 )
+        
+        await page.drawImage( pngImage, {
+            x: centerImage( page.getWidth(), imgScale.width ), 
+            y: 150,
+            width: imgScale.width, 
+            height: imgScale.height,
+        } )
+    }
+
+    const pdfWriteSectionData = ( page, sec, font, yStart ) => {
+
+        let smps = job.samples.filter( s => s.smp_time >= sec.sec_start && s.smp_time <= sec.sec_end )
+        // debug( "section samples: ", smps )
+
+        let cols = 9
+        let rows = 35
+
+        let recW = ( page.getWidth( ) - 100 ) / cols
+        let recH = 20
+        let recX = 50
+        let recY = yStart - 30
+        let colHdrs = [
+            "Date",
+            "Time",
+            "Methane",
+            "H-Flow",
+            "L-Flow",
+            "Pressure",
+            "Batt A",
+            "Batt V",
+            "Motor A"
+        ]
+        let colUnits = [
+            "",
+            "",
+            "%",
+            "L/min",
+            "L/min",
+            "kPa",
+            "Amp",
+            "Volt",
+            "Amp"
+        ]
+
+        let gap = Math.floor( smps.length / rows )
+        for ( let j = 0; j < rows; j++ ) {
+            let y = recY - ( j * recH )
+            let dat = colUnits
+            if ( j == 1 ) {
+                dat = colHdrs
+            } else if ( j > 1 ) {
+                let row = j * gap
+                if ( row > smps.length -1 ) { row = smps.length - 1 }
+                let s = smps[ row ] 
+                dat = [ 
+                    FormatDate( s.smp_time ), 
+                    FormatTime( s.smp_time ), 
+                    s.smp_ch4.toFixed( 3 ),
+                    s.smp_hi_flow.toFixed( 3 ),
+                    s.smp_lo_flow.toFixed( 3 ),
+                    s.smp_press.toFixed( 3 ),
+                    s.smp_bat_amp.toFixed( 3 ),
+                    s.smp_bat_volt.toFixed( 3 ),
+                    s.smp_mot_volt.toFixed( 3 ) 
+                ]
+            }
+            for ( let i = 0; i < cols; i ++ ) {
+                let c = 0.58 + ( i * .05 )
+                let x = recX + ( i * recW )
+                page.drawRectangle( {
+                    height: recH,
+                    width: recW,
+                    x: x,
+                    y: y,
+                    color: rgb( 1, 1,1 )
+                } )
+                page.drawText( dat[ i ], {
+                    x: x,
+                    y: y + 3,
+                    size: 10,
+                    font: font,
+                    color: rgb( .2, .2, .2 ),
+                } )
+            }
+        }
+    }
+
+    const pdfWriteFooters = ( doc, title, job_name, font ) => {
+        let size = 10
+        let y = size * 2
+        let pages = doc.getPages( )
+        let i = 1
+        pages.forEach( p => {
+            p.drawText( `${ title }`, { 
+                x: 50, 
+                y: y, size: size, font: font, color: rgb( .2, .2, .2 ),
+            } )
+            p.drawText( `Page ${ i } of ${ pages.length }`, { 
+                x: 265, 
+                y: y, size: size, font: font, color: rgb( .2, .2, .2 ),
+            } )
+            p.drawText( `${ job_name }`, { 
+                x: p.getSize( ).width - 180, 
+                y: y, size: size, font: font, color: rgb( .5, .5, .5 ),
+            } )
+            i++
+        } )
+    }
+
     const printReportPDF = async( r ) => {
         let pdfDoc = await PDFDocument.create( )
         let timesRomanFont = await pdfDoc.embedFont( StandardFonts.TimesRoman )
         let page = pdfDoc.addPage( )
-        let { width, height } = page.getSize( )
+        let height = page.getSize( ).height
         let fontSize = 30
-        let lineCount = 4
         page.drawText( r.rep_title, { 
             x: centerImage( page.getWidth( ), getTextWidth( r.rep_title , timesRomanFont ) ),
             y: height - 4 * fontSize,
@@ -226,9 +419,8 @@
         } ) 
 
         debug( "pdf -> page.getTrimBox( ): ", page.getTrimBox( ) )
-        debug( "pdf -> page.getTrimBox( ): ", page.get )
 
-        let imgBytes = await getImageBytes( vent_medic_nested )
+        let imgBytes = await getImageBytes( vent_medic_nested ) // debug( "Main imgBytes: ", imgBytes )
         let imgVMNestedPng = await pdfDoc.embedPng( imgBytes )
         let dimVMNestedPNG = imgVMNestedPng.scale( 0.175 )
 
@@ -239,20 +431,52 @@
             height: dimVMNestedPNG.height,
         } )
 
-        r.rep_secs.forEach( s => {
-            let sp = pdfDoc.addPage( )
-            let { width, height } = sp.getSize( )
-            let fontSize = 30
-            
-            sp.drawText( s.sec_name, { 
+        r.rep_secs.forEach( ( s ) => {
+            let fontSize = 23
+
+            let plotPage = pdfDoc.addPage( )
+            let plotPgH = plotPage.getSize( ).height
+            let plotTitleY = height - 3 * fontSize
+            plotPage.drawText( `${ s.sec_name } Section Plot`, { 
                 x: 50,
-                y: height - 4 * fontSize,
+                y: plotTitleY,
                 size: fontSize,
                 font: timesRomanFont,
                 color: rgb( .2, .2, .2 ),
             } )
+            // await pdfWriteSectionPlot( pdfDoc, plotPage, s, plotTitleY )
+            let plotBytes = getImageBytes( canvas.toDataURL( ) )
+            debug( "plotBytes: ", plotBytes )
+            // let plotPNG = pdfDoc.embedPng( plotBytes )
+            // let dimPlotPNG = plotPNG.scale( 0.175 )
 
+            // plotPage.drawImage( plotPNG, {
+            //     x: centerImage( page.getWidth(), dimPlotPNG.width ),
+            //     y: 3 * fontSize,
+            //     width: dimPlotPNG.width,
+            //     height: dimPlotPNG.height,
+            // } )
+            plotPage.drawImage( imgVMNestedPng, {
+                x: centerImage( page.getWidth(), dimVMNestedPNG.width ),
+                y: 5 * fontSize,
+                width: dimVMNestedPNG.width,
+                height: dimVMNestedPNG.height,
+            } )
+
+            let dataPage = pdfDoc.addPage( )
+            let dataPgH = dataPage.getSize( ).height
+            let dataTitleY = height - 3 * fontSize
+            dataPage.drawText( `${ s.sec_name } Section Data`, { 
+                x: 50,
+                y: dataTitleY,
+                size: fontSize,
+                font: timesRomanFont,
+                color: rgb( .2, .2, .2 ),
+            } )
+            pdfWriteSectionData( dataPage, s, timesRomanFont, dataTitleY )
         } )
+
+        pdfWriteFooters( pdfDoc, r.rep_title, job.reg.des_job_name, timesRomanFont )
 
         let pdfBytes = await pdfDoc.save( ) // debug( "PDF file size: ", pdfBytes.length )
 
@@ -265,7 +489,8 @@
 
             let link = document.createElement( 'a' )
             link.href = objUrl
-            link.download = 'report.pdf'
+            link.download = `${ r.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
+            link.target="_blank"
             link.click( )
 
             // For Firefox it is necessary to delay revoking the ObjectURL.
@@ -276,6 +501,7 @@
     $: uri = ""
 
 </script>
+<canvas style="display: none;" id="sec_plot"/>
 <div class="flx-col container">
 
     <div class="flx-row content">
@@ -328,7 +554,7 @@
                 <ReportTitle 
                     bind:rep 
                     on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
-                    on:print-pdf={ ( e ) => { printReportPDF( e.detail ) } }
+                    on:print-pdf={ async( e ) => { await printReportPDF( e.detail ) } }
                 />
                 { /each }
             </div>

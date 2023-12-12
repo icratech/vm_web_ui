@@ -1614,6 +1614,24 @@ export class Job {
         this.selection = 0
         updateJobsStore( )
     }
+    // printChartImage = async( start, end ) => {
+    //     let canvas = document.createElement( 'canvas' )
+    //     canvas.width = 495
+    //     canvas.height = 700
+    //     let imgFileName = `${ Date.now( ) }-plot.png`
+    //     const done = async( ) => { 
+    //         let link = document.createElement( 'a' )
+    //         link.href = canvas.toDataURL( )
+    //         link.download = imgFileName
+    //         link.click( )
+    //     }
+    //     let data = this.cht
+    //     data.options.scales.x.min = start
+    //     data.options.scales.x.max = end
+    //     data.options.onAnimationComplete = await done( )
+    //     new Chart( canvas, data )
+
+    // }
 
     /* WEBSOCKET METHODS **************************************************************/
     disconnectWS = async( ) => { }
@@ -1864,6 +1882,8 @@ export class Report {
     }
 
 }
+
+import { Chart } from "chart.js/auto"
 export class Section {
     constructor(
         /*  { metadata } */
@@ -1893,6 +1913,7 @@ export class Section {
     }
 
  }
+
  export class SectionDataSet {
     constructor(
         /*  { metadata } */

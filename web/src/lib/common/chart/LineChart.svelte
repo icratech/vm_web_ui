@@ -36,6 +36,11 @@
                     break
                 case 1: // wheel
                     debug( "wheel click" )
+                    var url = ctx.toDataURL( )
+                    let link = document.createElement( 'a' )
+                    link.href = url
+                    link.download = `Component-${ Date.now( ) }-plot.png`
+                    link.click( )
                     break
                 case 2: // right
                     chart.resetZoom( )
