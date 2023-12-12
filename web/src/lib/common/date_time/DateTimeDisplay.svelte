@@ -1,9 +1,16 @@
 
 <script>
+    
+    import { debug } from "../../des_api"
+    import { validateUnixMilli } from "../format";
+
     export let cls = 'fg-accent'
     export let showTime = true
     export let showDate = true
     export let date = 0
+
+    $: date = validateUnixMilli( date )
+
     $: d = new Date( date )
     $: ye = ( date == 0 ? 'yyyy' : d.getFullYear( ) )
     $: mo = ( date == 0 ? 'MMM' : new Intl.DateTimeFormat( 'en', { month: 'short' } ).format( date ) )

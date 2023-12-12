@@ -158,7 +158,7 @@ export const get_user = async( token ) => {
         // debug("\ndes_api.js -> get_user( ) -> AUTHENTICATION FAILED!\n" ) 
     }
     
-    debug("\ndes_api.js -> get_user( ) -> AUTH: \n", get( AUTH ) )
+    debug("\ndes_api.js -> get_user( ) -> AUTH: ", get( AUTH ).name )
 }
 
 
@@ -222,7 +222,7 @@ export const register_device = async( serial ) => {
 export const get_devices = async( ) => {
 
     let au = get( AUTH )
-    debug("\ndes_api.js -> get_devices( ) -> AUTH: \n", au )
+    // debug("\ndes_api.js -> get_devices( ) -> AUTH: \n", au )
 
     DEVICES_LOADED.set( false )
     let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
@@ -239,7 +239,7 @@ export const get_devices = async( ) => {
 
         // let store = get( DEVICES )
         let devs = json.data.devices 
-        debug( "get_devices( ) -> response:\n", devs )
+        // debug( "get_devices( ) -> response:\n", devs )
         
         devs.forEach( dev => {
             if( get( DEVICES ).filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
@@ -755,7 +755,7 @@ export class Device {
                     break    
                     
                 case "ping":
-                    debug(`new ping received from device ${ this.reg.des_dev_serial }: `, FormatDateTime( msg.data.time ) )
+                    // debug(`new ping received from device ${ this.reg.des_dev_serial }: `, FormatDateTime( msg.data.time ) )
                     this.ping = msg.data
                     break
             
@@ -1166,11 +1166,11 @@ export class Device {
         let evts = await res.json( )
         
         if ( evts.status === "success" ) { 
-            debug("GET ACTIVE JOB EVENTS Response -> SUCCESS:\n", this.reg.des_dev_serial )
+            debug("GET ACTIVE JOB EVENTS Response -> SUCCESS: ", this.reg.des_dev_serial )
             this.job_evts = evts.data.events
         }  
         if ( this.job_evts === null ) { this.job_evts = [ ] }
-        debug( "ACTIVE JOB EVENTS:\n", this.job_evts )
+        // debug( "ACTIVE JOB EVENTS:\n", this.job_evts )
     }
     setDebug = async( ) => {
         debug( "Set Debug for device: ", this.reg.des_dev_serial ) 
@@ -2262,6 +2262,10 @@ export class Sample {
         this.smp_vlv_pos = smp_vlv_pos
         this.smp_job_name =smp_job_name
     }
+}
+export const ValidateSMP = ( smp ) => {
+    let valid = new Sample( )
+
 }
 
 /* 

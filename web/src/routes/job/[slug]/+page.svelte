@@ -177,7 +177,7 @@
         new_sec = new Section( )
     }
 
-    $: evt_code = 2001
+    $: evt_code = OP_CODES.REPORT_EVENT
     $: evt = new Event( )
     $: {  evt.evt_time = job.selection } 
 

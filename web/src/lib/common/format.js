@@ -1,3 +1,12 @@
+
+
+import { debug } from "../des_api"
+export const validateUnixMilli = ( unixMilli /*UnixMilli*/ ) => {
+    let td = new Date( unixMilli )
+    if ( td == "Invalid Date" ) { return 0 } 
+    else { return unixMilli }
+} 
+
 export const FormatDate = (d) => {
     let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
     let mo = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
