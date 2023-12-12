@@ -42,7 +42,7 @@
     import { RGBA, BASE } from '$lib/common/colors'
 
     import { onMount } from "svelte"
-	import { Config, Header, OP_CODES, Event, Report, Section, SectionDataSet, debug, Sample, validateMeasuredValue, COLORS, MODES, getMode  } from "../../../lib/des_api"
+	import { Config, Header, OP_CODES, Event, Report, Section, SectionDataSet, debug, Sample, validateLngLat, COLORS, MODES, getMode  } from "../../../lib/des_api"
     
     export let data
     import { getContext } from 'svelte'
@@ -186,7 +186,7 @@
     let map = new mapboxgl.Map( {
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
-            center: [ validateMeasuredValue( hdr.hdr_geo_lng ), validateMeasuredValue( hdr.hdr_geo_lat ) ],
+            center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
             zoom :  5.5,
             interactive: false
         } )

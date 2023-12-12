@@ -3,7 +3,7 @@
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher( )
 
-    import { Device, OP_CODES, Sample, validateMeasuredValue, debug } from "../../lib/des_api"
+    import { Device, OP_CODES, Sample, validateLngLat, debug } from "../../lib/des_api"
 
     import DeviceMode from "./DeviceMode.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
@@ -94,14 +94,14 @@
         let map = new mapboxgl.Map(  {
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
-            center: [ validateMeasuredValue( hdr.hdr_geo_lng ), validateMeasuredValue( hdr.hdr_geo_lat ) ],
+            center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
             zoom : ( sta.sta_logging == OP_CODES.JOB_STARTED ? 5.5 : 1 ),
             interactive: true
         } )
 
         device.mark.addTo( map )
         device.updateDevicePageMap = ( act, lng, lat ) => { 
-            device.mark.setLngLat( [ lng, lat ] )
+            device.mark.setLngLat( validateLngLat( lng, lat ) )
             map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 2500 } ) 
         }
     }

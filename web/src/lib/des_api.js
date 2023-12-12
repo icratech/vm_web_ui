@@ -551,7 +551,9 @@ export class Device {
         /* DEVICE PAGE MAP MARKER */
         this.mark_el = document.createElement('div')
         this.mark = new mapboxgl.Marker( 
-            this.mark_el, { anchor: 'bottom-right' } ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] ) 
+            this.mark_el, { anchor: 'bottom-right' } ).setLngLat( 
+                validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) 
+        ) 
 
         /* DEVICE SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
@@ -559,7 +561,9 @@ export class Device {
         this.s_mark_el.addEventListener('mouseover', ( ) => { this.highlight = true; updateDevicesStore( ) } )
         this.s_mark_el.addEventListener('mouseleave', ( ) => { this.highlight = false; updateDevicesStore( ) } )
         this.s_mark = new mapboxgl.Marker( 
-            this.s_mark_el, { anchor: 'bottom-right' } ).setLngLat( [ this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat  ] )
+            this.s_mark_el, { anchor: 'bottom-right' } ).setLngLat( 
+                validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) 
+        )
 
         this.resetChart( )
     }
@@ -1449,7 +1453,7 @@ export class Job {
         } )
         this.s_mark = new mapboxgl.Marker( 
             this.s_mark_el, { anchor: 'bottom-right' } 
-            ).setLngLat( [ this.reg.des_job_lng, this.reg.des_job_lat  ] )
+            ).setLngLat( validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ) )
         
         this.cht = NewChartData( )
         this.resetChart( )
@@ -2094,6 +2098,16 @@ export class Header {
         this.hdr_geo_lng = hdr_geo_lng
         this.hdr_geo_lat = hdr_geo_lat
     }
+}
+export const validateLngLat = ( lng, lat ) => {
+    
+    let validLng = validateMeasuredValue( lng )
+    if ( validLng === null ) { validLng = -180 }
+
+    let validLat = validateMeasuredValue( lat ) 
+    if ( validLat === null ) { validLat = 90 }
+
+    return [ validLng, validLat ]
 }
 
 /* 

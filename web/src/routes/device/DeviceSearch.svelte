@@ -14,6 +14,7 @@
         // DEVICES_LOADED, 
         DESSearchParam, 
         get_devices, 
+        validateLngLat,
         debug 
     } from "../../lib/des_api";
  
@@ -52,14 +53,17 @@
         } )
 
         $DEVICES.forEach( d =>{
-            d.s_mark.setLngLat( [ d.hdr.hdr_geo_lng, d.hdr.hdr_geo_lat ] )
+
+            d.s_mark.setLngLat( validateLngLat( d.hdr.hdr_geo_lng, d.hdr.hdr_geo_lat ) )
             d.updateMarkerMode( ) 
             d.s_mark.addTo( map )
+
             d.updateDeviceSearchMap = ( lng, lat ) => { 
-                d.s_mark.setLngLat( [ lng, lat ] ) 
+                d.s_mark.setLngLat( validateLngLat( lng, lat ) ) 
                 d.updateMarkerMode( )
                 debug( "updateDeviceSearchMap( ): ", d.s_mark.getOffset( ) )
             }  
+            
         } ) 
         
     }
