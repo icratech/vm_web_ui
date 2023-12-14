@@ -1,6 +1,6 @@
 
 <script>
-    import { COLORS, Device, OP_CODES, MODES, getMode } from "../../lib/des_api"
+    import { CHT_COLORS, Device, OP_CODES, MODES, getMode } from "../../lib/des_api"
     import { RGBA, BASE } from "../../lib/common/colors"
     
     export let device = new Device( )
@@ -37,7 +37,7 @@
                     switch ( getMode( cfg, smp ) ) {
                         case MODES.BUILD: 
                             lbl = 'BUILD'
-                            color_code = COLORS.PRESS
+                            color_code = CHT_COLORS.PRESS
                             break
 
                         case MODES.VENT: 
@@ -47,12 +47,12 @@
 
                         case MODES.HI_FLOW:
                             lbl = 'FLOW'
-                            color_code = COLORS.HI_FLOW
+                            color_code = CHT_COLORS.HI_FLOW
                             break
 
                         case MODES.LO_FLOW:
                             lbl = 'FLOW'
-                            color_code = COLORS.LO_FLOW
+                            color_code = CHT_COLORS.LO_FLOW
                             break
                     }
                 }

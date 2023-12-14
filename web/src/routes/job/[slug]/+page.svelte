@@ -2,8 +2,9 @@
 
     import { Chart } from "chart.js/auto"
     import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
-    import { PDFDocument, PDFImage, StandardFonts, rgb } from 'pdf-lib'
-    import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
+    import { PDFDocument, PDFImage, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib'
+    
+    import vent_medic_logo from "$lib/images/vent-medic-logo.png"
     import vent_medic_nested from "$lib/images/vent-medic-report-cover.png"
     // import fs from 'fs'
     // import { printReportPDF } from '../../../lib/server/report'
@@ -42,13 +43,30 @@
     import btn_img_add_yellow from "$lib/images/btn-img-add-yellow.svg"
 
     import { RGBA, BASE } from '$lib/common/colors'
+    import { PDF_RGB_BASE } from "../../../lib/common/pdf/pdf"
 
     import { onMount } from "svelte"
-	import { Config, Header, OP_CODES, Event, Report, Section, SectionDataSet, debug, Sample, validateLngLat, COLORS, MODES, getMode  } from "../../../lib/des_api"
+	import { 
+        Header, 
+        Config,  
+        Event, 
+        Sample,
+        Report, 
+        Section, 
+        SectionDataSet,  
+        validateLngLat, 
+        OP_CODES,
+        CHT_COLORS,
+        MODES, 
+        getMode,
+        debug
+    } from "../../../lib/des_api"
     
+    import { NewPDFChartData, PDF_RGB_COLORS } from "../../../lib/components/report/report_pdf"
+
     export let data
     import { getContext } from 'svelte'
-	import { callback } from 'chart.js/helpers';
+	// import { callback } from 'chart.js/helpers';
     $: JOBS = getContext(  'jobs' )
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
     $: btn_img_evt_list = btn_img_edit_pink
@@ -106,7 +124,7 @@
             switch ( getMode( sec.cfg, sec.smp ) ) {
 
                 case MODES.BUILD: 
-                    color_code = COLORS.PRESS
+                    color_code = CHT_COLORS.PRESS
                     color_code_fg = 'fg-green'
                     btn_img_add_evt = btn_img_add_green
                     break
@@ -118,13 +136,13 @@
                     break
 
                 case MODES.HI_FLOW:
-                    color_code = COLORS.HI_FLOW
+                    color_code = CHT_COLORS.HI_FLOW
                     color_code_fg = 'fg-orange'
                     btn_img_add_evt = btn_img_add_orange
                     break
 
                 case MODES.LO_FLOW:
-                    color_code = COLORS.LO_FLOW
+                    color_code = CHT_COLORS.LO_FLOW
                     color_code_fg = 'fg-yellow'
                     btn_img_add_evt = btn_img_add_yellow
                     break
@@ -150,10 +168,6 @@
             )
         } )
     }
-
-    let canvas
-    $: chtPrintData = job.cht
-    let chtCanvas
     const makeChart = async( ctx, d ) => {
 
         let chart = new Chart( ctx, d )
@@ -172,7 +186,6 @@
 
     $: loaded = false
     onMount( async( ) => {
-
         await job.getJobData( )
         hdr = job.headers.pop( )
         
@@ -180,13 +193,6 @@
             reportSelected( job.reports[0] ) 
         }
         debug("Header:", hdr)
-        
-        canvas = document.getElementById( 'sec_plot' ) 
-        canvas.width = 495
-        canvas.height = 700
-        chtPrintData = job.cht
-        chtCanvas = makeChart( canvas, chtPrintData )
-
         loaded = true
     } )
 
@@ -201,7 +207,7 @@
 
     let new_sec = new Section( )
     const makeSection = ( rep ) => {
-        debug(  "new section name: ", new_sec.sce_name )
+        debug(  "new section name: ", new_sec.sec_name )
         rep.addSection( new_sec )
         new_sec = new Section( )
     }
@@ -210,14 +216,16 @@
     $: evt = new Event( )
     $: {  evt.evt_time = job.selection } 
 
-    const makeMap = ( ctx ) => {
+    let map
+    const makeMap = async( ctx ) => {
 
-    let map = new mapboxgl.Map( {
+        map = new mapboxgl.Map( {
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
             zoom :  5.5,
-            interactive: false
+            interactive: false,
+            preserveDrawingBuffer: true
         } )
         job.s_mark.addTo( map )
     }
@@ -226,18 +234,18 @@
         return await ( await fetch( img ) ).arrayBuffer( )
     }
 
-    const centerImage = ( pgW, imgW ) => {
+    const centerImage = ( margin, pgW, imgW ) => {
         let wDiff = pgW - imgW
-        return wDiff / 2
+        return ( wDiff / 2 ) 
     }
-    const getTextWidth = ( text, font ) => {
-        // re-use canvas object for better performance
-        const canvas = getTextWidth.canvas || ( getTextWidth.canvas = document.createElement( "canvas" ) );
-        const context = canvas.getContext( "2d") ;
-        context.font = font;
-        const metrics = context.measureText( text );
-        return metrics.width;
-    }
+    // const getTextWidth = ( text, font ) => {
+    //     // re-use canvas object for better performance
+    //     const canvas = getTextWidth.canvas || ( getTextWidth.canvas = document.createElement( "canvas" ) );
+    //     const context = canvas.getContext( "2d") ;
+    //     context.font = font;
+    //     const metrics = context.measureText( text );
+    //     return metrics.width;
+    // }
 
     const pdfWriteSectionPlot = async( doc, page, sec, yStart ) => {
 
@@ -310,12 +318,24 @@
         // debug( "section samples: ", smps )
 
         let cols = 9
-        let rows = 35
+        let rows = 33
+        let dec = 5
 
         let recW = ( page.getWidth( ) - 100 ) / cols
         let recH = 20
         let recX = 50
-        let recY = yStart - 30
+        let recY = yStart - 23
+        let colors = [
+            PDF_RGB_BASE.GREY,  // Date
+            PDF_RGB_BASE.DARK, // Time
+            PDF_RGB_COLORS.CH4, 
+            PDF_RGB_COLORS.HI_FLOW,
+            PDF_RGB_COLORS.LO_FLOW,
+            PDF_RGB_COLORS.PRESS,
+            PDF_RGB_COLORS.BAT_AMP,
+            PDF_RGB_COLORS.BAT_VOLT,
+            PDF_RGB_COLORS.MOT_VOLT
+        ]
         let colHdrs = [
             "Date",
             "Time",
@@ -352,13 +372,13 @@
                 dat = [ 
                     FormatDate( s.smp_time ), 
                     FormatTime( s.smp_time ), 
-                    s.smp_ch4.toFixed( 3 ),
-                    s.smp_hi_flow.toFixed( 3 ),
-                    s.smp_lo_flow.toFixed( 3 ),
-                    s.smp_press.toFixed( 3 ),
-                    s.smp_bat_amp.toFixed( 3 ),
-                    s.smp_bat_volt.toFixed( 3 ),
-                    s.smp_mot_volt.toFixed( 3 ) 
+                    s.smp_ch4.toFixed( dec ),
+                    s.smp_hi_flow.toFixed( dec ),
+                    s.smp_lo_flow.toFixed( dec ),
+                    s.smp_press.toFixed( dec ),
+                    s.smp_bat_amp.toFixed( dec ),
+                    s.smp_bat_volt.toFixed( dec ),
+                    s.smp_mot_volt.toFixed( dec ) 
                 ]
             }
             for ( let i = 0; i < cols; i ++ ) {
@@ -369,14 +389,14 @@
                     width: recW,
                     x: x,
                     y: y,
-                    color: rgb( 1, 1,1 )
+                    color: rgb( 1, 1, 1 )
                 } )
                 page.drawText( dat[ i ], {
                     x: x,
                     y: y + 3,
                     size: 10,
                     font: font,
-                    color: rgb( .2, .2, .2 ),
+                    color: colors[ i ],
                 } )
             }
         }
@@ -384,7 +404,7 @@
 
     const pdfWriteFooters = ( doc, title, job_name, font ) => {
         let size = 10
-        let y = size * 2
+        let y = size * 3
         let pages = doc.getPages( )
         let i = 1
         pages.forEach( p => {
@@ -404,77 +424,155 @@
         } )
     }
 
+    const PDF_MARGIN = 50
     const printReportPDF = async( r ) => {
+
+        let pgSize = PageSizes.Letter
         let pdfDoc = await PDFDocument.create( )
         let timesRomanFont = await pdfDoc.embedFont( StandardFonts.TimesRoman )
-        let page = pdfDoc.addPage( )
+        let page = pdfDoc.addPage( pgSize )
         let height = page.getSize( ).height
-        let fontSize = 30
+        let width = page.getSize( ).width
+        let xLeft = PDF_MARGIN
+        let xRight = width - PDF_MARGIN
+        let fontSize = 23
+        let yPos = height - 5 * fontSize
+
+        let imgBytes = await getImageBytes( vent_medic_logo ) 
+        let logoPNG = await pdfDoc.embedPng( imgBytes )
+        let logoPNGSize = logoPNG.scale( 0.175 )
+        yPos -= ( logoPNGSize.height + 10 )
+        page.drawImage( logoPNG, {
+            x: centerImage( PDF_MARGIN, width, logoPNGSize.width ),
+            y: yPos,
+            width: logoPNGSize.width,
+            height: logoPNGSize.height,
+        } )
+
+        yPos -= fontSize * 5
         page.drawText( r.rep_title, { 
-            x: centerImage( page.getWidth( ), getTextWidth( r.rep_title , timesRomanFont ) ),
-            y: height - 4 * fontSize,
+            x: xLeft,  // centerImage( xMargin, width, getTextWidth( r.rep_title , timesRomanFont ) ),
+            y: yPos,
             size: fontSize,
             font: timesRomanFont,
-            color: rgb( .2, .2, .2 ),
+            color: PDF_RGB_BASE.GREY,
         } ) 
 
-        debug( "pdf -> page.getTrimBox( ): ", page.getTrimBox( ) )
-
-        let imgBytes = await getImageBytes( vent_medic_nested ) // debug( "Main imgBytes: ", imgBytes )
-        let imgVMNestedPng = await pdfDoc.embedPng( imgBytes )
-        let dimVMNestedPNG = imgVMNestedPng.scale( 0.175 )
-
-        page.drawImage( imgVMNestedPng, {
-            x: centerImage( page.getWidth(), dimVMNestedPNG.width ),
-            y: 5 * fontSize,
-            width: dimVMNestedPNG.width,
-            height: dimVMNestedPNG.height,
+        yPos -= 8
+        page.drawLine( {
+            start: { x: xLeft, y: yPos },
+            end: { x: xRight, y: yPos },
+            thickness: 1,
+            color: PDF_RGB_BASE.GREY
         } )
 
-        r.rep_secs.forEach( ( s ) => {
-            let fontSize = 23
+        let mapBytes = await fetch( map.getCanvas( ).toDataURL( 'image/png' ) ).then( res => res.blob( ) ).then( blob => { 
+            return blob.arrayBuffer( )
+        } ) 
+        let mapPNG = await pdfDoc.embedPng( mapBytes )
+        let mapPNGSize = mapPNG.scale( 0.56 )
+        let mapYPos = yPos - ( mapPNGSize.height + 10 )
+        page.drawImage( mapPNG, {
+            x: width / 2, //centerImage( PDF_MARGIN, width, mapPNGSize.width ),
+            y: mapYPos,
+            width: mapPNGSize.width,
+            height: mapPNGSize.height,
+        } )
 
-            let plotPage = pdfDoc.addPage( )
-            let plotPgH = plotPage.getSize( ).height
-            let plotTitleY = height - 3 * fontSize
+        let hdrFontSize = 13
+        yPos -= ( hdrFontSize + 3 )
+        page.drawText( `Company: ${ hdr.hdr_well_co }`, { 
+            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
+        } )
+
+        yPos -= ( hdrFontSize + 3 )
+        page.drawText( `Well Name: ${ hdr.hdr_well_name }`, { 
+            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
+        } )
+
+        yPos -= ( hdrFontSize + 3 )
+        page.drawText( `Surface Loc: ${ hdr.hdr_well_sf_loc }`, { 
+            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
+        } )
+
+        yPos -= ( hdrFontSize + 3 )
+        page.drawText( `Bottom Loc: ${ hdr.hdr_well_bh_loc }`, { 
+            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
+        } )
+
+        yPos -= ( hdrFontSize + 3 )
+        page.drawText( `License: ${ hdr.hdr_well_lic }`, { 
+            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
+        } )
+
+        let secPlots = [ ]
+        let data = NewPDFChartData( job )
+        const pdf_canvas = document.getElementById( 'sec_plot' ) 
+        pdf_canvas.width = 770
+        pdf_canvas.height = 550
+        for ( let i = 0; i < r.rep_secs.length; i++ ) {
+            let s = r.rep_secs[ i ]     
+            data.options.plugins.title.text = s.sec_name
+            data.options.scales.x.min = s.sec_start
+            data.options.scales.x.max = s.sec_end    
+            const pdf_chart = makeChart( pdf_canvas, data )
+            let plotBytes = await fetch( pdf_canvas.toDataURL( ) )
+                .then( res => res.blob( ) )
+                .then( blob => { 
+                    return blob.arrayBuffer( )
+                } )
+            secPlots.push( plotBytes );
+            (await pdf_chart).destroy( )
+
+            let plotPage = pdfDoc.addPage( pgSize )
+            // let plotPgH = plotPage.getSize( ).height
+            let plotYPos = height - 3 * fontSize
             plotPage.drawText( `${ s.sec_name } Section Plot`, { 
-                x: 50,
-                y: plotTitleY,
+                x: PDF_MARGIN,
+                y: plotYPos,
                 size: fontSize,
                 font: timesRomanFont,
-                color: rgb( .2, .2, .2 ),
+                color: PDF_RGB_BASE.GREY,
             } )
-            // await pdfWriteSectionPlot( pdfDoc, plotPage, s, plotTitleY )
-            let plotBytes = getImageBytes( canvas.toDataURL( ) )
-            debug( "plotBytes: ", plotBytes )
-            // let plotPNG = pdfDoc.embedPng( plotBytes )
-            // let dimPlotPNG = plotPNG.scale( 0.175 )
+            plotYPos -= 8
+            plotPage.drawLine( {
+                start: { x: xLeft, y: plotYPos },
+                end: { x: xRight, y: plotYPos },
+                thickness: 1,
+                color: PDF_RGB_BASE.GREY
+            } )
+            // let plotPNG = await pdfDoc.embedPng( secPlots[i] )
+            let plotPNG = await pdfDoc.embedPng( plotBytes )
+            let dimPlotPNG = plotPNG.scale( 0.35 )
 
-            // plotPage.drawImage( plotPNG, {
-            //     x: centerImage( page.getWidth(), dimPlotPNG.width ),
-            //     y: 3 * fontSize,
-            //     width: dimPlotPNG.width,
-            //     height: dimPlotPNG.height,
-            // } )
-            plotPage.drawImage( imgVMNestedPng, {
-                x: centerImage( page.getWidth(), dimVMNestedPNG.width ),
-                y: 5 * fontSize,
-                width: dimVMNestedPNG.width,
-                height: dimVMNestedPNG.height,
+            plotPage.drawImage( plotPNG, {
+                x: 75, //centerImage( page.getWidth(), dimPlotPNG.height ),
+                y: plotYPos - fontSize,
+                rotate: degrees( -90 ),
+                width: dimPlotPNG.width,
+                height: dimPlotPNG.height,
             } )
 
-            let dataPage = pdfDoc.addPage( )
-            let dataPgH = dataPage.getSize( ).height
-            let dataTitleY = height - 3 * fontSize
+            let dataPage = pdfDoc.addPage( pgSize )
+            let dataYPos = height - 3 * fontSize
             dataPage.drawText( `${ s.sec_name } Section Data`, { 
-                x: 50,
-                y: dataTitleY,
+                x: PDF_MARGIN,
+                y: dataYPos,
                 size: fontSize,
                 font: timesRomanFont,
-                color: rgb( .2, .2, .2 ),
+                color: PDF_RGB_BASE.GREY,
             } )
-            pdfWriteSectionData( dataPage, s, timesRomanFont, dataTitleY )
-        } )
+            dataYPos -= 8
+            dataPage.drawLine( {
+                start: { x: PDF_MARGIN, y: dataYPos },
+                end: { x: xRight, y: dataYPos },
+                thickness: 1,
+                color: PDF_RGB_BASE.GREY
+            } )
+            pdfWriteSectionData( dataPage, s, timesRomanFont, dataYPos )
+            
+        }
+        debug( "secPlots: ", secPlots )
 
         pdfWriteFooters( pdfDoc, r.rep_title, job.reg.des_job_name, timesRomanFont )
 
@@ -482,26 +580,42 @@
 
         let doc = new Blob( [ pdfBytes ], { type: 'text/rtf' } )
 
+        let sugPDFName = `${ r.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
+        let sugCSVName = `${ r.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.csv`
+
         if ( window.navigator && window.navigator.msSaveOrOpenBlob ) {
             window.navigator.msSaveOrOpenBlob( doc )
         } else {
-            const objUrl = window.URL.createObjectURL( doc )
 
-            let link = document.createElement( 'a' )
-            link.href = objUrl
-            link.download = `${ r.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
-            link.target="_blank"
-            link.click( )
+            if ( window.showSaveFilePicker ) {
+                let handle = await showSaveFilePicker( {
+                    suggestedName: sugPDFName,
+                    types: [ 
+                        { description: "PDF", accept: { "tex/plain" : [ ".pdf" ] } }
+                        // { description: "CSV", accept: { "tex/plain" : [ ".csv" ] } }
+                    ]
+                } )
+                let writable = await handle.createWritable( )
+                await writable.write( doc )
+                writable.close( )
+            } else {
+                const url = window.URL.createObjectURL( doc )
+                let link = document.createElement( 'a' )
+                link.href = url
+                link.download = `${ r.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
+                link.target="_blank"
+                link.click( )
 
-            // For Firefox it is necessary to delay revoking the ObjectURL.
-            setTimeout( ( ) => { window.URL.revokeObjectURL( objUrl ) }, 250)
+                // For Firefox it is necessary to delay revoking the ObjectURL.
+                setTimeout( ( ) => { window.URL.revokeObjectURL( url ) }, 250)
+            }
+
         }
     }
 
     $: uri = ""
 
 </script>
-<canvas style="display: none;" id="sec_plot"/>
 <div class="flx-col container">
 
     <div class="flx-row content">
@@ -510,7 +624,7 @@
 
             { #if loaded }
             <div class="flx-col map map-cont">
-                <div class="map-container" use:makeMap />
+                <div class="map-container" use:makeMap id="map" />
             </div>
             { /if }
         
@@ -654,6 +768,8 @@
     </div>
 
 </div>
+
+<canvas style="display: none;" id="sec_plot"/>
 
 <style>
     

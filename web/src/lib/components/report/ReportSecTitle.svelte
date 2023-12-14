@@ -14,7 +14,7 @@
 
     import DateTimeDisplay from '../../common/date_time/DateTimeDisplay.svelte'
 
-    import { COLORS, MODES, Job, Section, getMode, debug } from '../../des_api'
+    import { CHT_COLORS, MODES, Job, Section, getMode, debug } from '../../des_api'
     import { RGBA, BASE } from '$lib/common/colors'
 
     export let job = new Job( )
@@ -40,7 +40,7 @@
         switch ( getMode( cfg, smp ) ) {
 
             case MODES.BUILD: 
-                color_code = COLORS.PRESS
+                color_code = CHT_COLORS.PRESS
                 color_code_fg = 'fg-green'
                 color_code_btn = btn_img_edit_green
                 break
@@ -52,13 +52,13 @@
                 break
 
             case MODES.HI_FLOW:
-                color_code = COLORS.HI_FLOW
+                color_code = CHT_COLORS.HI_FLOW
                 color_code_fg = 'fg-orange'
                 color_code_btn = btn_img_edit_orange
                 break
 
             case MODES.LO_FLOW:
-                color_code = COLORS.LO_FLOW
+                color_code = CHT_COLORS.LO_FLOW
                 color_code_fg = 'fg-yellow'
                 color_code_btn = btn_img_edit_yellow
                 break

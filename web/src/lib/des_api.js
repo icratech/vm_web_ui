@@ -673,14 +673,14 @@ export class Device {
     resetChart( ) {
         /* CHART DATA ( LIVE ) **************************************************************/
         this.cht = NewChartData( )
-        this.cht_select = this.cht.data.datasets[CHT_DATASET_INDEX_SELECT]
-        this.cht_ch4 = this.cht.data.datasets[CHT_DATASET_INDEX_CH4]
-        this.cht_hi_flow = this.cht.data.datasets[CHT_DATASET_INDEX_HI_FLOW]
-        this.cht_lo_flow = this.cht.data.datasets[CHT_DATASET_INDEX_LO_FLOW]
-        this.cht_press = this.cht.data.datasets[CHT_DATASET_INDEX__PRESS]
-        this.cht_bat_amp = this.cht.data.datasets[CHT_DATASET_INDEX_BAT_AMP]
-        this.cht_bat_volt = this.cht.data.datasets[CHT_DATASET_INDEX_BAT_VOLT]
-        this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX_MOT_VOLT]
+        this.cht_select = this.cht.data.datasets[CHT_DATASET_INDEX.SELECT]
+        this.cht_ch4 = this.cht.data.datasets[CHT_DATASET_INDEX.CH4]
+        this.cht_hi_flow = this.cht.data.datasets[CHT_DATASET_INDEX.HI_FLOW]
+        this.cht_lo_flow = this.cht.data.datasets[CHT_DATASET_INDEX.LO_FLOW]
+        this.cht_press = this.cht.data.datasets[CHT_DATASET_INDEX.PRESS]
+        this.cht_bat_amp = this.cht.data.datasets[CHT_DATASET_INDEX.BAT_AMP]
+        this.cht_bat_volt = this.cht.data.datasets[CHT_DATASET_INDEX.BAT_VOLT]
+        this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX.MOT_VOLT]
         this.cht_point_limit = 200
         this.cht_scale_margin = 0.2
     }
@@ -1533,14 +1533,14 @@ export class Job {
         /* CHART DATA **************************************************************/
         this.cht = NewChartData( )
 
-        this.cht_select = this.cht.data.datasets[CHT_DATASET_INDEX_SELECT]
-        this.cht_ch4 = this.cht.data.datasets[CHT_DATASET_INDEX_CH4]
-        this.cht_hi_flow = this.cht.data.datasets[CHT_DATASET_INDEX_HI_FLOW]
-        this.cht_lo_flow = this.cht.data.datasets[CHT_DATASET_INDEX_LO_FLOW]
-        this.cht_press = this.cht.data.datasets[CHT_DATASET_INDEX__PRESS]
-        this.cht_bat_amp = this.cht.data.datasets[CHT_DATASET_INDEX_BAT_AMP]
-        this.cht_bat_volt = this.cht.data.datasets[CHT_DATASET_INDEX_BAT_VOLT]
-        this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX_MOT_VOLT]
+        this.cht_select = this.cht.data.datasets[CHT_DATASET_INDEX.SELECT]
+        this.cht_ch4 = this.cht.data.datasets[CHT_DATASET_INDEX.CH4]
+        this.cht_hi_flow = this.cht.data.datasets[CHT_DATASET_INDEX.HI_FLOW]
+        this.cht_lo_flow = this.cht.data.datasets[CHT_DATASET_INDEX.LO_FLOW]
+        this.cht_press = this.cht.data.datasets[CHT_DATASET_INDEX.PRESS]
+        this.cht_bat_amp = this.cht.data.datasets[CHT_DATASET_INDEX.BAT_AMP]
+        this.cht_bat_volt = this.cht.data.datasets[CHT_DATASET_INDEX.BAT_VOLT]
+        this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX.MOT_VOLT]
         
         this.cht.options.plugins.zoom.zoom.onZoomComplete = this.chartZoomSelect
 
@@ -1580,7 +1580,7 @@ export class Job {
         let scls = e.chart.scales
         // debug( "job.chartZoomSelect... scales\n", scls )
     
-        let xs = ( dats[CHT_DATASET_INDEX_CH4].data.map( v => { return v.x } ) ).filter( x => {
+        let xs = ( dats[CHT_DATASET_INDEX.CH4].data.map( v => { return v.x } ) ).filter( x => {
             return ( 
                 x > Math.round( e.chart.scales["x"].min ) &&
                 x < Math.round( e.chart.scales["x"].max )
@@ -1883,7 +1883,6 @@ export class Report {
 
 }
 
-import { Chart } from "chart.js/auto"
 export class Section {
     constructor(
         /*  { metadata } */
@@ -2357,7 +2356,7 @@ export class GeoJSONGeometry {
 
 
 /* CHART STUFF ******************************************************************************************/
-export const COLORS = {
+export const CHT_COLORS = {
     CH4: BASE.PINK,
     HI_FLOW: BASE.ORANGE,
     LO_FLOW: BASE.YELLOW,
@@ -2366,14 +2365,17 @@ export const COLORS = {
     BAT_VOLT: BASE.PURPLE,
     MOT_VOLT: BASE.RED
 }
-export const CHT_DATASET_INDEX_SELECT = 0
-export const CHT_DATASET_INDEX_CH4 = 1
-export const CHT_DATASET_INDEX_HI_FLOW = 2
-export const CHT_DATASET_INDEX_LO_FLOW = 3
-export const CHT_DATASET_INDEX__PRESS = 4
-export const CHT_DATASET_INDEX_BAT_AMP = 5
-export const CHT_DATASET_INDEX_BAT_VOLT = 6
-export const CHT_DATASET_INDEX_MOT_VOLT = 7
+
+export const CHT_DATASET_INDEX = {
+    SELECT: 0,
+    CH4: 1,
+    HI_FLOW: 2,
+    LO_FLOW: 3,
+    PRESS: 4,
+    BAT_AMP: 5,
+    BAT_VOLT: 6,
+    MOT_VOLT: 7
+}
 
 import { LineChartModel, LineChartXScale, LineChartScale, LineChartDataSet, LineChartXSelectScale, CHART_LINE_WIDTH, CHART_MARKER_RADIUS } from './common/chart/line_chart'
 const NewChartDataSets = ( datasets = [ ] ) => {
@@ -2381,44 +2383,44 @@ const NewChartDataSets = ( datasets = [ ] ) => {
 
          /* 1 */
         datasets.push( new LineChartDataSet( [ ], "Methane", "y_ch4", true,
-            CHART_LINE_WIDTH, RGBA( COLORS.CH4, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.CH4, 0.7 ) 
+            CHART_LINE_WIDTH, RGBA( CHT_COLORS.CH4, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( CHT_COLORS.CH4, 0.7 ) 
         ) )
 
          /* 2 */
          datasets.push( new LineChartDataSet( [ ], "High Flow", "y_hi_flow", true, 
-            CHART_LINE_WIDTH, RGBA( COLORS.HI_FLOW, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.HI_FLOW, 0.7 ) 
+            CHART_LINE_WIDTH, RGBA( CHT_COLORS.HI_FLOW, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( CHT_COLORS.HI_FLOW, 0.7 ) 
         ) )
 
          /* 3 */
          datasets.push( new LineChartDataSet( [ ], "Low Flow", "y_lo_flow", true,
-            CHART_LINE_WIDTH,  RGBA( COLORS.LO_FLOW, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.LO_FLOW, 0.7 ) 
+            CHART_LINE_WIDTH,  RGBA( CHT_COLORS.LO_FLOW, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( CHT_COLORS.LO_FLOW, 0.7 ) 
         ) )
 
          /* 4 */
          datasets.push( new LineChartDataSet( [ ], "Pressure", "y_press", true,
-            CHART_LINE_WIDTH, RGBA( COLORS.PRESS, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.PRESS, 0.7 ) 
+            CHART_LINE_WIDTH, RGBA( CHT_COLORS.PRESS, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( CHT_COLORS.PRESS, 0.7 ) 
         ) )
 
          /* 5 */
          datasets.push( new LineChartDataSet( [ ], "Battery Amps", "y_bat_amp", false, 
-            CHART_LINE_WIDTH, RGBA( COLORS.BAT_AMP, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.BAT_AMP, 0.7 ) 
+            CHART_LINE_WIDTH, RGBA( CHT_COLORS.BAT_AMP, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( CHT_COLORS.BAT_AMP, 0.7 ) 
         ) )
 
          /* 6 */
          datasets.push( new LineChartDataSet( [ ], "Battery Volts", "y_bat_volt", false,
-            CHART_LINE_WIDTH, RGBA( COLORS.BAT_VOLT, 0.3 ),  
-            CHART_MARKER_RADIUS, RGBA( COLORS.BAT_VOLT, 0.7 ) 
+            CHART_LINE_WIDTH, RGBA( CHT_COLORS.BAT_VOLT, 0.3 ),  
+            CHART_MARKER_RADIUS, RGBA( CHT_COLORS.BAT_VOLT, 0.7 ) 
         ) ) 
 
          /* 7 */
          datasets.push( new LineChartDataSet( [ ], "Motor Volts", "y_mot_volt", false,
-            CHART_LINE_WIDTH, RGBA( COLORS.MOT_VOLT, 0.3 ), 
-            CHART_MARKER_RADIUS, RGBA( COLORS.MOT_VOLT, 0.7 ) 
+            CHART_LINE_WIDTH, RGBA( CHT_COLORS.MOT_VOLT, 0.3 ), 
+            CHART_MARKER_RADIUS, RGBA( CHT_COLORS.MOT_VOLT, 0.7 ) 
         ) )
 
     // ]
@@ -2434,41 +2436,40 @@ const NewChartScales = ( ) => {
         y: new LineChartXSelectScale( ),
         
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
-            RGBA( COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false 
+            RGBA( CHT_COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false 
         ),
         
         y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75, -5.0, 250, "left", 
-            RGBA( COLORS.HI_FLOW, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), true,
+            RGBA( CHT_COLORS.HI_FLOW, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), true,
             false 
         ),
         
         y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, -0.1, 2.5, "left",
-            RGBA( COLORS.LO_FLOW, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true, 
+            RGBA( CHT_COLORS.LO_FLOW, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true, 
         ),
         
         y_press: new LineChartScale( "Press ( kPa )", 0, 0, 7000, "right", 
-            RGBA( COLORS.PRESS, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false 
+            RGBA( CHT_COLORS.PRESS, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false 
         ),
         
         y_bat_amp: new LineChartScale( "Bat ( A )", 0, 0, 1.5, "right", 
-            RGBA( COLORS.BAT_AMP, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
+            RGBA( CHT_COLORS.BAT_AMP, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
             false  
         ),
         
         y_bat_volt: new LineChartScale( "Bat ( V )", 1, 0, 15, "right", 
-            RGBA( COLORS.BAT_VOLT, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
+            RGBA( CHT_COLORS.BAT_VOLT, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
             false 
         ),
         
         y_mot_volt: new LineChartScale( "Mot ( V )", 2, 0, 15, "right", 
-            RGBA( COLORS.MOT_VOLT, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
+            RGBA( CHT_COLORS.MOT_VOLT, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false, 
             false  
         )
 
     }
 
 }
-
 export const NewChartData = ( ) => {
     let cht = new LineChartModel( "", RGBA( BASE.LIGHT, 0.7 ) )
     cht.options.scales = NewChartScales( )

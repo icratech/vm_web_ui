@@ -95,7 +95,7 @@ export class LineChartModel {
                 chartAreaBorder: { borderColor: RGBA( BASE.LIGHT, 0.1 ), borderWidth: 1 },
                 title: { 
                     text: title, 
-                    fontSize: 16,
+                    font: { size: 16 },
                     position: "bottom",
                     display: false 
                 },
@@ -228,6 +228,7 @@ export class LineChartScale {
         }
         this.ticks = { 
             // count: 5,
+            font: { size: 10 },
             color: color,
             padding: 5,
             callback: function( value ) {
@@ -274,6 +275,7 @@ export class LineChartXScale {
         //     text: "Time",
         // }
         this.ticks = {
+            font: { size: 10 },
             autoSkip: true,
             autoSkipPadding: 50,
             maxRotation: 0,
