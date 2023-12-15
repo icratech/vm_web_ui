@@ -313,6 +313,14 @@
             width: mapPNGSize.width,
             height: mapPNGSize.height,
         } )
+        let mrkSize = 7
+        page.drawCircle( {
+            x: ( PDF_PAGE_W / 2 ) + ( mapPNGSize.width / 2 ) - ( mrkSize / 2 ),
+            y: yPos - ( mapPNGSize.height / 2 ) - 10 + ( mrkSize / 2 ),
+            size: mrkSize,
+            borderWidth: 1.75,
+            borderColor: PDF_RGB_BASE.ORANGE,
+        } )
 
         /* CREATE WELL INFORMATION */   
         let rowHeight = PDF_H3 + 5  

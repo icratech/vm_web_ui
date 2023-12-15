@@ -35,6 +35,17 @@
     } )
 
     let serial
+    const registerDevice = async( ) => { 
+        await register_device( serial )
+        serial = null
+    }
+
+    $: showDevices = true
+    $: showDatabases = false
+    const clearShow = ( ) => {
+        showDevices = false
+        showDatabases = false
+    }
 
 </script>
 
@@ -45,25 +56,44 @@
         <div class="flx-col status">
             <h1>DES ADMINISTRATION PAGE</h1>
 
-            <div class="flx-row new-device">
+            <br>
 
-                <PillButton 
-                    cls='bg-accent'
-                    on:click={ async( ) => { await register_device( serial ) } }
-                    hint={ null } 
-                />
+            <div class="flx-col">
+                <div class="flx-row"><h3>ADD A DEVICE</h3></div>
 
-                <div class="flx-col input-container">
-                    <label class="lbl">
-                        Enter a serial # and click the circle over there.
-                        <input name="serial"
-                            type="text" 
-                            bind:value={ serial } 
-                        />
-                    </label>
+                <div class="flx-row">
+                    <PillButton cls='bg-accent' on:click={ registerDevice } hint={ null } />
+                    <div class="flx-col input-container">
+                        <label class="lbl">Enter a serial # and click the circle over there.
+                            <input name="serial" type="text" bind:value={ serial } />
+                        </label>
+                    </div>
                 </div>
-            
             </div>
+
+            <br>
+
+            <div class="flx-col">
+                <div class="flx-row"><h3>DEVICES</h3></div>
+
+                <div class="flx-row">
+                    <PillButton cls='bg-accent' on:click={ registerDevice } hint={ null } />
+                    <div class="flx-row op-lbl">Show Device List</div>
+                </div>
+            </div>
+
+
+            <br>
+
+            <div class="flx-col">
+                <div class="flx-row"><h3>DATABASES</h3></div>
+
+                <div class="flx-row">
+                    <PillButton cls='bg-accent' on:click={ registerDevice } hint={ null } />
+                    <div class="flx-row op-lbl">Show Database List</div>
+                </div>
+            </div>
+
 
             <!-- <div class="flx-col device-list">
                 { #each $DEMO_DEVICES as device ( `demo_page_${ device.dev.reg.des_dev_id }` ) }
@@ -78,7 +108,7 @@
 
         <div class="flx-col panel">
 
-
+            { #if showDevices }
             <div class="flx-col device-list">
                 { #each $DEMO_DEVICES as device ( `demo_page_${ device.dev.reg.des_dev_id }` ) }
                     <DESAdminDeviceCard
@@ -87,6 +117,9 @@
                     />
                 { /each }
             </div>
+            { :else if showDatabases }
+                <div class="flx-col"><h3>DATABASES</h3></div>
+            { /if }
 
 
         </div>
@@ -115,16 +148,14 @@
         height: 100%;
         padding-right: 0.5em;
     }
+    .op-lbl {
+        align-items: center;
+    }
 
     .panel {
         padding: 0 1em;
         padding-left: 0;
         height: auto;
-    }
-
-    .new-device {
-        padding: 1em;
-        align-items: center;
     }
 
     .device-list {

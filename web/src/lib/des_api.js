@@ -283,6 +283,78 @@ export const check_device_exists = async( serial ) => {
     return exists
 }
 
+export const API_URL_DES_DB_LIST = `${ HTTP_SERVER }/api/des/db/list`
+export const get_databases = async( ) => {
+
+    let au = get( AUTH )
+    let req = new Request( API_URL_DES_DB_LIST, { 
+        method: 'GET',
+        headers: {
+            "Authorization":  `Bearer ${ au.token }`, 
+        },
+    } )
+
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    let DATABASES = { }
+    if ( json.status == "success") { 
+        DATABASES = json
+        debug( "des_api.js -> get_databases( ) -> DATABASES: ", DATABASES )
+    } else {
+        debug( "des_api.js -> get_databases( ) -> NO DATABASES: ", DATABASES )
+    }
+
+}
+
+export const API_URL_DES_DB_TBL_LIST = `${ HTTP_SERVER }/api/des/db/tbl_list`
+export const get_db_tables = async( ) => {
+    
+    let au = get( AUTH )
+    let req = new Request( API_URL_DES_DB_LIST, { 
+        method: 'GET',
+        headers: {
+            "Authorization":  `Bearer ${ au.token }`, 
+        },
+    } )
+
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    let TABLES = { }
+    if ( json.status == "success") { 
+        DATABASES = json
+        debug( "des_api.js -> get_db_tables( ) -> TABLES: ", TABLES )
+    } else {
+        debug( "des_api.js -> get_db_tables( ) -> NO TABLES: ", TABLES )
+    }
+
+}
+
+export const API_URL_DES_DB_TBL_ROWS = `${ HTTP_SERVER }/api/des/db/tbl_rows`
+export const get_db_tbl_rows = async( ) => {
+    
+    let au = get( AUTH )
+    let req = new Request( API_URL_DES_DB_LIST, { 
+        method: 'GET',
+        headers: {
+            "Authorization":  `Bearer ${ au.token }`, 
+        },
+    } )
+
+    let res = await fetch( req )
+    let json = await res.json( )
+
+    let ROWS = { }
+    if ( json.status == "success") { 
+        DATABASES = json
+        debug( "des_api.js -> get_db_tbl_rows( ) -> ROWS: ", ROWS )
+    } else {
+        debug( "des_api.js -> get_db_tbl_rows( ) -> NO ROWS: ", ROWS )
+    }
+
+}
+
 /* JOB API ROUTES *************************************************************************************/
 
 export const JOBS = writable( [ ] )
