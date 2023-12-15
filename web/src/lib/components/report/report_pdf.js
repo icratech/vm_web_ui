@@ -166,8 +166,17 @@ export const NewPDFChartDataSets = ( datasets = [ ] ) => {
 }
 export const NewPDFChartData = ( job ) => {
     let cht = new LineChartModel( "", RGBA( PDFBASE.LIGHT, 1 ) )
+
     cht.options.scales = NewPDFChartScales( )
+    
     cht.options.maintainAspectRatio = true
+    cht.options.layout.padding = {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0
+    }
+    
     cht.options.plugins.title.position = 'top'
     cht.options.plugins.title.font.size = 33
     cht.options.plugins.title.display = true

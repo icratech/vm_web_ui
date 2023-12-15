@@ -38,7 +38,8 @@
 
     <div class="flx-row">
 
-        <div class="flx-col btns"> 
+
+        <div class="flx-row btns"> 
 
             <PillButton 
                 on:click={ toggleEdit }
@@ -46,25 +47,29 @@
                 hint={ 'Edit' }
             />
 
-            <!-- { #if edit } -->
             <PillButton 
-                on:click={ ( ) => { dispatch( "print-pdf", rep ) } }
-                cls={ 'bg-accent' }
-                hint={ 'Print PDF' }
+                on:click={ ( ) => { dispatch( "generate-pdf", rep ) } }
+                cls={ 'bg-red' }
+                hint={ 'Download PDF' }
             />
             
-            <!-- { /if } -->
+            <PillButton 
+                on:click={ ( ) => { dispatch( "generate-csv", rep ) } }
+                cls={ 'bg-light' }
+                hint={ 'Download CSV' }
+            />
 
         </div>
-
+        
         <div class="flx-col title-block">
+
             <div class="flx-row title">{ rep.rep_title }</div>
             <div class="flx-row secs">
                 <div class="lbl">Sections:</div>
                 <div class="val">{ rep.rep_secs.length }</div> 
             </div>
         </div>
-
+    
     </div>
        
 
@@ -107,8 +112,7 @@
     .btns { 
         align-items: flex-start; 
         width: auto;
-        gap: 0.5em;
+        gap: 0.75em;
     }
-
 
 </style>

@@ -1364,6 +1364,7 @@ export const getMode = ( cfg, smp ) => {
 export const validateMeasuredValue = ( val ) => {
     return ( val === -999.25 || val === -9999.25 ? val = null : val )
 }
+
 /* DEVICE Ping
     WEB CLIENT <- HTTP (Websocket) <- DES <- MQTT <- DEVICE
         - While the device is connected to the broker it sends a Ping every 30 seconds
@@ -1464,6 +1465,8 @@ export class Job {
         debug( "job.getJobData( ) -> reg: ", this.reg )
         let au = get( AUTH )
     
+        let job = { reg: this.reg }
+
         let req = new Request( API_URL_C001_V001_JOB_DATA, {
             method: 'POST',
             credentials: 'include',
@@ -1471,7 +1474,7 @@ export class Job {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${ au.token }`
             },
-            body: JSON.stringify( this.reg )
+            body: JSON.stringify( job )
         } )
         let res = await fetch( req )
         let jsn = await res.json( )

@@ -12,6 +12,7 @@ export let PDF_RGB_BASE = {
     DARK: rgb( .16, .16, .16 ), 
     GREY: rgb( .39, .39, .39 ), 
     LIGHT: rgb( .90, .90, .90 ),
+    LIGHTER: rgb( .93, .93, .93 ),
     RED: rgb( .7, 0, 0 ),
     ORANGE: rgb( .66, .32, 0 ), 
     YELLOW: rgb( .64, .5, .05 ), 

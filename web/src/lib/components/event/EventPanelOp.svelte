@@ -16,8 +16,8 @@
     $: title = ( show_evt_list ? "Event List" : "Create Event" )
     $: eventButtonHint = ( show_evt_list ? "New Event" : "Events" )
 
-    const reloadEvents = ( ) => {
-        device.getActiveJobEvents( )
+    const reloadEvents = async( ) => {
+        await device.getActiveJobEvents( )
         show_evt_list = !show_evt_list
     }
 </script>

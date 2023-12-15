@@ -2,7 +2,7 @@
 
     import { Chart } from "chart.js/auto"
     import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
-    import { PDFDocument, PDFImage, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib'
+    import { PDFDocument, PDFFont, PDFImage, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
     
     import vent_medic_logo from "$lib/images/vent-medic-logo.png"
     import vent_medic_nested from "$lib/images/vent-medic-report-cover.png"
@@ -62,7 +62,7 @@
         debug
     } from "../../../lib/des_api"
     
-    import { NewPDFChartData, PDF_RGB_COLORS } from "../../../lib/components/report/report_pdf"
+    import { NewPDFChartData, PDFCOLORS, PDF_RGB_COLORS } from "../../../lib/components/report/report_pdf"
 
     export let data
     import { getContext } from 'svelte'
@@ -72,6 +72,18 @@
     $: btn_img_evt_list = btn_img_edit_pink
     $: selected_title = 'Report'
     $: selected_title_cls = 'fg-pink'
+
+    $: loaded = false
+    onMount( async( ) => {
+        await job.getJobData( )
+        hdr = job.headers.pop( )
+        
+        if ( job.reports.length > 0 ) {  // debug( "Selecting Report: ", job.reports[0].rep_title ) 
+            reportSelected( job.reports[0] ) 
+        }
+        debug("Header:", hdr)
+        loaded = true
+    } )
 
     /* TODO : RETRIEVE LAST HEADER FROM LIST */
     $: hdr = new Header( )
@@ -184,18 +196,6 @@
         }
     }
 
-    $: loaded = false
-    onMount( async( ) => {
-        await job.getJobData( )
-        hdr = job.headers.pop( )
-        
-        if ( job.reports.length > 0 ) {  // debug( "Selecting Report: ", job.reports[0].rep_title ) 
-            reportSelected( job.reports[0] ) 
-        }
-        debug("Header:", hdr)
-        loaded = true
-    } )
-
     let making_report = false
     let new_rep = new Report( )
     const makeReport = async ( ) => {
@@ -230,102 +230,246 @@
         job.s_mark.addTo( map )
     }
 
-    const getImageBytes = async( img ) => {
-        return await ( await fetch( img ) ).arrayBuffer( )
-    }
+    
+    /* PDF FILE -> GENERATION */
+    const generatePDF = async( report ) => {
 
-    const centerImage = ( margin, pgW, imgW ) => {
-        let wDiff = pgW - imgW
-        return ( wDiff / 2 ) 
-    }
-    // const getTextWidth = ( text, font ) => {
-    //     // re-use canvas object for better performance
-    //     const canvas = getTextWidth.canvas || ( getTextWidth.canvas = document.createElement( "canvas" ) );
-    //     const context = canvas.getContext( "2d") ;
-    //     context.font = font;
-    //     const metrics = context.measureText( text );
-    //     return metrics.width;
-    // }
+        let pdfDoc = await PDFDocument.create( )
+        const FONT = await pdfDoc.embedFont( StandardFonts.TimesRoman )
 
-    const pdfWriteSectionPlot = async( doc, page, sec, yStart ) => {
+        /* CREATE TITLE PAGE */
+        await pdfWriteTitlePage( pdfDoc, report, hdr, FONT )
 
-        let recY = yStart - 30
-        let start = sec.sec_start
-        let end = sec.sec_end 
-        // job.printChartImage( sec.sec_start, sec.sec_end )
-        let imgFileName = `${ Date.now( ) }-plot.png`
-        // let imgBytes = [ ]
-        // const done = async( ) => { 
-        //     // let link = document.createElement( 'a' )
-        //     // link.href = canvas.toDataURL( )
-        //     // link.download = imgFileName
-        //     // link.click( )
-        //     // imgBytes = await fetch( link.href ).then( res => res.arrayBuffer( ) )
+        /* REPORT SECTION PAGES */
+        let data = NewPDFChartData( job )
+        const pdf_canvas = document.getElementById( 'sec_plot' ) 
+        pdf_canvas.width = 650
+        pdf_canvas.height = 550
 
+        for ( let i = 0; i < report.rep_secs.length; i++ ) {
+
+            let section = report.rep_secs[ i ] 
+
+            /* CREATE PLOT PAGE */
+            await pdfWriteSectionPlot( pdfDoc, section, data, pdf_canvas, FONT )
+
+            /* CREATE DATA PAGE */
+            await pdfWriteSectionData( pdfDoc, section, FONT )
             
-        //     let img = document.createElement( 'img' )
-        //     img.src = canvas.toDataURL( )
-        //     // debug( "img src: ", img.src )
-        //     // img.rotate="90"
-        //     // imgBytes = await fetch( img.src ).then( res => res.arrayBuffer( ) )
-        //     let imgBytes = await getImageBytes( vent_medic_nested )
-        //     debug( "imgBytes: ", imgBytes )
+        }
 
-        //     let pngImage = await doc.embedPng( imgBytes )
-        //     debug( "pngImage: ", pngImage )
-        //     let imgScale = pngImage.scale( 0.175 )
-            
-        //     page.drawImage( pngImage, {
-        //         x: centerImage( page.getWidth(), imgScale.width ), 
-        //         y: 150,
-        //         width: imgScale.width, 
-        //         height: imgScale.height,
-        //     } )
-        // }
-        // chtPrintData = job.cht
-        // chtPrintData.options.scales.x.min = start
-        // chtPrintData.options.scales.x.max = end
-        // chtPrintData.options.onAnimationComplete = done
-        // chtCanvas = makeChart( canvas, chtPrintData )
-        // chtPrintData = chtPrintData
-        // chtCanvas = await makeChart( canvas, chtPrintData )
+        /* ADD A FOOTER TO EACH PAGE */
+        pdfWriteFooters( pdfDoc, report.rep_title, job.reg.des_job_name, FONT )
 
-        // let link = document.createElement( 'a' )
-        // link.href = canvas.toDataURL( )
-        // link.download = imgFileName
-        // link.click( )
-        // imgBytes = await fetch( link.href ).then( res => res.arrayBuffer( ) )
-        // let img = document.createElement( 'img' )
-        // img.src = canvas.toDataURL( )
-        let imgBytes = await getImageBytes( vent_medic_nested )
-        debug( "imgBytes: ", imgBytes )
 
-        let pngImage = await doc.embedPng( imgBytes )
-        debug( "pngImage: ", pngImage )
-        let imgScale = pngImage.scale( 0.175 )
+        /* DOWNLOAD / SAVE REPORT */
+        pdfDownload( pdfDoc, report )
+
+    }
+    /* PDF FILE -> DOWNLOAD & SAVE */
+    const pdfDownload = async( doc, report ) => {
+
+        let pdfBytes = await doc.save( ) 
+        let blob = new Blob( [ pdfBytes ], { type: 'text/rtf' } )
+        let fileName = `${ report.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
+        let saveOptions = { description: "PDF", accept: { "tex/plain" : [ ".pdf" ] } }
+
+        await saveBlobToFile( blob, fileName, saveOptions )
+
+    }
+    /* PDF REPORT -> TITLE PAGE */
+    const pdfWriteTitlePage = async( doc, report, header, font ) => {
         
-        await page.drawImage( pngImage, {
-            x: centerImage( page.getWidth(), imgScale.width ), 
-            y: 150,
-            width: imgScale.width, 
-            height: imgScale.height,
+        /* CREATE PAGE */
+        let page = doc.addPage( PDF_PAGE_SIZE )
+        let yPos = PDF_PAGE_H - 5 * PDF_H1
+
+        /* CREATE LOGO IMAGE */
+        // let logoBytes = await getImageBytes( vent_medic_logo ) 
+        let logoBytes = await ( await fetch( vent_medic_logo ) ).arrayBuffer( )
+        let logoPNG = await doc.embedPng( logoBytes )
+        let logoPNGSize = logoPNG.scale( 0.175 )
+        yPos -= ( logoPNGSize.height + 10 )
+        page.drawImage( logoPNG, {
+            x: pdfCenterImage( logoPNGSize.width ),
+            y: yPos,
+            width: logoPNGSize.width,
+            height: logoPNGSize.height,
+        } )
+
+        /* CREATE REPORT TITLE */
+        yPos -= PDF_H1 * 5
+        page.drawText( report.rep_title, pdfTextOptions_H1( PDF_PAGE_XL, yPos, font ) )
+        page.drawLine( pdfHzLineOptions( yPos -= 8 ) )
+        yPos -= PDF_H1
+
+        /* CREATE MAP IMAGE -> TODO: ADD MARKER*/
+        let mapBytes = await pdfGetImageBytes( map.getCanvas( ).toDataURL( 'image/png' ) )
+        let mapPNG = await doc.embedPng( mapBytes )
+        let mapPNGSize = mapPNG.scale( 0.56 )
+        page.drawImage( mapPNG, {
+            x: PDF_PAGE_W / 2, 
+            y: yPos - mapPNGSize.height - 10 ,
+            width: mapPNGSize.width,
+            height: mapPNGSize.height,
+        } )
+
+        /* CREATE WELL INFORMATION */   
+        let rowHeight = PDF_H3 + 5  
+        let lableX = PDF_PAGE_XL
+        let valueX = lableX + 90
+    
+        /* CREATE WELL INFORMATION */ 
+        yPos -= rowHeight
+        page.drawText( `Company:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
+        page.drawText( header.hdr_well_co, pdfTextOptions_H3( valueX, yPos, font ) )
+
+        yPos -= rowHeight
+        page.drawText( `Well Name:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
+        page.drawText(  header.hdr_well_name, pdfTextOptions_H3( valueX, yPos, font ) )
+
+        yPos -= rowHeight
+        page.drawText( `Surface Loc:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
+        page.drawText( header.hdr_well_sf_loc, pdfTextOptions_H3( valueX, yPos, font ) )
+
+        yPos -= rowHeight
+        page.drawText( `Bottom Loc:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
+        page.drawText( header.hdr_well_bh_loc, pdfTextOptions_H3( valueX, yPos, font ) )
+
+        yPos -= rowHeight
+        page.drawText( `License:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
+        page.drawText( header.hdr_well_lic, pdfTextOptions_H3( valueX, yPos, font ) )
+
+        yPos -= PDF_H3
+
+        yPos -= rowHeight
+        page.drawText( `Longitude:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.ORANGE ) )
+        page.drawText(  header.hdr_geo_lng.toFixed( 5 ), pdfTextOptions_H3( valueX, yPos, font ) )
+        
+        yPos -= rowHeight
+        page.drawText( `Latitude:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.ORANGE ) )
+        page.drawText( header.hdr_geo_lat.toFixed( 5 ), pdfTextOptions_H3( valueX, yPos, font ) )
+
+
+        yPos -= PDF_H3
+
+        yPos -= rowHeight
+        page.drawText( `Job Start:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
+        page.drawText( FormatDate( header.hdr_job_start ), pdfTextOptions_H3( valueX, yPos, font ) )
+        page.drawText( FormatTime( header.hdr_job_start ), pdfTextOptions_H3( valueX + 80, yPos, font ) )
+        
+        yPos -= rowHeight
+        page.drawText( `Job End:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
+        page.drawText( FormatDate( header.hdr_job_end ), pdfTextOptions_H3( valueX, yPos, font ) )
+        page.drawText( FormatTime( header.hdr_job_end ), pdfTextOptions_H3( valueX + 80, yPos, font ) )
+
+
+    }
+    /* PDF REPORT -> PLOT PAGE */
+    const pdfWriteSectionPlot = async( doc, section, data, canv, font ) => {
+
+        /* CREATE PAGE */
+        let page = doc.addPage( PDF_PAGE_SIZE )
+
+        /* GET SECTION DETAILS */ 
+        data.options.plugins.title.text = section.sec_name
+        data.options.scales.x.min = section.sec_start
+        data.options.scales.x.max = section.sec_end    
+
+        /* CREATE PAGE HEADER */
+        let yPos = PDF_PAGE_H - 3 * PDF_H1
+        page.drawText( `${ section.sec_name } Section Plot`, pdfTextOptions_H1( PDF_PAGE_XL, yPos, font ) )
+        page.drawLine( pdfHzLineOptions( yPos -= 8 ) )
+        
+        /* CREATE CHART IMAGE */
+        const pdf_chart = await makeChart( canv, data )
+        let plotBytes = await pdfGetImageBytes( canv.toDataURL( ) )
+        pdf_chart.destroy( )
+        
+        let plotPNG = await doc.embedPng( plotBytes )
+        let plotPNGSize = plotPNG.scale( 0.34 )
+
+        page.drawImage( plotPNG, {
+            x: pdfCenterImage( plotPNGSize.height ), // USE HEIGHT BECASUE WE'RE ROTATING (-90)
+            y: yPos - PDF_H1,
+            rotate: degrees( -90 ),
+            width: plotPNGSize.width,
+            height: plotPNGSize.height,
         } )
     }
+    /* PDF REPORT -> DATA PAGE */
+    const pdfWriteSectionData = async( doc, section, font ) => {
 
-    const pdfWriteSectionData = ( page, sec, font, yStart ) => {
+        /* CREATE PAGE */
+        let page = doc.addPage( PDF_PAGE_SIZE )
 
-        let smps = job.samples.filter( s => s.smp_time >= sec.sec_start && s.smp_time <= sec.sec_end )
-        // debug( "section samples: ", smps )
+        let xPos = PDF_MARGIN
+        let yPos = PDF_PAGE_H - 3 * PDF_H1
 
+        /* CRATE PAGE HEADER */
+        page.drawText( `${ section.sec_name } Section Data`, pdfTextOptions_H1( PDF_PAGE_XL, yPos, font ) )
+        page.drawLine( pdfHzLineOptions( yPos -= 8 ) )
+        yPos -= 5
+
+        /* TABLE FORMATTING */
         let cols = 9
-        let rows = 33
-        let dec = 5
+        let columnWidths = pdfSectionDataColumnWidths( cols )
+        let columnColors = pdfSectionDataColumnColors( )
 
-        let recW = ( page.getWidth( ) - 100 ) / cols
-        let recH = 20
-        let recX = 50
-        let recY = yStart - 23
-        let colors = [
+        let rows = 33
+        let rowHeight = 20
+        let smps = job.samples.filter( s => s.smp_time >= section.sec_start && s.smp_time <= section.sec_end )
+        let gap = Math.floor( smps.length / rows )
+
+        /* INITIAL ROW DATA */
+        let dat = pdfSectionDataColumnUnits( )
+
+        /* WRITE TABLE */
+        for ( let j = 0; j < rows; j++ ) {
+
+            if ( j == 1 ) { 
+
+                /* SECOND ROW DATA */
+                dat = pdfSectionDataColumnHeaders( ) 
+
+            } else if ( j > 1 ) { 
+
+                /* SUBSEQUENT ROW DATA */
+                dat = pdfSectionDataRow( smps[ (  j * gap > smps.length -1 ? j * gap : smps.length - 1 ) ] )
+
+            }
+
+            /* SET ROW START POSITION */
+            xPos = PDF_MARGIN
+            yPos -= rowHeight
+
+            /* WRITE ROW */
+            for ( let i = 0; i < cols; i ++ ) {
+
+                /* ALTERNATE ROW SHADING */
+                if ( j > 1 && j % 2 != 0 ) { 
+                    page.drawRectangle( { 
+                        x: xPos, 
+                        y: yPos,
+                        height: rowHeight, 
+                        width: columnWidths[ i ],  
+                        color: PDF_RGB_BASE.LIGHTER 
+                    } )
+                }
+
+                /* WRITE ROW DATA */
+                page.drawText( dat[ i ], pdfTextOptions_P( xPos + 8, yPos + 6, font, columnColors[i] ) )
+
+                xPos += columnWidths[ i ]
+            }
+
+        }
+    }
+    const pdfSectionDataColumnUnits = ( ) => { 
+        return [ "", "", "%",    "L/min",    "L/min",    "kPa",  "Amp",  "Volt", "Amp"  ] 
+    }
+    const pdfSectionDataColumnColors = ( ) => {
+        return [
             PDF_RGB_BASE.GREY,  // Date
             PDF_RGB_BASE.DARK, // Time
             PDF_RGB_COLORS.CH4, 
@@ -336,286 +480,216 @@
             PDF_RGB_COLORS.BAT_VOLT,
             PDF_RGB_COLORS.MOT_VOLT
         ]
-        let colHdrs = [
-            "Date",
-            "Time",
-            "Methane",
-            "H-Flow",
-            "L-Flow",
-            "Pressure",
-            "Batt A",
-            "Batt V",
-            "Motor A"
-        ]
-        let colUnits = [
-            "",
-            "",
-            "%",
-            "L/min",
-            "L/min",
-            "kPa",
-            "Amp",
-            "Volt",
-            "Amp"
-        ]
-
-        let gap = Math.floor( smps.length / rows )
-        for ( let j = 0; j < rows; j++ ) {
-            let y = recY - ( j * recH )
-            let dat = colUnits
-            if ( j == 1 ) {
-                dat = colHdrs
-            } else if ( j > 1 ) {
-                let row = j * gap
-                if ( row > smps.length -1 ) { row = smps.length - 1 }
-                let s = smps[ row ] 
-                dat = [ 
-                    FormatDate( s.smp_time ), 
-                    FormatTime( s.smp_time ), 
-                    s.smp_ch4.toFixed( dec ),
-                    s.smp_hi_flow.toFixed( dec ),
-                    s.smp_lo_flow.toFixed( dec ),
-                    s.smp_press.toFixed( dec ),
-                    s.smp_bat_amp.toFixed( dec ),
-                    s.smp_bat_volt.toFixed( dec ),
-                    s.smp_mot_volt.toFixed( dec ) 
-                ]
-            }
-            for ( let i = 0; i < cols; i ++ ) {
-                let c = 0.58 + ( i * .05 )
-                let x = recX + ( i * recW )
-                page.drawRectangle( {
-                    height: recH,
-                    width: recW,
-                    x: x,
-                    y: y,
-                    color: rgb( 1, 1, 1 )
-                } )
-                page.drawText( dat[ i ], {
-                    x: x,
-                    y: y + 3,
-                    size: 10,
-                    font: font,
-                    color: colors[ i ],
-                } )
-            }
-        }
     }
-
+    const pdfSectionDataColumnHeaders = ( ) => { 
+        return [ "Date", "Time", "Methane",  "H-Flow",   "L-Flow",   "Pressure", "Batt A",   "Batt V",   "Motor A"  ] 
+    }
+    const pdfSectionDataColumnWidths = ( cols ) => {
+        let w = ( PDF_PAGE_W - ( PDF_MARGIN * 2 ) ) / cols
+        let ws = [ w + 9, w - 9 ]
+        for ( let i = 1; i < cols; i++ ) { ws.push( w ) }
+        return ws
+    }
+    const pdfSectionDataRow = ( smp, dec = 5 ) => {
+        return [ 
+            FormatDate( smp.smp_time ), 
+            FormatTime( smp.smp_time ), 
+            smp.smp_ch4.toFixed( dec ),
+            smp.smp_hi_flow.toFixed( dec ),
+            smp.smp_lo_flow.toFixed( dec ),
+            smp.smp_press.toFixed( dec ),
+            smp.smp_bat_amp.toFixed( dec ),
+            smp.smp_bat_volt.toFixed( dec ),
+            smp.smp_mot_volt.toFixed( dec ) 
+        ]
+    }
+    /* PDF REPORT -> PAGE FOOTER */
     const pdfWriteFooters = ( doc, title, job_name, font ) => {
-        let size = 10
-        let y = size * 3
+
+        let y = PDF_P * 3
         let pages = doc.getPages( )
         let i = 1
         pages.forEach( p => {
-            p.drawText( `${ title }`, { 
-                x: 50, 
-                y: y, size: size, font: font, color: rgb( .2, .2, .2 ),
-            } )
-            p.drawText( `Page ${ i } of ${ pages.length }`, { 
-                x: 265, 
-                y: y, size: size, font: font, color: rgb( .2, .2, .2 ),
-            } )
-            p.drawText( `${ job_name }`, { 
-                x: p.getSize( ).width - 180, 
-                y: y, size: size, font: font, color: rgb( .5, .5, .5 ),
-            } )
+
+            p.drawText( title, pdfTextOptions_P( PDF_MARGIN, y, font, PDF_RGB_BASE.DARK ) )
+
+            p.drawText( `Page ${ i } of ${ pages.length }`, pdfTextOptions_P( PDF_PAGE_W / 2.2, y, font, PDF_RGB_BASE.DARK ) )
+
+            p.drawText( job_name, pdfTextOptions_P( PDF_PAGE_W - 180, y, font, PDF_RGB_BASE.GREY ) )
+
             i++
         } )
     }
-
-    const PDF_MARGIN = 50
-    const printReportPDF = async( r ) => {
-
-        let pgSize = PageSizes.Letter
-        let pdfDoc = await PDFDocument.create( )
-        let timesRomanFont = await pdfDoc.embedFont( StandardFonts.TimesRoman )
-        let page = pdfDoc.addPage( pgSize )
-        let height = page.getSize( ).height
-        let width = page.getSize( ).width
-        let xLeft = PDF_MARGIN
-        let xRight = width - PDF_MARGIN
-        let fontSize = 23
-        let yPos = height - 5 * fontSize
-
-        let imgBytes = await getImageBytes( vent_medic_logo ) 
-        let logoPNG = await pdfDoc.embedPng( imgBytes )
-        let logoPNGSize = logoPNG.scale( 0.175 )
-        yPos -= ( logoPNGSize.height + 10 )
-        page.drawImage( logoPNG, {
-            x: centerImage( PDF_MARGIN, width, logoPNGSize.width ),
-            y: yPos,
-            width: logoPNGSize.width,
-            height: logoPNGSize.height,
-        } )
-
-        yPos -= fontSize * 5
-        page.drawText( r.rep_title, { 
-            x: xLeft,  // centerImage( xMargin, width, getTextWidth( r.rep_title , timesRomanFont ) ),
-            y: yPos,
-            size: fontSize,
-            font: timesRomanFont,
-            color: PDF_RGB_BASE.GREY,
-        } ) 
-
-        yPos -= 8
-        page.drawLine( {
-            start: { x: xLeft, y: yPos },
-            end: { x: xRight, y: yPos },
+    /* PDF REPORT -> PAGE FORMATTING */
+    const pdfTextOptions_H1 = ( x, y, font, color=PDF_TEXT_COLOR ) => { 
+        return { 
+            x: x,
+            y: y,
+            size: PDF_H1,
+            font: font,
+            color: color,
+        } 
+    }
+    const pdfTextOptions_H2 = ( x, y, font, color=PDF_TEXT_COLOR ) => { 
+        return { 
+            x: x,
+            y: y,
+            size: PDF_H2,
+            font: font,
+            color: color,
+        } 
+    }
+    const pdfTextOptions_H3 = ( x, y, font, color=PDF_TEXT_COLOR ) => { 
+        return { 
+            x: x,
+            y: y,
+            size: PDF_H3,
+            font: font,
+            color: color,
+        } 
+    }       
+    const pdfTextOptions_P = ( x, y, font, color=PDF_TEXT_COLOR ) => { 
+        return { 
+            x: x,
+            y: y,
+            size: PDF_P,
+            font: font,
+            color: color,
+        } 
+    }
+    const pdfHzLineOptions = ( y ) => { 
+        return {
+            start: { x: PDF_PAGE_XL, y: y },
+            end: { x: PDF_PAGE_XR, y: y },
             thickness: 1,
             color: PDF_RGB_BASE.GREY
-        } )
+        } 
+    }
+    const pdfCenterImage = ( imgW ) => {
+        let x = ( PDF_PAGE_W - imgW ) / 2
+        return x
+    }
+    const pdfGetImageBytes = async( img ) => {
+        return await ( await fetch( img ) ).arrayBuffer( )
+    }
+    const PDF_TEXT_COLOR = PDF_RGB_BASE.GREY
+    const PDF_MARGIN = 50
+    const PDF_PAGE_SIZE = PageSizes.Letter
+    const PDF_PAGE_W = PDF_PAGE_SIZE[0]
+    const PDF_PAGE_H = PDF_PAGE_SIZE[1]
+    const PDF_PAGE_XL = PDF_MARGIN
+    const PDF_PAGE_XR = PDF_PAGE_W - PDF_MARGIN
+    const PDF_H1 = 23
+    const PDF_H2 = 19
+    const PDF_H3 = 13
+    const PDF_P = 10
 
-        let mapBytes = await fetch( map.getCanvas( ).toDataURL( 'image/png' ) ).then( res => res.blob( ) ).then( blob => { 
-            return blob.arrayBuffer( )
-        } ) 
-        let mapPNG = await pdfDoc.embedPng( mapBytes )
-        let mapPNGSize = mapPNG.scale( 0.56 )
-        let mapYPos = yPos - ( mapPNGSize.height + 10 )
-        page.drawImage( mapPNG, {
-            x: width / 2, //centerImage( PDF_MARGIN, width, mapPNGSize.width ),
-            y: mapYPos,
-            width: mapPNGSize.width,
-            height: mapPNGSize.height,
-        } )
 
-        let hdrFontSize = 13
-        yPos -= ( hdrFontSize + 3 )
-        page.drawText( `Company: ${ hdr.hdr_well_co }`, { 
-            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
-        } )
+    /* CSV FILE -> GENERATION */
+    const generateCSV = async( report ) => {
 
-        yPos -= ( hdrFontSize + 3 )
-        page.drawText( `Well Name: ${ hdr.hdr_well_name }`, { 
-            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
-        } )
+        /* HEADER INFORMATION */
+        const rows = [
+            [ "JOB ID", job.reg.des_job_name ],
+            [ "COMPANY", hdr.hdr_well_co ],
+            [ "WELL NAME", hdr.hdr_well_name ],
+            [ "SURFACE LOCATION", hdr.hdr_well_sf_loc ],
+            [ "BOTTOM LOCATION", hdr.hdr_well_bh_loc ],
+            [ "LICENSE", hdr.hdr_well_lic ],
+            [ "LONGITUDE", hdr.hdr_geo_lng ],
+            [ "LATITUDE", hdr.hdr_geo_lat ],
+            [ "JOB START", FormatDate( hdr.hdr_job_start ), FormatTime( hdr.hdr_job_start ) ],
+            [ "JOB END", FormatDate( hdr.hdr_job_end ), FormatTime( hdr.hdr_job_end )  ],
+            [],
+            csvColumnUnits( ),
+            csvColumnHeaders( ),
+        ]
 
-        yPos -= ( hdrFontSize + 3 )
-        page.drawText( `Surface Loc: ${ hdr.hdr_well_sf_loc }`, { 
-            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
-        } )
-
-        yPos -= ( hdrFontSize + 3 )
-        page.drawText( `Bottom Loc: ${ hdr.hdr_well_bh_loc }`, { 
-            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
-        } )
-
-        yPos -= ( hdrFontSize + 3 )
-        page.drawText( `License: ${ hdr.hdr_well_lic }`, { 
-            x: xLeft, y: yPos, size: hdrFontSize, font: timesRomanFont, color: PDF_RGB_BASE.GREY,
-        } )
-
-        let secPlots = [ ]
-        let data = NewPDFChartData( job )
-        const pdf_canvas = document.getElementById( 'sec_plot' ) 
-        pdf_canvas.width = 770
-        pdf_canvas.height = 550
-        for ( let i = 0; i < r.rep_secs.length; i++ ) {
-            let s = r.rep_secs[ i ]     
-            data.options.plugins.title.text = s.sec_name
-            data.options.scales.x.min = s.sec_start
-            data.options.scales.x.max = s.sec_end    
-            const pdf_chart = makeChart( pdf_canvas, data )
-            let plotBytes = await fetch( pdf_canvas.toDataURL( ) )
-                .then( res => res.blob( ) )
-                .then( blob => { 
-                    return blob.arrayBuffer( )
-                } )
-            secPlots.push( plotBytes );
-            (await pdf_chart).destroy( )
-
-            let plotPage = pdfDoc.addPage( pgSize )
-            // let plotPgH = plotPage.getSize( ).height
-            let plotYPos = height - 3 * fontSize
-            plotPage.drawText( `${ s.sec_name } Section Plot`, { 
-                x: PDF_MARGIN,
-                y: plotYPos,
-                size: fontSize,
-                font: timesRomanFont,
-                color: PDF_RGB_BASE.GREY,
-            } )
-            plotYPos -= 8
-            plotPage.drawLine( {
-                start: { x: xLeft, y: plotYPos },
-                end: { x: xRight, y: plotYPos },
-                thickness: 1,
-                color: PDF_RGB_BASE.GREY
-            } )
-            // let plotPNG = await pdfDoc.embedPng( secPlots[i] )
-            let plotPNG = await pdfDoc.embedPng( plotBytes )
-            let dimPlotPNG = plotPNG.scale( 0.35 )
-
-            plotPage.drawImage( plotPNG, {
-                x: 75, //centerImage( page.getWidth(), dimPlotPNG.height ),
-                y: plotYPos - fontSize,
-                rotate: degrees( -90 ),
-                width: dimPlotPNG.width,
-                height: dimPlotPNG.height,
-            } )
-
-            let dataPage = pdfDoc.addPage( pgSize )
-            let dataYPos = height - 3 * fontSize
-            dataPage.drawText( `${ s.sec_name } Section Data`, { 
-                x: PDF_MARGIN,
-                y: dataYPos,
-                size: fontSize,
-                font: timesRomanFont,
-                color: PDF_RGB_BASE.GREY,
-            } )
-            dataYPos -= 8
-            dataPage.drawLine( {
-                start: { x: PDF_MARGIN, y: dataYPos },
-                end: { x: xRight, y: dataYPos },
-                thickness: 1,
-                color: PDF_RGB_BASE.GREY
-            } )
-            pdfWriteSectionData( dataPage, s, timesRomanFont, dataYPos )
-            
+        /* SAMPLE DATA */
+        for ( let i = 0; i < job.samples.length; i++ ) {
+            rows.push( csvDataRow( job.samples[ i ], 8 ) )
         }
-        debug( "secPlots: ", secPlots )
 
-        pdfWriteFooters( pdfDoc, r.rep_title, job.reg.des_job_name, timesRomanFont )
+        let doc = rows.map( e => e.join( "," ) ).join( "\n" )
 
-        let pdfBytes = await pdfDoc.save( ) // debug( "PDF file size: ", pdfBytes.length )
+        csvDownload( doc, report )
 
-        let doc = new Blob( [ pdfBytes ], { type: 'text/rtf' } )
+    }
+    const csvColumnUnits = ( ) => {
+        return [ "Millisecond", "Date", "24 Hour", "%",    "L/min",    "L/min",    "kPa",  "Amp",  "Volt", "Amp"  ] 
+    }
+    const csvColumnHeaders = ( ) => {
+        return [ "Unix", "Date", "Time", "Methane",  "H-Flow",   "L-Flow",   "Pressure", "Batt A",   "Batt V",   "Motor A"  ] 
+    }
+    const csvDataRow = ( smp, dec = 5 ) => {
+        return [ 
+            smp.smp_time,
+            FormatDate( smp.smp_time ), 
+            FormatTime( smp.smp_time ), 
+            smp.smp_ch4.toFixed( dec ),
+            smp.smp_hi_flow.toFixed( dec ),
+            smp.smp_lo_flow.toFixed( dec ),
+            smp.smp_press.toFixed( dec ),
+            smp.smp_bat_amp.toFixed( dec ),
+            smp.smp_bat_volt.toFixed( dec ),
+            smp.smp_mot_volt.toFixed( dec ) 
+        ]
+    }
+    /* CSV FILE -> DOWNLOAD & SAVE */
+    const csvDownload = async( doc, report ) => {
 
-        let sugPDFName = `${ r.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
-        let sugCSVName = `${ r.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.csv`
+        // let bytes = await doc.save( ) 
+        let blob = new Blob( [ doc ], { type: 'data:text/csv; charset=utf-8;' } )
+        let fileName = `${ report.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.csv`
+        let saveOptions = { description: "CSV", accept: { "tex/plain" : [ ".csv" ] } }
+
+        await saveBlobToFile( blob, fileName, saveOptions )
+
+    }
+
+    
+    /* CSV / PDF / IMG FILE -> SAVE */
+    const saveBlobToFile = async( blob, fileName, saveOptions ) => {
 
         if ( window.navigator && window.navigator.msSaveOrOpenBlob ) {
-            window.navigator.msSaveOrOpenBlob( doc )
+
+            window.navigator.msSaveOrOpenBlob( blob )
+
         } else {
 
             if ( window.showSaveFilePicker ) {
+
+                /* ALLOW USER TO CHOOSE NAME & LOCATION */
                 let handle = await showSaveFilePicker( {
-                    suggestedName: sugPDFName,
-                    types: [ 
-                        { description: "PDF", accept: { "tex/plain" : [ ".pdf" ] } }
-                        // { description: "CSV", accept: { "tex/plain" : [ ".csv" ] } }
-                    ]
+                    suggestedName: fileName,
+                    types: [ saveOptions ]
                 } )
+
                 let writable = await handle.createWritable( )
-                await writable.write( doc )
+                await writable.write( blob )
                 writable.close( )
+
             } else {
-                const url = window.URL.createObjectURL( doc )
+
+                /* SAVE IN DEFAULT DOWNLOADS FOLDER */
+                const url = window.URL.createObjectURL( blob )
                 let link = document.createElement( 'a' )
                 link.href = url
-                link.download = `${ r.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
+                link.download = fileName
                 link.target="_blank"
                 link.click( )
 
                 // For Firefox it is necessary to delay revoking the ObjectURL.
                 setTimeout( ( ) => { window.URL.revokeObjectURL( url ) }, 250)
-            }
 
+            }
         }
     }
 
-    $: uri = ""
-
 </script>
+
+<canvas style="display: none;" id="sec_plot"/>
+
 <div class="flx-col container">
 
     <div class="flx-row content">
@@ -624,7 +698,7 @@
 
             { #if loaded }
             <div class="flx-col map map-cont">
-                <div class="map-container" use:makeMap id="map" />
+                <div class="map-container" use:makeMap />
             </div>
             { /if }
         
@@ -668,7 +742,8 @@
                 <ReportTitle 
                     bind:rep 
                     on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
-                    on:print-pdf={ async( e ) => { await printReportPDF( e.detail ) } }
+                    on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
+                    on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
                 />
                 { /each }
             </div>
@@ -768,8 +843,6 @@
     </div>
 
 </div>
-
-<canvas style="display: none;" id="sec_plot"/>
 
 <style>
     
