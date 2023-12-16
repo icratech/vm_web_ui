@@ -8,7 +8,7 @@
     import vent_medic_nested from "$lib/images/vent-medic-ship.webp"
     import vent_medic_deployed from "$lib/images/vent-medic-deployed.webp"
     import UserRegistration from "./UserRegistration.svelte"
-    import { UserSignUp, sign_up_user } from "../lib/des_api"
+    import { UserSignUp, register_user } from "../lib/des_api"
     import btn_img_edit from '../lib/images/btn-img-edit-aqua.svg'
 
     let modal
@@ -39,7 +39,7 @@
     <div class="flx-col welcome">
         <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
     
-        <Modal bind:this={ modal } bind:valid on:confirm={ async( ) => { sign_up_user( newUser ) } }>
+        <Modal bind:this={ modal } bind:valid on:confirm={ async( ) => { register_user( newUser ) } }>
             <h3 class='fg-accent' slot="title">Sign-Up</h3>
             <div slot="content" class="flx-row">
                 <UserRegistration bind:newUser />

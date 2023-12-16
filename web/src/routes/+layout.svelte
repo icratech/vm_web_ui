@@ -1,6 +1,8 @@
 
 <script>
 
+    import { redirect } from '@sveltejs/kit'
+    import { get } from 'svelte/store'
     import { onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
@@ -10,7 +12,7 @@
         get_event_types, 
         get_devices, DEVICES, DEVICES_LOADED,
 		get_jobs, JOBS, JOBS_LOADED,
-        AUTH
+        AUTH, parseJWT
 
     } from '../lib/des_api';
     import Header from './Header.svelte'
@@ -35,15 +37,22 @@
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
 
     import { setContext } from 'svelte'
+	import { debug } from 'svelte/internal';
     setContext( 'devices', DEVICES )
     setContext( 'devices_loaded', DEVICES_LOADED )
     setContext( 'jobs', JOBS )
     setContext( 'jobs_loaded', JOBS_LOADED )
 
+    
+    // let jwt = parseJWT( $AUTH.token )
+    // let jwtExpiresIn = Math.floor( ( ( jwt.exp * 1000 ) - Date.now( ) ) / 1000 )
     onMount( async( ) => {
 
         if ( sessionStorage.getItem( 'des_token') != 'none' ) { // debug( "Current des_token: ", token )
             await get_user( sessionStorage.getItem( 'des_token') ) 
+        
+            // let jwt = parseJWT( $AUTH.token )
+            // setInterval( refreshJWT, Math.floor( ( ( jwt.exp * 1000 ) - Date.now( ) ) / 1000 ) )
         } 
 
         await get_user_list( )
@@ -61,6 +70,11 @@
         page = window.location.href.split( "/" ).pop( )
     } )
 
+    // const refreshJWT = ( ) => { 
+    //     debug( "JWT EXPIRED!" )
+    // }
+
+
     // const src = '$lib/space.jpg'
 
     $: page = "";
@@ -68,7 +82,6 @@
     let home_btn_image = btn_img_home_aqua
     let device_btn_image = btn_img_gauge_aqua
     let job_btn_image = btn_img_report_green
-    let admin_btn_color = 'bg-purple'
     $: {
         switch ( page ) {
             case '' : { 
@@ -161,23 +174,23 @@
                     />
                 </div>
 
-            { /if }
-
-            { #if $AUTH.role == "admin" }
-
-                <div class="flx-col admin">
-                    <PillButton 
-                        on:click={ goto_des } 
-                        img={ btn_img_cmd_purple } 
-                        hint={ "If you don't know..." } 
-                    />
-                </div>
+                { #if $AUTH.role == "admin" }
+    
+                    <div class="flx-col admin">
+                        <PillButton 
+                            on:click={ goto_des } 
+                            img={ btn_img_cmd_purple } 
+                            hint={ "If you don't know..." } 
+                        />
+                    </div>
+    
+                { /if }
 
             { /if }
 
         </div>
 
-        <div class="flx-col page"><slot></slot></div>
+        <div class="flx-col page"><slot /></div>
 
     </div>
 

@@ -38,7 +38,6 @@
 
     }
 
-
     $: des_ping_sec = 0
     $: dev_ping_sec = 0
     $: sec = 0

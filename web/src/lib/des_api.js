@@ -41,15 +41,15 @@ export const USERS = writable( [ ] )
 export const USERS_LOADED = writable( false )
 export const updateUsersStore = async( ) => { USERS.update( ( ) => { return [ ...get( USERS ) ] } ) }
 
-export const API_URL_USE_SIGNUP =  `${ HTTP_SERVER }/api/user/signup`
-export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
+export const API_URL_USER_REGISTER =  `${ HTTP_SERVER }/api/user/register`
 export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
 export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
 export const API_URL_USER_ME = `${ HTTP_SERVER }/api/user/me`
+export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
 
-export const sign_up_user = async( usu ) => {
+export const register_user = async( usu ) => {
 
-    let req = new Request(API_URL_USE_SIGNUP, { 
+    let req = new Request(API_URL_USER_REGISTER, { 
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         credentials: "include",
@@ -65,20 +65,6 @@ export const sign_up_user = async( usu ) => {
         debug( "\n SIGN-UP FAILED: \n", auth.message )
     }
 }
-
-export const get_user_list = async( ) => {
-    debug( `des_api.js -> get_user_list( )` )
-
-    let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
-    let res = await fetch( req )
-    let json = await res.json( )
-    
-    // debug( `des_api.js -> get_users( ): users\n${ JSON.stringify( json.data.users, null, 4 ) }` )
-    sessionStorage.setItem( "users", JSON.stringify( json.data.users ) ) 
-
-    return json.data.users
-}
-
 export const login = async( email, password ) => {
 
     let req = new Request(API_URL_USER_LOGIN, { 
@@ -89,19 +75,63 @@ export const login = async( email, password ) => {
     } )
     let res = await fetch( req )
     let auth = await res.json( )
-    debug(`"\nAppHeader: login -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
+    // debug(`"\ndes_api.js -> login( ) -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
 
     if ( auth.status === "success" ) { 
-        debug(`\nAppHeader: login -> SUCCESS:\n${ auth.token }\n` )
-        sessionStorage.setItem( 'des_token', auth.token, { path: '/' } )
+        debug(`\ndes_api.js -> login( ) -> SUCCESS:\nAccess Token: ${ auth.token }\nRefresh Token: ${ auth.ref_token }\n` )
+
+        // sessionStorage.setItem( 'des_token', auth.token, { path: '/' } )
+        // sessionStorage.setItem( 'des_ref_token', auth.ref_token, { path: '/' } )
+
         /* TODO: ADD / TEST REFRESH */
+        setUserTokens( auth.token, auth.ref_token )
+        watchJWT( auth.token, auth.ref_token )
+
     } else {
         debug( "\n AUTH FAILED: \n", auth.message )
     }
-    await get_user( auth.token )
 
     if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  } else { await connect_devices( ) }
     if ( get(AUTH).role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
+}
+
+const setUserTokens = async( acc, ref ) => {
+    sessionStorage.setItem( 'des_token', acc, { path: '/' } )
+    sessionStorage.setItem( 'des_ref_token', ref, { path: '/' } )
+    await get_user( acc )
+}
+const clearUserTokens = ( ) => {
+    sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
+    sessionStorage.setItem( 'des_ref_token', 'none', { path: '/' } )
+    AUTH.set( new User( ) ) 
+}
+
+let refreshCount = 3
+const refreshJWT = ( ref ) => {
+    return ( refreshCount-- > 0 ? true : false )
+}
+const watchJWT = ( acc, ref ) => { 
+
+    let intervalID
+    let jwt = parseJWT( acc )
+    let jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) - 5000
+
+    debug( "JWT access token expires in: ", jwtExpiresIn )
+
+    intervalID = setInterval( ( ) => { 
+        debug( "ACCESS JWT EXPIRED!" ) 
+
+        let success = refreshJWT( ref )
+        if ( success ) {
+            setUserTokens( acc, ref )
+        } else {
+            debug( "REFRESH JWT EXPIRED!" ) 
+            clearInterval( intervalID )
+            clearUserTokens( )
+        }
+ 
+    }, jwtExpiresIn )
+
 }
 
 export const logout = async( ) => {
@@ -120,10 +150,22 @@ export const logout = async( ) => {
     let logout_res = await res.json( ) 
     debug( `des_api.js -> logout( ) -> RESPONSE -> logout_res:\n${ JSON.stringify( logout_res, null, 4 ) }` )
 
-    sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
-    AUTH.set( new User( ) ) 
+    clearUserTokens( )
+    // sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
+    // sessionStorage.setItem( 'des_ref_token', 'none', { path: '/' } )
+    // AUTH.set( new User( ) ) 
 
     debug(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
+}
+
+export const parseJWT = ( token ) => {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    } ).join( '' ) )
+
+    return JSON.parse(jsonPayload);
 }
 
 export const get_user = async( token ) => {
@@ -152,13 +194,25 @@ export const get_user = async( token ) => {
         ) ) // debug("\ndes_api.js -> get_user( ) -> AUTHENTICATION SUCCESS!\n" )
     } 
     else {
-
-        AUTH.set( new User( ) )
-        sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
+        clearUserTokens( )
+        // AUTH.set( new User( ) )
+        // sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
         // debug("\ndes_api.js -> get_user( ) -> AUTHENTICATION FAILED!\n" ) 
     }
     
     debug("\ndes_api.js -> get_user( ) -> AUTH: ", get( AUTH ).name )
+}
+export const get_user_list = async( ) => {
+    debug( `des_api.js -> get_user_list( )` )
+
+    let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
+    let res = await fetch( req )
+    let json = await res.json( )
+    
+    // debug( `des_api.js -> get_users( ): users\n${ JSON.stringify( json.data.users, null, 4 ) }` )
+    sessionStorage.setItem( "users", JSON.stringify( json.data.users ) ) 
+
+    return json.data.users
 }
 
 
@@ -281,6 +335,18 @@ export const check_device_exists = async( serial ) => {
     let exists = get( DEVICES ).filter( ( d ) => { return d.reg.des_dev_serial == serial } )[0]
     debug( serial, exists )
     return exists
+}
+
+export const remove_device = async( serial ) => {
+
+    /* 
+    GET 
+    DELETE 
+        JobSearches ( des_job_searches.des_job_key = des_jobs.des_job_id )
+        Jobs ( des_jobs.des_job_dev_id = des_devs.des_dev_id )
+        Device 
+    */
+
 }
 
 export const API_URL_DES_DB_LIST = `${ HTTP_SERVER }/api/des/db/list`

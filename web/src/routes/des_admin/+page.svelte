@@ -47,6 +47,17 @@
         showDatabases = false
     }
 
+    const getDevices = ( ) => { 
+        clearShow( )
+        showDevices = true
+    }
+
+
+    const getDatabases = ( ) => { 
+        clearShow( )
+        showDatabases = true
+    }
+
 </script>
 
 <dvi class="flx-col container">
@@ -77,7 +88,7 @@
                 <div class="flx-row"><h3>DEVICES</h3></div>
 
                 <div class="flx-row">
-                    <PillButton cls='bg-accent' on:click={ registerDevice } hint={ null } />
+                    <PillButton cls='bg-accent' on:click={ getDevices } hint={ null } />
                     <div class="flx-row op-lbl">Show Device List</div>
                 </div>
             </div>
@@ -89,7 +100,7 @@
                 <div class="flx-row"><h3>DATABASES</h3></div>
 
                 <div class="flx-row">
-                    <PillButton cls='bg-accent' on:click={ registerDevice } hint={ null } />
+                    <PillButton cls='bg-accent' on:click={ getDatabases } hint={ null } />
                     <div class="flx-row op-lbl">Show Database List</div>
                 </div>
             </div>
