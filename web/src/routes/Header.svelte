@@ -3,23 +3,23 @@
     import { AUTH, login, logout } from '../lib/des_api'
     import PillButton from '../lib/common/button/PillButton.svelte'
     import vent_medic_logo from "$lib/images/vent-medic-hdr-logo.svg"
-    // import vent_medic_logo from "$lib/images/vent-medic-hdr-logo-green.svg"
     
     import btn_img_login_purple from "$lib/images/btn-img-login-purple.svg"
     import btn_img_logout_purple from "$lib/images/btn-img-logout-purple.svg"
 
-	import { createEventDispatcher } from 'svelte'
+	import { createEventDispatcher, onMount } from 'svelte'
 	const dispatch = createEventDispatcher()
 
     let email = ""
     let password = ""
-    // $: loginButtonColor = ( $AUTH.logged_in ? 'bg-purple' : 'bg-accent' )
     $: loginButtonImage = ( $AUTH.logged_in ? btn_img_logout_purple : btn_img_login_purple )
-    $: loginButtonFunc = ( $AUTH.logged_in ? ( ) => { logout( ); dispatch( 'logout' ); } : ( ) => { login( email, password ) } )
+    $: loginButtonFunc = ( $AUTH.logged_in 
+        ? async( ) => { await logout( ); dispatch( 'logout' ); } 
+        : async( ) => { await login( email, password ); dispatch( 'login' ); } 
+    )
 
     export let page_name = "PAGE_NAME"
 </script>
-
 
 
 <div class="flx-col container">

@@ -1,7 +1,7 @@
 
 <script>
 
-    import { createEventDispatcher } from "svelte"
+    import { createEventDispatcher, getContext } from "svelte"
     let dispatch = createEventDispatcher( )
 
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
@@ -11,31 +11,28 @@
     import InputTextArea from "$lib/common/input_text_area/InputTextArea.svelte"
     import PillButton from "$lib/common/button/PillButton.svelte"
 
-    import { Event, Device } from "../../des_api";
+    import { OP_CODES, Event, Device } from "../../des_api";
 
     export let device = new Device( )
     $: evt = new Event( )
-    $: event_type = (JSON.parse( sessionStorage.event_types )).filter( t => { return t.evt_typ_code == 2000 } )[0]
+
+    $: EVT_TYPES = getContext( 'evt_types' )
+    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.OPERATOR_EVENT } )[0]
         
     const sendEvent = async( ) => { 
-        evt.evt_code = event_type.evt_typ_code
+        evt.evt_code = evt_type.evt_typ_code
         device.job_evts = [ ]
         await device.newEvent( evt )  
         clearEvent( )
-        // dispatch( 'complete' )
     }
 
     const clearEvent = ( ) => {
         evt = new Event( )
-        // evt.evt_msg = `One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin. He lay on his armour-like back, and if he lifted his head a little he could see his brown belly, slightly domed and divided by arches into stiff sections. The bedding was hardly able to cover it and seemed ready to slide off any moment. His many legs, pitifully thin compared with the size of the rest of him, waved about helplessly as he looked. "What's happened to me?" he thought. It was`
         dispatch( 'complete' )
     }
 
     $: msg_limit = evt.evt_msg.length >= evt.MaxMsg
     $: msg_limit_style = ( msg_limit ? "color: var(--red);" : "color: var(--grey_03);"  )
-    
-    // $: title_limit = evt.evt_title.length >= evt.MaxTitle
-    // $: title_limit_style = ( title_limit ? "color: var(--red);" : "color: var(--grey_03);"  )
 
     $: { 
         evt.evt_title = evt.evt_title.slice( 0, evt.MaxTitle )
@@ -50,7 +47,7 @@
 
         <div class="flx-row in">
             <p class="lbl">Type:</p>
-            <div class="flx-row">{ event_type.evt_typ_name }</div> 
+            <div class="flx-row">{ ( evt_type ? evt_type.evt_typ_name : 'UNKNOWN EVT CODE' ) }</div> 
         </div>
         
         <div class="flx-row in">

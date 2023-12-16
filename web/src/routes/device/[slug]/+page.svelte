@@ -24,6 +24,7 @@
 
 <dvi class="flx-col container">
 
+    { #if device }
     <div class="flx-row content">
 
         <Modal bind:this={ startModal } on:confirm={ async( ) => { device.startJob( ) } }>
@@ -76,6 +77,7 @@
       
     </div>
 
+    { /if }
 </dvi>
 
 <style>

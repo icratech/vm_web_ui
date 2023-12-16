@@ -1,12 +1,18 @@
 
 <script>
 
+    import { getContext } from 'svelte'
+    
     import DateTimeDisplay from "../../common/date_time/DateTimeDisplay.svelte"
     import UserBadge from "../user/UserBadge.svelte"
 
     import { Event, OP_CODES } from "../../des_api"
     
     export let event = new Event( )
+
+    $: USERS = getContext( 'users' )
+    $: user = $USERS.filter( u  => { return u.id == event.evt_user_id } )[0]
+
     let charLimit = 512
     $: message = ( 
         event.evt_msg.length > charLimit 
@@ -39,8 +45,6 @@
 
 </script>
 
-<!-- <div class="flx-col container" style="background-image: url( { bg_img } );"> -->
-
 <div class="flx-col container" style="background-color: { bgColor };">
   
     <div class="flx-row title-bar">
@@ -56,10 +60,12 @@
     <div class="flx-row msg">
         <div>{ message }</div>
     </div>
-        
+      
+    { #if user }
     <div class="flx-row src">
-        <UserBadge uid={ event.evt_user_id } cls={ evtEmailColor }/>
+        <UserBadge user={ user } cls={ evtEmailColor }/>
     </div>
+    { /if }
 
 
 </div>

@@ -44,7 +44,6 @@ export const updateUsersStore = async( ) => { USERS.update( ( ) => { return [ ..
 export const API_URL_USER_REGISTER =  `${ HTTP_SERVER }/api/user/register`
 export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
 export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
-export const API_URL_USER_ME = `${ HTTP_SERVER }/api/user/me`
 export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
 
 export const register_user = async( usu ) => {
@@ -78,14 +77,25 @@ export const login = async( email, password ) => {
     // debug(`"\ndes_api.js -> login( ) -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
 
     if ( auth.status === "success" ) { 
-        debug(`\ndes_api.js -> login( ) -> SUCCESS:\nAccess Token: ${ auth.token }\nRefresh Token: ${ auth.ref_token }\n` )
+        debug(`\ndes_api.js -> login( ) -> SUCCESS:\nAccess Token: ${ auth.acc }\nRefresh Token: ${ auth.ref }\n` )
 
-        // sessionStorage.setItem( 'des_token', auth.token, { path: '/' } )
-        // sessionStorage.setItem( 'des_ref_token', auth.ref_token, { path: '/' } )
+        let user = new User(
+            auth.user.id, 
+            auth.user.name, 
+            auth.user.email, 
+            auth.user.role,
+            auth.user.provider, 
+            auth.user.created_at, 
+            auth.user.updated_at,
+            auth.ref,
+            auth.acc,
+            true
+        )
+        AUTH.set( user ) 
+        
+        sessionStorage.setItem( 'des_auth', JSON.stringify( user ), { path: '/' } )
 
-        /* TODO: ADD / TEST REFRESH */
-        setUserTokens( auth.token, auth.ref_token )
-        watchJWT( auth.token, auth.ref_token )
+        debug("\ndes_api.js -> login( ) -> AUTHENTICATION SUCCESS!\n", get( AUTH ) )
 
     } else {
         debug( "\n AUTH FAILED: \n", auth.message )
@@ -94,127 +104,128 @@ export const login = async( email, password ) => {
     if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  } else { await connect_devices( ) }
     if ( get(AUTH).role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
 }
-
-const setUserTokens = async( acc, ref ) => {
-    sessionStorage.setItem( 'des_token', acc, { path: '/' } )
-    sessionStorage.setItem( 'des_ref_token', ref, { path: '/' } )
-    await get_user( acc )
-}
-const clearUserTokens = ( ) => {
-    sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
-    sessionStorage.setItem( 'des_ref_token', 'none', { path: '/' } )
-    AUTH.set( new User( ) ) 
-}
-
-let refreshCount = 3
-const refreshJWT = ( ref ) => {
-    return ( refreshCount-- > 0 ? true : false )
-}
-const watchJWT = ( acc, ref ) => { 
-
-    let intervalID
-    let jwt = parseJWT( acc )
-    let jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) - 5000
-
-    debug( "JWT access token expires in: ", jwtExpiresIn )
-
-    intervalID = setInterval( ( ) => { 
-        debug( "ACCESS JWT EXPIRED!" ) 
-
-        let success = refreshJWT( ref )
-        if ( success ) {
-            setUserTokens( acc, ref )
-        } else {
-            debug( "REFRESH JWT EXPIRED!" ) 
-            clearInterval( intervalID )
-            clearUserTokens( )
-        }
- 
-    }, jwtExpiresIn )
-
-}
-
 export const logout = async( ) => {
-
-    /* DISCONNECT ALL DEVICE WS ON LOGOUT */
-    await disconnect_devices( )
 
     let au = get( AUTH )
 
-    let req = new Request( API_URL_USER_LOGOUT, { 
+    new Request( API_URL_USER_LOGOUT, { 
         method: "GET",
-        headers: { 'Authorization': `Bearer ${ au.token }` }, 
+        headers: { 'Authorization': `Bearer ${ au.acc_token }` }, 
         credentials: "include"   
     } )
-    let res = await fetch( req )
-    let logout_res = await res.json( ) 
-    debug( `des_api.js -> logout( ) -> RESPONSE -> logout_res:\n${ JSON.stringify( logout_res, null, 4 ) }` )
 
-    clearUserTokens( )
-    // sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
-    // sessionStorage.setItem( 'des_ref_token', 'none', { path: '/' } )
-    // AUTH.set( new User( ) ) 
+    await clean_user_session( )
 
     debug(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
 }
+export const clean_user_session = async( ) => {
 
-export const parseJWT = ( token ) => {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    } ).join( '' ) )
+    /* CLEAR LOCAL STORAGE */
+    sessionStorage.setItem( 'des_auth', 'none', { path: '/' } )
 
-    return JSON.parse(jsonPayload);
-}
+    /* CLEAR APP STORES */
+    AUTH.set( new User( ) ) 
 
-export const get_user = async( token ) => {
-
-    // let token = sessionStorage.getItem( 'des_token' )
-
-    let user_res = await fetch( API_URL_USER_ME, { 
-            method: "GET",
-            headers: { 'Authorization': `Bearer ${ token }`}      
-        } 
-    )
-    let usr = await user_res.json() 
-
-    if ( usr.status == "success" ) {
-
-        AUTH.set( new User(
-            usr.data.user.id, 
-            usr.data.user.name, 
-            usr.data.user.email, 
-            usr.data.user.role,
-            usr.data.user.provider, 
-            usr.data.user.created_at, 
-            usr.data.user.updated_at,
-            token,
-            true
-        ) ) // debug("\ndes_api.js -> get_user( ) -> AUTHENTICATION SUCCESS!\n" )
-    } 
-    else {
-        clearUserTokens( )
-        // AUTH.set( new User( ) )
-        // sessionStorage.setItem( 'des_token', 'none', { path: '/' } )
-        // debug("\ndes_api.js -> get_user( ) -> AUTHENTICATION FAILED!\n" ) 
-    }
+    USERS.set( [ ] )
+    USERS_LOADED.set( false )
     
-    debug("\ndes_api.js -> get_user( ) -> AUTH: ", get( AUTH ).name )
+    EVT_TYPES.set( [ ] )
+    EVT_TYPES_LOADED.set( false )
+
+    /* DISCONNECT ALL DEVICE WS ON LOGOUT */
+    await disconnect_devices( )
+    DEVICES.set( [ ] )
+    DEVICES_LOADED.set( false )
+
+    /* DISCONNECT ALL JOB WS ON LOGOUT */
+    // await disconnect_jobs( ) // TODO: 
+    JOBS.set( [ ] )
+    JOBS_LOADED.set( false )
 }
+
 export const get_user_list = async( ) => {
     debug( `des_api.js -> get_user_list( )` )
 
     let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
     let res = await fetch( req )
     let json = await res.json( )
-    
-    // debug( `des_api.js -> get_users( ): users\n${ JSON.stringify( json.data.users, null, 4 ) }` )
-    sessionStorage.setItem( "users", JSON.stringify( json.data.users ) ) 
 
-    return json.data.users
+    if ( json.status == "success") { 
+
+        let users = json.data.users
+
+        users.forEach( usr => { 
+            if( get( USERS ).filter( u => { return u.email == usr.email } )[0] == undefined ) {
+                let user = new User(
+                    usr.id,
+                    usr.name,
+                    usr.email,
+                    usr.role,
+                    usr.provider,
+                    usr.created_at,
+                    usr.updated_at,
+                    usr.ref_token,
+                    usr.acc_token,
+                    false
+                )
+                USERS.update( susrs => { return [ ...susrs, user ] } )
+            }        
+        } )
+        USERS_LOADED.set( true )
+
+        debug( "des_api.js -> get_user_list( ) -> USERS: ", get( USERS ) )
+    } else {
+        debug( "des_api.js -> get_user_list( ) -> NO USERS: ", get( USERS ) )
+    }
 }
 
+let intervalID = null
+export const watchJWT = ( onRefreshFail = ( ) => { } ) => { 
+
+    if ( get( AUTH ).logged_in ) {
+
+        let jwt = parseJWT( get( AUTH ).acc_token )
+        let jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) 
+
+        debug( "JWT access token expires in: ", jwtExpiresIn )
+
+        if ( intervalID !== null ) { stopJWT( ) }
+
+        intervalID = setInterval( ( ) => { 
+
+            let success = refreshJWT( get( AUTH ).ref_token )
+            if ( success ) {
+                debug( "ACCESS JWT REFRESHED!" )
+            } else {
+                debug( "REFRESH JWT EXPIRED!" )  
+                stopJWT( )
+                clean_user_session( )
+                onRefreshFail( )
+            }
+
+        }, jwtExpiresIn - 2000 )
+
+    }
+}
+const stopJWT = ( ) => {
+    clearInterval( intervalID )
+    intervalID = null
+}
+const parseJWT = ( token ) => {
+
+    let base64Url = token.split('.')[1]
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    let jwt = decodeURIComponent( window.atob( base64 ).split( '' ).map( c => {
+        return '%' + ('00' + c.charCodeAt( 0 ).toString( 16 ) ).slice( -2 )
+    } ).join( '' ) )
+
+    return JSON.parse( jwt )
+
+}
+let refreshCount = 2
+const refreshJWT = ( ref ) => {
+    return ( refreshCount-- > 0 ? true : false )
+}
 
 /* DEVICE API ROUTES **********************************************************************************/
 
@@ -258,7 +269,7 @@ export const register_device = async( serial ) => {
         method: "POST",
         headers: { 
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${ au.token }` 
+            "Authorization": `Bearer ${ au.acc_token }` 
         },
         body: JSON.stringify( reg )
     } )
@@ -282,7 +293,7 @@ export const get_devices = async( ) => {
     let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
         method: 'GET',
         headers: {
-            "Authorization":  `Bearer ${ au.token }`, 
+            "Authorization":  `Bearer ${ au.acc_token }`, 
         },
     } )
 
@@ -326,7 +337,8 @@ export const connect_devices = async( ) => {
 }
 
 export const disconnect_devices = async( ) => { 
-    get( DEVICES ).forEach( async( d ) => { if ( !d.socket ) { await d.disconnectWS( ) } } )
+    // debug( "des_api.js -> disconnect_devices( ) -> DEVICES: ", get( DEVICES ) )
+    get( DEVICES ).forEach( async( d ) => { if ( d.socket ) { await d.disconnectWS( ) } } )
 }
 
 export const check_device_exists = async( serial ) => {
@@ -356,7 +368,7 @@ export const get_databases = async( ) => {
     let req = new Request( API_URL_DES_DB_LIST, { 
         method: 'GET',
         headers: {
-            "Authorization":  `Bearer ${ au.token }`, 
+            "Authorization":  `Bearer ${ au.acc_token }`, 
         },
     } )
 
@@ -380,7 +392,7 @@ export const get_db_tables = async( ) => {
     let req = new Request( API_URL_DES_DB_LIST, { 
         method: 'GET',
         headers: {
-            "Authorization":  `Bearer ${ au.token }`, 
+            "Authorization":  `Bearer ${ au.acc_token }`, 
         },
     } )
 
@@ -404,7 +416,7 @@ export const get_db_tbl_rows = async( ) => {
     let req = new Request( API_URL_DES_DB_LIST, { 
         method: 'GET',
         headers: {
-            "Authorization":  `Bearer ${ au.token }`, 
+            "Authorization":  `Bearer ${ au.acc_token }`, 
         },
     } )
 
@@ -422,6 +434,10 @@ export const get_db_tbl_rows = async( ) => {
 }
 
 /* JOB API ROUTES *************************************************************************************/
+
+export const EVT_TYPES = writable( [ ] )
+export const EVT_TYPES_LOADED = writable( false )
+export const updateEvtTypesStore = async( ) => { EVT_TYPES.update( ( ) => { return [ ...get( EVT_TYPES ) ] } ) }
 
 export const JOBS = writable( [ ] )
 export const JOBS_LOADED = writable( false )
@@ -443,10 +459,26 @@ export const get_event_types = async( ) => {
     let res = await fetch( req )
     let json = await res.json( )
     
-    // debug( `des_api.js -> get_event_types( ): event_types\n${ JSON.stringify( json.data.event_types, null, 4 ) }` )
-    sessionStorage.setItem( "event_types", JSON.stringify( json.data.event_types ) ) 
+    if ( json.status == "success") { 
 
-    return json.data.event_types
+        let typs = json.data.event_types
+
+        typs.forEach( t => { 
+            if( get( EVT_TYPES ).filter( e => { return e.evt_typ_code == t.evt_typ_code } )[0] == undefined ) {
+                let typ = new EventType(
+                    t.evt_typ_code,
+                    t.evt_typ_name,
+                    t.evt_typ_desc
+                )
+                EVT_TYPES.update( styps => { return [ ...styps, typ ] } )
+            }        
+        } )
+        EVT_TYPES_LOADED.set( true )
+
+        debug( "des_api.js -> get_event_types( ) -> EVT_TYPES: ", get( EVT_TYPES ) )
+    } else {
+        debug( "des_api.js -> get_event_types( ) -> NO EVT_TYPES: ", get( EVT_TYPES ) )
+    }
 }
 
 export const get_jobs = async( ) => { 
@@ -457,7 +489,7 @@ export const get_jobs = async( ) => {
     let req = new Request( API_URL_C001_V001_JOB_LIST, { 
         method: 'GET',
         headers: {
-            "Authorization":  `Bearer ${ au.token }`, 
+            "Authorization":  `Bearer ${ au.acc_token }`, 
         },
     } )
 
@@ -505,7 +537,8 @@ export class User {
         provider = "",
         created_at = 0,
         updated_at = 0,
-        token = "none",
+        ref_token = "none",
+        acc_token = "none",
         logged_in = false
     ) {
         this.id  = id
@@ -515,7 +548,8 @@ export class User {
         this.provider = provider
         this.created_at = created_at
         this.updated_at = updated_at
-        this.token = token
+        this.ref_token = ref_token
+        this.acc_token = acc_token
         this.logged_in = logged_in
     }
 }
@@ -836,7 +870,7 @@ export class Device {
 
         let dev = encodeURIComponent(JSON.stringify( { reg : this.reg } ) )
 
-        let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.token }&device=${ dev }`
+        let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.acc_token }&device=${ dev }`
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => {  
             this.socket = true
@@ -1026,7 +1060,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1056,7 +1090,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1087,7 +1121,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1124,7 +1158,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1159,7 +1193,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1194,7 +1228,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1230,7 +1264,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1269,7 +1303,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1296,7 +1330,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1330,7 +1364,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1359,7 +1393,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1388,7 +1422,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1420,7 +1454,7 @@ export class Device {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( dev )
         } )
@@ -1610,7 +1644,7 @@ export class Job {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${ au.token }`
+                'Authorization': `Bearer ${ au.acc_token }`
             },
             body: JSON.stringify( job )
         } )
@@ -1782,7 +1816,7 @@ export class Job {
         // debug( `class Job -> ${ this.reg..des_job_name } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
 
         let reg = encodeURIComponent(JSON.stringify( this.reg ) )
-        let url = `${ API_URL_C001_V001_JOB_USER_WS }?access_token=${ au.token }&des_reg=${ reg }`
+        let url = `${ API_URL_C001_V001_JOB_USER_WS }?access_token=${ au.acc_token }&des_reg=${ reg }`
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => {  
             this.socket = true
@@ -1850,7 +1884,7 @@ export class Job {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( job )
         } )
@@ -1883,7 +1917,7 @@ export class Job {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( job )
         } )
@@ -1912,7 +1946,7 @@ export class Job {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.token }` 
+                "Authorization": `Bearer ${ au.acc_token }` 
             },
             body: JSON.stringify( job )
         } )
@@ -1943,7 +1977,7 @@ export class Job {
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${ au.token }`
+                'Authorization': `Bearer ${ au.acc_token }`
             },
             body: JSON.stringify( rep )
         } )

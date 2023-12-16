@@ -1,6 +1,7 @@
 
 <script>
 
+    import { getContext } from "svelte"
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
 
@@ -9,15 +10,16 @@
     import PillButton from "$lib/common/button/PillButton.svelte"
     import DateTimeDisplay from "$lib/common/date_time/DateTimeDisplay.svelte"
 
-    import { Event, Job } from "../../des_api";
+    import { OP_CODES, Event, Job } from "../../des_api";
 
     export let job = new Job( )
     export let evt = new Event( )
-    export let evt_code = 2001
-    $: event_type = (JSON.parse( sessionStorage.event_types )).filter( t => { return t.evt_typ_code == evt_code } )[0]
+
+    $: EVT_TYPES = getContext( 'evt_types' )
+    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.REPORT_EVENT } )[0]
         
     const sendEvent = ( ) => { 
-        evt.evt_code = event_type.evt_typ_code
+        evt.evt_code = evt_type.evt_typ_code
         job.newEvent( evt )  
         clearEvent( )
     }
@@ -43,7 +45,9 @@
 
         <div class="flx-row in">
             <p class="lbl">Type:</p>
-            <div class="flx-row">{ event_type.evt_typ_name }</div> 
+            { #if evt_type }
+            <div class="flx-row">{ ( evt_type ? evt_type.evt_typ_name : 'UNKNOWN EVT CODE' ) }</div> 
+            { /if } 
 
             <DateTimeDisplay bind:date={ evt.evt_time }/>
         </div>

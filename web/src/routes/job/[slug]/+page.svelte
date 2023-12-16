@@ -214,7 +214,7 @@
 
     $: evt_code = OP_CODES.REPORT_EVENT
     $: evt = new Event( )
-    $: {  evt.evt_time = job.selection } 
+    $: {  if ( job ) { evt.evt_time = job.selection } }
 
     let map
     const makeMap = async( ctx ) => {
@@ -700,6 +700,7 @@
 
 <div class="flx-col container">
 
+    { #if job }
     <div class="flx-row content">
 
         <div class="flx-col status">
@@ -849,6 +850,7 @@
         </div>
     
     </div>
+    { /if }
 
 </div>
 

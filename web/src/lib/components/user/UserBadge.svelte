@@ -1,18 +1,9 @@
 <script>
 
-    import { onMount } from "svelte"
     import { User } from "../../des_api"
 
-    export let uid
     export let cls = 'fg-orange'
     export let user = new User( )
-    onMount( async( ) => { 
-        if ( uid ) { user = JSON.parse( sessionStorage.users ).filter( u => u.id == uid )[0] }
-        if ( user === undefined ) { 
-            user = new User( ) 
-            user.name = "UNKNOWN"
-        }
-    } )
 
 </script>
 

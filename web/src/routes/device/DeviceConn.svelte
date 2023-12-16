@@ -1,41 +1,44 @@
 <script>
 
+    import { getContext } from "svelte"
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
 	import { Device, OP_CODES, PING_LIMIT, DES_PING_LIMIT } from "../../lib/des_api";
 
     export let device = new Device( )
 
-    $: evt_type = (JSON.parse( sessionStorage.event_types )).filter( t => t.evt_typ_code == device.sta.sta_logging )[0]
-    
+    $: EVT_TYPES = getContext( 'evt_types' )
+    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == device.sta.sta_logging } )[0]
+   
     $: evtColorCode = 'fg-accent'
     $: {
-        switch ( evt_type.evt_typ_code )
-        {
-            case OP_CODES.DES_REG_REQ:
-            case OP_CODES.JOB_START_REQ:
-            case OP_CODES.JOB_END_REQ:
-                evtColorCode = 'fg-purple'
-                break
+        if ( evt_type ) {
+            switch ( evt_type.evt_typ_code )
+            {
+                case OP_CODES.DES_REG_REQ:
+                case OP_CODES.JOB_START_REQ:
+                case OP_CODES.JOB_END_REQ:
+                    evtColorCode = 'fg-purple'
+                    break
 
-            case OP_CODES.JOB_STARTED: 
-                evtColorCode = 'fg-green_08'
-                break
+                case OP_CODES.JOB_STARTED: 
+                    evtColorCode = 'fg-green_08'
+                    break
 
-            case OP_CODES.DES_REGISTERED:
-            case OP_CODES.JOB_ENDED:
-                evtColorCode = 'fg-grey_05'
-                break
+                case OP_CODES.DES_REGISTERED:
+                case OP_CODES.JOB_ENDED:
+                    evtColorCode = 'fg-grey_05'
+                    break
 
-            case OP_CODES.JOB_OFFLINE_START: 
-            case OP_CODES.JOB_OFFLINE_END:
-                evtColorCode = 'fg-yellow'
-                break
-                
-            case OP_CODES.GPS_ACQ:
-                evtColorCode = 'fg-pink'
-                break
+                case OP_CODES.JOB_OFFLINE_START: 
+                case OP_CODES.JOB_OFFLINE_END:
+                    evtColorCode = 'fg-yellow'
+                    break
+                    
+                case OP_CODES.GPS_ACQ:
+                    evtColorCode = 'fg-pink'
+                    break
+            }
         }
-
     }
 
     $: des_ping_sec = 0
@@ -68,7 +71,7 @@
     <div class="flx-row field">
         <div class="flx-row field-name">State</div>
         <div class="vert-line"/>
-        <div class="flx-row field-text-l { evtColorCode }">{ evt_type.evt_typ_name }</div>
+        <div class="flx-row field-text-l { evtColorCode }">{ ( evt_type ? evt_type.evt_typ_name : 'UNKNOWN EVT CODE' )  }</div>
         <div class="flx-row  field-value timeout-value">( { device.sta.sta_logging } )</div>
         <div class="flx-row field-text-r"><DateTimeDisplay date={ device.sta.sta_time }/></div>
     </div>
