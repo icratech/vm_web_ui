@@ -443,7 +443,7 @@
             } else if ( j > 1 ) { 
 
                 /* SUBSEQUENT ROW DATA */
-                dat = pdfSectionDataRow( smps[ (  j * gap > smps.length -1 ? j * gap : smps.length - 1 ) ] )
+                dat = pdfSectionDataRow( smps[ (  j * gap < smps.length -1 ? j * gap : smps.length - 1 ) ] )
 
             }
 

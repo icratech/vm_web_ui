@@ -8,7 +8,7 @@
 </script>
 
 <div class="flx-row content">
-    <div class="name { cls }">{ user.name }</div>
+    { #if user }<div class="name { cls }">{ user.name }</div>{ /if }
     <!-- <div class="email { cls }">{ user.email }</div> -->
 </div>
 

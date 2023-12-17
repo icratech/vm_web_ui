@@ -1,11 +1,15 @@
 <script>
 
+    import { getContext } from "svelte"
     import DateTimeDisplay from "../../common/date_time/DateTimeDisplay.svelte"
     import UserBadge from "../user/UserBadge.svelte"
 
     import { Config } from "../../des_api"
     
     export let cfg = new Config( )
+
+    $: USERS = getContext( 'users' )
+    $: user = $USERS.filter( u  => { return u.id == cfg.cfg_user_id } )[0]
 
 </script>
 
@@ -76,7 +80,7 @@
     <br>
     <div class="flx-col footer">
         <div style="padding-right: 0.5em;"><DateTimeDisplay date={ cfg.cfg_time } /></div>
-        <UserBadge uid={ cfg.cfg_user_id } />
+        <UserBadge bind:user={ user } />
     </div>
 
 </div>
