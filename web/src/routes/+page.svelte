@@ -7,9 +7,9 @@
     // import vent_medic_logo from "$lib/images/vent-medic-logo-green.svg"
     import vent_medic_nested from "$lib/images/vent-medic-ship.webp"
     import vent_medic_deployed from "$lib/images/vent-medic-deployed.webp"
-    import UserRegistration from "./UserRegistration.svelte"
+    import UserRegistration from "../lib/components/user/UserRegistration.svelte"
     import { UserSignUp, register_user } from "../lib/des_api"
-    import btn_img_edit from '../lib/images/btn-img-edit-aqua.svg'
+    import btn_img_edit from '../lib/images/btn-img-edit-orange.svg'
 
     let modal
     let newUser = new UserSignUp( )
@@ -40,13 +40,13 @@
         <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
     
         <Modal bind:this={ modal } bind:valid on:confirm={ async( ) => { register_user( newUser ) } }>
-            <h3 class='fg-accent' slot="title">Sign-Up</h3>
+            <h3 class='fg-accent' slot="title">Register</h3>
             <div slot="content" class="flx-row">
                 <UserRegistration bind:newUser />
             </div>
             <div slot="footer" class="flx-col">
                 { #if valid }   
-                <p class="alert valid">Send sign-up request</p>
+                <p class="alert valid">Send request</p>
                 { :else }
                     <div class="flx-col validation">
                         { #if !nameLength }
@@ -66,12 +66,9 @@
             </div>
         </Modal>
 
-        <div class="flx-row banner deployed" style="background-image: url( { vent_medic_deployed} );"></div>
-        <div class="flx-row banner ship" style="background-image: url( { vent_medic_nested} );"></div>
+        <div class="flx-row register">
 
-        <div class="flx-row actions">
-
-            Sign-Up
+            Register
             <PillButton 
                 on:click={ async( ) => { modal.open( ) } }
                 img={ btn_img_edit } 
@@ -79,6 +76,10 @@
             />
 
         </div>
+
+        <div class="flx-row banner deployed" style="background-image: url( { vent_medic_deployed} );"></div>
+        <div class="flx-row banner ship" style="background-image: url( { vent_medic_nested} );"></div>
+
 
     </div>
     <!-- { /if } -->
@@ -98,6 +99,7 @@
     .welcome {
         justify-content: space-between;
         align-items: center;
+        padding-bottom: 3em;
         height: 100%;
     }
 
@@ -118,16 +120,19 @@
         height: 100%;
         opacity: .8;
     }
-    .banner.deployed { display: flex; }
-    .banner.ship { display: none; }
-
-    .actions {
-        font-size: 1.2em;
+    
+    .register {
+        font-size: 1.4em;
         font-style: oblique;
         align-items: center;
         justify-content: center;
+        padding: 1em 0;
         gap: 0.5em
     }
+
+    .banner.deployed { display: flex; }
+    .banner.ship { display: none; }
+
 
     .validation {
         align-items: flex-start;

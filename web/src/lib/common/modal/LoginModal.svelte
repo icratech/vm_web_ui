@@ -5,7 +5,9 @@
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
     
-    import PillButton from "../button/PillButton.svelte";
+    import PillButton from "../button/PillButton.svelte"
+    import InputText from "../input_text/InputText.svelte"
+    import InputPW from "../input_pw/InputPW.svelte"
     import { openModals } from "../../des_api"
 
     const store = openModals( false ) 
@@ -54,7 +56,8 @@
         close( ) 
     }
 
-    export let valid = true
+    export let email = ""
+    export let password = ""
 
 </script>
 
@@ -66,35 +69,28 @@
 
         <div class="flx-col content-wrapper">
 
-            <div class="flx-row title">
-                <slot name="title" { store } >
-                    <h3>Modal Title...</h3>
-                </slot>
-                
-                <PillButton 
-                    img={ btn_img_cancel }
-                    on:click={ close }
-                    hint={ 'Cancel' } 
-                />
-            </div>
+            <h3 class='fg-accent'>Enter your cedentials</h3>
 
-            <div class="flx-row content">
-                <slot name="content" { store } />
+            <div class="flx-col content">
+
+                <div class="flx-row">
+                    <div class="flx-row lbl fg-accent">Email:</div>
+                    <InputText enabled={ true } bind:txt={ email } place="Email address"/>
+                </div>
+            
+                <div class="flx-row">
+                    <div class="flx-row lbl fg-accent">Password:</div>
+                    <InputPW enabled={ true } bind:txt={ password } auto="new-password" place="Password"/>
+                </div>
+            
             </div>
             
-            <div class="flx-row footer">
-                <slot name="footer" { store } >
-                    <div>Confirm</div>
-                </slot>
-                    
-                { #if valid }
+            <div class="flx-row confirm"> Login 
                 <PillButton 
                     img={ btn_img_confirm }
                     on:click={ confirm }
                     hint={ 'Confirm' } 
                 />
-                { /if }
-
             </div>
 
         </div>
@@ -105,10 +101,6 @@
 { /if }
 
 <style>
-    
-    .title {
-        justify-content: space-between;
-    }
 
     div.modal {
         position: fixed;
@@ -116,7 +108,7 @@
         left: 0;
         width: 100%;
         height: 100vh;
-        /* padding: 1em; */
+        padding: 1em;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -143,54 +135,40 @@
         background-color: var(--light_003);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
+        gap: 0;
     }
    .content {
         align-items: center;
-        width: auto;
-        padding:1.5em;
+        width: 28em;
+        padding:1em 0;
         overflow: hidden;
+        /* opacity: 0.9; */
+        /* gap: 0.75em; */
     }
-    .footer {
+    .confirm {
         justify-content: flex-end;
         align-items: center;
+        padding: 0;
     }
-
+    .lbl {
+        max-width: 4.5em;
+        font-size: 1rem;
+        align-items: center;
+        text-align: end;
+    }
+        
     /* LAP TOP */
     @media(max-width: 1440px) {
 
-        /* .flx-col.content-wrapper {
-            min-width: 70%;
- 
-        } */
     }
 
     /* TABLET */
     @media(max-width: 1024px) {
 
-        .content {
-            border:none;
-            padding: 0.5em;
-        }
     }
 
     /* MOBILE */
     @media(max-width: 425px) { 
-        .title {
-            padding: 0 1em;
-        }
-        .flx-col.content-wrapper {
-            max-width: 100%;
-            padding: 0;
-            background-color: transparent;
-            border: none;
-        }
-        .content {
-            flex-direction: column;
-            border:none;
-            padding: 0.5em;
-        }
-        .footer { 
-            padding-right: 1em;
-        }
+
     }
 </style>

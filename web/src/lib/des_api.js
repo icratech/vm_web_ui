@@ -36,13 +36,167 @@ export const debug = ( msg, obj ) => {
 
 /* DES API ROUTES *************************************************************************************/
 
-export const AUTH = writable( { } )
+// let alert_interval_id = null
+export const ALERT = writable( "" )
+export const ALERT_CODE = writable( 0 )
+export const ALERT_CODES = {
+    SUCCESS: 0,
+    WARNING: 1,
+    ERROR: 3
+}
+export const alert = async( code, msg ) => {
+    ALERT_CODE.set( code )
+    ALERT.set( msg )
+}
+
+
+/* DES DATA STRUCTURES  *****************************************************************************/
+export class User {
+    constructor(
+        id = "",
+        name = "",
+        email = "",
+        role = "",
+        provider = "",
+        created_at = 0,
+        updated_at = 0,
+        ref_token = "none",
+        acc_token = "none",
+        logged_in = false
+    ) {
+        this.id  = id
+        this.name = name
+        this.email = email
+        this.role = role,
+        this.provider = provider
+        this.created_at = created_at
+        this.updated_at = updated_at
+        this.ref_token = ref_token
+        this.acc_token = acc_token
+        this.logged_in = logged_in
+    }
+}
+
+export class UserSignUp {
+    constructor(
+        name = "",
+        email = "",
+        password = "",
+        password_confirm = "",
+    ) {
+        this.name = name
+        this.email = email
+        this.password = password
+        this.password_confirm = password_confirm
+    }
+}
+
+export class DESRegistration {
+    constructor( 
+        /* DESDevice */
+        des_dev_id = 0,
+
+        des_dev_reg_time = 0,
+        des_dev_reg_addr = "",
+        des_dev_reg_user_id = "",
+        des_dev_reg_app = client_app,
+
+        des_dev_serial = "",
+        des_dev_version = device_class,
+        des_dev_class = device_version,
+
+        /* DESJob */
+        des_job_id = 0,
+
+        des_job_reg_time = 0,
+        des_job_reg_addr = "",
+        des_job_reg_user_id = "",
+        des_job_reg_app = "",
+
+        des_job_name = "",
+        des_job_start = 0,
+        des_job_end = 0,
+        des_job_lng = -180,
+        des_job_lat = 90,
+        des_job_dev_id = 0,
+
+        /* DESJobSearch */
+        des_job_search_id = 0,
+        des_job_token = "",
+        des_job_json = "",
+        des_job_key = 0
+
+    ) {
+        /* DESDevice */
+        this.des_dev_id = des_dev_id
+
+        this.des_dev_reg_time = des_dev_reg_time
+        this.des_dev_reg_addr = des_dev_reg_addr
+        this.des_dev_reg_user_id = des_dev_reg_user_id
+        this.des_dev_reg_app = des_dev_reg_app
+
+        this.des_dev_serial = des_dev_serial
+        this.des_dev_version = des_dev_version
+        this.des_dev_class = des_dev_class
+
+        /* DESJob */
+        this.des_job_id = des_job_id
+
+        this.des_job_reg_time = des_job_reg_time
+        this.des_job_reg_addr = des_job_reg_addr
+        this.des_job_reg_user_id = des_job_reg_user_id
+        this.des_job_reg_app = des_job_reg_app
+
+        this.des_job_name = des_job_name
+        this.des_job_start = des_job_start
+        this.des_job_end = des_job_end
+        this.des_job_lng = des_job_lng
+        this.des_job_lat = des_job_lat
+        this.des_job_dev_id = des_job_dev_id
+
+        /* DESJobSearch */
+        this.des_job_search_id = des_job_search_id
+
+        this.des_job_token = des_job_token
+        this.des_job_json = des_job_json
+        this.des_job_key = des_job_key
+    }
+
+}
+
+export class DESSearchParam {
+    constructor(
+        token = "",
+        lng_min = -180.0,
+        lng_max = 180.0,
+        lat_min = -90.0,
+        lat_max = 90.0
+    ) {
+        this.token = token
+        this.lng_min = lng_min
+        this.lng_max = lng_max
+        this.lat_min = lat_min
+        this.lat_max = lat_max
+    }
+    getMapBounds( map ) { 
+        // map.getBounds() returns LngLatBounds object 
+        // https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglatbounds
+        let b = map.getBounds( )
+            this.lng_max = b._ne.lng
+            this.lat_max = b._ne.lat
+            this.lng_min = b._sw.lng
+            this.lat_min = b._sw.lat
+    }
+}
+
+export const AUTH = writable( new User( ) )
 export const USERS = writable( [ ] )
 export const USERS_LOADED = writable( false )
 export const updateUsersStore = async( ) => { USERS.update( ( ) => { return [ ...get( USERS ) ] } ) }
 
 export const API_URL_USER_REGISTER =  `${ HTTP_SERVER }/api/user/register`
 export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
+export const API_URL_USER_REFRESH = `${ HTTP_SERVER }/api/user/refresh`
 export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
 export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
 
@@ -103,6 +257,32 @@ export const login = async( email, password ) => {
 
     if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  } else { await connect_devices( ) }
     if ( get(AUTH).role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
+}
+export const refresh_jwt = async( ) => {
+
+    let au = get( AUTH )
+
+    let req = new Request( API_URL_USER_REFRESH, { 
+        method: "GET",
+        headers: { 'Authorization': `Bearer ${ au.ref_token }` }, 
+        credentials: "include"   
+    } )
+    let res = await fetch( req )
+    let auth = await res.json( )
+    
+    if ( auth.status === "success" ) { 
+        alert( ALERT_CODES.SUCCESS, auth.message )
+        
+        au.acc_token = auth.acc_token
+        AUTH.set( au )
+        sessionStorage.setItem( 'des_auth', JSON.stringify( au ), { path: '/' } )
+        return true
+    } else {
+        alert( ALERT_CODES.WARNING, auth.message )
+        await clean_user_session( )
+        return false
+    }
+
 }
 export const logout = async( ) => {
 
@@ -182,7 +362,7 @@ export const get_user_list = async( ) => {
 let intervalID = null
 export const watchJWT = ( onRefreshFail = ( ) => { } ) => { 
 
-    if ( get( AUTH ).logged_in ) {
+    if ( get( AUTH ) && get( AUTH ).logged_in ) {
 
         let jwt = parseJWT( get( AUTH ).acc_token )
         let jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) 
@@ -191,23 +371,32 @@ export const watchJWT = ( onRefreshFail = ( ) => { } ) => {
 
         if ( intervalID !== null ) { stopJWT( ) }
 
-        intervalID = setInterval( ( ) => { 
+        if ( jwtExpiresIn > 0 ) {
 
-            let success = refreshJWT( get( AUTH ).ref_token )
-            if ( success ) {
-                debug( "ACCESS JWT REFRESHED!" )
-            } else {
-                debug( "REFRESH JWT EXPIRED!" )  
-                stopJWT( )
-                clean_user_session( )
-                onRefreshFail( )
-            }
-
-        }, jwtExpiresIn - 2000 )
+            intervalID = setInterval( async( ) => { 
+    
+                // let success = refreshJWT( get( AUTH ).ref_token )
+                let success = await refresh_jwt( )
+                if ( success ) {
+                    debug( "ACCESS JWT REFRESHED!" )
+                    
+                    jwt = parseJWT( get( AUTH ).acc_token )
+                    jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) 
+                    // alert( ALERT_CODES.SUCCESS, "Access token refreshed!" )
+                } else {
+                    debug( "REFRESH JWT EXPIRED!" )  
+                    // alert( ALERT_CODES.WARNING, "Access timed out. Please log in again." )
+                    stopJWT( )
+                    clean_user_session( )
+                    onRefreshFail( )
+                }
+    
+            }, jwtExpiresIn - 2000 )
+        }
 
     }
 }
-const stopJWT = ( ) => {
+export const stopJWT = ( ) => {
     clearInterval( intervalID )
     intervalID = null
 }
@@ -524,145 +713,6 @@ export const get_jobs = async( ) => {
         debug( "des_api.js -> get_jobs( ) -> JOBS: ", store )
     } else {
         debug( "des_api.js -> get_jobs( ) -> NO JOBS.", get( JOBS ) )
-    }
-}
-
-/* DES DATA STRUCTURES  *****************************************************************************/
-export class User {
-    constructor(
-        id = "",
-        name = "",
-        email = "",
-        role = "",
-        provider = "",
-        created_at = 0,
-        updated_at = 0,
-        ref_token = "none",
-        acc_token = "none",
-        logged_in = false
-    ) {
-        this.id  = id
-        this.name = name
-        this.email = email
-        this.role = role,
-        this.provider = provider
-        this.created_at = created_at
-        this.updated_at = updated_at
-        this.ref_token = ref_token
-        this.acc_token = acc_token
-        this.logged_in = logged_in
-    }
-}
-
-export class UserSignUp {
-    constructor(
-        name = "",
-        email = "",
-        password = "",
-        password_confirm = "",
-    ) {
-        this.name = name
-        this.email = email
-        this.password = password
-        this.password_confirm = password_confirm
-    }
-}
-
-export class DESRegistration {
-    constructor( 
-        /* DESDevice */
-        des_dev_id = 0,
-
-        des_dev_reg_time = 0,
-        des_dev_reg_addr = "",
-        des_dev_reg_user_id = "",
-        des_dev_reg_app = client_app,
-
-        des_dev_serial = "",
-        des_dev_version = device_class,
-        des_dev_class = device_version,
-
-        /* DESJob */
-        des_job_id = 0,
-
-        des_job_reg_time = 0,
-        des_job_reg_addr = "",
-        des_job_reg_user_id = "",
-        des_job_reg_app = "",
-
-        des_job_name = "",
-        des_job_start = 0,
-        des_job_end = 0,
-        des_job_lng = -180,
-        des_job_lat = 90,
-        des_job_dev_id = 0,
-
-        /* DESJobSearch */
-        des_job_search_id = 0,
-        des_job_token = "",
-        des_job_json = "",
-        des_job_key = 0
-
-    ) {
-        /* DESDevice */
-        this.des_dev_id = des_dev_id
-
-        this.des_dev_reg_time = des_dev_reg_time
-        this.des_dev_reg_addr = des_dev_reg_addr
-        this.des_dev_reg_user_id = des_dev_reg_user_id
-        this.des_dev_reg_app = des_dev_reg_app
-
-        this.des_dev_serial = des_dev_serial
-        this.des_dev_version = des_dev_version
-        this.des_dev_class = des_dev_class
-
-        /* DESJob */
-        this.des_job_id = des_job_id
-
-        this.des_job_reg_time = des_job_reg_time
-        this.des_job_reg_addr = des_job_reg_addr
-        this.des_job_reg_user_id = des_job_reg_user_id
-        this.des_job_reg_app = des_job_reg_app
-
-        this.des_job_name = des_job_name
-        this.des_job_start = des_job_start
-        this.des_job_end = des_job_end
-        this.des_job_lng = des_job_lng
-        this.des_job_lat = des_job_lat
-        this.des_job_dev_id = des_job_dev_id
-
-        /* DESJobSearch */
-        this.des_job_search_id = des_job_search_id
-
-        this.des_job_token = des_job_token
-        this.des_job_json = des_job_json
-        this.des_job_key = des_job_key
-    }
-
-}
-
-export class DESSearchParam {
-    constructor(
-        token = "",
-        lng_min = -180.0,
-        lng_max = 180.0,
-        lat_min = -90.0,
-        lat_max = 90.0
-    ) {
-        this.token = token
-        this.lng_min = lng_min
-        this.lng_max = lng_max
-        this.lat_min = lat_min
-        this.lat_max = lat_max
-    }
-    getMapBounds( map ) { 
-        // map.getBounds() returns LngLatBounds object 
-        // https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglatbounds
-        let b = map.getBounds( )
-            this.lng_max = b._ne.lng
-            this.lat_max = b._ne.lat
-            this.lng_min = b._sw.lng
-            this.lat_min = b._sw.lat
     }
 }
 

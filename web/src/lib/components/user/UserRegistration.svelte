@@ -1,9 +1,9 @@
 <script>
 
-    import InputText from "../lib/common/input_text/InputText.svelte"
-    import InputPW from "../lib/common/input_pw/InputPW.svelte"
+    import InputText from "../../common/input_text/InputText.svelte"
+    import InputPW from "../../common/input_pw/InputPW.svelte"
 
-    import { UserSignUp } from "../lib/des_api"
+    import { UserSignUp } from "../../des_api"
 
     export let newUser = new UserSignUp( )
     
@@ -12,22 +12,22 @@
 <div class="flx-col container">
 
     <div class="flx-row">
-        <p class="lbl fg-accent">Name:</p>
+        <div class="flx-row lbl fg-accent">Name:</div>
         <InputText enabled={ true } bind:txt={ newUser.name } place="User name"/>
     </div>
 
     <div class="flx-row">
-        <p class="lbl fg-accent">Email:</p>
+        <div class="flx-row lbl fg-accent">Email:</div>
         <InputText enabled={ true } bind:txt={ newUser.email } place="Email address"/>
     </div>
 
     <div class="flx-row">
-        <p class="lbl fg-accent">Password:</p>
+        <div class="flx-row lbl fg-accent">Password:</div>
         <InputPW enabled={ true } bind:txt={ newUser.password } auto="new-password" place="Password"/>
     </div>
 
     <div class="flx-row">
-        <p class="lbl fg-accent">Confirm:</p>
+        <div class="flx-row lbl fg-accent">Confirm:</div>
         <InputPW enabled={ true } bind:txt={ newUser.password_confirm } auto="new-password" place="Confirm password"/>
     </div>
 
@@ -36,11 +36,13 @@
 <style>
     .container {
         width: 35em;
+        padding: 0 1em;
+        gap: 0.75em;
     }
     .lbl {
-        width: 10em;
+        max-width: 4.5em;
         font-size: 1rem;
-        padding-left: 0.75rem;
+        align-items: center;
         text-align: end;
     }
 </style>

@@ -42,7 +42,6 @@
         </div>
 
         <div class="flx-row card-title meta">
-            <!-- <DateTimeDisplay bind:date={ header.hdr_time } /> -->
             <UserBadge uid={ hdr.hdr_user_id } />
         </div>
 
@@ -74,4 +73,11 @@
         gap: 0.5em;
     }
 
+    /* MOBILE */
+    @media(max-width: 425px) { 
+        
+        .container {
+            min-width: none;
+        }  
+    }
 </style>

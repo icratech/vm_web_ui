@@ -13,13 +13,16 @@
     $: USERS = getContext( 'users' )
     $: user = $USERS.filter( u  => { return u.id == event.evt_user_id } )[0]
 
+
+    $: EVT_TYPES = getContext( 'evt_types' )
+    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == event.evt_code } )[0]
+    
     let charLimit = 512
     $: message = ( 
         event.evt_msg.length > charLimit 
         ? event.evt_msg.slice( 0, charLimit ) + "..." 
         : event.evt_msg 
     )
-    $: evt_type = (JSON.parse( sessionStorage.event_types )).filter( t => t.evt_typ_code == event.evt_code )[0]
     $: evtColorCode = 'fg-accent'
     $: bgColor = ''//'var(--light_002)'
     $: evtEmailColor = 'fg-orange'
