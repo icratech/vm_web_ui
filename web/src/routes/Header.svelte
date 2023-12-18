@@ -36,7 +36,7 @@
             </div>
 
             <div class="flx-row login-btn">        
-                <div class="flx-row login-msg">{ ( $AUTH && $AUTH.logged_in ? $AUTH.name : 'Login' ) }</div>
+                <div class="flx-row login-msg">{ ( $AUTH && $AUTH.logged_in ? $AUTH.user.name : 'Login' ) }</div>
                 <PillButton 
                     img={ loginButtonImage }
                     on:click={ loginButtonFunc }

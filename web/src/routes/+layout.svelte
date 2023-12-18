@@ -7,7 +7,7 @@
     import { goto } from '$app/navigation'
 
     import { 
-        AUTH, login, logout, watchJWT, stopJWT,
+        AUTH, login, logout, terminate_user, watchJWT, stopJWT,
         get_user_list, USERS, USERS_LOADED, 
         get_event_types, EVT_TYPES, EVT_TYPES_LOADED,
         get_devices, DEVICES, DEVICES_LOADED,
@@ -42,6 +42,7 @@
     import btn_img_report_green from "$lib/images/btn-img-edit-green.svg"
 
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
+    import btn_img_cmd_red from "$lib/images/btn-img-cmd-red.svg"
 
 
     setContext( 'users', USERS )
@@ -204,9 +205,16 @@
                     />
                 </div>
 
-                { #if $AUTH.role == "admin" }
-    
+                { #if $AUTH.user.role == "admin" }
+  
                     <div class="flx-col admin">
+
+                        <PillButton 
+                            on:click={ ( ) => { terminate_user( $AUTH.user ) } } 
+                            img={ btn_img_cmd_red } 
+                            hint={ "If you don't know..." } 
+                        />
+
                         <PillButton 
                             on:click={ goto_des } 
                             img={ btn_img_cmd_purple } 

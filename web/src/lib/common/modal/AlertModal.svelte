@@ -6,6 +6,8 @@
     import { openModals, ALERT, ALERT_CODE, ALERT_CODES, debug } from "../../des_api"
     import { RGBA, BASE } from "../colors"
 
+    import PillButton from "../button/PillButton.svelte"
+
     const store = openModals( false ) 
 
     let isOpen = store.isOpen
@@ -64,10 +66,10 @@
 
     $: title = ""
     $: color_code = BASE.AQUA
-    $: color_code_txt_alpha = 0.8
-    $: color_code_txt = RGBA(color_code, color_code_txt_alpha)
-    $: color_code_bg = RGBA(color_code, 0.1)
-    $: color_code_border = RGBA(color_code, 0.3)
+    // $: color_code_txt_alpha = 0.8
+    $: color_code_txt = BASE.LIGHT //RGBA(color_code, color_code_txt_alpha)
+    $: color_code_bg = RGBA(color_code, 0.2)
+    $: color_code_border = RGBA(color_code, 0.4)
 
     $: { 
         if ( $ALERT !== "" ) {  
@@ -110,6 +112,11 @@
                 border-bottom: solid 0.1em { color_code_border };
                 border: solid 0.1em { color_code_border };
             ">{ $ALERT }</div>
+
+            <div class="flx-row alert-btn">
+                OK
+                <PillButton cls={ 'bg-light' } on:click={ close } />
+            </div>
 
         </div>
 
@@ -162,6 +169,11 @@
         border-radius: 0.5em;
         font-size: 1.2em;
         padding: 1em;
+    }
+    .alert-btn {
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.75em;
     }
     
         

@@ -1,12 +1,16 @@
 
 <script>
     
+    // import { getContext } from "svelte"
+
     import DateTimeDisplay from "$lib/common/date_time/DateTimeDisplay.svelte"
     import UserBadge from "../user/UserBadge.svelte";
 	import { Header } from "../../des_api"
 
     export let hdr = new Header( )
-    $: running = hdr.hdr_job_end > 0
+
+    // $: USERS = getContext( 'users' )
+    // $: user = $USERS.filter( u  => { return u.id == hdr.hdr_user_id } )[0]
 
 </script>
 
@@ -75,11 +79,11 @@
         
     </div>
 
-    <br>
-    <!-- <div class="flx-col footer"> -->
-        <!-- <UserBadge uid={ hdr.hdr_user_id } />
-        <div style="padding-right: 0.5em;"><DateTimeDisplay date={ hdr.hdr_time } /></div> -->
-    <!-- </div> -->
+    <!-- <br>
+    <div class="flx-col footer">
+            <UserBadge bind:user={ user } />
+        <div style="padding-right: 0.5em;"><DateTimeDisplay date={ hdr.hdr_time } /></div>
+    </div> -->
 
 </div>
 

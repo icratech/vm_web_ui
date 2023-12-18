@@ -2,7 +2,7 @@
     export let cls = ''
     import def from "$lib/images/btn-img-default.svg"
     export let img = def
-    export let hint 
+    export let hint = null
 
     $: { if ( img == null ) { img = def } }
 

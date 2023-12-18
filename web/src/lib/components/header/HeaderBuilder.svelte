@@ -1,6 +1,7 @@
 
 <script>
-    import { onMount } from 'svelte'
+
+    import { getContext } from "svelte"
 	import { Header } from "../../des_api";
 
     import PillButton from "../../common/button/PillButton.svelte"
@@ -9,6 +10,9 @@
     import UserBadge from "../user/UserBadge.svelte"
 
     export let hdr = new Header( )
+
+    $: USERS = getContext( 'users' )
+    $: user = $USERS.filter( u  => { return u.id == hdr.hdr_user_id } )[0]
 
     </script>
 
@@ -42,7 +46,7 @@
         </div>
 
         <div class="flx-row card-title meta">
-            <UserBadge uid={ hdr.hdr_user_id } />
+            <UserBadge bind:user={ user } />
         </div>
 
     </div>

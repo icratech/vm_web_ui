@@ -51,29 +51,40 @@ export const alert = async( code, msg ) => {
 
 
 /* DES DATA STRUCTURES  *****************************************************************************/
+
+export class UserSession {
+    constructor (
+        sid = "",
+        ref_token = "none",
+        acc_token = "none",
+        user = new User( ),
+        logged_in = false
+    ) {
+        this.sid = sid
+        this.ref_token = ref_token
+        this.acc_token = acc_token
+        this.user = user
+        this.logged_in = logged_in
+    }
+}
+
 export class User {
     constructor(
         id = "",
         name = "",
         email = "",
         role = "",
-        provider = "",
+        // provider = "",
         created_at = 0,
-        updated_at = 0,
-        ref_token = "none",
-        acc_token = "none",
-        logged_in = false
+        updated_at = 0
     ) {
         this.id  = id
         this.name = name
         this.email = email
         this.role = role,
-        this.provider = provider
+        // this.provider = provider
         this.created_at = created_at
         this.updated_at = updated_at
-        this.ref_token = ref_token
-        this.acc_token = acc_token
-        this.logged_in = logged_in
     }
 }
 
@@ -189,7 +200,7 @@ export class DESSearchParam {
     }
 }
 
-export const AUTH = writable( new User( ) )
+export const AUTH = writable( new UserSession( ) )
 export const USERS = writable( [ ] )
 export const USERS_LOADED = writable( false )
 export const updateUsersStore = async( ) => { USERS.update( ( ) => { return [ ...get( USERS ) ] } ) }
@@ -197,6 +208,7 @@ export const updateUsersStore = async( ) => { USERS.update( ( ) => { return [ ..
 export const API_URL_USER_REGISTER =  `${ HTTP_SERVER }/api/user/register`
 export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
 export const API_URL_USER_REFRESH = `${ HTTP_SERVER }/api/user/refresh`
+export const API_URL_USER_TERMINATE = `${ HTTP_SERVER }/api/user/terminate`
 export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
 export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
 
@@ -231,23 +243,25 @@ export const login = async( email, password ) => {
     // debug(`"\ndes_api.js -> login( ) -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
 
     if ( auth.status === "success" ) { 
-        debug(`\ndes_api.js -> login( ) -> SUCCESS:\nAccess Token: ${ auth.acc }\nRefresh Token: ${ auth.ref }\n` )
+        // debug(`\ndes_api.js -> login( ) -> SUCCESS:\nAccess Token: ${ auth.user_session.acc_token }\nRefresh Token: ${ auth.user_session.ref_token }\n` )
+        // debug(`\ndes_api.js -> login( ) -> SUCCESS -> User: `, auth.user_session.user )
 
-        let user = new User(
-            auth.user.id, 
-            auth.user.name, 
-            auth.user.email, 
-            auth.user.role,
-            auth.user.provider, 
-            auth.user.created_at, 
-            auth.user.updated_at,
-            auth.ref,
-            auth.acc,
+        let us = new UserSession(
+            auth.user_session.sid, 
+            auth.user_session.ref_token,
+            auth.user_session.acc_token, 
+            new User( 
+                auth.user_session.user.id,
+                auth.user_session.user.name,
+                auth.user_session.user.email,
+                auth.user_session.user.role,
+                auth.user_session.user.created_at,
+                auth.user_session.user.updated_at
+            ),
             true
         )
-        AUTH.set( user ) 
-        
-        sessionStorage.setItem( 'des_auth', JSON.stringify( user ), { path: '/' } )
+        AUTH.set( us ) 
+        sessionStorage.setItem( 'des_auth', JSON.stringify( us ), { path: '/' } )
 
         debug("\ndes_api.js -> login( ) -> AUTHENTICATION SUCCESS!\n", get( AUTH ) )
 
@@ -255,45 +269,92 @@ export const login = async( email, password ) => {
         debug( "\n AUTH FAILED: \n", auth.message )
     }
 
-    if ( get(AUTH).role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  } else { await connect_devices( ) }
-    if ( get(AUTH).role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
+    if ( get(AUTH).user.role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  } else { await connect_devices( ) }
+    if ( get(AUTH).user.role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
 }
 export const refresh_jwt = async( ) => {
 
     let au = get( AUTH )
+    // debug( "des_api.js -> refresh_jwt( ) -> REQUEST -> ref_token.exp: ", parseJWT( au.ref_token ).exp )
+    // debug( "des_api.js -> refresh_jwt( ) -> REQUEST -> acc_token.exp: ", parseJWT( au.acc_token ).exp )
 
     let req = new Request( API_URL_USER_REFRESH, { 
-        method: "GET",
-        headers: { 'Authorization': `Bearer ${ au.ref_token }` }, 
-        credentials: "include"   
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${ au.acc_token }` 
+        },
+        body: JSON.stringify( au ) 
     } )
     let res = await fetch( req )
-    let auth = await res.json( )
+    let json = await res.json( )
     
-    if ( auth.status === "success" ) { 
-        alert( ALERT_CODES.SUCCESS, auth.message )
+    if ( json.status === "success" ) { 
+        debug( "des_api.js -> refresh_jwt( ) -> SUCCESS -> acc_token.exp: ", parseJWT( json.user_session.acc_token ).exp )
+        // alert( ALERT_CODES.SUCCESS, json.message )
         
-        au.acc_token = auth.acc_token
+        au.acc_token = json.user_session.acc_token
         AUTH.set( au )
         sessionStorage.setItem( 'des_auth', JSON.stringify( au ), { path: '/' } )
         return true
     } else {
-        alert( ALERT_CODES.WARNING, auth.message )
+        // debug( "des_api.js -> refresh_jwt( ) -> recieve auth FAIL: ", json )
+        alert( ALERT_CODES.ERROR, json.message )
         await clean_user_session( )
         return false
     }
 
 }
-export const logout = async( ) => {
+export const terminate_user = async( user ) => {
+    debug( "des_api.js -> terminate_user( ) -> REQUEST -> user: ", user )
 
     let au = get( AUTH )
 
-    new Request( API_URL_USER_LOGOUT, { 
-        method: "GET",
-        headers: { 'Authorization': `Bearer ${ au.acc_token }` }, 
-        credentials: "include"   
+    let req = new Request( API_URL_USER_TERMINATE, { 
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${ au.acc_token }` 
+        },
+        body: JSON.stringify( user ) 
     } )
+    let res = await fetch( req )
+    let json = await res.json( )
+    
+    if ( json.status === "success" ) { 
+        debug( "des_api.js -> terminate_user( ) -> SUCCESS: ", json.message )
+        alert( ALERT_CODES.SUCCESS, json.message )
+        return true
+    } else {
+        debug( "des_api.js -> terminate_user( ) -> FAIL: ", json )
+        alert( ALERT_CODES.ERROR, json.message )
+        return false
+    }
 
+}
+export const logout = async( ) => {
+    debug( "des_api.js -> logout( )" )
+
+    let au = get( AUTH )
+    if ( intervalID !== null ) { stopJWT( ) }
+
+    let req = new Request( API_URL_USER_LOGOUT, { 
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${ au.acc_token }` 
+        },
+        body: JSON.stringify( au ) 
+    } )
+    let res = await fetch( req )
+    let json = await res.json( )
+    
+    if ( json.status === "success" ) { 
+        alert( ALERT_CODES.SUCCESS, json.message )
+    } else {
+        alert( ALERT_CODES.ERROR, json.message )
+        return false
+    }
     await clean_user_session( )
 
     debug(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
@@ -304,7 +365,7 @@ export const clean_user_session = async( ) => {
     sessionStorage.setItem( 'des_auth', 'none', { path: '/' } )
 
     /* CLEAR APP STORES */
-    AUTH.set( new User( ) ) 
+    AUTH.set( new UserSession( ) ) 
 
     USERS.set( [ ] )
     USERS_LOADED.set( false )
@@ -343,10 +404,7 @@ export const get_user_list = async( ) => {
                     usr.role,
                     usr.provider,
                     usr.created_at,
-                    usr.updated_at,
-                    usr.ref_token,
-                    usr.acc_token,
-                    false
+                    usr.updated_at
                 )
                 USERS.update( susrs => { return [ ...susrs, user ] } )
             }        
@@ -378,7 +436,7 @@ export const watchJWT = ( onRefreshFail = ( ) => { } ) => {
                 // let success = refreshJWT( get( AUTH ).ref_token )
                 let success = await refresh_jwt( )
                 if ( success ) {
-                    debug( "ACCESS JWT REFRESHED!" )
+                    debug( "ACCESS JWT REFRESHED! -> intervalID:", intervalID )
                     
                     jwt = parseJWT( get( AUTH ).acc_token )
                     jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) 
@@ -411,10 +469,7 @@ const parseJWT = ( token ) => {
     return JSON.parse( jwt )
 
 }
-let refreshCount = 2
-const refreshJWT = ( ref ) => {
-    return ( refreshCount-- > 0 ? true : false )
-}
+
 
 /* DEVICE API ROUTES **********************************************************************************/
 
@@ -477,6 +532,7 @@ export const get_devices = async( ) => {
 
     let au = get( AUTH )
     // debug("\ndes_api.js -> get_devices( ) -> AUTH: \n", au )
+    debug( "des_api.js -> get_devices( ) -> AUTH -> acc_token: ", parseJWT( au.acc_token ) )
 
     DEVICES_LOADED.set( false )
     let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
@@ -516,7 +572,8 @@ export const get_devices = async( ) => {
         DEVICES_LOADED.set( true )
         debug( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
     } else {
-        debug( "des_api.js -> get_devices( ) -> NO DEVICES: ", get( DEVICES ) )
+        alert(ALERT_CODES.ERROR, json.message )
+        // debug( "des_api.js -> get_devices( ) -> NO DEVICES: ", get( DEVICES ) )
     }
 
 }
