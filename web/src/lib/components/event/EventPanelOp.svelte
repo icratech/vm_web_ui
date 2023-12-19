@@ -42,7 +42,7 @@
     { #if show_evt_list }
     <div class="flx-col evts">
         { #each device.job_evts as evt, index ( index ) }
-            <EventCard bind:event={ evt } />
+            <EventCard bind:evt />
         { /each }
     </div>
     { :else }

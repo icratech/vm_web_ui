@@ -505,7 +505,7 @@ export const register_device = async( serial ) => {
     let reg = new DESRegistration( )
 
     reg.des_dev_serial = serial
-    reg.des_dev_reg_user_id = au.id
+    reg.des_dev_reg_user_id = au.user.id
     reg.des_dev_reg_app = client_app
     debug("des_api.js -> register_device( ) -> REQUEST reg:\n", reg )
 
@@ -607,6 +607,7 @@ export const remove_device = async( serial ) => {
 
 }
 
+/* NOT IMPLEMENTED */
 export const API_URL_DES_DB_LIST = `${ HTTP_SERVER }/api/des/db/list`
 export const get_databases = async( ) => {
 
@@ -631,6 +632,7 @@ export const get_databases = async( ) => {
 
 }
 
+/* NOT IMPLEMENTED */
 export const API_URL_DES_DB_TBL_LIST = `${ HTTP_SERVER }/api/des/db/tbl_list`
 export const get_db_tables = async( ) => {
     
@@ -655,6 +657,7 @@ export const get_db_tables = async( ) => {
 
 }
 
+/* NOT IMPLEMENTED */
 export const API_URL_DES_DB_TBL_ROWS = `${ HTTP_SERVER }/api/des/db/tbl_rows`
 export const get_db_tbl_rows = async( ) => {
     
@@ -971,9 +974,8 @@ export class Device {
         let au = get( AUTH )
         // debug( `class Device -> ${ this.reg.des_dev_serial } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
-        let reg = encodeURIComponent(JSON.stringify( this.reg ) )
 
         let dev = encodeURIComponent(JSON.stringify( { reg : this.reg } ) )
 
@@ -1030,7 +1032,7 @@ export class Device {
                 
                 case "end_cmd":
                     debug("new end received from other user: ", msg.data)
-                    this.sta.sta_logging = msg.data.evt.evt_code
+                    this.sta.sta_logging = msg.data.evt_code
                     break    
                     
                 case "ping":
@@ -1144,7 +1146,7 @@ export class Device {
 
         if ( !this.socket ) { await this.connectWS( ) }
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
         
         this.sta.sta_logging = OP_CODES.JOB_START_REQ
@@ -1180,36 +1182,36 @@ export class Device {
             debug("Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
-    cancelStartJob = async( ) => { 
-        debug( "Cancel Start job request for device: ", this.reg.des_dev_serial ) 
+    // cancelStartJob = async( ) => { 
+    //     debug( "Cancel Start job request for device: ", this.reg.des_dev_serial ) 
 
-        let au = get( AUTH )
+    //     let au = get( AUTH )
 
-        if ( !this.socket ) { await this.connectWS( ) }
+    //     if ( !this.socket ) { await this.connectWS( ) }
       
-        this.reg.des_job_reg_user_id = au.id
-        this.reg.des_job_reg_app = client_app
+    //      this.reg.des_job_reg_user_id = au.user.id
+    //     this.reg.des_job_reg_app = client_app
 
-        let dev = { reg: this.reg }
+    //     let dev = { reg: this.reg }
 
-        debug( "Send CANCEL START JOB Request:\n", dev ) 
-        let req = new Request( API_URL_C001_V001_DEVICE_CANCEL_START, { 
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${ au.acc_token }` 
-            },
-            body: JSON.stringify( dev )
-        } )
-        let res_raw = await fetch( req )
-        let res = await res_raw.json( )
-        debug("des_api.js -> device.cancelStartJob( ) ->  RESPONSE res:\n", res )
+    //     debug( "Send CANCEL START JOB Request:\n", dev ) 
+    //     let req = new Request( API_URL_C001_V001_DEVICE_CANCEL_START, { 
+    //         method: "POST",
+    //         headers: { 
+    //             "Content-Type": "application/json",
+    //             "Authorization": `Bearer ${ au.acc_token }` 
+    //         },
+    //         body: JSON.stringify( dev )
+    //     } )
+    //     let res_raw = await fetch( req )
+    //     let res = await res_raw.json( )
+    //     debug("des_api.js -> device.cancelStartJob( ) ->  RESPONSE res:\n", res )
 
-        if ( res.status === "success" ) { 
-            debug("Cancel Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
-            this.sta = res.data.device.sta
-        }
-    }
+    //     if ( res.status === "success" ) { 
+    //         debug("Cancel Start Job Request -> SUCCESS:\n", this.reg.des_dev_serial )
+    //         this.sta = res.data.device.sta
+    //     }
+    // }
     endJob = async( ) => {
         debug( "End current job for device: ", this.reg.des_dev_serial ) 
 
@@ -1217,8 +1219,9 @@ export class Device {
 
         if ( !this.socket ) { await this.connectWS( ) }
 
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
-        this.reg.des_job_reg_user_id = au.id
+
         let dev = {
             reg: this.reg
         }
@@ -1249,10 +1252,10 @@ export class Device {
         
         if ( !this.socket ) { await this.connectWS( ) }
         
-        this.adm.adm_user_id = au.id
+        this.adm.adm_user_id = au.user.id
         this.adm.adm_app = client_app
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let dev = {
@@ -1284,10 +1287,10 @@ export class Device {
         
         if ( !this.socket ) { await this.connectWS( ) }
         
-        this.sta.sta_user_id = au.id
+        this.sta.sta_user_id = au.user.id
         this.sta.sta_app = client_app
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let dev = {
@@ -1319,10 +1322,10 @@ export class Device {
         
         if ( !this.socket ) { await this.connectWS( ) }
         
-        this.hdr.hdr_user_id = au.id
+        this.hdr.hdr_user_id = au.user.id
         this.hdr.hdr_app = client_app
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let dev = {
@@ -1354,11 +1357,11 @@ export class Device {
         
         if ( !this.socket ) { await this.connectWS( ) }
         
-        this.cfg.cfg_user_id = au.id
+        this.cfg.cfg_user_id = au.user.id
         this.cfg.cfg_app = client_app
         this.cfg = validateCFG( this.cfg )
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
         
         let dev = {
@@ -1395,10 +1398,10 @@ export class Device {
         
         if ( !this.socket ) { await this.connectWS( ) }
         
-        evt.evt_user_id = au.id
+        evt.evt_user_id = au.user.id
         evt.evt_app = client_app
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let dev = {
@@ -1449,8 +1452,10 @@ export class Device {
             this.job_evts = evts.data.events
         }  
         if ( this.job_evts === null ) { this.job_evts = [ ] }
-        // debug( "ACTIVE JOB EVENTS:\n", this.job_evts )
+        debug( "ACTIVE JOB EVENTS:\n", this.job_evts )
     }
+
+    /* DEBUG -> REMOVE FOR PRODUCTION */
     setDebug = async( ) => {
         debug( "Set Debug for device: ", this.reg.des_dev_serial ) 
         
@@ -1458,7 +1463,7 @@ export class Device {
         
         if ( !this.socket ) { await this.connectWS( ) }
         
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let dev = {
@@ -1483,6 +1488,7 @@ export class Device {
             debug("DEVICE SET DEBUG Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
+    /* DEBUG -> REMOVE FOR PRODUCTION */
     testMsgLimit = async( ) => {
         debug( "TEST MQTT MESSAGE LIMIT for device: ", this.reg.des_dev_serial ) 
         
@@ -1490,7 +1496,7 @@ export class Device {
         
         if ( !this.socket ) { await this.connectWS( ) }
         
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let dev = { reg: this.reg }
@@ -1512,6 +1518,7 @@ export class Device {
             debug("DEVICE TEST MQTT MESSAGE LIMIT Request -> SUCCESS:\n", this.reg.des_dev_serial )
         }
     }
+    /* DEBUG -> REMOVE FOR PRODUCTION */
     simOfflineStart = async ( ) => {
         debug( "TEST OFFLINE START for device: ", this.reg.des_dev_serial ) 
         
@@ -1519,7 +1526,7 @@ export class Device {
         
         if ( !this.socket ) { await this.connectWS( ) }
         
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let dev = { reg: this.reg }
@@ -1552,7 +1559,7 @@ export class Device {
         
         if ( this.socket ) { await this.disconnectWS( ) }
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
         let dev = { reg: this.reg }
         debug( "Send Connect DES Client Request:\n", dev ) 
@@ -1896,24 +1903,6 @@ export class Job {
         this.selection = 0
         updateJobsStore( )
     }
-    // printChartImage = async( start, end ) => {
-    //     let canvas = document.createElement( 'canvas' )
-    //     canvas.width = 495
-    //     canvas.height = 700
-    //     let imgFileName = `${ Date.now( ) }-plot.png`
-    //     const done = async( ) => { 
-    //         let link = document.createElement( 'a' )
-    //         link.href = canvas.toDataURL( )
-    //         link.download = imgFileName
-    //         link.click( )
-    //     }
-    //     let data = this.cht
-    //     data.options.scales.x.min = start
-    //     data.options.scales.x.max = end
-    //     data.options.onAnimationComplete = await done( )
-    //     new Chart( canvas, data )
-
-    // }
 
     /* WEBSOCKET METHODS **************************************************************/
     disconnectWS = async( ) => { }
@@ -1975,10 +1964,10 @@ export class Job {
         
         let au = get( AUTH )
 
-        hdr.hdr_user_id = au.id
+        hdr.hdr_user_id = au.user.id
         hdr.hdr_app = client_app
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let job = {
@@ -2008,10 +1997,10 @@ export class Job {
         
         let au = get( AUTH )
 
-        evt.evt_user_id = au.id
+        evt.evt_user_id = au.user.id
         evt.hdr_app = client_app
 
-        this.reg.des_job_reg_user_id = au.id
+        this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
 
         let job = {
@@ -2075,7 +2064,7 @@ export class Job {
         
         let au = get( AUTH ) 
 
-        rep.rep_user_id = au.id
+        rep.rep_user_id = au.user.id
         rep.reg = this.reg
         debug( "job.createReport( ) -> rep: ", rep )
     

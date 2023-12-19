@@ -60,7 +60,7 @@
         padding-left: 0.5em;
         padding-right: 0.5em;
         width: max-content;
-        z-index: 10;
+        z-index: 5;
         /* visibility: visible; */
         /* opacity: 1; */
     }

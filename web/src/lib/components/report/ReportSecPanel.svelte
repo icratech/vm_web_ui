@@ -1,7 +1,6 @@
 <script>
 
     import ReportSecTitle from './ReportSecTitle.svelte'
-    import EventCard from "../event/EventCard.svelte"
     
     import { Job, Report, debug } from "../../des_api"
     export let job = new Job( )
@@ -41,7 +40,7 @@
 
                 <!-- { #each sec.sec_anns as ann ( ann.ann_id ) }
                     { #if ann.evt.evt_addr == job.reg.des_dev_serial }
-                        <EventCard bind:event={ ann.evt } />
+                        <EventCard bind:evt={ ann.evt } />
                     { /if }
                 { /each } -->
 
@@ -57,7 +56,7 @@
             
             { #each sec.sec_anns as ann ( ann.ann_id ) }
             { #if ann.evt.evt_addr == job.reg.des_dev_serial }
-                <EventCard bind:event={ ann.evt } />
+                <EventCard bind:evt={ ann.evt } />
             { /if }
             { /each }
 

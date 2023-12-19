@@ -86,7 +86,7 @@
 
     <div class="flx-col evts">
         { #each evts as evt ( evt.evt_time ) }
-            <EventCard bind:event={ evt } />
+            <EventCard bind:evt />
         { /each }
     </div>
 

@@ -15,66 +15,69 @@
     $: color_code_border = RGBA(color_code, 0.5)
     $: lbl = 'OFF'
     $: {
-        lbl = 'OFF'
-        color_code = BASE.RED
-        color_code_txt_alpha = 1
-        switch ( device.sta.sta_logging )
-        {
-            case OP_CODES.DES_REG_REQ:
-            case OP_CODES.JOB_START_REQ:
-            case OP_CODES.JOB_END_REQ:
-                lbl = 'CMD'
-                color_code = BASE.PURPLE
-                break
+            lbl = 'OFF'
+            color_code = BASE.CHAR
+            switch ( device.sta.sta_logging ) {
 
-            case OP_CODES.GPS_ACQ:
-                lbl = 'GPS'
-                color_code = BASE.PINK
-                break
+                case OP_CODES.DES_REG_REQ:
+                case OP_CODES.JOB_START_REQ:
+                case OP_CODES.JOB_END_REQ:
+                    lbl = 'CMD'
+                    color_code = BASE.PURPLE
+                    break
 
-            case OP_CODES.JOB_STARTED: 
-                if ( device.ping.ok ) {
-                    switch ( getMode( cfg, smp ) ) {
-                        case MODES.BUILD: 
-                            lbl = 'BUILD'
-                            color_code = CHT_COLORS.PRESS
-                            break
-
-                        case MODES.VENT: 
-                            lbl = 'VENT'
-                            color_code = BASE.AQUA
-                            break
-
-                        case MODES.HI_FLOW:
-                            lbl = 'FLOW'
-                            color_code = CHT_COLORS.HI_FLOW
-                            break
-
-                        case MODES.LO_FLOW:
-                            lbl = 'FLOW'
-                            color_code = CHT_COLORS.LO_FLOW
-                            break
-                    }
-                }
-                break
-
-            case OP_CODES.DES_REGISTERED:
-            case OP_CODES.JOB_ENDED:
-                if ( device.ping.ok ) {
-                    lbl = 'READY'
-                    color_code = BASE.GREY
-                    color_code_txt_alpha = 0.8
-                }
-                break
-
-            case OP_CODES.JOB_OFFLINE_START: 
-            case OP_CODES.JOB_OFFLINE_END:
-                if ( device.ping.ok ) {  
-                    lbl = 'SYNC'
+                case OP_CODES.GPS_ACQ:
+                    lbl = 'GPS'
                     color_code = BASE.PINK
-                }
-                break
-        }
+                    break
+
+                case OP_CODES.JOB_STARTED: 
+                    if ( device.ping.ok ) {
+                        switch ( getMode( cfg, smp ) ) {
+                            case MODES.BUILD: 
+                                lbl = 'BUILD'
+                                color_code = CHT_COLORS.PRESS
+                                break
+
+                            case MODES.VENT: 
+                                lbl = 'VENT'
+                                color_code = BASE.AQUA
+                                break
+
+                            case MODES.HI_FLOW:
+                                lbl = 'FLOW'
+                                color_code = CHT_COLORS.HI_FLOW
+                                break
+
+                            case MODES.LO_FLOW:
+                                lbl = 'FLOW'
+                                color_code = CHT_COLORS.LO_FLOW
+                                break
+                        }
+                    }
+                    break
+
+                case OP_CODES.DES_REGISTERED:
+                case OP_CODES.JOB_ENDED:
+                    if ( device.ping.ok ) {
+                        lbl = 'READY'
+                        color_code = BASE.LIGHT
+                        color_code_txt_alpha = 0.9
+                    }
+                    break
+
+                case OP_CODES.JOB_OFFLINE_START: 
+                case OP_CODES.JOB_OFFLINE_END:
+                    if ( device.ping.ok ) {  
+                        lbl = 'SYNC'
+                        color_code = BASE.PINK
+                    }
+                    break
+
+                default :
+                    lbl = 'OFF'
+                    color_code = BASE.GREY
+            }
     }
 </script>
 

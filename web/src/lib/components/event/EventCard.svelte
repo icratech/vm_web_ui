@@ -8,41 +8,76 @@
 
     import { Event, OP_CODES } from "../../des_api"
     
-    export let event = new Event( )
+    export let evt = new Event( )
 
     $: USERS = getContext( 'users' )
-    $: user = $USERS.filter( u  => { return u.id == event.evt_user_id } )[0]
+    $: user = $USERS.filter( u  => { return u.id == evt.evt_user_id } )[0]
 
 
     $: EVT_TYPES = getContext( 'evt_types' )
-    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == event.evt_code } )[0]
+    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == evt.evt_code } )[0]
     
     let charLimit = 512
     $: message = ( 
-        event.evt_msg.length > charLimit 
-        ? event.evt_msg.slice( 0, charLimit ) + "..." 
-        : event.evt_msg 
+        evt.evt_msg.length > charLimit 
+        ? evt.evt_msg.slice( 0, charLimit ) + "..." 
+        : evt.evt_msg 
     )
     $: evtColorCode = 'fg-accent'
     $: bgColor = ''//'var(--light_002)'
     $: evtEmailColor = 'fg-orange'
     $: {
-        if ( evt_type.evt_typ_code < OP_CODES.SYSTEM_EVENT ) {
-            evtColorCode = 'fg-green_a'
-            evtEmailColor = 'fg-green_a'
-            // bgColor = 'var(--green_02)'
-        } else if ( evt_type.evt_typ_code >= OP_CODES.SYSTEM_EVENT && evt_type.evt_typ_code < OP_CODES.OPERATOR_EVENT ) {
-            evtColorCode = 'fg-red'
-            evtEmailColor = 'fg-red'
-            // bgColor = 'var(--red_02)'
-        } else if ( evt_type.evt_typ_code == OP_CODES.OPERATOR_EVENT ) {
-            evtColorCode = 'fg-accent'
-            evtEmailColor = 'fg-accent'
-            // bgColor = 'var(--aqua_01)'
-        } else if ( evt_type.evt_typ_code == OP_CODES.REPORT_EVENT ) {
-            evtColorCode = 'fg-blue'
-            evtEmailColor = 'fg-blue'
-            // bgColor = 'var(--blue_01)'
+        if ( evt_type ) {
+
+            if ( evt_type.evt_typ_code < OP_CODES.SYSTEM_EVENT ) {
+                
+                switch ( evt_type.evt_typ_code ) {
+
+                    case OP_CODES.DES_REGISTERED:
+                        evtColorCode = 'fg-grey_07'
+                        evtEmailColor = 'fg-grey_07'
+                        bgColor = 'var(--light_004)'
+                        break
+
+                    case OP_CODES.JOB_ENDED:
+                        evtColorCode = 'fg-accent'
+                        evtEmailColor = 'grey_07'
+                        bgColor = 'var(--light_004)'
+                        break
+
+                    case OP_CODES.JOB_STARTED:
+                        evtColorCode = 'fg-accent'
+                        evtEmailColor = 'grey_07'
+                        bgColor = 'var(--light_004)'               
+                        break
+
+                    case OP_CODES.JOB_OFFLINE_END:
+                    case OP_CODES.JOB_OFFLINE_START:
+                        evtColorCode = 'fg-grey'
+                        evtEmailColor = 'fg-orange'
+                        bgColor = 'var(--yellow_02)'
+                        break
+
+                    case OP_CODES.GPS_ACQ:
+                        evtColorCode = 'fg-pink'
+                        evtEmailColor = 'fg-pink'
+                        bgColor = 'var(--light_004)'       
+                        break
+
+                }
+            } else if ( evt_type.evt_typ_code >= OP_CODES.SYSTEM_EVENT && evt_type.evt_typ_code < OP_CODES.OPERATOR_EVENT ) {
+                evtColorCode = 'fg-red_08'
+                evtEmailColor = 'fg-red_08'
+                bgColor = 'var(--red_015)'  
+            } else if ( evt_type.evt_typ_code == OP_CODES.OPERATOR_EVENT ) {
+                evtColorCode = 'fg-purple_07'
+                evtEmailColor = 'fg-purple_07'
+                bgColor = ''
+            } else if ( evt_type.evt_typ_code == OP_CODES.REPORT_EVENT ) {
+                evtColorCode = 'fg-blue_08'
+                evtEmailColor = 'fg-blue_08'
+                bgColor = ''
+            }
         }
     }
 
@@ -51,13 +86,15 @@
 <div class="flx-col container" style="background-color: { bgColor };">
   
     <div class="flx-row title-bar">
-        { #if evt_type.evt_typ_code > 999 && event.evt_title !== "" }
-            <div class="flx-row title { evtColorCode }">{ event.evt_title }</div>
-        { :else }
-            <div class="flx-row { evtColorCode } evt-type">{ evt_type.evt_typ_name }</div>
+        { #if evt_type }
+            { #if evt_type.evt_typ_code > 999 && evt.evt_title !== "" }
+                <div class="flx-row title { evtColorCode }">{ evt.evt_title }</div>
+            { :else }
+                <div class="flx-row { evtColorCode } evt-type">{ evt_type.evt_typ_name }</div>
+            { /if }
         { /if }
         
-        <DateTimeDisplay date={ event.evt_time }  cls={ evtColorCode }/>
+        <DateTimeDisplay date={ evt.evt_time }  cls={ evtColorCode }/>
     </div>
 
     <div class="flx-row msg">
@@ -66,7 +103,7 @@
       
     { #if user }
     <div class="flx-row src">
-        <UserBadge user={ user } cls={ evtEmailColor }/>
+        <UserBadge bind:user cls={ evtEmailColor }/>
     </div>
     { /if }
 

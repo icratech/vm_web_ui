@@ -3,6 +3,7 @@ export const RGBA = ( rgb, a ) => { return `rgba( ${ rgb }, ${ a } )`  }
 
 export const BASE = {
     DARK: "40, 40, 40",
+    CHAR: "105, 105, 105",
     GREY: "175, 175, 175",
     LIGHT: "230, 230, 230",
     RED: "220, 25, 60",

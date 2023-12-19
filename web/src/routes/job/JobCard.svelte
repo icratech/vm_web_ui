@@ -45,7 +45,7 @@
         
     <div class="flx-row evt">
         <div class="vert-line sep"/>
-        <EventCard bind:event={evt} />
+        <EventCard bind:evt />
     </div>
 
 </div>

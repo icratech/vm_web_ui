@@ -276,6 +276,7 @@
                 --grey_07: rgb(175, 175, 175, 0.7);
                 --grey_05: rgb(175, 175, 175, 0.5);
                 --grey_03: rgb(175, 175, 175, 0.3);
+                --grey_01: rgb(175, 175, 175, 0.1);
 
                 --light: rgb(230, 230, 230);
                 --light_a: rgb(230, 230, 230, 0.7);
@@ -295,6 +296,10 @@
                 --red: rgb(220, 25, 60);
                 --red_a: rgb(220, 25, 60, 0.7);
                 --red_aa: rgb(220, 25, 60, 0.4);
+                --red_08: rgb(220, 25, 60, 0.8);
+                --red_07: rgb(220, 25, 60, 0.7);
+                --red_06: rgb(220, 25, 60, 0.6);
+                --red_05: rgb(220, 25, 60, 0.5);
                 --red_03: rgb(220, 25, 60, 0.3);
                 --red_02: rgb(220, 25, 60, 0.2);
                 --red_015: rgb(220, 25, 60, 0.15);
@@ -303,7 +308,10 @@
                 --orange: rgb(245, 120, 0);
                 --orange_a: rgb(245, 120, 0, 0.8);
                 --orange_aa: rgb(245, 120, 0, 0.4);
+                --orange_08: rgb(245, 120, 0, 0.8);
                 --orange_05: rgb(245, 120, 0, 0.5);
+                --orange_03: rgb(245, 120, 0, 0.3);
+                --orange_02: rgb(245, 120, 0, 0.2);
                 --orange_01: rgb(245, 120, 0, 0.1);
                 --orange_007: rgb(245, 120, 0, 0.07);
                 --orange_005: rgb(245, 120, 0, 0.05);
@@ -312,11 +320,17 @@
                 --yellow: rgb(230, 180, 20);
                 --yellow_a: rgb(230, 180, 20, 0.7);
                 --yellow_aa: rgb(230, 180, 20, 0.3);
+                --yellow_07: rgb(230, 180, 20, 0.7);
+                --yellow_05: rgb(230, 180, 20, 0.5);
+                --yellow_03: rgb(230, 180, 20, 0.3);
+                --yellow_02: rgb(230, 180, 20, 0.2);
 
                 --green: rgb(60, 210, 0); /*rgb(80, 170, 35);*/
                 --green_a: rgb(60, 210, 0, 0.8);
                 --green_aa: rgb(60, 210, 0, 0.3);
                 --green_08: rgb(60, 210, 0, 0.8);
+                --green_07: rgb(60, 210, 0, 0.7);
+                --green_06: rgb(60, 210, 0, 0.6);
                 --green_05: rgb(60, 210, 0, 0.5);
                 --green_03: rgb(60, 210, 0, 0.3);
                 --green_02: rgb(60, 210, 0, 0.2);
@@ -334,6 +348,13 @@
                 --blue: rgb(10, 120, 230);
                 --blue_a: rgba(10, 120, 230, 0.9);
                 --blue_aa: rgba(10, 120, 230, 0.25);
+                --blue_08: rgba(10, 120, 230, 0.8);
+                --blue_07: rgba(10, 120, 230, 0.7);
+                --blue_06: rgba(10, 120, 230, 0.6);
+                --blue_05: rgba(10, 120, 230, 0.5);
+                --blue_04: rgba(10, 120, 230, 0.4);
+                --blue_03: rgba(10, 120, 230, 0.3);
+                --blue_02: rgba(10, 120, 230, 0.2);
                 --blue_01: rgba(10, 120, 230, 0.1);
 
                 --purple: rgb(160, 70, 240);
@@ -354,6 +375,7 @@
                 --pink: rgb(250, 70, 200); /*rgb(245, 30, 230);*/
                 --pink_a: rgb(250, 70, 200, 0.7);
                 --pink_aa: rgb(250, 70, 200, 0.4);
+                --pink_07: rgb(250, 70, 200, 0.7);
                 --pink_05: rgb(250, 70, 200, 0.5);
                 --pink_03: rgb(250, 70, 200, 0.3);
                 --pink_02: rgb(250, 70, 200, 0.2);
@@ -390,27 +412,39 @@
             .fg-light { color: var( --light); }
 
             .fg-grey { color: var( --grey); }
+            .fg-grey_07 { color: var( --grey_07); }
             .fg-grey_05 { color: var( --grey_05); }
 
             .fg-red { color: var( --red_a); }
+            .fg-red_08 { color: var( --red_08); }
+            .fg-red_07 { color: var( --red_07); }
+            .fg-red_06 { color: var( --red_06); }
+            .fg-red_05 { color: var( --red_05); }
 
-            .fg-orange { color: var( --orange_a); }
+            .fg-orange { color: var( --orange_08); }
 
-            .fg-yellow { color: var( --yellow_a); }
+            .fg-yellow { color: var( --yellow_07); }
 
             .fg-green { color: var( --green); }
             .fg-green_a { color: var( --green_08); }
             .fg-green_a:hover { color: var( --green); }
             .fg-green_08 { color: var( --green_08); }
+            .fg-green_07 { color: var( --green_07); }
+            .fg-green_06 { color: var( --green_06); }
+            .fg-green_05 { color: var( --green_05); }
 
             .fg-aqua { color: var( --aqua_a); }
             .fg-blue { color: var( --blue_a); }
+            .fg-blue_07 { color: var( --blue_08); }
 
             .fg-purple { color: var( --purple); }
             .fg-purple_a { color: var( --purple_08 ); }
             .fg-purple_a:hover { color: var( --purple ); }
+            .fg-purple_07 { color: var( --purple_07 ); }
+            .fg-purple_06 { color: var( --purple_06 ); }
+            .fg-purple_05 { color: var( --purple_05 ); }
 
-            .fg-pink { color: var( --pink_a); }
+            .fg-pink { color: var( --pink_07); }
 
             .bg-accent { background-color: var( --accent_a); color: var(--accent_fg) }
             .bg-accent:hover { background-color: var(--accent); }    
