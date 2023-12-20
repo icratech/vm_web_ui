@@ -11,7 +11,7 @@
     } from '../../lib/des/utils'
     import { AUTH } from '../../lib/des/auth'
     import { 
-		get_jobs, 
+		getJobs, 
         updateJobsStore,  
     } from '../../lib/des_api'
 
@@ -25,7 +25,7 @@
     onMount( async( ) => { 
         if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await get_jobs( )
+            await getJobs( )
         }
     } )
 

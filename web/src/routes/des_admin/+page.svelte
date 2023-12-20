@@ -7,10 +7,10 @@
     import { debug, debugging } from '../../lib/des/utils'
     import { AUTH } from '../../lib/des/auth'
     import { 
-        get_devices, 
+        getDevices, 
         DemoDevice, 
         DEMO_DEVICES, 
-        register_device, 
+        registerDevice, 
     } from '../../lib/des_api'
 
     import DESAdminDeviceCard from './DESAdminDeviceCard.svelte'
@@ -24,7 +24,7 @@
 
         if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await get_devices( )
+            await getDevices( )
         }
 
         // debug( "/demo/+page.svelte -> onMount( ) -> $DEVICES: ", $DEVICES )
@@ -38,8 +38,8 @@
     } )
 
     let serial
-    const registerDevice = async( ) => { 
-        await register_device( serial )
+    const callRegisterDevice = async( ) => { 
+        await registerDevice( serial )
         serial = null
     }
 
@@ -50,7 +50,7 @@
         showDatabases = false
     }
 
-    const getDevices = ( ) => { 
+    const callGetDevices = ( ) => { 
         clearShow( )
         showDevices = true
     }
@@ -76,7 +76,7 @@
                 <div class="flx-row"><h3>ADD A DEVICE</h3></div>
 
                 <div class="flx-row">
-                    <PillButton cls='bg-accent' on:click={ registerDevice } hint={ null } />
+                    <PillButton cls='bg-accent' on:click={ callRegisterDevice } hint={ null } />
                     <div class="flx-col input-container">
                         <InputText 
                             enabled ={ debugging }
@@ -93,7 +93,7 @@
                 <div class="flx-row"><h3>DEVICES</h3></div>
 
                 <div class="flx-row">
-                    <PillButton cls='bg-accent' on:click={ getDevices } hint={ null } />
+                    <PillButton cls='bg-accent' on:click={ callGetDevices } hint={ null } />
                     <div class="flx-row op-lbl">Show Device List</div>
                 </div>
             </div>

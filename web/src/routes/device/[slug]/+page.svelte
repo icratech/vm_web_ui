@@ -3,7 +3,7 @@
     import { getContext, onMount } from 'svelte'
 
     import { AUTH } from '../../../lib/des/auth'
-    import { get_devices } from '../../../lib/des_api'
+    import { getDevices } from '../../../lib/des_api'
 
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import DeviceInfo from '../DeviceInfo.svelte'
@@ -23,7 +23,7 @@
     onMount( async( ) => { 
         if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await get_devices( )
+            await getDevices( )
         }
     } )
 

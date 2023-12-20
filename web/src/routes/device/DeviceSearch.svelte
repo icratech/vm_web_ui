@@ -78,7 +78,7 @@
             hint={ 'Reset filters' } 
             on:click={ ( ) => { 
                 search = new DESSearchParam( )
-                // get_devices( ) 
+                // getDevices( ) 
             } }
         />
 

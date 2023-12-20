@@ -1,6 +1,6 @@
 <script>
 
-    import { UserSignUp, register_user } from "../lib/des/auth"
+    import { UserSignUp, registerUser } from "../lib/des/auth"
 
     import Modal from "../lib/common/modal/Modal.svelte"
     import PillButton from "../lib/common/button/PillButton.svelte"
@@ -27,7 +27,7 @@
     <div class="flx-col welcome">
         <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
     
-        <Modal bind:this={ modal } bind:valid on:confirm={ async( ) => { register_user( newUser ) } }>
+        <Modal bind:this={ modal } bind:valid on:confirm={ async( ) => { registerUser( newUser ) } }>
             <h3 class='fg-accent' slot="title">Register</h3>
             <div slot="content" class="flx-row">
                 <UserRegistration bind:newUser />

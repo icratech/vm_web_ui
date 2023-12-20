@@ -5,7 +5,7 @@
     import { debug } from '../../../lib/des/utils'
     import { AUTH } from '../../../lib/des/auth'
 	import { 
-        get_jobs, // JOBS,
+        getJobs, // JOBS,
         Header, Config, Event, Sample,
         Report, Section, SectionDataSet,  
         validateLngLat, 
@@ -61,7 +61,7 @@
     onMount( async( ) => { 
         if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await get_jobs( )
+            await getJobs( )
         }
     } )
     $: loaded = false

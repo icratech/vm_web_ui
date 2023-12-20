@@ -12,7 +12,7 @@
         DESSearchParam, 
         debug 
     } from '../../lib/des/utils'
-    import { JOBS, JOBS_LOADED, get_jobs } from "../../lib/des_api";
+    import { JOBS, JOBS_LOADED, getJobs } from "../../lib/des_api";
      
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
@@ -62,7 +62,7 @@
             hint={ 'Reset filters' } 
             on:click={ ( ) => { 
                 search = new DESSearchParam( )
-                get_jobs( ) 
+                getJobs( ) 
             } }
         />
 

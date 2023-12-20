@@ -10,7 +10,7 @@
     } from '../../lib/des/utils'
     import { AUTH } from '../../lib/des/auth'
     import { 
-        get_devices, 
+        getDevices, 
         updateDevicesStore,  
     } from '../../lib/des_api'
     
@@ -24,7 +24,7 @@
     onMount( async( ) => { 
         if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await get_devices( )
+            await getDevices( )
         }
     } )
 

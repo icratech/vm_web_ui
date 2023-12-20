@@ -5,15 +5,15 @@
     import { goto } from '$app/navigation'
 
     import { 
-        EVT_TYPES, EVT_TYPES_LOADED, get_event_types, 
-        DEVICES, DEVICES_LOADED, get_devices, disconnect_devices, 
-		JOBS, JOBS_LOADED, get_jobs, 
+        EVT_TYPES, EVT_TYPES_LOADED, getEventTypes, 
+        DEVICES, DEVICES_LOADED, getDevices, disconnectDevices, 
+		JOBS, JOBS_LOADED, getJobs, 
     } from '../lib/des_api'
 
     import { debug } from '../lib/des/utils'
     import { 
-        AUTH, UserSession, login, logout, watchJWT, terminate_user,
-        USERS, USERS_LOADED, get_user_list
+        AUTH, UserSession, login, logout, terminateUser,
+        USERS, USERS_LOADED, getUserList
     } from '../lib/des/auth'
 
     import TitleBar from './TitleBar.svelte'
@@ -32,7 +32,7 @@
 
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
     import btn_img_cmd_red from "$lib/images/btn-img-cmd-red.svg"
-
+	import { get } from 'svelte/store';
 
     setContext( 'users', USERS )
     setContext( 'users_loaded', USERS_LOADED )
@@ -51,6 +51,7 @@
 
         if ( sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+            $AUTH.cleanSessionData = cleanUserSession
             await updateUserSession( )
         } 
 
@@ -63,22 +64,20 @@
     } )
 
     const handleLogin = async( ) => { 
-        await login( email, password )
+        await login( email, password, cleanUserSession )
         await updateUserSession( )
     }
     const updateUserSession = async( ) => { 
-        watchJWT( cleanUserSession )
-        await get_user_list( )
-        await get_event_types( )
-        await get_devices( )
-        await get_jobs( )
-    }
-
-    const handleLogout = async( ) => {
-        await logout( cleanUserSession )
+        // watchJWT( cleanUserSession )
+        await getUserList( )
+        await getEventTypes( )
+        await getDevices( )
+        await getJobs( )
     }
     const cleanUserSession = async( ) => {
         
+        debug( "cleanUserSession( ) -> Start: ", get( AUTH ).user.email )
+
         /* CLEAR LOCAL STORAGE */
         sessionStorage.setItem( 'des_auth', 'none', { path: '/' } )
 
@@ -92,7 +91,7 @@
         EVT_TYPES_LOADED.set( false )
 
         /* DISCONNECT ALL DEVICE WS ON LOGOUT */
-        await disconnect_devices( )
+        await disconnectDevices( )
         DEVICES.set( [ ] )
         DEVICES_LOADED.set( false )
 
@@ -101,7 +100,9 @@
         JOBS.set( [ ] )
         JOBS_LOADED.set( false )
         
-        goto_home( )
+        gotoHome( )
+        
+        debug( "cleanUserSession( ) -> End: ", get( AUTH ).user.email )
     }
 
     $: page = "";
@@ -149,22 +150,22 @@
         }
     }
 
-    const goto_home = ( ) => {
+    const gotoHome = ( ) => {
         goto( '/' ) 
         page = ''
     }
 
-    const goto_device = ( ) => {
+    const gotoDevice = ( ) => {
         goto( '/device' ) 
         page = 'device'
     }
 
-    const goto_job = ( ) => {
+    const gotoJob = ( ) => {
         goto( '/job' ) 
         page = 'job'
     }
 
-    const goto_des = ( ) => {
+    const gotoDes = ( ) => {
         goto( '/des_admin' ) 
         page = 'des'
     }
@@ -184,7 +185,7 @@
 
     <LoginModal bind:this={ loginModal } bind:email bind:password on:confirm={ handleLogin }/>
 
-    <TitleBar bind:page_name bind:auth={ $AUTH } on:logout={ handleLogout } on:login={ loginModal.open }/>
+    <TitleBar bind:page_name bind:auth={ $AUTH } on:logout={ logout } on:login={ loginModal.open }/>
     
     <div class="flx-row layout">
 
@@ -194,17 +195,17 @@
 
                 <div class="flx-col ops">
                     <PillButton 
-                        on:click={ goto_home } 
+                        on:click={ gotoHome } 
                         img={ home_btn_image } 
                         hint={ null } 
                     />
                     <PillButton 
-                        on:click={ goto_device } 
+                        on:click={ gotoDevice } 
                         img={ device_btn_image } 
                         hint={ 'Device list' }  
                     />
                     <PillButton 
-                        on:click={ goto_job } 
+                        on:click={ gotoJob } 
                         img={ job_btn_image } 
                         hint={ 'Job list' } 
                     />
@@ -215,13 +216,13 @@
                     <div class="flx-col admin">
 
                         <PillButton 
-                            on:click={ async( ) => { await terminate_user( $AUTH.user ) } } 
+                            on:click={ async( ) => { await terminateUser( $AUTH.user ) } } 
                             img={ btn_img_cmd_red } 
                             hint={ "If you don't know..." } 
                         />
 
                         <PillButton 
-                            on:click={ goto_des } 
+                            on:click={ gotoDes } 
                             img={ btn_img_cmd_purple } 
                             hint={ "If you don't know..." } 
                         />
