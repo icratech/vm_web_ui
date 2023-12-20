@@ -6,7 +6,7 @@
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
     
     import PillButton from "../button/PillButton.svelte";
-    import { openModals } from "../../des_api"
+    import { openModals } from "../../des/utils"
 
     const store = openModals( false ) 
 

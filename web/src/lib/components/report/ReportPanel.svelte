@@ -1,10 +1,12 @@
 <script>
 
+    import { debug } from '../../des/utils'
+    import { Job, Report } from "../../des_api"
+
     import PillButton from '../../common/button/PillButton.svelte'
     import InputText from '$lib/common/input_text/InputText.svelte'
     import ReportTitle from './ReportTitle.svelte'
     import ReportCard from './ReportCard.svelte'
-    import { Job, Report, debug } from "../../des_api"
 
     import btn_img_add from '$lib/images/btn-img-add-pink.svg'
     import btn_img_new_report from "$lib/images/btn-img-edit-pink.svg"

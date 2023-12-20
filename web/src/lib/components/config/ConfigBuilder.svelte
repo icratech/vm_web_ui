@@ -1,6 +1,9 @@
 
 <script>
 
+    import { debug } from '../../des/utils'
+    import { Config, MODES, MIN_SAMPLE_PERIOD } from '../../des_api'
+
     import InputNum from "$lib/common/input_num/InputNum.svelte"
     import PillButton from "../../common/button/PillButton.svelte"
     import btn_img_vlv_vent_grey from "$lib/images/btn-img-vlv-vent-grey.svg"
@@ -10,7 +13,6 @@
     import btn_img_vlv_build_grey from "$lib/images/btn-img-vlv-build-grey.svg"
     import btn_img_vlv_build_green from "$lib/images/btn-img-vlv-build-green.svg"
 
-    import { Config, MODES, MIN_SAMPLE_PERIOD, debug } from '../../des_api'
     export let cfg = new Config( )
 
     let ssp_dur = cfg.cfg_ssp_dur / 3600000

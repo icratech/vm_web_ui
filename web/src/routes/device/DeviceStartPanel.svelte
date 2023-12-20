@@ -6,6 +6,7 @@
     import HeaderBuilder from '../../lib/components/header/HeaderBuilder.svelte'
     import ConfigBuilder from '../../lib/components/config/ConfigBuilder.svelte'
 
+    import { debug } from '../../lib/des/utils'
     import { Device } from '../../lib/des_api'
 
     export let device = new Device( )

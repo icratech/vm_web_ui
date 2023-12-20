@@ -3,7 +3,7 @@
 
 <script>
 
-    import { openModals, ALERT, ALERT_CODE, ALERT_CODES, debug } from "../../des_api"
+    import { openModals, ALERT, ALERT_CODE, ALERT_CODES, debug } from "../../des/utils"
     import { RGBA, BASE } from "../colors"
 
     import PillButton from "../button/PillButton.svelte"

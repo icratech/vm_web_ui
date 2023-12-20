@@ -1,45 +1,34 @@
 
 <script>
 
-    import { redirect } from '@sveltejs/kit'
-    import { get } from 'svelte/store'
-    import { setContext, onMount, getContext } from 'svelte';
+    import { setContext, onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
     import { 
-        AUTH, login, logout, terminate_user, watchJWT, stopJWT,
-        get_user_list, USERS, USERS_LOADED, 
-        get_event_types, EVT_TYPES, EVT_TYPES_LOADED,
-        get_devices, DEVICES, DEVICES_LOADED,
-		get_jobs, JOBS, JOBS_LOADED,
-        debug
+        EVT_TYPES, EVT_TYPES_LOADED, get_event_types, 
+        DEVICES, DEVICES_LOADED, get_devices, disconnect_devices, 
+		JOBS, JOBS_LOADED, get_jobs, 
+    } from '../lib/des_api'
 
-    } from '../lib/des_api';
-    import Header from './Header.svelte'
+    import { debug } from '../lib/des/utils'
+    import { 
+        AUTH, UserSession, login, logout, watchJWT, terminate_user,
+        USERS, USERS_LOADED, get_user_list
+    } from '../lib/des/auth'
+
+    import TitleBar from './TitleBar.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
-    import UserLogin from '../lib/components/user/UserLogin.svelte'
-    import Modal from '../lib/common/modal/Modal.svelte'
     import AlertModal from '../lib/common/modal/AlertModal.svelte'
     import LoginModal from '../lib/common/modal/LoginModal.svelte'
-    import InputText from '../lib/common/input_text/InputText.svelte'
-    import InputPW from '../lib/common/input_pw/InputPW.svelte'
 
-    import btn_img_home from "$lib/images/btn-img-home.svg"
     import btn_img_home_aqua from "$lib/images/btn-img-home-aqua.svg"
     import btn_img_home_orange from "$lib/images/btn-img-home-orange.svg"
-    import btn_img_home_green from "$lib/images/btn-img-home-green.svg"
 
-    import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
     import btn_img_gauge_aqua from "$lib/images/btn-img-gauge-aqua.svg"
-    import btn_img_gauge_grey from "$lib/images/btn-img-gauge-grey.svg"
     import btn_img_gauge_orange from "$lib/images/btn-img-gauge-orange.svg"
-    import btn_img_gauge_green from "$lib/images/btn-img-gauge-green.svg"
 
-    import btn_img_report from "$lib/images/btn-img-report.svg"
     import btn_img_report_aqua from "$lib/images/btn-img-edit-aqua.svg"
-    import btn_img_report_grey from "$lib/images/btn-img-edit-grey.svg"
     import btn_img_report_pink from "$lib/images/btn-img-edit-orange.svg"
-    import btn_img_report_green from "$lib/images/btn-img-edit-green.svg"
 
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
     import btn_img_cmd_red from "$lib/images/btn-img-cmd-red.svg"
@@ -62,40 +51,56 @@
 
         if ( sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            watchJWT( goto_home )
-            await get_user_list( )
-            await get_event_types( )
-            await get_devices( )
-            await get_jobs( )
+            await updateUserSession( )
         } 
-
-        // if ( $AUTH ) { 
-        //     await get_user_list( )
-        //     await get_event_types( )
-        //     await get_devices( )
-        //     await get_jobs( )
-        // }
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
         CAUSES THE SERVER TO UNSUBSCRIBE THIS DEVICE USER'S MQTT CLIENT FROM ALL TOPICS */
-        // window.onbeforeunload = async( ) => { 
-        //     stopJWT( )
-        //     // $DEVICES.forEach( async( dev ) => { if ( dev.socket ) { await dev.disconnectWS( ) } } )
-        //     // $DEMO_DEVICES.forEach( dev => { dev.disconnectSIM( ) } ) 
-        // } 
+        // window.onbeforeunload = async( ) => { } 
+
         page = window.location.href.split( "/" ).pop( )
+
     } )
 
     const handleLogin = async( ) => { 
         await login( email, password )
-        watchJWT( goto_home )
+        await updateUserSession( )
+    }
+    const updateUserSession = async( ) => { 
+        watchJWT( cleanUserSession )
         await get_user_list( )
         await get_event_types( )
         await get_devices( )
         await get_jobs( )
     }
+
     const handleLogout = async( ) => {
-        await logout( )
+        await logout( cleanUserSession )
+    }
+    const cleanUserSession = async( ) => {
+        
+        /* CLEAR LOCAL STORAGE */
+        sessionStorage.setItem( 'des_auth', 'none', { path: '/' } )
+
+        /* CLEAR APP STORES */
+        AUTH.set( new UserSession( ) ) 
+
+        USERS.set( [ ] )
+        USERS_LOADED.set( false )
+
+        EVT_TYPES.set( [ ] )
+        EVT_TYPES_LOADED.set( false )
+
+        /* DISCONNECT ALL DEVICE WS ON LOGOUT */
+        await disconnect_devices( )
+        DEVICES.set( [ ] )
+        DEVICES_LOADED.set( false )
+
+        /* DISCONNECT ALL JOB WS ON LOGOUT */
+        // await disconnect_jobs( ) // TODO: 
+        JOBS.set( [ ] )
+        JOBS_LOADED.set( false )
+        
         goto_home( )
     }
 
@@ -103,7 +108,7 @@
     let page_name = "HOME"
     let home_btn_image = btn_img_home_aqua
     let device_btn_image = btn_img_gauge_aqua
-    let job_btn_image = btn_img_report_green
+    let job_btn_image = btn_img_report_aqua
     $: {
         switch ( page ) {
             case '' : { 
@@ -179,7 +184,7 @@
 
     <LoginModal bind:this={ loginModal } bind:email bind:password on:confirm={ handleLogin }/>
 
-    <Header bind:page_name on:logout={ handleLogout } on:login={ loginModal.open }/>
+    <TitleBar bind:page_name bind:auth={ $AUTH } on:logout={ handleLogout } on:login={ loginModal.open }/>
     
     <div class="flx-row layout">
 
@@ -210,7 +215,7 @@
                     <div class="flx-col admin">
 
                         <PillButton 
-                            on:click={ ( ) => { terminate_user( $AUTH.user ) } } 
+                            on:click={ async( ) => { await terminate_user( $AUTH.user ) } } 
                             img={ btn_img_cmd_red } 
                             hint={ "If you don't know..." } 
                         />

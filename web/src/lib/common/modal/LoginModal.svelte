@@ -8,7 +8,7 @@
     import PillButton from "../button/PillButton.svelte"
     import InputText from "../input_text/InputText.svelte"
     import InputPW from "../input_pw/InputPW.svelte"
-    import { openModals } from "../../des_api"
+    import { openModals } from "../../des/utils"
 
     const store = openModals( false ) 
 

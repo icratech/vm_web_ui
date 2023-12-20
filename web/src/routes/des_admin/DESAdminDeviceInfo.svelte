@@ -1,11 +1,11 @@
 <script>
+    
+    import { debug, debugging } from '../../lib/des/utils'
+    import { DemoDevice, OP_CODES, Sample } from "../../lib/des_api"
 
     import PillButton from "../../lib/common/button/PillButton.svelte"
     import DeviceMode from "../device/DeviceMode.svelte"
     import DeviceConn from "../device/DeviceConn.svelte"
-
-    
-    import { DemoDevice, OP_CODES, Sample, debug } from "../../lib/des_api"
 
     import btn_img_cmd from "$lib/images/btn-img-cmd-yellow.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-aqua.svg"
@@ -80,17 +80,18 @@
                     hint={ DESDevConnHint } 
                 />
 
+                { #if debugging }
                 <PillButton 
                     on:click={ device.dev.startJob }
                     img={ btn_img_start }
                     hint={ "Start Job" } 
                 />
-
                 <PillButton 
                     on:click={ device.dev.endJob }
                     img={ btn_img_stop }
                     hint={ "End Job" } 
                 />
+                { /if }
 
             </div>   
 

@@ -1,28 +1,31 @@
 
 <script>
 
-    import { onMount } from 'svelte'
-    import { get } from 'svelte/store'
-
+    import { getContext, onMount } from 'svelte'
     import { goto } from '$app/navigation'
+
+    import { debug, debugging } from '../../lib/des/utils'
+    import { AUTH } from '../../lib/des/auth'
     import { 
-        DEVICES, 
-        DEVICES_LOADED, 
         get_devices, 
         DemoDevice, 
         DEMO_DEVICES, 
-        register_device,
-        debug 
+        register_device, 
     } from '../../lib/des_api'
+
     import DESAdminDeviceCard from './DESAdminDeviceCard.svelte'
-    import DESAdminDeviceInfo from './DESAdminDeviceInfo.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
 
+    $: DEVICES = getContext( 'devices' )
+    $: DEVICES_LOADED = getContext( 'devices_loaded' )
+
     onMount( async( ) => { 
-        
-        // debug( "/demo/+page.svelte -> onMount( ) -> $DEVICES_LOADED: ", $DEVICES_LOADED )
-        if( !$DEVICES_LOADED ) { await get_devices( ) }
+
+        if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+            await get_devices( )
+        }
 
         // debug( "/demo/+page.svelte -> onMount( ) -> $DEVICES: ", $DEVICES )
         $DEVICES.forEach( dev =>{
@@ -75,9 +78,11 @@
                 <div class="flx-row">
                     <PillButton cls='bg-accent' on:click={ registerDevice } hint={ null } />
                     <div class="flx-col input-container">
-                        <label class="lbl">Enter a serial # and click the circle over there.
-                            <input name="serial" type="text" bind:value={ serial } />
-                        </label>
+                        <InputText 
+                            enabled ={ debugging }
+                            bind:txt={ serial }
+                            place="Enter a serial # and click the circle over there." 
+                            /> 
                     </div>
                 </div>
             </div>
@@ -104,16 +109,6 @@
                     <div class="flx-row op-lbl">Show Database List</div>
                 </div>
             </div>
-
-
-            <!-- <div class="flx-col device-list">
-                { #each $DEMO_DEVICES as device ( `demo_page_${ device.dev.reg.des_dev_id }` ) }
-                    <DESAdminDeviceInfo
-                        bind:device={ device }
-                        on:go={ ( ) => { goto( `device/${ device.dev.reg.des_dev_serial }` ) } }
-                    />
-                { /each }
-            </div> -->
 
         </div>
 
@@ -179,25 +174,6 @@
 
     .input-container {
         gap: 0.25rem;
-    }
-
-    .lbl {
-        font-size: 0.9rem;
-    }
-
-    input {
-        color: var(--light);
-        background-color: var(--aqua_01);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
-        border-radius: 0.5rem;
-        padding: 0.5rem;
-        width: 100%;
-    }
-
-    input:disabled {
-        color: var(--grey);
-		border: 0.1rem solid transparent;
     }
 
 

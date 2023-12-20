@@ -1,30 +1,32 @@
 <script>
 
-    import { Chart } from "chart.js/auto"
-    import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
-    import { PDFDocument, PDFFont, PDFImage, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
-    
-    import vent_medic_logo from "$lib/images/vent-medic-logo.png"
-    import vent_medic_nested from "$lib/images/vent-medic-report-cover.png"
-    // import fs from 'fs'
-    // import { printReportPDF } from '../../../lib/server/report'
-     
+    import { getContext, onMount } from "svelte"
+
+    import { debug } from '../../../lib/des/utils'
+    import { AUTH } from '../../../lib/des/auth'
+	import { 
+        get_jobs, // JOBS,
+        Header, Config, Event, Sample,
+        Report, Section, SectionDataSet,  
+        validateLngLat, 
+        OP_CODES, CHT_COLORS, MODES, getMode,
+    } from "../../../lib/des_api"
+
+     /* MAP STUFF */
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
-    import PillButton from '$lib/common/button/PillButton.svelte'
-    import InputText from '$lib/common/input_text/InputText.svelte'
-    import LineChart from '$lib/common/chart/LineChart.svelte'
+    /* CHART STUFF */
+    import { Chart } from "chart.js/auto" // import { callback } from 'chart.js/helpers';
+    
+    /* PDF REPORT STUFF */
+    import { RGBA, BASE } from '$lib/common/colors'
+    import { PDF_RGB_BASE } from "../../../lib/common/pdf/pdf"
+    import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
+    import { PDFDocument, PDFFont, PDFImage, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
+    import { NewPDFChartData, PDFCOLORS, PDF_RGB_COLORS } from "../../../lib/components/report/report_pdf"
 
-    import HeaderCard from '../../../lib/components/header/HeaderCard.svelte'
-    import ReportPanel from '../../../lib/components/report/ReportPanel.svelte'
-    import ReportCard from '$lib/components/report/ReportCard.svelte'
-    import ReportTitle from '../../../lib/components/report/ReportTitle.svelte'
-    import ReportSecTitle from '../../../lib/components/report/ReportSecTitle.svelte'
-    import ReportSecPanel from '../../../lib/components/report/ReportSecPanel.svelte'
-    import BarGaugeCardReport from '../../../lib/components/gauge/BarGaugeCardReport.svelte'
-    import ConfigCard from '../../../lib/components/config/ConfigCard.svelte'
-    import EventPanelRep from '../../../lib/components/event/EventPanelRep.svelte'
+    import vent_medic_logo from "$lib/images/vent-medic-logo.png"
 
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
@@ -32,9 +34,6 @@
 
     import btn_img_edit_pink from "$lib/images/btn-img-edit-pink.svg"
     import btn_img_edit_green from "$lib/images/btn-img-edit-green.svg"
-    import btn_img_edit_aqua from "$lib/images/btn-img-edit-aqua.svg"
-    import btn_img_edit_orange from "$lib/images/btn-img-edit-orange.svg"
-    import btn_img_edit_yellow from "$lib/images/btn-img-edit-yellow.svg"
     
     import btn_img_add_pink from "$lib/images/btn-img-add-pink.svg"
     import btn_img_add_green from "$lib/images/btn-img-add-green.svg"
@@ -42,53 +41,47 @@
     import btn_img_add_orange from "$lib/images/btn-img-add-orange.svg"
     import btn_img_add_yellow from "$lib/images/btn-img-add-yellow.svg"
 
-    import { RGBA, BASE } from '$lib/common/colors'
-    import { PDF_RGB_BASE } from "../../../lib/common/pdf/pdf"
+    import PillButton from '$lib/common/button/PillButton.svelte'
+    import InputText from '$lib/common/input_text/InputText.svelte'
+    import LineChart from '$lib/common/chart/LineChart.svelte'
 
-    import { onMount } from "svelte"
-	import { 
-        Header, 
-        Config,  
-        Event, 
-        Sample,
-        Report, 
-        Section, 
-        SectionDataSet,  
-        validateLngLat, 
-        OP_CODES,
-        CHT_COLORS,
-        MODES, 
-        getMode,
-        debug
-    } from "../../../lib/des_api"
-    
-    import { NewPDFChartData, PDFCOLORS, PDF_RGB_COLORS } from "../../../lib/components/report/report_pdf"
+    import HeaderCard from '../../../lib/components/header/HeaderCard.svelte'
+    import ReportCard from '$lib/components/report/ReportCard.svelte'
+    import ReportTitle from '../../../lib/components/report/ReportTitle.svelte'
+    import BarGaugeCardReport from '../../../lib/components/gauge/BarGaugeCardReport.svelte'
+    import ConfigCard from '../../../lib/components/config/ConfigCard.svelte'
+    import EventPanelRep from '../../../lib/components/event/EventPanelRep.svelte'
 
     export let data
-    import { getContext } from 'svelte'
-	// import { callback } from 'chart.js/helpers';
     $: JOBS = getContext(  'jobs' )
+    $: JOBS_LOADED = getContext( 'jobs_loaded' )
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
+
+    /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
+    onMount( async( ) => { 
+        if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+            await get_jobs( )
+        }
+    } )
+    $: loaded = false
+    const loadJobData = async( ) => {
+        await job.getJobData( )
+        hdr = job.headers.pop( )
+        if ( job.reports.length > 0 ) { reportSelected( job.reports[0] ) }
+        debug("Header:", hdr)
+        loaded = true
+    }
+
+    /* CAUSES UPDATE ON RELOAD */
+    $: { if ( !loaded && job ) { loadJobData( ) } }
+
+
     $: btn_img_evt_list = btn_img_edit_pink
     $: selected_title = 'Report'
     $: selected_title_cls = 'fg-pink'
 
-    $: loaded = false
-    onMount( async( ) => {
-        await job.getJobData( )
-        hdr = job.headers.pop( )
-        
-        if ( job.reports.length > 0 ) {  // debug( "Selecting Report: ", job.reports[0].rep_title ) 
-            reportSelected( job.reports[0] ) 
-        }
-        debug("Header:", hdr)
-        loaded = true
-    } )
-
-    /* TODO : RETRIEVE LAST HEADER FROM LIST */
-    $: hdr = new Header( )
- 
-    let new_hdr = new Header( )
+    $: hdr = new Header( ) // TODO: ENABLE EDIT HEADER  let new_hdr = new Header( )
 
     $: rep = new Report( )
     const reportSelected = ( report ) => { 

@@ -3,6 +3,11 @@
     import { createEventDispatcher } from "svelte"
     let dispatch = createEventDispatcher( )
 
+    import { debug } from '../../des/utils'
+    import { CHT_COLORS, MODES, Job, Section, getMode } from '../../des_api'
+    import { RGBA, BASE } from '$lib/common/colors'
+
+
     import PillButton from '../../common/button/PillButton.svelte'
     import btn_img_edit_pink from "$lib/images/btn-img-edit-pink.svg"
     import btn_img_edit_green from "$lib/images/btn-img-edit-green.svg"
@@ -13,9 +18,6 @@
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
 
     import DateTimeDisplay from '../../common/date_time/DateTimeDisplay.svelte'
-
-    import { CHT_COLORS, MODES, Job, Section, getMode, debug } from '../../des_api'
-    import { RGBA, BASE } from '$lib/common/colors'
 
     export let job = new Job( )
     export let sec = new Section( )

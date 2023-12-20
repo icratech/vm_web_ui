@@ -5,17 +5,23 @@ import { BASE, RGBA } from './common/colors'
 import { FormatDateTime } from "./common/format"
 import { getRelativePosition } from 'chart.js/helpers'
 
+import { AUTH } from './des/auth'
+import { 
+    DESRegistration, DESSearchParam,
+    ALERT_CODES, alert, debug 
+} from './des/utils'
 
-export const openModals = ( initial ) => {
-    const isOpen = writable( initial )
-    const { set, update } = isOpen
-    return {
-        isOpen,
-        open: ( ) => set( true ),
-        close: ( ) => set( false ),
-        toggle: ( ) => update( ( n ) => !n ),
-    }
-}
+
+// export const openModals = ( initial ) => {
+//     const isOpen = writable( initial )
+//     const { set, update } = isOpen
+//     return {
+//         isOpen,
+//         open: ( ) => set( true ),
+//         close: ( ) => set( false ),
+//         toggle: ( ) => update( ( n ) => !n ),
+//     }
+// }
 export const waitMilli = ( ms ) => new Promise( ( res ) => setTimeout( res, ms ) )
 
 export const device_class = "001"
@@ -28,447 +34,456 @@ export const SERVER = ( local ? "://127.0.0.1:8007" : "://des1.data2desk.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` ) 
 
-export const debugging = true
-export const debug = ( msg, obj ) => {
-    if ( debugging ) console.log( msg, obj )
-}
+// export const debugging = true
+// export const debug = ( msg, obj ) => {
+//     if ( debugging ) console.log( msg, obj )
+// }
 
 
 /* DES API ROUTES *************************************************************************************/
 
-// let alert_interval_id = null
-export const ALERT = writable( "" )
-export const ALERT_CODE = writable( 0 )
-export const ALERT_CODES = {
-    SUCCESS: 0,
-    WARNING: 1,
-    ERROR: 3
-}
-export const alert = async( code, msg ) => {
-    ALERT_CODE.set( code )
-    ALERT.set( msg )
-}
+// export const ALERT = writable( "" )
+// export const ALERT_CODE = writable( 0 )
+// export const ALERT_CODES = {
+//     SUCCESS: 0,
+//     WARNING: 1,
+//     ERROR: 3
+// }
+// export const alert = async( code, msg ) => {
+//     ALERT_CODE.set( code )
+//     ALERT.set( msg )
+// }
 
 
 /* DES DATA STRUCTURES  *****************************************************************************/
 
-export class UserSession {
-    constructor (
-        sid = "",
-        ref_token = "none",
-        acc_token = "none",
-        user = new User( ),
-        logged_in = false
-    ) {
-        this.sid = sid
-        this.ref_token = ref_token
-        this.acc_token = acc_token
-        this.user = user
-        this.logged_in = logged_in
-    }
-}
+// export class UserSession {
+//     constructor (
+//         sid = "",
+//         ref_token = "none",
+//         acc_token = "none",
+//         user = new User( ),
+//         logged_in = false
+//     ) {
+//         this.sid = sid
+//         this.ref_token = ref_token
+//         this.acc_token = acc_token
+//         this.user = user
+//         this.logged_in = logged_in
+//     }
+// }
 
-export class User {
-    constructor(
-        id = "",
-        name = "",
-        email = "",
-        role = "",
-        // provider = "",
-        created_at = 0,
-        updated_at = 0
-    ) {
-        this.id  = id
-        this.name = name
-        this.email = email
-        this.role = role,
-        // this.provider = provider
-        this.created_at = created_at
-        this.updated_at = updated_at
-    }
-}
+// export class User {
+//     constructor(
+//         id = "",
+//         name = "",
+//         email = "",
+//         role = "",
+//         // provider = "",
+//         created_at = 0,
+//         updated_at = 0
+//     ) {
+//         this.id  = id
+//         this.name = name
+//         this.email = email
+//         this.role = role,
+//         // this.provider = provider
+//         this.created_at = created_at
+//         this.updated_at = updated_at
+//     }
+// }
 
-export class UserSignUp {
-    constructor(
-        name = "",
-        email = "",
-        password = "",
-        password_confirm = "",
-    ) {
-        this.name = name
-        this.email = email
-        this.password = password
-        this.password_confirm = password_confirm
-    }
-}
+// export class UserSignUp {
+//     constructor(
+//         name = "",
+//         email = "",
+//         password = "",
+//         password_confirm = "",
+//     ) {
+//         this.name = name
+//         this.email = email
+//         this.password = password
+//         this.password_confirm = password_confirm
+//     }
+// }
 
-export class DESRegistration {
-    constructor( 
-        /* DESDevice */
-        des_dev_id = 0,
+// export class DESRegistration {
+//     constructor( 
+//         /* DESDevice */
+//         des_dev_id = 0,
 
-        des_dev_reg_time = 0,
-        des_dev_reg_addr = "",
-        des_dev_reg_user_id = "",
-        des_dev_reg_app = client_app,
+//         des_dev_reg_time = 0,
+//         des_dev_reg_addr = "",
+//         des_dev_reg_user_id = "",
+//         des_dev_reg_app = client_app,
 
-        des_dev_serial = "",
-        des_dev_version = device_class,
-        des_dev_class = device_version,
+//         des_dev_serial = "",
+//         des_dev_version = device_class,
+//         des_dev_class = device_version,
 
-        /* DESJob */
-        des_job_id = 0,
+//         /* DESJob */
+//         des_job_id = 0,
 
-        des_job_reg_time = 0,
-        des_job_reg_addr = "",
-        des_job_reg_user_id = "",
-        des_job_reg_app = "",
+//         des_job_reg_time = 0,
+//         des_job_reg_addr = "",
+//         des_job_reg_user_id = "",
+//         des_job_reg_app = "",
 
-        des_job_name = "",
-        des_job_start = 0,
-        des_job_end = 0,
-        des_job_lng = -180,
-        des_job_lat = 90,
-        des_job_dev_id = 0,
+//         des_job_name = "",
+//         des_job_start = 0,
+//         des_job_end = 0,
+//         des_job_lng = -180,
+//         des_job_lat = 90,
+//         des_job_dev_id = 0,
 
-        /* DESJobSearch */
-        des_job_search_id = 0,
-        des_job_token = "",
-        des_job_json = "",
-        des_job_key = 0
+//         /* DESJobSearch */
+//         des_job_search_id = 0,
+//         des_job_token = "",
+//         des_job_json = "",
+//         des_job_key = 0
 
-    ) {
-        /* DESDevice */
-        this.des_dev_id = des_dev_id
+//     ) {
+//         /* DESDevice */
+//         this.des_dev_id = des_dev_id
 
-        this.des_dev_reg_time = des_dev_reg_time
-        this.des_dev_reg_addr = des_dev_reg_addr
-        this.des_dev_reg_user_id = des_dev_reg_user_id
-        this.des_dev_reg_app = des_dev_reg_app
+//         this.des_dev_reg_time = des_dev_reg_time
+//         this.des_dev_reg_addr = des_dev_reg_addr
+//         this.des_dev_reg_user_id = des_dev_reg_user_id
+//         this.des_dev_reg_app = des_dev_reg_app
 
-        this.des_dev_serial = des_dev_serial
-        this.des_dev_version = des_dev_version
-        this.des_dev_class = des_dev_class
+//         this.des_dev_serial = des_dev_serial
+//         this.des_dev_version = des_dev_version
+//         this.des_dev_class = des_dev_class
 
-        /* DESJob */
-        this.des_job_id = des_job_id
+//         /* DESJob */
+//         this.des_job_id = des_job_id
 
-        this.des_job_reg_time = des_job_reg_time
-        this.des_job_reg_addr = des_job_reg_addr
-        this.des_job_reg_user_id = des_job_reg_user_id
-        this.des_job_reg_app = des_job_reg_app
+//         this.des_job_reg_time = des_job_reg_time
+//         this.des_job_reg_addr = des_job_reg_addr
+//         this.des_job_reg_user_id = des_job_reg_user_id
+//         this.des_job_reg_app = des_job_reg_app
 
-        this.des_job_name = des_job_name
-        this.des_job_start = des_job_start
-        this.des_job_end = des_job_end
-        this.des_job_lng = des_job_lng
-        this.des_job_lat = des_job_lat
-        this.des_job_dev_id = des_job_dev_id
+//         this.des_job_name = des_job_name
+//         this.des_job_start = des_job_start
+//         this.des_job_end = des_job_end
+//         this.des_job_lng = des_job_lng
+//         this.des_job_lat = des_job_lat
+//         this.des_job_dev_id = des_job_dev_id
 
-        /* DESJobSearch */
-        this.des_job_search_id = des_job_search_id
+//         /* DESJobSearch */
+//         this.des_job_search_id = des_job_search_id
 
-        this.des_job_token = des_job_token
-        this.des_job_json = des_job_json
-        this.des_job_key = des_job_key
-    }
+//         this.des_job_token = des_job_token
+//         this.des_job_json = des_job_json
+//         this.des_job_key = des_job_key
+//     }
 
-}
+// }
 
-export class DESSearchParam {
-    constructor(
-        token = "",
-        lng_min = -180.0,
-        lng_max = 180.0,
-        lat_min = -90.0,
-        lat_max = 90.0
-    ) {
-        this.token = token
-        this.lng_min = lng_min
-        this.lng_max = lng_max
-        this.lat_min = lat_min
-        this.lat_max = lat_max
-    }
-    getMapBounds( map ) { 
-        // map.getBounds() returns LngLatBounds object 
-        // https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglatbounds
-        let b = map.getBounds( )
-            this.lng_max = b._ne.lng
-            this.lat_max = b._ne.lat
-            this.lng_min = b._sw.lng
-            this.lat_min = b._sw.lat
-    }
-}
+// export class DESSearchParam {
+//     constructor(
+//         token = "",
+//         lng_min = -180.0,
+//         lng_max = 180.0,
+//         lat_min = -90.0,
+//         lat_max = 90.0
+//     ) {
+//         this.token = token
+//         this.lng_min = lng_min
+//         this.lng_max = lng_max
+//         this.lat_min = lat_min
+//         this.lat_max = lat_max
+//     }
+//     getMapBounds( map ) { 
+//         // map.getBounds() returns LngLatBounds object 
+//         // https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglatbounds
+//         let b = map.getBounds( )
+//             this.lng_max = b._ne.lng
+//             this.lat_max = b._ne.lat
+//             this.lng_min = b._sw.lng
+//             this.lat_min = b._sw.lat
+//     }
+// }
 
-export const AUTH = writable( new UserSession( ) )
-export const USERS = writable( [ ] )
-export const USERS_LOADED = writable( false )
-export const updateUsersStore = async( ) => { USERS.update( ( ) => { return [ ...get( USERS ) ] } ) }
+// export const AUTH = writable( new UserSession( ) )
+// export const USERS = writable( [ ] )
+// export const USERS_LOADED = writable( false )
+// export const updateUsersStore = async( ) => { USERS.update( ( ) => { return [ ...get( USERS ) ] } ) }
 
-export const API_URL_USER_REGISTER =  `${ HTTP_SERVER }/api/user/register`
-export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
-export const API_URL_USER_REFRESH = `${ HTTP_SERVER }/api/user/refresh`
-export const API_URL_USER_TERMINATE = `${ HTTP_SERVER }/api/user/terminate`
-export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
-export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
+// export const API_URL_USER_REGISTER =  `${ HTTP_SERVER }/api/user/register`
+// export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
+// export const API_URL_USER_REFRESH = `${ HTTP_SERVER }/api/user/refresh`
+// export const API_URL_USER_TERMINATE = `${ HTTP_SERVER }/api/user/terminate`
+// export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
+// export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
 
-export const register_user = async( usu ) => {
+// export const register_user = async( usu ) => {
 
-    let req = new Request(API_URL_USER_REGISTER, { 
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        credentials: "include",
-        body: JSON.stringify( usu ) 
-    } )
-    let res = await fetch( req )
-    let auth = await res.json( )
-    debug(`"\ndes_api.js -> sign_up_user( ) ->  RESPONSE -> \n${ JSON.stringify( auth, null, 4 ) }`)
+//     let req = new Request(API_URL_USER_REGISTER, { 
+//         method: "POST",
+//         headers: { 'Content-Type': 'application/json' },
+//         credentials: "include",
+//         body: JSON.stringify( usu ) 
+//     } )
+//     let res = await fetch( req )
+//     let auth = await res.json( )
+//     debug(`"\ndes_api.js -> sign_up_user( ) ->  RESPONSE -> \n${ JSON.stringify( auth, null, 4 ) }`)
 
-    if ( auth.status === "success" ) { 
-        await login( usu.email, usu.password )
-    } else {
-        debug( "\n SIGN-UP FAILED: \n", auth.message )
-    }
-}
-export const login = async( email, password ) => {
+//     if ( auth.status === "success" ) { 
+//         await login( usu.email, usu.password )
+//     } else {
+//         debug( "\n SIGN-UP FAILED: \n", auth.message )
+//     }
+// }
+// export const login = async( email, password ) => {
 
-    let req = new Request(API_URL_USER_LOGIN, { 
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        credentials: "include",
-        body: JSON.stringify( { email, password } ) 
-    } )
-    let res = await fetch( req )
-    let auth = await res.json( )
-    // debug(`"\ndes_api.js -> login( ) -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
+//     let req = new Request(API_URL_USER_LOGIN, { 
+//         method: "POST",
+//         headers: { 'Content-Type': 'application/json' },
+//         credentials: "include",
+//         body: JSON.stringify( { email, password } ) 
+//     } )
+//     let res = await fetch( req )
+//     let auth = await res.json( )
+//     // debug(`"\ndes_api.js -> login( ) -> RESPONSE -> auth\n${ JSON.stringify( auth, null, 4 ) }`)
 
-    if ( auth.status === "success" ) { 
-        // debug(`\ndes_api.js -> login( ) -> SUCCESS:\nAccess Token: ${ auth.user_session.acc_token }\nRefresh Token: ${ auth.user_session.ref_token }\n` )
-        // debug(`\ndes_api.js -> login( ) -> SUCCESS -> User: `, auth.user_session.user )
+//     if ( auth.status === "success" ) { 
+//         // debug(`\ndes_api.js -> login( ) -> SUCCESS:\nAccess Token: ${ auth.user_session.acc_token }\nRefresh Token: ${ auth.user_session.ref_token }\n` )
+//         // debug(`\ndes_api.js -> login( ) -> SUCCESS -> User: `, auth.user_session.user )
 
-        let us = new UserSession(
-            auth.user_session.sid, 
-            auth.user_session.ref_token,
-            auth.user_session.acc_token, 
-            new User( 
-                auth.user_session.user.id,
-                auth.user_session.user.name,
-                auth.user_session.user.email,
-                auth.user_session.user.role,
-                auth.user_session.user.created_at,
-                auth.user_session.user.updated_at
-            ),
-            true
-        )
-        AUTH.set( us ) 
-        sessionStorage.setItem( 'des_auth', JSON.stringify( us ), { path: '/' } )
+//         let us = new UserSession(
+//             auth.user_session.sid, 
+//             auth.user_session.ref_token,
+//             auth.user_session.acc_token, 
+//             new User( 
+//                 auth.user_session.user.id,
+//                 auth.user_session.user.name,
+//                 auth.user_session.user.email,
+//                 auth.user_session.user.role,
+//                 auth.user_session.user.created_at,
+//                 auth.user_session.user.updated_at
+//             ),
+//             true
+//         )
+//         AUTH.set( us ) 
+//         sessionStorage.setItem( 'des_auth', JSON.stringify( us ), { path: '/' } )
 
-        debug("\ndes_api.js -> login( ) -> AUTHENTICATION SUCCESS!\n", get( AUTH ) )
+//         debug("\ndes_api.js -> login( ) -> AUTHENTICATION SUCCESS!\n", get( AUTH ) )
 
-    } else {
-        debug( "\n AUTH FAILED: \n", auth.message )
-    }
+//     } else {
+//         debug( "\n AUTH FAILED: \n", auth.message )
+//     }
 
-    if ( get(AUTH).user.role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  } else { await connect_devices( ) }
-    if ( get(AUTH).user.role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
-}
-export const refresh_jwt = async( ) => {
+//     if ( get(AUTH).user.role == 'admin' && !get(DEVICES_LOADED) ) { await get_devices( )  } else { await connect_devices( ) }
+//     if ( get(AUTH).user.role == 'admin' && !get(JOBS_LOADED) ) { await get_jobs( )  }
+// }
+// export const refresh_jwt = async( ) => {
 
-    let au = get( AUTH )
-    // debug( "des_api.js -> refresh_jwt( ) -> REQUEST -> ref_token.exp: ", parseJWT( au.ref_token ).exp )
-    // debug( "des_api.js -> refresh_jwt( ) -> REQUEST -> acc_token.exp: ", parseJWT( au.acc_token ).exp )
+//     let au = get( AUTH )
+//     // debug( "des_api.js -> refresh_jwt( ) -> REQUEST -> ref_token.exp: ", parseJWT( au.ref_token ).exp )
+//     // debug( "des_api.js -> refresh_jwt( ) -> REQUEST -> acc_token.exp: ", parseJWT( au.acc_token ).exp )
 
-    let req = new Request( API_URL_USER_REFRESH, { 
-        method: "POST",
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${ au.acc_token }` 
-        },
-        body: JSON.stringify( au ) 
-    } )
-    let res = await fetch( req )
-    let json = await res.json( )
+//     let req = new Request( API_URL_USER_REFRESH, { 
+//         method: "POST",
+//         headers: { 
+//             "Content-Type": "application/json",
+//             "Authorization": `Bearer ${ au.acc_token }` 
+//         },
+//         body: JSON.stringify( au ) 
+//     } )
+//     let res = await fetch( req )
+//     let json = await res.json( )
     
-    if ( json.status === "success" ) { 
-        debug( "des_api.js -> refresh_jwt( ) -> SUCCESS -> acc_token.exp: ", parseJWT( json.user_session.acc_token ).exp )
-        // alert( ALERT_CODES.SUCCESS, json.message )
+//     if ( json.status === "success" ) { 
+//         debug( "des_api.js -> refresh_jwt( ) -> SUCCESS -> acc_token.exp: ", parseJWT( json.user_session.acc_token ).exp )
+//         // alert( ALERT_CODES.SUCCESS, json.message )
         
-        au.acc_token = json.user_session.acc_token
-        AUTH.set( au )
-        sessionStorage.setItem( 'des_auth', JSON.stringify( au ), { path: '/' } )
-        return true
-    } else {
-        // debug( "des_api.js -> refresh_jwt( ) -> recieve auth FAIL: ", json )
-        alert( ALERT_CODES.ERROR, json.message )
-        await clean_user_session( )
-        return false
-    }
+//         au.acc_token = json.user_session.acc_token
+//         AUTH.set( au )
+//         sessionStorage.setItem( 'des_auth', JSON.stringify( au ), { path: '/' } )
+//         return true
+//     } else {
+//         // debug( "des_api.js -> refresh_jwt( ) -> recieve auth FAIL: ", json )
+//         alert( ALERT_CODES.ERROR, json.message )
+//         await clean_user_session( )
+//         return false
+//     }
 
-}
-export const terminate_user = async( user ) => {
-    debug( "des_api.js -> terminate_user( ) -> REQUEST -> user: ", user )
+// }
+// export const terminate_user = async( user ) => {
+//     debug( "des_api.js -> terminate_user( ) -> REQUEST -> user: ", user )
 
-    let au = get( AUTH )
+//     let au = get( AUTH )
 
-    let req = new Request( API_URL_USER_TERMINATE, { 
-        method: "POST",
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${ au.acc_token }` 
-        },
-        body: JSON.stringify( user ) 
-    } )
-    let res = await fetch( req )
-    let json = await res.json( )
+//     let req = new Request( API_URL_USER_TERMINATE, { 
+//         method: "POST",
+//         headers: { 
+//             "Content-Type": "application/json",
+//             "Authorization": `Bearer ${ au.acc_token }` 
+//         },
+//         body: JSON.stringify( user ) 
+//     } )
     
-    if ( json.status === "success" ) { 
-        debug( "des_api.js -> terminate_user( ) -> SUCCESS: ", json.message )
-        alert( ALERT_CODES.SUCCESS, json.message )
-        return true
-    } else {
-        debug( "des_api.js -> terminate_user( ) -> FAIL: ", json )
-        alert( ALERT_CODES.ERROR, json.message )
-        return false
-    }
+//     try { let res = await fetch( req ) 
 
-}
-export const logout = async( ) => {
-    debug( "des_api.js -> logout( )" )
+//     } catch ( err ) { 
 
-    let au = get( AUTH )
-    if ( intervalID !== null ) { stopJWT( ) }
+//     }
 
-    let req = new Request( API_URL_USER_LOGOUT, { 
-        method: "POST",
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${ au.acc_token }` 
-        },
-        body: JSON.stringify( au ) 
-    } )
-    let res = await fetch( req )
-    let json = await res.json( )
+//     let res = await fetch( req )
+//     let json = await res.json( )
     
-    if ( json.status === "success" ) { 
-        alert( ALERT_CODES.SUCCESS, json.message )
-    } else {
-        alert( ALERT_CODES.ERROR, json.message )
-        return false
-    }
-    await clean_user_session( )
+//     if ( json.status === "success" ) { 
+//         debug( "des_api.js -> terminate_user( ) -> SUCCESS: ", json.message )
+//         alert( ALERT_CODES.SUCCESS, json.message )
+//         return true
+//     } else {
+//         debug( "des_api.js -> terminate_user( ) -> FAIL: ", json )
+//         alert( ALERT_CODES.ERROR, json.message )
+//         return false
+//     }
 
-    debug(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
-}
-export const clean_user_session = async( ) => {
+// }
+// export const logout = async( ) => {
+//     debug( "des_api.js -> logout( )" )
 
-    /* CLEAR LOCAL STORAGE */
-    sessionStorage.setItem( 'des_auth', 'none', { path: '/' } )
+//     let au = get( AUTH )
+//     if ( intervalID !== null ) { stopJWT( ) }
 
-    /* CLEAR APP STORES */
-    AUTH.set( new UserSession( ) ) 
+//     let req = new Request( API_URL_USER_LOGOUT, { 
+//         method: "POST",
+//         headers: { 
+//             "Content-Type": "application/json",
+//             "Authorization": `Bearer ${ au.acc_token }` 
+//         },
+//         body: JSON.stringify( au ) 
+//     } )
 
-    USERS.set( [ ] )
-    USERS_LOADED.set( false )
+//     try { 
+//         let res = await fetch( req )
+//         if ( !res.ok ) { 
+//             alert( ALERT_CODES.ERROR, res.statusText ) 
+//         } else {
+//             let json = await res.json( )
+//             alert( ALERT_CODES.SUCCESS, json.message )
+//         }
+//     } catch ( err ) { alert( ALERT_CODES.ERROR, err) }
+
+//     /* ENSURE WE CLEAR THE SESSION DATA EVENT IF THERE SERVER IS DEAD */
+//     await clean_user_session( )
+
+//     debug(`"\ndes_api.js -> logout( ) -> LOGGED OUT! -> $AUTH\n${ JSON.stringify( get(AUTH) ) }`)
+// }
+// export const clean_user_session = async( ) => {
+
+//     /* CLEAR LOCAL STORAGE */
+//     sessionStorage.setItem( 'des_auth', 'none', { path: '/' } )
+
+//     /* CLEAR APP STORES */
+//     AUTH.set( new UserSession( ) ) 
+
+//     USERS.set( [ ] )
+//     USERS_LOADED.set( false )
     
-    EVT_TYPES.set( [ ] )
-    EVT_TYPES_LOADED.set( false )
+//     EVT_TYPES.set( [ ] )
+//     EVT_TYPES_LOADED.set( false )
 
-    /* DISCONNECT ALL DEVICE WS ON LOGOUT */
-    await disconnect_devices( )
-    DEVICES.set( [ ] )
-    DEVICES_LOADED.set( false )
+//     /* DISCONNECT ALL DEVICE WS ON LOGOUT */
+//     await disconnect_devices( )
+//     DEVICES.set( [ ] )
+//     DEVICES_LOADED.set( false )
 
-    /* DISCONNECT ALL JOB WS ON LOGOUT */
-    // await disconnect_jobs( ) // TODO: 
-    JOBS.set( [ ] )
-    JOBS_LOADED.set( false )
-}
+//     /* DISCONNECT ALL JOB WS ON LOGOUT */
+//     // await disconnect_jobs( ) // TODO: 
+//     JOBS.set( [ ] )
+//     JOBS_LOADED.set( false )
+// }
 
-export const get_user_list = async( ) => {
-    debug( `des_api.js -> get_user_list( )` )
+// export const get_user_list = async( ) => {
+//     debug( `des_api.js -> get_user_list( )` )
 
-    let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
-    let res = await fetch( req )
-    let json = await res.json( )
+//     let req = new Request( API_URL_USER_LIST, { method: 'GET' } )
+//     let res = await fetch( req )
+//     let json = await res.json( )
 
-    if ( json.status == "success") { 
+//     if ( json.status == "success") { 
 
-        let users = json.data.users
+//         let users = json.data.users
 
-        users.forEach( usr => { 
-            if( get( USERS ).filter( u => { return u.email == usr.email } )[0] == undefined ) {
-                let user = new User(
-                    usr.id,
-                    usr.name,
-                    usr.email,
-                    usr.role,
-                    usr.provider,
-                    usr.created_at,
-                    usr.updated_at
-                )
-                USERS.update( susrs => { return [ ...susrs, user ] } )
-            }        
-        } )
-        USERS_LOADED.set( true )
+//         users.forEach( usr => { 
+//             if( get( USERS ).filter( u => { return u.email == usr.email } )[0] == undefined ) {
+//                 let user = new User(
+//                     usr.id,
+//                     usr.name,
+//                     usr.email,
+//                     usr.role,
+//                     usr.provider,
+//                     usr.created_at,
+//                     usr.updated_at
+//                 )
+//                 USERS.update( susrs => { return [ ...susrs, user ] } )
+//             }        
+//         } )
+//         USERS_LOADED.set( true )
 
-        debug( "des_api.js -> get_user_list( ) -> USERS: ", get( USERS ) )
-    } else {
-        debug( "des_api.js -> get_user_list( ) -> NO USERS: ", get( USERS ) )
-    }
-}
+//         debug( "des_api.js -> get_user_list( ) -> USERS: ", get( USERS ) )
+//     } else {
+//         debug( "des_api.js -> get_user_list( ) -> NO USERS: ", get( USERS ) )
+//     }
+// }
 
-let intervalID = null
-export const watchJWT = ( onRefreshFail = ( ) => { } ) => { 
+// let intervalID = null
+// export const watchJWT = ( onRefreshFail = ( ) => { } ) => { 
 
-    if ( get( AUTH ) && get( AUTH ).logged_in ) {
+//     if ( get( AUTH ) && get( AUTH ).logged_in ) {
 
-        let jwt = parseJWT( get( AUTH ).acc_token )
-        let jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) 
+//         let jwt = parseJWT( get( AUTH ).acc_token )
+//         let jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) 
 
-        debug( "JWT access token expires in: ", jwtExpiresIn )
+//         debug( "JWT access token expires in: ", jwtExpiresIn )
 
-        if ( intervalID !== null ) { stopJWT( ) }
+//         if ( intervalID !== null ) { stopJWT( ) }
 
-        if ( jwtExpiresIn > 0 ) {
+//         if ( jwtExpiresIn > 0 ) {
 
-            intervalID = setInterval( async( ) => { 
+//             intervalID = setInterval( async( ) => { 
     
-                // let success = refreshJWT( get( AUTH ).ref_token )
-                let success = await refresh_jwt( )
-                if ( success ) {
-                    debug( "ACCESS JWT REFRESHED! -> intervalID:", intervalID )
+//                 // let success = refreshJWT( get( AUTH ).ref_token )
+//                 let success = await refresh_jwt( )
+//                 if ( success ) {
+//                     debug( "ACCESS JWT REFRESHED! -> intervalID:", intervalID )
                     
-                    jwt = parseJWT( get( AUTH ).acc_token )
-                    jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) 
-                    // alert( ALERT_CODES.SUCCESS, "Access token refreshed!" )
-                } else {
-                    debug( "REFRESH JWT EXPIRED!" )  
-                    // alert( ALERT_CODES.WARNING, "Access timed out. Please log in again." )
-                    stopJWT( )
-                    clean_user_session( )
-                    onRefreshFail( )
-                }
+//                     jwt = parseJWT( get( AUTH ).acc_token )
+//                     jwtExpiresIn = Math.floor( jwt.exp * 1000 - Date.now( ) ) 
+//                     // alert( ALERT_CODES.SUCCESS, "Access token refreshed!" )
+//                 } else {
+//                     debug( "REFRESH JWT EXPIRED!" )  
+//                     // alert( ALERT_CODES.WARNING, "Access timed out. Please log in again." )
+//                     stopJWT( )
+//                     clean_user_session( )
+//                     onRefreshFail( )
+//                 }
     
-            }, jwtExpiresIn - 2000 )
-        }
+//             }, jwtExpiresIn - 2000 )
+//         }
 
-    }
-}
-export const stopJWT = ( ) => {
-    clearInterval( intervalID )
-    intervalID = null
-}
-const parseJWT = ( token ) => {
+//     }
+// }
+// export const stopJWT = ( ) => {
+//     clearInterval( intervalID )
+//     intervalID = null
+// }
+// const parseJWT = ( token ) => {
 
-    let base64Url = token.split('.')[1]
-    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-    let jwt = decodeURIComponent( window.atob( base64 ).split( '' ).map( c => {
-        return '%' + ('00' + c.charCodeAt( 0 ).toString( 16 ) ).slice( -2 )
-    } ).join( '' ) )
+//     let base64Url = token.split('.')[1]
+//     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+//     let jwt = decodeURIComponent( window.atob( base64 ).split( '' ).map( c => {
+//         return '%' + ('00' + c.charCodeAt( 0 ).toString( 16 ) ).slice( -2 )
+//     } ).join( '' ) )
 
-    return JSON.parse( jwt )
+//     return JSON.parse( jwt )
 
-}
+// }
 
 
 /* DEVICE API ROUTES **********************************************************************************/
@@ -531,49 +546,49 @@ export const register_device = async( serial ) => {
 export const get_devices = async( ) => {
 
     let au = get( AUTH )
-    // debug("\ndes_api.js -> get_devices( ) -> AUTH: \n", au )
-    debug( "des_api.js -> get_devices( ) -> AUTH -> acc_token: ", parseJWT( au.acc_token ) )
 
-    DEVICES_LOADED.set( false )
-    let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
-        method: 'GET',
-        headers: {
-            "Authorization":  `Bearer ${ au.acc_token }`, 
-        },
-    } )
+    if ( au !== null ) {
 
-    let res = await fetch( req )
-    let json = await res.json( )
-
-    if ( json.status == "success") { 
-
-        // let store = get( DEVICES )
-        let devs = json.data.devices 
-        // debug( "get_devices( ) -> response:\n", devs )
-        
-        devs.forEach( dev => {
-            if( get( DEVICES ).filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
-                let device = new Device(
-                    dev.adm,
-                    dev.sta,
-                    dev.hdr,
-                    dev.cfg,
-                    dev.evt,
-                    dev.smp,
-                    dev.reg,
-                    dev.dbg
-                )
-                DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
-            }        
+        DEVICES_LOADED.set( false )
+        let req = new Request( API_URL_C001_V001_DEVICE_LIST, { 
+            method: 'GET',
+            headers: {
+                "Authorization":  `Bearer ${ au.acc_token }`, 
+            },
         } )
-        await connect_devices( )
-
-        get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
-        DEVICES_LOADED.set( true )
-        debug( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ) )
-    } else {
-        alert(ALERT_CODES.ERROR, json.message )
-        // debug( "des_api.js -> get_devices( ) -> NO DEVICES: ", get( DEVICES ) )
+    
+        let res = await fetch( req )
+        let json = await res.json( )
+    
+        if ( json.status == "success") { 
+    
+            let devs = json.data.devices 
+            // debug( "get_devices( ) -> response:\n", devs )
+            
+            devs.forEach( dev => {
+                if( get( DEVICES ).filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+                    let device = new Device(
+                        dev.adm,
+                        dev.sta,
+                        dev.hdr,
+                        dev.cfg,
+                        dev.evt,
+                        dev.smp,
+                        dev.reg,
+                        dev.dbg
+                    )
+                    DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
+                }        
+            } )
+            await connect_devices( )
+    
+            get( DEVICES ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+            DEVICES_LOADED.set( true )
+            debug( "des_api.js -> get_devices( ) -> DEVICES: ", get( DEVICES ).length )
+        } else {
+            alert(ALERT_CODES.ERROR, json.message )
+            // debug( "des_api.js -> get_devices( ) -> NO DEVICES: ", get( DEVICES ) )
+        }
     }
 
 }
@@ -703,7 +718,7 @@ export const API_URL_C001_V001_JOB_EVTS = `${ HTTP_SERVER }/api/001/001/job/even
 export const API_URL_C001_V001_JOB_USER_WS =  `${ WS_SERVER }/api/001/001/job/ws`
 
 export const get_event_types = async( ) => {
-    debug( `des_api.js -> get_event_types( )` )
+    
     let req = new Request( API_URL_C001_V001_JOB_EVENT_TYPE_LIST, { method: 'GET' } )
     let res = await fetch( req )
     let json = await res.json( )
@@ -724,9 +739,9 @@ export const get_event_types = async( ) => {
         } )
         EVT_TYPES_LOADED.set( true )
 
-        debug( "des_api.js -> get_event_types( ) -> EVT_TYPES: ", get( EVT_TYPES ) )
+        debug( "des_api.js -> get_event_types( ) -> EVT_TYPES: ", get( EVT_TYPES ).length )
     } else {
-        debug( "des_api.js -> get_event_types( ) -> NO EVT_TYPES: ", get( EVT_TYPES ) )
+        debug( "des_api.js -> get_event_types( ) -> NO EVT_TYPES: ", get( EVT_TYPES ).length )
     }
 }
 
@@ -734,45 +749,48 @@ export const get_jobs = async( ) => {
 
     let au = get( AUTH )
 
-    JOBS_LOADED.set( false )
-    let req = new Request( API_URL_C001_V001_JOB_LIST, { 
-        method: 'GET',
-        headers: {
-            "Authorization":  `Bearer ${ au.acc_token }`, 
-        },
-    } )
+    if ( au !== null ) {
 
-    let res = await fetch( req )
-    let json = await res.json( )
-
-    if ( json.status == "success") { 
-
-        let store = get( JOBS )
-        let jobs = json.data.jobs
-        // debug( "get_jobs( ) -> response:\n", jobs )
-
-        jobs.forEach( j => {
-            if ( store.filter( s =>{ return s.reg.des_job_name == j.reg.des_job_name } )[0] == undefined ) {
-                let job = new Job(
-                    j.admins,
-                    j.states,
-                    j.headers,
-                    j.configs,
-                    j.events,
-                    j.samples,
-                    j.xypoints,
-                    j.reports,
-                    j.reg,
-                )
-                JOBS.update( sjobs => { return [ ...sjobs, job ] } )
-            }
+        JOBS_LOADED.set( false )
+        let req = new Request( API_URL_C001_V001_JOB_LIST, { 
+            method: 'GET',
+            headers: {
+                "Authorization":  `Bearer ${ au.acc_token }`, 
+            },
         } )
+    
+        let res = await fetch( req )
+        let json = await res.json( )
+    
+        if ( json.status == "success") { 
+    
+            let jobs = json.data.jobs // debug( "get_jobs( ) -> response:\n", jobs )
+    
+            jobs.forEach( j => {
+                if ( get( JOBS ).filter( s =>{ return s.reg.des_job_name == j.reg.des_job_name } )[0] == undefined ) {
+                    let job = new Job(
+                        j.admins,
+                        j.states,
+                        j.headers,
+                        j.configs,
+                        j.events,
+                        j.samples,
+                        j.xypoints,
+                        j.reports,
+                        j.reg,
+                    )
+                    JOBS.update( sjobs => { return [ ...sjobs, job ] } )
+                }
+            } )
+    
+            get( JOBS ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+            JOBS_LOADED.set( true )
 
-        store.sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
-        JOBS_LOADED.set( true )
-        debug( "des_api.js -> get_jobs( ) -> JOBS: ", store )
-    } else {
-        debug( "des_api.js -> get_jobs( ) -> NO JOBS.", get( JOBS ) )
+            debug( "des_api.js -> get_jobs( ) -> JOBS: ", get( JOBS ).length )
+        } else {
+            alert(ALERT_CODES.ERROR, json.message )
+            debug( "des_api.js -> get_jobs( ) -> NO JOBS.", get( JOBS ).length )
+        }
     }
 }
 

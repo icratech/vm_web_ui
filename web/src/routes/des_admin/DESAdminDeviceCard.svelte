@@ -9,7 +9,8 @@
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
     import btn_img_start_grey from "$lib/images/btn-img-start-grey.svg"
 
-    import { DemoDevice, Device, debug } from "../../lib/des_api"
+    import { debug, debugging } from '../../lib/des/utils'
+    import { DemoDevice, Device } from "../../lib/des_api"
 
     import { createEventDispatcher } from "svelte"
     let dispatch = createEventDispatcher( )
@@ -22,13 +23,19 @@
         exp = ! exp
     }
 
+
+
 </script>
 
 <div class="flx-col container">
 
     <div class="flx-row">
         <DESAdminDeviceInfo bind:device />
-        <div class="flx-col ">
+
+        { #if debugging }
+        <div class="flx-col input "></div>
+        <div class="flx-col"></div>
+        <!-- <div class="flx-col ">
             <PillButton 
                 on:click={ device.dev.simOfflineStart( ) }
                 img={ btn_img_start_grey }
@@ -66,7 +73,12 @@
                 img={ btn_img_start_grey }
                 hint={ "Simulate Device Disconnect" } 
             />
-        </div>
+        </div> -->
+        { :else }
+            <div class="flx-col"></div>
+            <div class="flx-col"></div>
+        { /if }
+
     </div>
 
     { #if exp }

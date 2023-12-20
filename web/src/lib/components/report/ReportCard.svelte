@@ -7,7 +7,8 @@
     import ReportTitle from './ReportTitle.svelte'
     import ReportSecTitle from './ReportSecTitle.svelte'
 
-	import { Job, Report, Section, debug } from "../../des_api"
+    import { debug } from '../../des/utils'
+	import { Job, Report, Section } from "../../des_api"
     export let job = new Job( )
     export let rep = new Report( )
 

@@ -1,8 +1,10 @@
 <script>
 
+    import { debug } from '../../des/utils'
+    import { Job, Report } from "../../des_api"
+
     import ReportSecTitle from './ReportSecTitle.svelte'
     
-    import { Job, Report, debug } from "../../des_api"
     export let job = new Job( )
     export let rep = new Report( )
 

@@ -3,7 +3,7 @@
     import InputText from "../../common/input_text/InputText.svelte"
     import InputPW from "../../common/input_pw/InputPW.svelte"
 
-    import { UserSignUp } from "../../des_api"
+    import { UserSignUp } from "../../des/auth"
 
     export let newUser = new UserSignUp( )
     

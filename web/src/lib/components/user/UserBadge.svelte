@@ -1,6 +1,6 @@
 <script>
 
-    import { User } from "../../des_api"
+    import { User } from "../../des/auth"
 
     export let cls = 'fg-orange'
     export let user = new User( )

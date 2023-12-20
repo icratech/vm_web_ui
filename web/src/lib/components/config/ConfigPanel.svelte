@@ -1,10 +1,12 @@
 <script>
 
+    import { debug } from '../../des/utils'
+    import { Device, OP_CODES } from "../../des_api"
+
     import PillButton from "../../common/button/PillButton.svelte"
     import ConfigBuilder from "./ConfigBuilder.svelte"
     import ConfigCard from "./ConfigCard.svelte"
-    import { Device, OP_CODES, debug } from "../../des_api"
-
+    
     import btn_img_edit from "$lib/images/btn-img-edit-aqua.svg"
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"

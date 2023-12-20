@@ -1,8 +1,12 @@
 <script>
     
+    import { getContext, onMount } from 'svelte'
+
+    import { AUTH } from '../../../lib/des/auth'
+    import { get_devices } from '../../../lib/des_api'
+
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import DeviceInfo from '../DeviceInfo.svelte'
-
     import Modal from '../../../lib/common/modal/Modal.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     import DeviceConn from '../DeviceConn.svelte'
@@ -11,9 +15,17 @@
     import EventPanelOp from "../../../lib/components/event/EventPanelOp.svelte"
     
     export let data
-    import { getContext } from 'svelte'
     $: DEVICES = getContext(  'devices' )
+    $: DEVICES_LOADED = getContext( 'devices_loaded' )
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
+
+    /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
+    onMount( async( ) => { 
+        if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+            await get_devices( )
+        }
+    } )
 
     /* USED TO EXPOSE THE MODALS' OPEN( ) METHOD 
     SO IT CAN BE CALLED FROM OTHER COMPONENTS */

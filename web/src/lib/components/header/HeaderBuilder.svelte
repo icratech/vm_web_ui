@@ -4,8 +4,6 @@
     import { getContext } from "svelte"
 	import { Header } from "../../des_api";
 
-    import PillButton from "../../common/button/PillButton.svelte"
-    import DateTimeDisplay from "../../common/date_time/DateTimeDisplay.svelte"
     import InputText from "../../common/input_text/InputText.svelte"
     import UserBadge from "../user/UserBadge.svelte"
 
@@ -68,11 +66,9 @@
         justify-content: flex-end;
         align-items: center;
         color: var( --accent_a);
-        /* font-size: 0.9rem; */
         width: 7em;
     }
     .meta {
-        /* flex-direction: column; */
         padding: 0;
         gap: 0.5em;
     }

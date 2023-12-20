@@ -3,13 +3,31 @@
 
     import { goto } from '$app/navigation'
     
-    import { getContext } from 'svelte'
-    import { DESSearchParam, updateDevicesStore, debug } from '../../lib/des_api'
+    import { getContext, onMount } from 'svelte'
+    import { 
+        DESSearchParam, 
+        debug 
+    } from '../../lib/des/utils'
+    import { AUTH } from '../../lib/des/auth'
+    import { 
+        get_devices, 
+        updateDevicesStore,  
+    } from '../../lib/des_api'
     
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
     $: DEVICES = getContext( 'devices' )
+    $: DEVICES_LOADED = getContext( 'devices_loaded' )
+
+    /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
+    onMount( async( ) => { 
+        if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+            await get_devices( )
+        }
+    } )
+
     $: search = new DESSearchParam( )
 
     const checkBounds = ( d ) => { 

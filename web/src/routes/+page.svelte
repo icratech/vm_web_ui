@@ -1,15 +1,15 @@
 <script>
 
-    import { onMount } from 'svelte';
+    import { UserSignUp, register_user } from "../lib/des/auth"
+
     import Modal from "../lib/common/modal/Modal.svelte"
     import PillButton from "../lib/common/button/PillButton.svelte"
+    import UserRegistration from "../lib/components/user/UserRegistration.svelte"
+
+    import btn_img_edit from '../lib/images/btn-img-edit-orange.svg'
     import vent_medic_logo from "$lib/images/vent-medic-logo.svg"
-    // import vent_medic_logo from "$lib/images/vent-medic-logo-green.svg"
     import vent_medic_nested from "$lib/images/vent-medic-ship.webp"
     import vent_medic_deployed from "$lib/images/vent-medic-deployed.webp"
-    import UserRegistration from "../lib/components/user/UserRegistration.svelte"
-    import { UserSignUp, register_user } from "../lib/des_api"
-    import btn_img_edit from '../lib/images/btn-img-edit-orange.svg'
 
     let modal
     let newUser = new UserSignUp( )
@@ -20,22 +20,10 @@
     $: pwMatch = ( newUser.password !== "" && newUser.password == newUser.password_confirm )
     $: valid = ( nameLength && validEmail && pwLength && pwMatch ) 
 
-    import { getContext } from 'svelte'
-    const DEVICES = getContext(  'devices' )
-    const DEVICES_LOADED = getContext(  'devices_loaded' )
-
-    $: { console.log( "devices loaded: ", $DEVICES_LOADED ) }
-
 </script>
 
 <div class="flx-col container" >
 
-    <!-- { #if $DEVICES_LOADED }
-        <div>DEVICES LOADED</div>
-        { #each $DEVICES as device }
-            <div class="flx-row">{ device.reg.des_dev_serial }</div>
-        { /each }
-    { :else } -->
     <div class="flx-col welcome">
         <div class="flx-col logo" style="background-image: url( { vent_medic_logo } );"></div>
     
@@ -82,7 +70,6 @@
 
 
     </div>
-    <!-- { /if } -->
 
 </div>
 

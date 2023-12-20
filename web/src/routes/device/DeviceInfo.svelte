@@ -3,7 +3,8 @@
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher( )
 
-    import { Device, OP_CODES, Sample, validateLngLat, debug } from "../../lib/des_api"
+    import { debug } from '../../lib/des/utils'
+    import { Device, OP_CODES, Sample, validateLngLat } from "../../lib/des_api"
 
     import DeviceMode from "./DeviceMode.svelte"
     import HeaderCard from '../../lib/components/header/HeaderCard.svelte'

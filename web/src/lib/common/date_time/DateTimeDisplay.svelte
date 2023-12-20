@@ -1,7 +1,7 @@
 
 <script>
     
-    import { debug } from "../../des_api"
+    import { debug } from "../../des/utils"
     import { validateUnixMilli } from "../format";
 
     export let cls = 'fg-accent'

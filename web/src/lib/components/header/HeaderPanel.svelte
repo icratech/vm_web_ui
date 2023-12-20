@@ -1,10 +1,11 @@
 <script>
 
+    import { debug } from "../../des/utils"
+    import { Device, OP_CODES } from "../../des_api"
+
     import PillButton from "../../common/button/PillButton.svelte"
     import HeaderBuilder from "./HeaderBuilder.svelte"
     import HeaderCard from "./HeaderCard.svelte"
-    import DeviceConn from "../../../routes/device/DeviceConn.svelte"
-    import { Device, OP_CODES, debug } from "../../des_api"
 
     import btn_img_edit from "$lib/images/btn-img-edit-aqua.svg"
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
@@ -72,8 +73,6 @@
 
     { /if }
 
-    <!-- <div></div>
-    <DeviceConn bind:device /> -->
 </div>
 
 <style>
@@ -87,7 +86,6 @@
 
     .panel-title-bar {
         justify-content: space-between;
-        /* padding-left: 1em; */
         padding-top: 0;
         padding-right: 0.5em;
         width: 100%;

@@ -3,13 +3,32 @@
 
     import { goto } from '$app/navigation'
 
-    import { getContext } from 'svelte'
-    import { DESSearchParam, updateJobsStore, debug } from '../../lib/des_api'
+    import { getContext, onMount } from 'svelte'
+
+    import { 
+        DESSearchParam, 
+        debug
+    } from '../../lib/des/utils'
+    import { AUTH } from '../../lib/des/auth'
+    import { 
+		get_jobs, 
+        updateJobsStore,  
+    } from '../../lib/des_api'
 
     import JobSearch from './JobSearch.svelte'
     import JobCard from './JobCard.svelte'
 
     $: JOBS = getContext( 'jobs' )
+    $: JOBS_LOADED = getContext( 'jobs_loaded' )
+
+    /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
+    onMount( async( ) => { 
+        if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+            await get_jobs( )
+        }
+    } )
+
     $: search = new DESSearchParam( )
 
     const checkBounds = ( j ) => { 

@@ -1,6 +1,6 @@
 <script>
 
-    import { AUTH } from '../lib/des_api'
+    import { UserSession } from '../lib/des/auth'
     import PillButton from '../lib/common/button/PillButton.svelte'
     import vent_medic_logo from "$lib/images/vent-medic-hdr-logo.svg"
     
@@ -10,8 +10,10 @@
 	import { createEventDispatcher } from 'svelte'
 	const dispatch = createEventDispatcher()
 
-    $: loginButtonImage = ( $AUTH && $AUTH.logged_in ? btn_img_logout_purple : btn_img_login_purple )
-    $: loginButtonFunc = ( $AUTH && $AUTH.logged_in ? async( ) => { dispatch( 'logout' ) } : async( ) => { dispatch( 'login' ) } )
+    export let auth = new UserSession( )
+
+    $: loginButtonImage = ( auth && auth.logged_in ? btn_img_logout_purple : btn_img_login_purple )
+    $: loginButtonFunc = ( auth && auth.logged_in ? async( ) => { dispatch( 'logout' ) } : async( ) => { dispatch( 'login' ) } )
 
     export let page_name = "PAGE_NAME"
 
@@ -36,7 +38,7 @@
             </div>
 
             <div class="flx-row login-btn">        
-                <div class="flx-row login-msg">{ ( $AUTH && $AUTH.logged_in ? $AUTH.user.name : 'Login' ) }</div>
+                <div class="flx-row login-msg">{ ( auth && auth.logged_in ? auth.user.name : 'Login' ) }</div>
                 <PillButton 
                     img={ loginButtonImage }
                     on:click={ loginButtonFunc }

@@ -1,6 +1,6 @@
 <script>
 
-    import { debug } from '../../des_api'
+    import { debug } from '../../des/utils'
     import { FormatDateTime, FormatTimeCode } from '$lib/common/format'
 
     import { Chart } from "chart.js/auto"
