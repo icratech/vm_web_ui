@@ -1,10 +1,5 @@
 
 import { 
-    PDFDocument, 
-    PDFImage, 
-    PageSizes, 
-    StandardFonts, 
-    degrees, 
     rgb 
 } from 'pdf-lib'
 

@@ -23,7 +23,7 @@
     import { RGBA, BASE } from '$lib/common/colors'
     import { PDF_RGB_BASE } from "../../../lib/common/pdf/pdf"
     import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
-    import { PDFDocument, PDFFont, PDFImage, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
+    import { PDFDocument, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
     import { NewPDFChartData, PDFCOLORS, PDF_RGB_COLORS } from "../../../lib/components/report/report_pdf"
 
     import vent_medic_logo from "$lib/images/vent-medic-logo.png"
