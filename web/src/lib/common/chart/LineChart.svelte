@@ -4,7 +4,7 @@
     import { FormatDateTime, FormatTimeCode } from '$lib/common/format'
 
     import { Chart } from "chart.js/auto"
-    import { getRelativePosition } from 'chart.js/helpers'
+    // import { getRelativePosition } from 'chart.js/helpers'
 
 
     /* TODO : REPLACE WITH luxon ...*/
