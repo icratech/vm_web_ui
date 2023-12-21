@@ -12,9 +12,12 @@ import {
 import { 
     HTTP_SERVER, WS_SERVER,
     waitMilli,
-    DESRegistration, DESSearchParam,
+    DESRegistration, DESSearchParam, 
     ALERT_CODES, alert, debug 
 } from './des/utils'
+import { 
+    validateSerialNumber,
+} from './des/device'
 
 export const device_class = "001"
 export const device_version= "001"
@@ -50,10 +53,16 @@ export const API_URL_C001_V001_DEVICE_USER_WS =  `${ WS_SERVER }/api/001/001/dev
 
 export const registerDevice = async( serial ) => {
 
+    let chk = await validateSerialNumber( serial )
+    if ( chk.err !== null ) {
+        alert( ALERT_CODES.ERROR, chk.err )
+        return
+    }
+
     let au = get( AUTH )
     let reg = new DESRegistration( )
 
-    reg.desDev_serial = serial
+    reg.des_dev_serial = serial
     reg.des_dev_reg_user_id = au.user.id
     reg.des_dev_reg_app = client_app
     debug("des_api.js -> registerDevice( ) -> REQUEST reg:\n", reg )
@@ -114,13 +123,13 @@ export const disconnectDevices = async( ) => {
     get( DEVICES ).forEach( async( d ) => { if ( d.socket ) { await d.disconnectWS( ) } } )
 }
 
-export const checkDeviceExists = async( serial ) => {
-    debug( "Checking existance of ", serial )
-    await getDevices( )
-    let exists = get( DEVICES ).filter( ( d ) => { return d.reg.des_dev_serial == serial } )[0]
-    debug( serial, exists )
-    return exists
-}
+// export const checkDeviceExists = async( serial ) => {
+//     debug( "Checking existance of ", serial )
+//     await getDevices( )
+//     let exists = get( DEVICES ).filter( ( d ) => { return d.reg.des_dev_serial == serial } )[0]
+//     debug( serial, exists )
+//     return exists
+// }
 
 /* DEVICE DATA STRUCTURE  *****************************************************************************/
 export class Device {
@@ -325,7 +334,7 @@ export class Device {
 
         let dev = encodeURIComponent(JSON.stringify( { reg : this.reg } ) )
 
-        let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.acc_token }&device=${ dev }`
+        let url = `${ API_URL_C001_V001_DEVICE_USER_WS }?access_token=${ au.acc_token }&device=${ dev }&sid=${ au.sid }`
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => {  
             this.socket = true

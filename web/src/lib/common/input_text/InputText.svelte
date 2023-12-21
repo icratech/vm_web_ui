@@ -8,7 +8,6 @@
     export let enabled = false
     export let right = false
 
-    
 </script>
 
 <div class="flx-row container">
@@ -24,6 +23,8 @@
         spellcheck=value
         placeholder= { place }
         disabled = { !enabled }
+        on:input
+        on:focusout
     >
     { #if lbl != null && right }
         <p class="{ cls } lbl-right">{ lbl }</p>

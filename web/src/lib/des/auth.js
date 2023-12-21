@@ -189,7 +189,7 @@ export const postRequestAuth = async( url, obj ) => {
         let res = await fetch( req )
         
         if ( !res.ok ) {
-            out.err = res.statusText 
+            out.err = await res.text() 
         } else {
             out.json = await res.json( ) 
         } 

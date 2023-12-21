@@ -16,6 +16,7 @@
     import DESAdminDeviceCard from './DESAdminDeviceCard.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
+    import SerialNumInput from '../../lib/des/components/SerialNumInput.svelte'
 
     $: DEVICES = getContext( 'devices' )
     $: DEVICES_LOADED = getContext( 'devices_loaded' )
@@ -78,7 +79,7 @@
                 <div class="flx-row">
                     <PillButton cls='bg-accent' on:click={ callRegisterDevice } hint={ null } />
                     <div class="flx-col input-container">
-                        <InputText 
+                        <SerialNumInput 
                             enabled ={ debugging }
                             bind:txt={ serial }
                             place="Enter a serial # and click the circle over there." 
