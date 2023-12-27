@@ -1,8 +1,11 @@
 <script>
 
     import { getContext } from "svelte"
+
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
-	import { Device, OP_CODES, PING_LIMIT, DES_PING_LIMIT } from "../../lib/des_api";
+
+    import { OP_CODES } from "../../lib/c001v001/models"
+	import { Device, PING_LIMIT, DES_PING_LIMIT } from "../../lib/c001v001/device"
 
     export let device = new Device( )
 

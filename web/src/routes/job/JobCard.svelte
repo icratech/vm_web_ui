@@ -1,17 +1,18 @@
 <script>
 
     import { createEventDispatcher } from "svelte"
-    let dispatch = createEventDispatcher( )
-    
-    import PillButton from "$lib/common/button/PillButton.svelte"
+
+    import PillButton from "../../lib/common/button/PillButton.svelte"
     import DateTimeDisplay from '../../lib/common/date_time/DateTimeDisplay.svelte'
-    import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
-    import ReportTitle from "../../lib/components/report/ReportTitle.svelte"
-    import EventCard from '../../lib/components/event/EventCard.svelte'
+    
+    import { Job } from "../../lib/c001v001/job"
+    import HeaderCard from '../../lib/c001v001/components/header/HeaderCard.svelte'
+    import ReportTitle from "../../lib/c001v001/components/report/ReportTitle.svelte"
+    import EventCard from '../../lib/c001v001/components/event/EventCard.svelte'
 
     import btn_img_report from "$lib/images/btn-img-edit-aqua.svg"
-
-    import { Job } from "../../lib/des_api"
+    
+    let dispatch = createEventDispatcher( )
     
     export let job = new Job( )
     $: stat  = JSON.parse( job.reg.des_job_json )

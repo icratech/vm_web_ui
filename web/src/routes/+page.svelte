@@ -1,10 +1,10 @@
 <script>
 
-    import { UserSignUp, registerUser } from "../lib/des/auth"
+    import { UserSignUp, registerUser } from "../lib/des/api"
 
     import Modal from "../lib/common/modal/Modal.svelte"
     import PillButton from "../lib/common/button/PillButton.svelte"
-    import UserRegistration from "../lib/components/user/UserRegistration.svelte"
+    import UserRegistration from "../lib/des/components/UserRegistration.svelte"
 
     import btn_img_edit from '../lib/images/btn-img-edit-orange.svg'
     import vent_medic_logo from "$lib/images/vent-medic-logo.svg"

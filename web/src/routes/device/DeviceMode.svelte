@@ -1,7 +1,11 @@
 
 <script>
-    import { CHT_COLORS, Device, OP_CODES, MODES, getMode } from "../../lib/des_api"
+    
     import { RGBA, BASE } from "../../lib/common/colors"
+    
+    import { OP_CODES, MODES, getMode } from '../../lib/c001v001/models'
+    import { Device } from '../../lib/c001v001/device'
+    import { CHT_COLORS } from '../../lib/c001v001/chart_display'
     
     export let device = new Device( )
     $: hdr = device.hdr

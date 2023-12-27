@@ -1,56 +1,44 @@
 <script>
 
     import { getContext, onMount } from "svelte"
+    import { Chart } from "chart.js/auto" 
+    import { PDFDocument, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
+    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
+    import 'mapbox-gl/dist/mapbox-gl.css'
+    mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
 
     import { debug } from '../../../lib/des/utils'
-    import { AUTH } from '../../../lib/des/auth'
-	import { 
-        getJobs, // JOBS,
-        Header, Config, Event, Sample,
-        Report, Section, SectionDataSet,  
-        validateLngLat, 
-        OP_CODES, CHT_COLORS, MODES, getMode,
-    } from "../../../lib/des_api"
-
-     /* MAP STUFF */
-    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
-    mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
-    
-    /* CHART STUFF */
-    import { Chart } from "chart.js/auto" // import { callback } from 'chart.js/helpers';
-    
-    /* PDF REPORT STUFF */
-    import { RGBA, BASE } from '$lib/common/colors'
-    import { PDF_RGB_BASE } from "../../../lib/common/pdf/pdf"
+    import { AUTH } from '../../../lib/des/api'
     import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
-    import { PDFDocument, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
-    import { NewPDFChartData, PDFCOLORS, PDF_RGB_COLORS } from "../../../lib/components/report/report_pdf"
+    import { PDF_RGB_BASE } from "../../../lib/common/pdf/pdf"
+    import { RGBA, BASE } from '../../../lib/common/colors'
+    import PillButton from '../../../lib/common/button/PillButton.svelte'
+    import InputText from '../../../lib/common/input_text/InputText.svelte'
+    import LineChart from '../../../lib/common/chart/LineChart.svelte'
+
+	import { getJobs } from '../../../lib/c001v001/job'
+    import { CHT_COLORS } from '../../../lib/c001v001/chart_display'
+    import { Header, validateLngLat, Config, Event, Sample, Report, Section, SectionDataSet, 
+        OP_CODES, MODES, getMode } from '../../../lib/c001v001/models'
+    import { NewPDFChartData, PDF_RGB_COLORS } from "../../../lib/c001v001/components/report/report_pdf"
+    import HeaderCard from '../../../lib/c001v001/components/header/HeaderCard.svelte'
+    import ReportCard from '../../../lib/c001v001/components/report/ReportCard.svelte'
+    import ReportTitle from '../../../lib/c001v001/components/report/ReportTitle.svelte'
+    import BarGaugeCardReport from '../../../lib/c001v001/components/gauge/BarGaugeCardReport.svelte'
+    import ConfigCard from '../../../lib/c001v001/components/config/ConfigCard.svelte'
+    import EventPanelRep from '../../../lib/c001v001/components/event/EventPanelRep.svelte'
 
     import vent_medic_logo from "$lib/images/vent-medic-logo.png"
-
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
     import btn_img_add from "$lib/images/btn-img-add-aqua.svg"
-
     import btn_img_edit_pink from "$lib/images/btn-img-edit-pink.svg"
     import btn_img_edit_green from "$lib/images/btn-img-edit-green.svg"
-    
     import btn_img_add_pink from "$lib/images/btn-img-add-pink.svg"
     import btn_img_add_green from "$lib/images/btn-img-add-green.svg"
     import btn_img_add_aqua from "$lib/images/btn-img-add-aqua.svg"
     import btn_img_add_orange from "$lib/images/btn-img-add-orange.svg"
     import btn_img_add_yellow from "$lib/images/btn-img-add-yellow.svg"
-
-    import PillButton from '$lib/common/button/PillButton.svelte'
-    import InputText from '$lib/common/input_text/InputText.svelte'
-    import LineChart from '$lib/common/chart/LineChart.svelte'
-
-    import HeaderCard from '../../../lib/components/header/HeaderCard.svelte'
-    import ReportCard from '$lib/components/report/ReportCard.svelte'
-    import ReportTitle from '../../../lib/components/report/ReportTitle.svelte'
-    import BarGaugeCardReport from '../../../lib/components/gauge/BarGaugeCardReport.svelte'
-    import ConfigCard from '../../../lib/components/config/ConfigCard.svelte'
-    import EventPanelRep from '../../../lib/components/event/EventPanelRep.svelte'
 
     export let data
     $: JOBS = getContext(  'jobs' )
@@ -64,13 +52,18 @@
             await getJobs( )
         }
     } )
+
+    $: loadingMsg = "Loading..."
     $: loaded = false
     const loadJobData = async( ) => {
-        await job.getJobData( )
-        hdr = job.headers.pop( )
-        if ( job.reports.length > 0 ) { reportSelected( job.reports[0] ) }
-        debug("Header:", hdr)
-        loaded = true
+        let res = await job.getJobData( )
+        if ( res.ok ) {
+            hdr = ( job.headers ? job.headers.pop( ) : new Header( ) )
+            if ( job.reports.length > 0 ) { reportSelected( job.reports[0] ) }
+            loaded = true
+        } else {
+            loadingMsg = res.msg
+        }
     }
 
     /* CAUSES UPDATE ON RELOAD */
@@ -217,7 +210,7 @@
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
             zoom :  5.5,
-            interactive: false,
+            interactive: true,
             preserveDrawingBuffer: true
         } )
         job.s_mark.addTo( map )
@@ -696,151 +689,145 @@
     { #if job }
     <div class="flx-row content">
 
-        <div class="flx-col status">
+        { #if loaded }
 
-            { #if loaded }
-            <div class="flx-col map map-cont">
-                <div class="map-container" use:makeMap />
+            <div class="flx-col status">
+                
+                    <div class="flx-col map map-cont">
+                        <div class="map-container" use:makeMap />
+                    </div>
+
+                    <div class="flx-col">
+                        <HeaderCard bind:hdr />
+                    </div>
+
+                    <div class="flx-row new-rep">
+                        { #if making_report }
+                        
+                            <PillButton 
+                                on:click={ ( ) => { making_report = false } }
+                                img={ btn_img_cancel }
+                                hint={ 'Cancel' } 
+                            />
+
+                            <PillButton 
+                                on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
+                                img={ btn_img_confirm }
+                                hint={ 'Confirm' } 
+                            />
+
+                            <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
+
+                        { :else }
+
+                            <PillButton 
+                                on:click={ ( ) => { making_report = true } }
+                                img={ btn_img_add }
+                                hint={ null } 
+                            />
+
+                            <div class="flx-row new-rep-lbl">New Report</div>
+
+                        { /if }
+                    </div>
+
+                    <div class="flx-col report-list">
+                        { #each job.reports as rep ( rep.rep_id ) }
+                        <ReportTitle 
+                            bind:rep 
+                            on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
+                            on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
+                            on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
+                        />
+                        { /each }
+                    </div>
+
             </div>
-            { /if }
+
+            <div class="flx-col panel">
         
-            <div class="flx-col">
-                <HeaderCard bind:hdr />
-            </div>
-
-            { #if loaded }
-            <div class="flx-row new-rep">
-                { #if making_report }
-                
-                    <PillButton 
-                        on:click={ ( ) => { making_report = false } }
-                        img={ btn_img_cancel }
-                        hint={ 'Cancel' } 
-                    />
-
-                    <PillButton 
-                        on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
-                        img={ btn_img_confirm }
-                        hint={ 'Confirm' } 
-                    />
-
-                    <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
-
-                { :else }
-
-                    <PillButton 
-                        on:click={ ( ) => { making_report = true } }
-                        img={ btn_img_add }
-                        hint={ null } 
-                    />
-
-                    <div class="flx-row new-rep-lbl">New Report</div>
-
-                { /if }
-            </div>
-
-            <div class="flx-col report-list">
-                { #each job.reports as rep ( rep.rep_id ) }
-                <ReportTitle 
-                    bind:rep 
-                    on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
-                    on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
-                    on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
-                />
-                { /each }
-            </div>
-            { /if }
-
-        </div>
-
-        <div class="flx-col panel">
-    
-            { #if !loaded }
-            <div class="flx-row loading">
-                <h1>loading...</h1>
-            </div>
-            { :else }
-
-            <div class="flx-col chart">
-                <LineChart bind:chartdata={ job.cht } />
-            </div>
-            
-            <div class="flx-row controls">
-
-
-                <div class="flx-col rep-sections">
-                    
-                    <ReportCard
-                        bind:job bind:rep 
-                        on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
-                        on:section-selected={ ( e ) => { sectionSelected( e.detail ) } }
-                    />
-
-                </div>
-
-
-                <div class="flx-col control-cont">
-                    <EventPanelRep bind:job bind:cur_evt={evt} bind:evt_code bind:evts 
-                        bind:rep_title={ rep.rep_title }
-                        bind:title={ selected_title }
-                        bind:btn_img_add_evt 
-                        bind:color_code_border
-                        bind:color_code_fg
-                    />
-                </div>
-
-                <div class="flx-col gauge">
-                    <br>
-                    <div class="flx-col">
-                        <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
-                    </div>
-                    <br>
-                    <div class="flx-col">
-                        <ConfigCard bind:cfg />
-                    </div>
+                <div class="flx-col chart">
+                    <LineChart bind:chartdata={ job.cht } />
                 </div>
                 
-                <!-- <div class="flx-col btns">
-    
-                    <PillButton 
-                        on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
-                        img={ btn_img_report }
-                        hint={ 'New Report' } 
-                    />
+                <div class="flx-row controls">
 
-                    <PillButton 
-                        on:click={ ( new_sec.sec_name != "" ? makeSection( cur_rep ) : debug( "enter a section name" ) ) }
-                        img={ btn_img_report }
-                        hint={ 'New Section' } 
-                    />
 
-                    <PillButton 
-                        on:click={ ( ) => { job.newHeader( new_hdr ) } }
-                        img={ btn_img_report }
-                        hint={ 'New Header' } 
-                    />
+                    <div class="flx-col rep-sections">
+                        
+                        <ReportCard
+                            bind:job bind:rep 
+                            on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
+                            on:section-selected={ ( e ) => { sectionSelected( e.detail ) } }
+                        />
 
-                    <PillButton 
-                    on:click={ ( ) => { job.newEvent( cur_evt ) } }
-                        img={ btn_img_report }
-                        hint={ 'New Event' } 
-                    />
+                    </div>
 
-                </div> -->
 
-                <!-- <div class="flx-col txts">
+                    <div class="flx-col control-cont">
+                        <EventPanelRep bind:job bind:cur_evt={evt} bind:evt_code bind:evts 
+                            bind:rep_title={ rep.rep_title }
+                            bind:title={ selected_title }
+                            bind:btn_img_add_evt 
+                            bind:color_code_border
+                            bind:color_code_fg
+                        />
+                    </div>
 
-                    <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
+                    <div class="flx-col gauge">
+                        <br>
+                        <div class="flx-col">
+                            <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
+                        </div>
+                        <br>
+                        <div class="flx-col">
+                            <ConfigCard bind:cfg />
+                        </div>
+                    </div>
                     
-                    <InputText bind:txt={ new_sec.sec_name } place={ "Please enter a section name" } enabled={ true } />
+                    <!-- <div class="flx-col btns">
+        
+                        <PillButton 
+                            on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
+                            img={ btn_img_report }
+                            hint={ 'New Report' } 
+                        />
 
-                </div> -->
+                        <PillButton 
+                            on:click={ ( new_sec.sec_name != "" ? makeSection( cur_rep ) : debug( "enter a section name" ) ) }
+                            img={ btn_img_report }
+                            hint={ 'New Section' } 
+                        />
 
+                        <PillButton 
+                            on:click={ ( ) => { job.newHeader( new_hdr ) } }
+                            img={ btn_img_report }
+                            hint={ 'New Header' } 
+                        />
+
+                        <PillButton 
+                        on:click={ ( ) => { job.newEvent( cur_evt ) } }
+                            img={ btn_img_report }
+                            hint={ 'New Event' } 
+                        />
+
+                    </div> -->
+
+                    <!-- <div class="flx-col txts">
+
+                        <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
+                        
+                        <InputText bind:txt={ new_sec.sec_name } place={ "Please enter a section name" } enabled={ true } />
+
+                    </div> -->
+
+                </div>
+     
             </div>
-            { /if }
-    
 
-        </div>
+        { :else } 
+            <div class="flx-row loading"><h1>{ loadingMsg }</h1></div>
+        { /if }
     
     </div>
     { /if }

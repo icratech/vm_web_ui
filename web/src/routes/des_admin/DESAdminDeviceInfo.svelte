@@ -1,7 +1,11 @@
 <script>
     
-    import { debug, debugging } from '../../lib/des/utils'
-    import { DemoDevice, OP_CODES, Sample } from "../../lib/des_api"
+    import { debugging } from '../../lib/des/app'
+    import { debug } from '../../lib/des/utils'
+
+    import { Sample, OP_CODES } from '../../lib/c001v001/models'
+
+    import { DemoDevice } from "../../lib/des_api"
 
     import PillButton from "../../lib/common/button/PillButton.svelte"
     import DeviceMode from "../device/DeviceMode.svelte"

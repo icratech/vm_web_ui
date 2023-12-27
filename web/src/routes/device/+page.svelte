@@ -2,17 +2,12 @@
 <script>
 
     import { goto } from '$app/navigation'
-    
     import { getContext, onMount } from 'svelte'
-    import { 
-        DESSearchParam, 
-        debug 
-    } from '../../lib/des/utils'
-    import { AUTH } from '../../lib/des/auth'
-    import { 
-        getDevices, 
-        updateDevicesStore,  
-    } from '../../lib/des_api'
+
+    import { debug } from '../../lib/des/utils'
+    import { AUTH, DESSearchParam } from '../../lib/des/api'
+
+    import { getDevices, updateDevicesStore } from '../../lib/c001v001/device'
     
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'

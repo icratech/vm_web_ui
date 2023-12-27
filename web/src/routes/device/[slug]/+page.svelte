@@ -2,17 +2,18 @@
     
     import { getContext, onMount } from 'svelte'
 
-    import { AUTH } from '../../../lib/des/auth'
-    import { getDevices } from '../../../lib/des_api'
-
+    import { AUTH } from '../../../lib/des/api'
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
-    import DeviceInfo from '../DeviceInfo.svelte'
     import Modal from '../../../lib/common/modal/Modal.svelte'
+    
+    import { getDevices } from '../../../lib/c001v001/device'
+    import HeaderPanel from "../../../lib/c001v001/components/header/HeaderPanel.svelte"
+    import ConfigPanel from "../../../lib/c001v001/components/config/ConfigPanel.svelte"
+    import EventPanelOp from "../../../lib/c001v001/components/event/EventPanelOp.svelte"
+
+    import DeviceInfo from '../DeviceInfo.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     import DeviceConn from '../DeviceConn.svelte'
-    import HeaderPanel from "../../../lib/components/header/HeaderPanel.svelte"
-    import ConfigPanel from "../../../lib/components/config/ConfigPanel.svelte"
-    import EventPanelOp from "../../../lib/components/event/EventPanelOp.svelte"
     
     export let data
     $: DEVICES = getContext(  'devices' )

@@ -4,14 +4,13 @@
     import { getContext, onMount } from 'svelte'
     import { goto } from '$app/navigation'
 
-    import { debug, debugging } from '../../lib/des/utils'
-    import { AUTH } from '../../lib/des/auth'
-    import { 
-        getDevices, 
-        DemoDevice, 
-        DEMO_DEVICES, 
-        registerDevice, 
-    } from '../../lib/des_api'
+    import { debugging } from '../../lib/des/app'
+    import { debug } from '../../lib/des/utils'
+    import { AUTH } from '../../lib/des/api'
+
+    import { getDevices, registerDevice } from '../../lib/c001v001/device'
+    
+    import { DemoDevice, DEMO_DEVICES } from '../../lib/des_api'
 
     import DESAdminDeviceCard from './DESAdminDeviceCard.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'

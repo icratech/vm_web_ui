@@ -4,19 +4,20 @@
     import { setContext, onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
-    import { 
-        EVT_TYPES, EVT_TYPES_LOADED, getEventTypes, 
-        DEVICES, DEVICES_LOADED, getDevices, disconnectDevices, 
-		JOBS, JOBS_LOADED, getJobs, 
-    } from '../lib/des_api'
-
     import { debug } from '../lib/des/utils'
     import { 
         AUTH, UserSession, login, logout, terminateUser,
         USERS, USERS_LOADED, getUserList
-    } from '../lib/des/auth'
+    } from '../lib/des/api'
 
-    import TitleBar from './TitleBar.svelte'
+    import { 
+		JOBS, JOBS_LOADED, getJobs,
+        EVT_TYPES, EVT_TYPES_LOADED, getEventTypes,  
+    } from '../lib/c001v001/job'
+
+    import { DEVICES, DEVICES_LOADED, getDevices, disconnectDevices, } from '../lib/c001v001/device'
+
+    import TitleBar from '../lib/des/components/TitleBar.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
     import AlertModal from '../lib/common/modal/AlertModal.svelte'
     import LoginModal from '../lib/common/modal/LoginModal.svelte'
@@ -49,7 +50,7 @@
    
     onMount( async( ) => {
 
-        if ( sessionStorage.getItem( 'des_auth') != 'none' ) { 
+        if ( sessionStorage.getItem( 'des_auth') && sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
             $AUTH.cleanSessionData = cleanUserSession
             await updateUserSession( )
@@ -63,17 +64,6 @@
 
     } )
 
-    const handleLogin = async( ) => { 
-        await login( email, password, cleanUserSession )
-        await updateUserSession( )
-    }
-    const updateUserSession = async( ) => { 
-        // watchJWT( cleanUserSession )
-        await getUserList( )
-        await getEventTypes( )
-        await getDevices( )
-        await getJobs( )
-    }
     const cleanUserSession = async( ) => {
         
         debug( "cleanUserSession( ) -> Start: ", get( AUTH ).user.email )
@@ -103,6 +93,16 @@
         gotoHome( )
         
         debug( "cleanUserSession( ) -> End: ", get( AUTH ).user.email )
+    }
+    const handleLogin = async( ) => { 
+        await login( email, password, cleanUserSession )
+        await updateUserSession( )
+    }
+    const updateUserSession = async( ) => { 
+        await getUserList( )
+        await getEventTypes( )
+        await getDevices( )
+        await getJobs( )
     }
 
     $: page = "";

@@ -1,25 +1,14 @@
 <script>
 
     import { createEventDispatcher } from "svelte"
-    let dispatch = createEventDispatcher( )
+
+    import { Sample } from '../../lib/c001v001/models'
+    import { Device } from "../../lib/c001v001/device"
+    import BarGaugeCard from "../../lib/c001v001/components/gauge/BarGaugeCard.svelte"
+    import HeaderCard from '../../lib/c001v001/components/header/HeaderCard.svelte'
+    import EventCard from "../../lib/c001v001/components/event/EventCard.svelte"
     
     import DeviceMode from "./DeviceMode.svelte"
-    import DeviceConn from "./DeviceConn.svelte"
-    import PillButton from "$lib/common/button/PillButton.svelte"
-    import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
-    import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
-    import EventCard from "../../lib/components/event/EventCard.svelte"
-    
-    import btn_img_gauge from "$lib/images/btn-img-gauge.svg"
-    import btn_img_gauge_aqua from "$lib/images/btn-img-gauge-aqua.svg"
-    import btn_img_gauge_grey from "$lib/images/btn-img-gauge-grey.svg"
-    import btn_img_gauge_red from "$lib/images/btn-img-gauge-red.svg"
-    import btn_img_watch from "$lib/images/btn-img-view.svg"
-    import btn_img_watch_aqua from "$lib/images/btn-img-view-aqua.svg"
-    import btn_img_watch_orange from "$lib/images/btn-img-view-orange.svg"
-    import btn_img_watch_pink from "$lib/images/btn-img-view-pink.svg"
-    
-    import { Device, Sample } from "../../lib/des_api"
     
     export let device = new Device( )
 
@@ -30,13 +19,12 @@
 
     $: active = ( hdr.hdr_job_start != 0 )
 
-    $: socketButtonImage = ( device.socket ? btn_img_watch_orange : btn_img_watch_aqua )
-    $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
     $: highlight = ( device.highlight ? 'highlight' : '' ) 
+
+    let dispatch = createEventDispatcher( )
 
 </script>
 
-<!-- style="width: { ( active ? 100 : 33 ) }%;" -->
 <div class="flx-row container { highlight }"
     on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } 
 >
@@ -53,15 +41,7 @@
             </div>  
 
             <DeviceMode bind:device />
-        
-            <!-- <div class="flx-row btns">
-                <PillButton 
-                    on:click={ ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) } }
-                    img={ socketButtonImage }
-                    hint={ socketButtonText } 
-                />
-            </div> -->
-    
+
         </div>
 
         { #if active }

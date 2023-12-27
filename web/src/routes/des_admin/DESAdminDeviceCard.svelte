@@ -1,5 +1,14 @@
 <script>
 
+    import { createEventDispatcher } from "svelte"
+
+    import { debugging } from '../../lib/des/app'
+    import { debug } from '../../lib/des/utils'
+
+    import { Device } from "../../lib/c001v001/device"
+    
+    import { DemoDevice } from "../../lib/des_api"
+
     import PillButton from "$lib/common/button/PillButton.svelte"
     import InputNum from "$lib/common/input_num/InputNum.svelte"
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
@@ -9,10 +18,6 @@
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
     import btn_img_start_grey from "$lib/images/btn-img-start-grey.svg"
 
-    import { debug, debugging } from '../../lib/des/utils'
-    import { DemoDevice, Device } from "../../lib/des_api"
-
-    import { createEventDispatcher } from "svelte"
     let dispatch = createEventDispatcher( )
 
     export let device = new Device( )

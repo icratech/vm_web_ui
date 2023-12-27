@@ -2,18 +2,12 @@
 <script>
 
     import { goto } from '$app/navigation'
-
     import { getContext, onMount } from 'svelte'
 
-    import { 
-        DESSearchParam, 
-        debug
-    } from '../../lib/des/utils'
-    import { AUTH } from '../../lib/des/auth'
-    import { 
-		getJobs, 
-        updateJobsStore,  
-    } from '../../lib/des_api'
+    import { debug } from '../../lib/des/utils'
+    import { AUTH, DESSearchParam } from '../../lib/des/api'
+    
+    import { getJobs, updateJobsStore } from "../../lib/c001v001/job"
 
     import JobSearch from './JobSearch.svelte'
     import JobCard from './JobCard.svelte'

@@ -1,39 +1,26 @@
 <script>
 
     import { createEventDispatcher } from 'svelte'
-    const dispatch = createEventDispatcher( )
 
     import { debug } from '../../lib/des/utils'
-    import { Device, OP_CODES, Sample, validateLngLat } from "../../lib/des_api"
+    import PillButton from '../../lib/common/button/PillButton.svelte'
+
+    import { Sample, validateLngLat, OP_CODES } from '../../lib/c001v001/models'
+    import { Device } from "../../lib/c001v001/device"
+    import BarGaugeCard from "../../lib/c001v001/components/gauge/BarGaugeCard.svelte"
 
     import DeviceMode from "./DeviceMode.svelte"
-    import HeaderCard from '../../lib/components/header/HeaderCard.svelte'
-    import DeviceConn from './DeviceConn.svelte'
-    import ConfigCard from '../../lib/components/config/ConfigCard.svelte'
-    import BarGaugeCard from "../../lib/components/gauge/BarGaugeCard.svelte"
-    
-    import PillButton from '../../lib/common/button/PillButton.svelte'
+
     import btn_img_default from "$lib/images/btn-img-default.svg"
-
-    import btn_img_start from "$lib/images/btn-img-start.svg"
     import btn_img_start_green from "$lib/images/btn-img-start-green.svg"
-    import btn_img_start_grey from "$lib/images/btn-img-start-grey.svg"
-
-    // import btn_img_cmd from "$lib/images/btn-img-cmd.svg"
     import btn_img_cmd_pink from "$lib/images/btn-img-cmd-pink.svg"
-    import btn_img_cmd_orange from "$lib/images/btn-img-cmd-orange.svg"
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
-
-    import btn_img_stop from "$lib/images/btn-img-stop.svg"
     import btn_img_stop_red from "$lib/images/btn-img-stop-red.svg"
-    import btn_img_stop_grey from "$lib/images/btn-img-stop-grey.svg"
-
-    import btn_img_watch from "$lib/images/btn-img-view.svg"
     import btn_img_watch_aqua from "$lib/images/btn-img-view-aqua.svg"
     import btn_img_watch_orange from "$lib/images/btn-img-view-orange.svg"
-    import btn_img_watch_pink from "$lib/images/btn-img-view-pink.svg"
     
-    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
+    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
+    import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
     export let device = new Device( )
@@ -103,9 +90,11 @@
         device.mark.addTo( map )
         device.updateDevicePageMap = ( act, lng, lat ) => { 
             device.mark.setLngLat( validateLngLat( lng, lat ) )
-            map.easeTo( { center: [ lng, lat ], zoom: ( act ? 5.5 : 1 ), duration: 2500 } ) 
+            map.easeTo( { center: validateLngLat( lng, lat ), zoom: ( act ? 5.5 : 1 ), duration: 2500 } ) 
         }
     }
+
+    const dispatch = createEventDispatcher( )
 
 </script>
 

@@ -2,12 +2,12 @@
 <script>
 
     import { onMount } from 'svelte'
-    
-    import HeaderBuilder from '../../lib/components/header/HeaderBuilder.svelte'
-    import ConfigBuilder from '../../lib/components/config/ConfigBuilder.svelte'
 
     import { debug } from '../../lib/des/utils'
-    import { Device } from '../../lib/des_api'
+    
+    import { Device } from '../../lib/c001v001/device'
+    import HeaderBuilder from '../../lib/c001v001/components/header/HeaderBuilder.svelte'
+    import ConfigBuilder from '../../lib/c001v001/components/config/ConfigBuilder.svelte'
 
     export let device = new Device( )
 

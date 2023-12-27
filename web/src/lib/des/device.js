@@ -12,18 +12,9 @@ License:
 	2. Prohibits <Third Party> from taking any action which might interfere with DataCan's right to use, modify and / or distributre this software in perpetuity.
 */
 
-import { writable, get } from 'svelte/store'
-import { 
-    AUTH, 
-    getRequest, getRequestAuth,
-    postRequest, postRequestAuth, 
-} from './auth'
-import { 
-    HTTP_SERVER, 
-    ALERT_CODES, alert, 
-    debug 
-} from './utils'
-
+import { HTTP_SERVER } from './app'
+import { ALERT_CODES, alert, debug } from './utils'
+import { postRequestAuth } from './api'
 
 export const API_URL_DEVICE_VALIDATE_SERIAL =  `${ HTTP_SERVER }/api/device/validate_serial`
 
@@ -61,3 +52,27 @@ export const formatSerialNumber = ( txt ) => {
     }
     return txt
 }
+
+/* NOT IMPLEMENTED */
+export const removeDevice = async( serial ) => {
+
+    /* 
+    GET 
+    DELETE 
+        JobSearches ( des_job_searches.des_job_key = des_jobs.des_job_id )
+        Jobs ( des_jobs.des_job_dev_id = des_devs.des_dev_id )
+        Device 
+    */
+
+}
+
+/* USED TO VALIDATE MEASURED VALUES RECEIVED FROM THE DEVICE
+    WHERE THE VALUE IS ONE OF THE ERROR VALUES, NULL IS RETURNED 
+    - VALUE -999.25 => 'NOT MEASURED ( INTENTIONALLY )'
+    - VALUE -9999.25 => 'MEASUREMENT FAILED'
+*/
+export const validateMeasuredValue = ( val ) => {
+    val = ( val === -999.25 || val === -9999.25 ? null : val )
+    return val
+}
+

@@ -1,28 +1,25 @@
 <script>
 
-    import { onMount, getContext } from 'svelte'
-    const DEVICES = getContext(  'devices' )
-    const DEVICES_LOADED = getContext(  'devices_loaded' )
+    import { onMount, getContext, createEventDispatcher } from 'svelte'
 
-    import { createEventDispatcher } from 'svelte';
-
-    import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
+    import { debug } from '../../lib/des/utils'
+    import { DESSearchParam } from '../../lib/des/api'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
-    
-    import { 
-        DESSearchParam, 
-        debug 
-    } from '../../lib/des/utils'
 
-    import { validateLngLat } from "../../lib/des_api";
+    import { validateLngLat } from '../../lib/c001v001/models'
  
-    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // import 'mapbox-gl/dist/mapbox-gl.css'
+    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
+    import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
     
-    export let search = new DESSearchParam( )
-    const dispatch = createEventDispatcher( )
+    import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
 
+    export let search = new DESSearchParam( )
+
+    const DEVICES = getContext(  'devices' )
+    const DEVICES_LOADED = getContext(  'devices_loaded' )
+    
     $: zoom = 2.3
     $: origin = [ -110, 65 ]
     onMount( ( ) => {
@@ -67,6 +64,8 @@
         
     }
 
+    const dispatch = createEventDispatcher( )
+    
 </script>
 
 <div class="flx-col container">
