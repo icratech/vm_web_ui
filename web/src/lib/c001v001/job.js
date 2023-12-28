@@ -73,8 +73,9 @@ export const getJobs = async( ) => {
             alert( ALERT_CODES.ERROR, res.err )
     }
     else {
-            let jobs = res.json.data.jobs // debug( "getJobs( ) -> response:\n", jobs )
-    
+            let jobs = ( res.json.data.jobs === null ? [ ] : res.json.data.jobs ) 
+            // debug( "c001v001/job.js -> getJobs( ) -> response:\n", jobs )
+
             jobs.forEach( j => {
                 if ( get( JOBS ).filter( s =>{ return s.reg.des_job_name == j.reg.des_job_name } )[0] == undefined ) {
                     let job = new Job(
@@ -159,7 +160,7 @@ export class Job {
     connectWS = async( ) => {
         
         let au = get( AUTH )
-        // debug( `class Job -> ${ this.reg..des_job_name } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
+        // debug( `c001v001/job.js -> class Job -> ${ this.reg..des_job_name } -> connectWS( ) -> AUTH\n${ JSON.stringify( au )  }\n` )
 
         let reg = encodeURIComponent(JSON.stringify( this.reg ) )
         let url = `${ API_URL_C001_V001_JOB_USER_WS }?access_token=${ au.acc_token }&des_reg=${ reg }`
@@ -167,13 +168,13 @@ export class Job {
         ws.onopen = ( e ) => {  
             this.socket = true
             updateJobsStore( )
-            // debug( `class Job -> ${ this.reg.des_job_name } -> WebSocket OPEN` ) 
+            // debug( `c001v001/job.js -> c001v001/job.js -> class Job -> ${ this.reg.des_job_name } -> WebSocket OPEN` ) 
         }
         ws.onerror = ( e ) => { 
             ws.close( )
             this.socket = false
             updateJobsStore( )
-            // debug( `class Job -> ${ this.reg.des_job_name } -> ws.onerror ERROR\n${ JSON.stringify( e )  }\n` ) 
+            // debug( `c001v001/job.js -> class Job -> ${ this.reg.des_job_name } -> ws.onerror ERROR\n${ JSON.stringify( e )  }\n` ) 
         }
         ws.onmessage = ( e ) => {
 
@@ -191,19 +192,21 @@ export class Job {
                 case "sscvf": break
 
                 default: 
-                    debug( `class Job -> ${ this.reg.des_job_name } ONMESSAGE: Type unknown:\n${ e.data }\n` )
+                    debug( `c001v001/job.js -> class Job -> ${ this.reg.des_job_name } ONMESSAGE: Type unknown:\n${ e.data }\n` )
                     break
             }
             
-            // debug( `class Job -> ${ this.reg.des_job_name } ONMESSAGE:\n`, msg.data )
+            // debug( `c001v001/job.js -> class Job -> ${ this.reg.des_job_name } ONMESSAGE:\n`, msg.data )
             updateJobsStore( )
         }
         this.disconnectWS =  async( ) => {
-            ws.send( "close" )
-            ws.close( ) 
-            debug( `class Job -> ${ this.reg.des_job_name } -> WebSocket CLOSED` ) 
+            if ( ws && ws.readyState !== WebSocket.CLOSED && ws.readyState !== WebSocket.CLOSING ) {
+                ws.send( "close" )
+                ws.close( ) 
+            }
             this.socket = false
             updateJobsStore( )
+            debug( `c001v001/job.js -> class Job -> ${ this.reg.des_job_name } -> WebSocket CLOSED` ) 
         }
         await waitMilli(1000)
 
@@ -220,7 +223,7 @@ export class Job {
             return { ok: false, msg: res.err }
 
         else {
-            let j = res.json.data.job
+            let j = res.json.job
             this.admins = j.admins
             this.states = j.states
             this.headers = j.headers

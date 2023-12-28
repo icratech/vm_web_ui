@@ -8,6 +8,7 @@ import { ALERT_CODES, alert, waitMilli, debug } from '../des/utils'
 import { AUTH, getRequestAuth, postRequestAuth, wsConnectionAuth, 
     refreshJWT, DESRegistration, Ping } from '../des/api'
 import { validateMeasuredValue, validateSerialNumber } from '../des/device'
+import { FormatDateTime } from '../common/format'
 
 import { newChartData, CHT_DATASET_INDEX } from './chart_display'
 import { 
@@ -78,16 +79,18 @@ export const registerDevice = async( serial ) => {
     reg.des_dev_serial = serial
     reg.des_dev_reg_user_id = au.user.id
     reg.des_dev_reg_app = client_app
-    debug("c001v001/device.js -> registerDevice( ) -> REQUEST reg:\n", reg )
 
-    let res = await postRequestAuth( API_URL_C001_V001_DEVICE_REGISTER, reg )
+    let dev = { reg: reg } // debug("c001v001/device.js -> registerDevice( ) -> REQUEST dev:\n", dev )
+
+    let res = await postRequestAuth( API_URL_C001_V001_DEVICE_REGISTER, dev )
 
     if ( res.err !== null ) 
         alert( ALERT_CODES.ERROR, res.err )
     
-    else {
-        alert( ALERT_CODES.SUCCESS, res.json.message )
-    }
+    else 
+        // debug("registerDevice( ): ", res.json)
+        alert( ALERT_CODES.SUCCESS, `${ res.json.device.reg.des_dev_serial } registered.` )
+    
 
     await getDevices( )
 }
@@ -100,7 +103,7 @@ export const getDevices = async( ) => {
             alert( ALERT_CODES.ERROR, res.err )
     }
     else {
-        let devs = res.json.data.devices  // debug( "c001v001/device.js -> getDevices( ) -> response:\n", devs )
+        let devs = ( res.json.devices === null ? [ ] : res.json.devices )  // debug( "c001v001/device.js -> getDevices( ) -> response:\n", devs )
         devs.forEach( dev => {
             if( get( DEVICES ).filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
                 let device = new Device(
@@ -362,7 +365,7 @@ export class Device {
         let dev = { reg : this.reg }
         let res = await wsConnectionAuth( API_URL_C001_V001_DEVICE_USER_WS, "device", dev )
         if ( res.err !== null ) 
-            alert( ALERT_CODES.ERROR, `WebSocket connection failed:  ${ res.err }` )
+            alert( ALERT_CODES.ERROR, `${ this.reg.des_dev_serial } WebSocket connection failed:  ${ res.err }` )
         else {
             res.ws.onopen = ( e ) => {  
                 this.socket = true
@@ -373,7 +376,7 @@ export class Device {
                 res.ws.close( )
                 this.socket = false
                 updateDevicesStore( )
-                // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> ws.onerror ERROR\n${ JSON.stringify( e )  }\n` ) 
+                // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> ws.onerror ERROR: ${ JSON.stringify( e )  }\n` ) 
             }
             res.ws.onmessage = async( e ) => {
     
@@ -381,7 +384,7 @@ export class Device {
                 switch ( msg.type ) {
                 
                     case "start":
-                        debug("new job start received: ", msg.data)
+                        // debug("new job start received: ", msg.data)
                         this.adm = msg.data.adm
     
                         this.sta = msg.data.sta
@@ -406,7 +409,7 @@ export class Device {
                         break
     
                     case "end_sig":
-                        debug("new end received from device: ", msg.data)
+                        // debug("new end received from device: ", msg.data)
                         
                         this.smp = new Sample( )
                         this.resetChart( )
@@ -414,7 +417,7 @@ export class Device {
                         break    
                     
                     case "end_cmd":
-                        debug("new end received from other user: ", msg.data)
+                        // debug("new end received from other user: ", msg.data)
                         this.sta.sta_logging = msg.data.evt_code
                         break    
                         
@@ -435,19 +438,19 @@ export class Device {
     
                     case "state":
                         this.sta = msg.data
-                        // debug("new state received from device: ", this.sta)
                         this.reg.des_job_name = this.sta.sta_job_name
+                        // debug("new state received from device: ", this.sta)
                         break
         
                     case "header":
                         this.hdr = msg.data
-                        // debug("new header received from device: ", this.hdr)
                         this.reg.des_job_start = this.hdr.hdr_job_start
                         this.reg.des_job_end = this.hdr.hdr_job_end
                         this.reg.des_job_lng = this.hdr.hdr_geo_lng 
                         this.reg.des_job_lat = this.hdr.hdr_geo_lat
                         this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
                         this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
+                        // debug("new header received from device: ", this.hdr)
                         break
     
                     case "config":
@@ -488,14 +491,11 @@ export class Device {
                         this.updateChartData( )
                         break
     
-                    case "live": 
-                        await refreshJWT( )
-                        break
+                    case "live": break
     
                     case "auth":
-                        let auth = msg.data
-                        if ( auth.status === "fail" && this.socket ) { this.disconnectWS( ) }
-                        // debug( "new auth message received from device: ", auth.message ) 
+                        if ( this.socket ) { this.disconnectWS( ) }
+                        debug( "new auth message received from device: ", msg.data ) 
                         break
     
                     case "msg_limit":
@@ -505,7 +505,7 @@ export class Device {
                         break
         
                     default: 
-                        debug( `class Device -> ${ this.reg.des_dev_serial } ONMESSAGE: Type unknown:\n${ e.data }\n` )
+                        debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> ONMESSAGE: Type unknown: ${ e.data }\n` )
                         break
                 }
                 
@@ -513,12 +513,16 @@ export class Device {
                 updateDevicesStore( )
             } 
             this.disconnectWS =  async( ) => {
-                res.ws.send( "close" )
-                res.ws.close( ) 
-                debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
+                if ( res.ws && res.ws.readyState !== WebSocket.CLOSED && res.ws.readyState !== WebSocket.CLOSING ) {
+                    res.ws.send( "close" )
+                    res.ws.close( ) 
+                }
                 this.socket = false
                 this.highlight = false
+                this.ping = new Ping( )
+                this.des_ping = new Ping( )
                 updateDevicesStore( )
+                debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
             }
             await waitMilli(1000)
         }
@@ -600,6 +604,8 @@ export class Device {
 
         if ( res.err !== null )  
             alert( ALERT_CODES.ERROR, res.err )
+        // else 
+        //     debug( `Admin sent to device ${ this.reg.des_dev_serial }: `, res.json )
 
     }
     setState = async( ) => {
@@ -624,8 +630,8 @@ export class Device {
 
         if ( res.err !== null )  
             alert( ALERT_CODES.ERROR, res.err )
-        else
-            debug( `new State from device ${ this.reg.des_dev_serial }: `, res.json )
+        // else 
+        //     debug( `State sent to device ${ this.reg.des_dev_serial }: `, res.json )
 
     }
     setHeader = async( ) => {
@@ -650,6 +656,8 @@ export class Device {
 
         if ( res.err !== null )  
             alert( ALERT_CODES.ERROR, res.err )
+        // else 
+        //     debug( `Header sent to device ${ this.reg.des_dev_serial }: `, res.json )
 
     }
     setConfig = async( ) => { 
@@ -675,6 +683,8 @@ export class Device {
 
         if ( res.err !== null )  
             alert( ALERT_CODES.ERROR, res.err )
+        // else 
+        //     debug( `Config sent to device ${ this.reg.des_dev_serial }: `, res.json )
 
     }
     setMode = ( mode ) => {
@@ -704,6 +714,8 @@ export class Device {
 
         if ( res.err !== null )  
             alert( ALERT_CODES.ERROR, res.err )
+        // else 
+        //     debug( `Event sent to device ${ this.reg.des_dev_serial }: `, res.json )
 
     }
     getActiveJobEvents = async( ) => {
@@ -713,7 +725,8 @@ export class Device {
         
         // if ( !this.socket ) { await this.connectWS( ) }
         
-        let dev = { reg: this.reg } // debug( "Send GET ACTIVE JOB EVENTS Request:\n", dev )
+        let dev = { reg: this.reg } 
+        // debug( "Send GET ACTIVE JOB EVENTS Request:\n", dev )
 
         let res = await postRequestAuth( API_URL_C001_V001_DEVICE_JOB_EVTS, dev )
 
@@ -721,19 +734,16 @@ export class Device {
             alert( ALERT_CODES.ERROR, res.err )
         
         else 
-            this.job_evts = res.json.data.events
-          
-        if ( this.job_evts === null ) 
-            this.job_evts = [ ] 
+            this.job_evts = ( res.json.events  === null ? [ ] : res.json.events )
 
-        // debug( "ACTIVE JOB EVENTS: ", this.job_evts.length )
+        debug( "ACTIVE JOB EVENTS: ", this.job_evts.length )
     }
 
     /* HTTP METHODS ( DES_ADMIN ) *************************************************************/
-    connectDESClient = async( ) => {
+    refreshDESClient = async( ) => {
         // debug( "Connect DES Client: ", this.reg.des_dev_serial ) 
-        this.des_ping.time = 0
-        this.des_ping.ok = false
+        // alert( ALERT_CODES.WARNING, "Device may require upto 30 seconds to connect.")
+        this.des_ping = new Ping( )
 
         let au = get( AUTH )
         
@@ -749,7 +759,7 @@ export class Device {
             alert( ALERT_CODES.ERROR, res.err )
             return false
         } else {
-            let d = res.json.data.device // debug("c001v001/device.js -> device.connectDESClient( ) ->  SUCCESS device: ", d )
+            let d = res.json.device // debug("c001v001/device.js -> device.connectDESClient( ) ->  SUCCESS device: ", d )
             this.adm = d.adm
             this.sta = d.sta
             this.hdr = d.hdr

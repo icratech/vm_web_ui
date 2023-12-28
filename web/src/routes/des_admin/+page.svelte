@@ -22,10 +22,10 @@
 
     onMount( async( ) => { 
 
-        if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await getDevices( )
-        }
+        // if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+        //     AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+        //     await getDevices( )
+        // }
 
         // debug( "/demo/+page.svelte -> onMount( ) -> $DEVICES: ", $DEVICES )
         $DEVICES.forEach( dev =>{

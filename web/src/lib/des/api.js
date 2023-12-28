@@ -15,7 +15,7 @@ License:
 import { writable, get } from 'svelte/store'
 import { goto } from '$app/navigation'
 
-import { HTTP_SERVER, client_app } from './app'
+import { HTTP_SERVER, WS_SERVER, client_app } from './app'
 import { ALERT_CODES, alert, debug } from './utils'
 
 
@@ -34,6 +34,9 @@ export class UserSession {
         this.user = user
         this.logged_in = logged_in
         this.cleanSessionData = func
+        
+        /* WEB SOCKET CONNECTION STATUS */
+        this.socket = false
     }
 }
 
@@ -72,6 +75,7 @@ export class UserSignUp {
 }
 
 export const AUTH = writable( new UserSession( ) )
+export const updateUserSession = async( ) => { AUTH.update( ( ) => { return get( AUTH ) } ) }
 
 /* HANDLES NON-AUTHORIZED GET REQUESTS */
 export const getRequest = async( url ) => {
@@ -80,7 +84,7 @@ export const getRequest = async( url ) => {
     let req = new Request( url, { method: 'GET' } )
     let res = await fetch( req )
     if ( !res.ok ) 
-        out.err = res.statusText 
+        out.err = await res.text() 
     else 
         out.json = await res.json( ) 
 
@@ -100,7 +104,7 @@ export const getRequestAuth = async( url ) => {
         } )
         let res = await fetch( req )
         if ( !res.ok ) 
-            out.err = res.statusText 
+            out.err = await res.text() 
         else 
             out.json = await res.json( ) 
 
@@ -123,7 +127,7 @@ export const postRequest = async( url, obj ) => {
     } )
     let res = await fetch( req )
     if ( !res.ok ) 
-        out.err = res.statusText 
+        out.err = await res.text() 
     else 
         out.json = await res.json( ) 
 
@@ -146,10 +150,12 @@ export const postRequestAuth = async( url, obj ) => {
             body: JSON.stringify( obj )
         } )
         let res = await fetch( req )
-        if ( !res.ok ) 
+        if ( !res.ok ) {
             out.err = await res.text() 
-        else 
-            out.json = await res.json( )  
+            // debug("des/api.js -> postRequestAuth( ) -> !res.ok", out)
+        } else 
+            out.json = await res.json( )
+ 
 
     } else {
         out.err = ref.err
@@ -157,6 +163,7 @@ export const postRequestAuth = async( url, obj ) => {
     return out
 }
 
+/* HANDLES AUTHORIZED WEBSOCKET REQUESTS -> CALLS JWT REFRESH IF NECESSARY */
 export const wsConnectionAuth = async( url, key, obj ) => {
     debug( "des/api.js -> wsConnectionAuth( ) -> url: ", url)
     let out = { err: null, ws: null }
@@ -206,21 +213,17 @@ export const refreshJWT = async( ) => {
     } )
     let res = await fetch( req )
 
-    if ( !res.ok ) {      
-        debug( "des/api.js -> refreshJWT( ) -> NOT OK -> out.err: ", out.err )  
-        out.err = res.statusText  
+    if ( !res.ok ) {       
+        out.err = await res.text() 
         logout( )
+        debug( "des/api.js -> refreshJWT( ) -> NOT OK -> out.err: ", out.err ) 
     } else { 
-
         let json = await res.json( )
-        
-        if ( json.status === "success" ) { 
-            au.acc_token = json.user_session.acc_token
-            AUTH.set( au )
-            sessionStorage.setItem( 'des_auth', JSON.stringify( au ), { path: '/' } )
-            out.ok = true
-            debug( "des/api.js -> refreshJWT( ) -> OK -> acc_token.exp: ", parseJWT( json.user_session.acc_token ).exp )
-        } 
+        au.acc_token = json.user_session.acc_token
+        AUTH.set( au )
+        sessionStorage.setItem( 'des_auth', JSON.stringify( au ), { path: '/' } )
+        out.ok = true
+        debug( "des/api.js -> refreshJWT( ) -> OK -> acc_token.exp: ", parseJWT( au.acc_token ).exp )
     }
     return out
 
@@ -239,13 +242,16 @@ export const parseJWT = ( token ) => {
 }
 
 
-/* DES API USER */
-export const API_URL_USER_REGISTER =  `${ HTTP_SERVER }/api/user/register`
-export const API_URL_USER_LOGIN = `${ HTTP_SERVER }/api/user/login`
-export const API_URL_USER_REFRESH = `${ HTTP_SERVER }/api/user/refresh`
-export const API_URL_USER_TERMINATE = `${ HTTP_SERVER }/api/user/terminate`
-export const API_URL_USER_LOGOUT = `${ HTTP_SERVER }/api/user/logout`
-export const API_URL_USER_LIST =  `${ HTTP_SERVER }/api/user/list`
+/* DES USER API ROUTES *******************************************************************************/
+export const API_URL_USER_WS = `${ WS_SERVER }/api/user/ws`
+
+export const API_URL_USER = `${ HTTP_SERVER }/api/user`
+export const API_URL_USER_REGISTER = `${ API_URL_USER }/register`
+export const API_URL_USER_LOGIN = `${ API_URL_USER }/login`
+export const API_URL_USER_REFRESH = `${ API_URL_USER }/refresh`
+export const API_URL_USER_TERMINATE = `${ API_URL_USER }/terminate`
+export const API_URL_USER_LOGOUT = `${ API_URL_USER }/logout`
+export const API_URL_USER_LIST =  `${ API_URL_USER }/list`
 
 export const ROLES = {
     SUPER: "super",
@@ -253,6 +259,37 @@ export const ROLES = {
     OPERATOR: "operator",
     USER: "user",
     DEVICE: "device",
+}
+export class RoleCheck {
+    isSuper = ( role ) => {
+        return ( role === ROLES.SUPER ? true : false )
+    }
+    isAdmin = ( role ) => {
+        return ( 
+            role === ROLES.SUPER || 
+            role === ROLES.ADMIN 
+            ? true : false 
+        )
+    }
+    isOperator = ( role ) => {
+        return ( 
+            role === ROLES.SUPER || 
+            role === ROLES.ADMIN || 
+            role === ROLES.OPERATOR 
+            ? true : false 
+        )
+    }
+    isUser = ( role ) => {
+        return ( 
+            role === ROLES.SUPER || 
+            role === ROLES.ADMIN || 
+            role === ROLES.OPERATOR 
+            ? true : false 
+            )
+    }
+    isDevice = ( role ) => {
+        return ( role === ROLES.DEVICE ? true : false )
+    }
 }
 
 export const registerUser = async( usu ) => {
@@ -271,17 +308,18 @@ export const login = async( email, password, cleanSessionData = ( ) => { } ) => 
     if ( res.err !== null ) 
         alert( ALERT_CODES.ERROR, res.err )
     else {
+        let rus = res.json.user_session
         let us = new UserSession(
-            res.json.user_session.sid, 
-            res.json.user_session.ref_token,
-            res.json.user_session.acc_token, 
+            rus.sid, 
+            rus.ref_token,
+            rus.acc_token, 
             new User( 
-                res.json.user_session.user.id,
-                res.json.user_session.user.name,
-                res.json.user_session.user.email,
-                res.json.user_session.user.role,
-                res.json.user_session.user.created_at,
-                res.json.user_session.user.updated_at
+                rus.user.id,
+                rus.user.name,
+                rus.user.email,
+                rus.user.role,
+                rus.user.created_at,
+                rus.user.updated_at
             ),
             true,
             cleanSessionData
@@ -293,28 +331,27 @@ export const login = async( email, password, cleanSessionData = ( ) => { } ) => 
 }
 
 /* AUTHORIZED POST REQUESTS ****************************************************/
-export const logout = async( ) => { // debug( "des/api.js -> logout( )" )
+export const logout = async( ) => { 
+    // debug( "des/api.js -> logout( )" )
+    
     let au = get( AUTH ) 
     let res = await postRequestAuth( API_URL_USER_LOGOUT, au )
-    if ( res.err !== null ) {
-        if ( res.err !== 'Unauthorized' )
-            alert( ALERT_CODES.ERROR, res.err )
-    }
-    else {
+    if ( res.err !== null ) 
+        alert( ALERT_CODES.ERROR, res.err )
+    else
         alert( ALERT_CODES.SUCCESS, res.json.message )
-    }
-
-    /* ENSURE WE CLEAR THE SESSION DATA EVENT IF THERE SERVER IS DEAD */
+    
+    /* ENSURE WE CLEAR THE SESSION DATA EVENT IF THE SERVER IS DEAD */
     if ( au.cleanSessionData )
         au.cleanSessionData( )
-    else { // debug( "Default clean user session" )
+    else { 
         sessionStorage.setItem( 'des_auth', 'none', { path: '/' } )
         AUTH.set( new UserSession( ) )
         goto( '/' )
     }
 }
 export const terminateUser = async( user ) => {
-    debug( "des/api.js -> terminateUser( ) -> REQUEST -> user: ", user.email )
+    // debug( "des/api.js -> terminateUser( ) -> REQUEST -> user: ", user.email )
 
     let  res = await postRequestAuth( API_URL_USER_TERMINATE, user )
     if ( res.err !== null ) {
@@ -340,7 +377,7 @@ export const getUserList = async( ) => {
         alert( ALERT_CODES.ERROR, res.err )
 
     else {
-        let users = res.json.data.users  // debug( "des/api.js -> getUserList( ) -> response:\n", users )
+        let users = ( res.json.users === null ? [ ] : res.json.users ) // debug( "des/api.js -> getUserList( ) -> response:\n", users )
         users.forEach( usr => { 
             if( get( USERS ).filter( u => { return u.email == usr.email } )[0] == undefined ) {
                 let user = new User(

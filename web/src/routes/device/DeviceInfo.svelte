@@ -10,14 +10,15 @@
     import BarGaugeCard from "../../lib/c001v001/components/gauge/BarGaugeCard.svelte"
 
     import DeviceMode from "./DeviceMode.svelte"
+    import DeviceConn from "./DeviceConn.svelte"
 
     import btn_img_default from "$lib/images/btn-img-default.svg"
     import btn_img_start_green from "$lib/images/btn-img-start-green.svg"
     import btn_img_cmd_pink from "$lib/images/btn-img-cmd-pink.svg"
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
     import btn_img_stop_red from "$lib/images/btn-img-stop-red.svg"
-    import btn_img_watch_aqua from "$lib/images/btn-img-view-aqua.svg"
-    import btn_img_watch_orange from "$lib/images/btn-img-view-orange.svg"
+    import btn_img_disconnected_red from "$lib/images/btn-img-disconnect-red.svg"
+    import btn_img_connected_orange from "$lib/images/btn-img-connect-orange.svg"
     
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
     import 'mapbox-gl/dist/mapbox-gl.css'
@@ -73,8 +74,8 @@
         }
     }
 
-    $: socketButtonImage = ( device.socket ? btn_img_watch_orange : btn_img_watch_aqua )
-    $: socketButtonText = ( device.socket ? 'Disconnect' : 'Watch Job' )
+    $: socketButtonImage = ( device.socket ? btn_img_connected_orange : btn_img_disconnected_red )
+    $: socketButtonText = ( device.socket ? 'Disconnect' : 'Connect' )
     $: socketButtonFunc =  ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) }
     
     const makeMap = ( ctx ) => {
@@ -133,6 +134,9 @@
 
         </div>  
 
+        <div class="flx-col conn">
+            <DeviceConn bind:device />
+        </div>
         <div class="flx-col gauge">
             <BarGaugeCard bind:cfg bind:smp/>
         </div>
@@ -197,6 +201,11 @@
         align-items: center; 
         width: auto;
         gap: 1em;
+    }
+
+    .conn {
+        padding-right: 0.5em;
+        padding-bottom: 0.5em;
     }
 
     .map {

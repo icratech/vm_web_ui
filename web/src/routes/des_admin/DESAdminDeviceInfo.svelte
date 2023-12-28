@@ -26,35 +26,24 @@
     $: DESDevConnColor = 'bg-accent'
     $: DESDevConnHint = 'DES Client OK'
     $: DESDevConnImage = btn_img_confirm 
-    $: DESDevConnFucn = ( ) => { 
+    const DESDevConnFucn = ( ) => { 
             device.dev.des_ping.time = 0
             device.dev.des_ping.ok = false
-            device.dev.connectDESClient( )
+            device.dev.refreshDESClient( )
         }
     $: {
         if ( !device.dev.des_ping.ok ) { 
             DESDevConnColor = 'bg-yellow' 
             DESDevConnHint = 'DES Connecting...'
             DESDevConnImage = btn_img_cmd
-            DESDevConnFucn = ( ) => { 
-                device.dev.des_ping.time = 0
-                device.dev.des_ping.ok = false
-                device.dev.connectDESClient( )
-            }
         } else if ( !device.dev.ping.ok ) { 
             DESDevConnColor = 'bg-grey' 
             DESDevConnHint = 'Reset DES Client'
             DESDevConnImage = btn_img_reset
-            DESDevConnFucn = ( ) => { 
-                device.dev.des_ping.time = 0
-                device.dev.des_ping.ok = false
-                device.dev.connectDESClient( )
-            }
         } else { 
             DESDevConnColor = 'bg-accent' 
             DESDevConnHint = 'DES Client OK'
             DESDevConnImage = btn_img_confirm
-            DESDevConnFucn = ( ) => { }
         }
     }
 
@@ -126,7 +115,7 @@
     .title-bar {
         justify-content: space-between;
         align-items: center;
-        padding-bottom: 0.5em;
+        /* padding-bottom: 0.5em; */
     }
     
     .ser-cont { 

@@ -4,10 +4,11 @@
     import { setContext, onMount } from 'svelte';
     import { goto } from '$app/navigation'
 
-    import { debug } from '../lib/des/utils'
+    import { ALERT_CODES, alert, waitMilli, debug } from '../lib/des/utils'
     import { 
-        AUTH, UserSession, login, logout, terminateUser,
-        USERS, USERS_LOADED, getUserList
+        AUTH, UserSession, login, logout, terminateUser, refreshJWT,
+        API_URL_USER_WS, wsConnectionAuth, updateUserSession,
+        USERS, USERS_LOADED, getUserList, RoleCheck
     } from '../lib/des/api'
 
     import { 
@@ -35,6 +36,8 @@
     import btn_img_cmd_red from "$lib/images/btn-img-cmd-red.svg"
 	import { get } from 'svelte/store';
 
+    const role = new RoleCheck( )
+
     setContext( 'users', USERS )
     setContext( 'users_loaded', USERS_LOADED )
 
@@ -52,26 +55,36 @@
 
         if ( sessionStorage.getItem( 'des_auth') && sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            $AUTH.cleanSessionData = cleanUserSession
-            await updateUserSession( )
+            $AUTH.cleanSessionData = cleanSessionData
+            await updateSessionData( )
         } 
+
+        if ( $AUTH && $AUTH.logged_in ) {
+            await connectWS( )
+        }
 
         /* INCASE WEBSOCKETS WERE OPEN, CLOSE THEM; 
         CAUSES THE SERVER TO UNSUBSCRIBE THIS DEVICE USER'S MQTT CLIENT FROM ALL TOPICS */
-        // window.onbeforeunload = async( ) => { } 
+        window.onclose = async( ) => { 
+            if ( $AUTH && $AUTH.socket ) {
+                await disconnectWS( )
+            }
+            return undefined
+        } 
 
         page = window.location.href.split( "/" ).pop( )
 
     } )
 
-    const cleanUserSession = async( ) => {
+    const cleanSessionData = async( ) => {
         
-        debug( "cleanUserSession( ) -> Start: ", get( AUTH ).user.email )
+        debug( "cleanSessionData( ) -> Start: ", get( AUTH ).user.email )
 
         /* CLEAR LOCAL STORAGE */
         sessionStorage.setItem( 'des_auth', 'none', { path: '/' } )
 
         /* CLEAR APP STORES */
+        await disconnectWS( )
         AUTH.set( new UserSession( ) ) 
 
         USERS.set( [ ] )
@@ -92,17 +105,76 @@
         
         gotoHome( )
         
-        debug( "cleanUserSession( ) -> End: ", get( AUTH ).user.email )
+        debug( "cleanSessionData( ) -> End: ", get( AUTH ).user.email )
     }
     const handleLogin = async( ) => { 
-        await login( email, password, cleanUserSession )
-        await updateUserSession( )
+        await login( email, password, cleanSessionData )
+        if ( $AUTH && $AUTH.logged_in ) {
+            await updateSessionData( )
+            await connectWS( )
+        }
     }
-    const updateUserSession = async( ) => { 
+    const updateSessionData = async( ) => { 
         await getUserList( )
         await getEventTypes( )
         await getDevices( )
         await getJobs( )
+    }
+    
+    /* WEBSOCKET METHODS **************************************************************/
+    let disconnectWS = async( ) => { debug( `+layout.svelte -> ${ $AUTH.user.email } -> WebSocket CLOSED` ) }
+    const connectWS = async( ) => {
+        let res = await wsConnectionAuth( API_URL_USER_WS, "user_session", $AUTH )
+        if ( res.err !== null ) 
+            alert( ALERT_CODES.ERROR, `WebSocket connection failed:  ${ res.err }` )
+        else {
+            res.ws.onopen = ( e ) => {  
+                $AUTH.socket = true
+                updateUserSession( )
+                debug( `+layout.svelte -> ${ $AUTH.user.email } -> WebSocket OPEN` ) 
+            }
+            res.ws.onerror = ( e ) => { 
+                res.ws.close( )
+                $AUTH.socket = false
+                updateUserSession( )
+                debug( `+layout.svelte -> ${ $AUTH.user.email } -> ws.onerror ERROR: ${ JSON.stringify( e )  }\n` ) 
+            }
+            res.ws.onmessage = async( e ) => {
+
+                let msg = JSON.parse( JSON.parse( e.data ) )
+                switch ( msg.type ) { 
+
+                    case "auth":
+                        if ( $AUTH.socket ) { disconnectWS( ) }
+                        debug( "new auth message received from DES: ", msg.data ) 
+                        break
+
+                    case "terminated": 
+                        logout( )
+                        break
+
+                    case "live": 
+                        await refreshJWT( )
+                        debug( "new keep alive message received from DES: ", msg.data ) 
+                        break
+
+                    default: 
+                        debug( `+layout.svelte -> ${ $AUTH.user.email } -> ONMESSAGE: Type unknown: ${ e.data }\n` )
+                        break
+                }
+                updateUserSession( )
+            }
+            disconnectWS = async( ) => {
+                if ( res.ws && res.ws.readyState !== WebSocket.CLOSED && res.ws.readyState !== WebSocket.CLOSING ) {
+                    res.ws.send( "close" )
+                    res.ws.close( ) 
+                }
+                $AUTH.socket = false
+                updateUserSession( )
+                debug( `+layout.svelte -> ${ $AUTH.user.email } -> WebSocket CLOSED` ) 
+            }
+            await waitMilli(1000)
+        }
     }
 
     $: page = "";
@@ -211,7 +283,7 @@
                     />
                 </div>
 
-                { #if $AUTH.user.role == "admin" }
+                { #if role.isAdmin( $AUTH.user.role ) }
   
                     <div class="flx-col admin">
 

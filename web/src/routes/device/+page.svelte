@@ -15,13 +15,13 @@
     $: DEVICES = getContext( 'devices' )
     $: DEVICES_LOADED = getContext( 'devices_loaded' )
 
-    /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
-    onMount( async( ) => { 
-        if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await getDevices( )
-        }
-    } )
+    // /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
+    // onMount( async( ) => { 
+    //     if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+    //         AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+    //         await getDevices( )
+    //     }
+    // } )
 
     $: search = new DESSearchParam( )
 

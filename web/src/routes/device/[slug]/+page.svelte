@@ -13,20 +13,19 @@
 
     import DeviceInfo from '../DeviceInfo.svelte'
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
-    import DeviceConn from '../DeviceConn.svelte'
     
     export let data
     $: DEVICES = getContext(  'devices' )
     $: DEVICES_LOADED = getContext( 'devices_loaded' )
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
-    /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
-    onMount( async( ) => { 
-        if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await getDevices( )
-        }
-    } )
+    // /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
+    // onMount( async( ) => { 
+    //     if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+    //         AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+    //         await getDevices( )
+    //     }
+    // } )
 
     /* USED TO EXPOSE THE MODALS' OPEN( ) METHOD 
     SO IT CAN BE CALLED FROM OTHER COMPONENTS */
@@ -72,8 +71,6 @@
 
                 <div class="flx-col panel-cont">
                     <HeaderPanel bind:device />
-
-                    <DeviceConn bind:device />
                 </div>
 
                 <div class="flx-col panel-cont">

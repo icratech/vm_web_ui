@@ -40,11 +40,6 @@
                         break
 
                     case OP_CODES.JOB_ENDED:
-                        evtColorCode = 'fg-accent'
-                        evtEmailColor = 'grey_07'
-                        bgColor = 'var(--light_004)'
-                        break
-
                     case OP_CODES.JOB_STARTED:
                         evtColorCode = 'fg-accent'
                         evtEmailColor = 'grey_07'

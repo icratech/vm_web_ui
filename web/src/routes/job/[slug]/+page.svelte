@@ -45,13 +45,13 @@
     $: JOBS_LOADED = getContext( 'jobs_loaded' )
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
 
-    /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
-    onMount( async( ) => { 
-        if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await getJobs( )
-        }
-    } )
+    // /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
+    // onMount( async( ) => { 
+    //     if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+    //         AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+    //         await getJobs( )
+    //     }
+    // } )
 
     $: loadingMsg = "Loading..."
     $: loaded = false

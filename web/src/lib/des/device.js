@@ -30,9 +30,6 @@ export const validateSerialNumber = async( serial ) => {
     if ( res.err !== null ) 
         alert( ALERT_CODES.ERROR, res.err )
     
-    else {
-        alert( ALERT_CODES.SUCCESS, res.json.message )
-    }
     err = res.err
 
     return { err, serial }

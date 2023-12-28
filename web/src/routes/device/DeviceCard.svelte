@@ -9,6 +9,7 @@
     import EventCard from "../../lib/c001v001/components/event/EventCard.svelte"
     
     import DeviceMode from "./DeviceMode.svelte"
+    import DeviceConn from "./DeviceConn.svelte"
     
     export let device = new Device( )
 
@@ -45,6 +46,7 @@
         </div>
 
         { #if active }
+            <DeviceConn bind:device />
             <BarGaugeCard bind:cfg bind:smp/>     
         { /if }
 
@@ -52,20 +54,22 @@
 
     { #if active }
 
-        <div class="flx-row hdr">
+        <div class="flx-row sec">
             <div class="vert-line sep"/>
             <HeaderCard bind:hdr />
             
         </div>
         
-        <div class="flx-row evt">
+        <div class="flx-row sec">
             <div class="vert-line sep"/>
-            <EventCard bind:evt={evt} />
+            <div class="flx-col">
+                <EventCard bind:evt={evt} />
+            </div>
         </div>
 
     { :else }
-        <div class="off"></div>    
-        <div class="evt off"></div>   
+        <div class="off"><DeviceConn bind:device /></div>    
+        <div class="sec off"></div>   
     { /if }
 
 </div>
@@ -86,7 +90,10 @@
     .layout {  
         padding: 0; 
         padding-right: 0.5em;
-        gap: 0; 
+        gap: 0.5em; 
+    }
+    .sec {
+        gap: 0.5em;
     }
     .title-bar {
         justify-content: space-between;

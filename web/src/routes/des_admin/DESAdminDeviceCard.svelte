@@ -13,6 +13,7 @@
     import InputNum from "$lib/common/input_num/InputNum.svelte"
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
     import DESAdminDeviceInfo from "./DESAdminDeviceInfo.svelte"
+    import DesAdminDeviceCMD from "./DESAdminDeviceCMD.svelte"
     
     import btn_img_cmd from "$lib/images/btn-img-cmd-orange.svg"
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
@@ -38,7 +39,8 @@
         <DESAdminDeviceInfo bind:device />
 
         { #if debugging }
-        <div class="flx-col input "></div>
+        <DesAdminDeviceCMD bind:device />
+        <!-- <div class="flx-col input "></div> -->
         <div class="flx-col"></div>
         <!-- <div class="flx-col ">
             <PillButton 
@@ -105,9 +107,9 @@
         padding: 1em;
     }
 
-    .input {
+    /* .input {
         align-items: center;
-    }
+    } */
 
     .results {
         height: 50em;

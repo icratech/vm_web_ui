@@ -15,13 +15,13 @@
     $: JOBS = getContext( 'jobs' )
     $: JOBS_LOADED = getContext( 'jobs_loaded' )
 
-    /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
-    onMount( async( ) => { 
-        if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-            AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-            await getJobs( )
-        }
-    } )
+    // /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
+    // onMount( async( ) => { 
+    //     if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
+    //         AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
+    //         await getJobs( )
+    //     }
+    // } )
 
     $: search = new DESSearchParam( )
 
