@@ -1,6 +1,9 @@
 <script>
 
     import { createEventDispatcher } from 'svelte'
+    import { fade, blur, scale, draw } from 'svelte/transition'
+    import { tweened } from 'svelte/motion'
+    import { cubicInOut } from 'svelte/easing'
 
     import { UserSession } from '../api'
 
@@ -13,11 +16,17 @@
 	const dispatch = createEventDispatcher()
 
     export let auth = new UserSession( )
+    export let sec = 0
 
     $: loginButtonImage = ( auth && auth.logged_in ? btn_img_logout_purple : btn_img_login_purple )
     $: loginButtonFunc = ( auth && auth.logged_in ? async( ) => { dispatch( 'logout' ) } : async( ) => { dispatch( 'login' ) } )
 
     export let page_name = "PAGE_NAME"
+
+    $: login_msg_color = ( sec % 2 === 0  ? 'var(--grey_09)' : 'var(--grey_08)' )
+    // $: login_msg_color = ( sec % 2 === 0  ? 'var(--orange_08)' : 'var(--orange_07)' )
+    // $: login_msg_color = ( sec % 2 === 0  ? 'var(--purple_08)' : 'var(--purple_07)' )
+    // $: login_msg_color = ( sec % 2 === 0  ? 'var(--yellow_08)' : 'var(--yellow_07)' )
 
 </script>
 
@@ -39,8 +48,14 @@
                 <h3>{ page_name }</h3>
             </div>
 
-            <div class="flx-row login-btn">        
-                <div class="flx-row login-msg">{ ( auth && auth.logged_in ? auth.user.name : 'Login' ) }</div>
+            <div class="flx-row login-btn">     
+
+                { #if ( auth && auth.logged_in ) }
+                <div class="flx-row login-msg" style="color:{ login_msg_color };">{ auth.user.name }</div>
+                { :else }
+                <div class="flx-row login-msg">Login</div>
+                { /if }
+
                 <PillButton 
                     img={ loginButtonImage }
                     on:click={ loginButtonFunc }
@@ -92,7 +107,7 @@
     .login-btn {
         justify-content: flex-end;
         align-items: center;
-        width: auto;
+        width: 20em;;
         gap: 0.5em;
     }
     .login-msg {

@@ -7,7 +7,7 @@
     import { ALERT_CODES, alert, waitMilli, debug } from '../lib/des/utils'
     import { 
         AUTH, UserSession, login, logout, terminateUser, refreshJWT,
-        API_URL_USER_WS, wsConnectionAuth, updateUserSession,
+        API_URL_USER_WS, wsConnectionAuth, updateUserSession, WS_LIVE_LIMIT,
         USERS, USERS_LOADED, getUserList, RoleCheck
     } from '../lib/des/api'
 
@@ -122,7 +122,7 @@
     }
     
     /* WEBSOCKET METHODS **************************************************************/
-    let disconnectWS = async( ) => { debug( `+layout.svelte -> ${ $AUTH.user.email } -> WebSocket CLOSED` ) }
+    let disconnectWS = async( ) => { }
     const connectWS = async( ) => {
         let res = await wsConnectionAuth( API_URL_USER_WS, "user_session", $AUTH )
         if ( res.err !== null ) 
@@ -130,8 +130,10 @@
         else {
             res.ws.onopen = ( e ) => {  
                 $AUTH.socket = true
+                $AUTH.ping.ok = true
+                $AUTH.ping.time = Date.now()
                 updateUserSession( )
-                debug( `+layout.svelte -> ${ $AUTH.user.email } -> WebSocket OPEN` ) 
+                debug( `+layout.svelte -> connectWS( ) -> ${ $AUTH.user.email } -> WebSocket OPEN` ) 
             }
             res.ws.onerror = ( e ) => { 
                 res.ws.close( )
@@ -144,18 +146,15 @@
                 let msg = JSON.parse( JSON.parse( e.data ) )
                 switch ( msg.type ) { 
 
-                    case "auth":
-                        if ( $AUTH.socket ) { disconnectWS( ) }
-                        debug( "new auth message received from DES: ", msg.data ) 
-                        break
-
-                    case "terminated": 
-                        logout( )
+                    case "err":
+                        debug( "new err message received from DES: ", msg.data ) 
+                        if ( $AUTH.logged_in ) { logout( ) }
                         break
 
                     case "live": 
-                        await refreshJWT( )
-                        debug( "new keep alive message received from DES: ", msg.data ) 
+                        $AUTH.ping.ok = true
+                        $AUTH.ping.time = Date.now()
+                        // debug( "new keep alive message received from DES: ", msg.data ) 
                         break
 
                     default: 
@@ -170,12 +169,29 @@
                     res.ws.close( ) 
                 }
                 $AUTH.socket = false
+                $AUTH.ping.ok = false
+                $AUTH.ping.time = 0
                 updateUserSession( )
-                debug( `+layout.svelte -> ${ $AUTH.user.email } -> WebSocket CLOSED` ) 
+                debug( `+layout.svelte -> disconnectWS( ) -> WebSocket CLOSED` ) 
             }
             await waitMilli(1000)
         }
     }
+
+    $: sec = 0
+    const countDownWS = ( ) => {
+        if ( $AUTH && $AUTH.logged_in ) {
+            let now = Date.now()
+            sec = WS_LIVE_LIMIT /1000 - Math.floor( ( now - $AUTH.ping.time ) / 1000 )
+            if ( sec < 0 ) { 
+                sec = 0
+                $AUTH.ping.ok = false
+            }
+            if ( $AUTH.ping.ok ) refreshJWT( )
+        }
+    }
+    setInterval(countDownWS, 1000)
+
 
     $: page = "";
     let page_name = "HOME"
@@ -257,7 +273,7 @@
 
     <LoginModal bind:this={ loginModal } bind:email bind:password on:confirm={ handleLogin }/>
 
-    <TitleBar bind:page_name bind:auth={ $AUTH } on:logout={ logout } on:login={ loginModal.open }/>
+    <TitleBar bind:page_name bind:auth={ $AUTH } bind:sec on:logout={ logout } on:login={ loginModal.open }/>
     
     <div class="flx-row layout">
 

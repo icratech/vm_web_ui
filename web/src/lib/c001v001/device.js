@@ -184,12 +184,12 @@ export class Device {
         this.smp = smp
         this.reg = reg 
 
-        /* USED TO MONITOR THE PHYSICAL DEVICE'S BROKER CONNECTION 
+        /* USED TO MONITOR THE PHYSICAL DEVICE'S MQTT BROKER CONNECTION 
             THE PHYSICAL DEVICE SENDS A PING EVERY 30 SECONDS
         */
         this.ping = new Ping( )
         
-        /* USED TO MONITOR THE DES DEVICE CLIENT'S BROKER CONNECTION 
+        /* USED TO MONITOR THE DES DEVICE CLIENT'S MQTT BROKER CONNECTION 
             DES DEVICE CLIENT: 
              - SUBSCRIBES TO DEVICE SIGNAL TOPICS 
              - WRITES TO JOB AND CMD DATABASES
@@ -370,7 +370,7 @@ export class Device {
             res.ws.onopen = ( e ) => {  
                 this.socket = true
                 updateDevicesStore( )
-                // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
+                debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
             }
             res.ws.onerror = ( e ) => { 
                 res.ws.close( )
@@ -491,7 +491,9 @@ export class Device {
                         this.updateChartData( )
                         break
     
-                    case "live": break
+                    case "live": 
+                        // debug( "new keep alive message received from DES: ", msg.data ) 
+                        break
     
                     case "auth":
                         if ( this.socket ) { this.disconnectWS( ) }

@@ -60,14 +60,9 @@
 
     $: des_ping_sec = 0
     $: dev_ping_sec = 0
-    $: sec = 0
     const countDown = ( ) => {
 
         let now = Date.now()
-
-        sec = PING_LIMIT /1000 - Math.floor( ( now - device.ping.time ) / 1000 )
-
-        if ( sec < 0 ) { sec = 0 }
 
         dev_ping_sec = PING_LIMIT /1000 - Math.floor( ( now - device.ping.time ) / 1000 )
 
@@ -124,6 +119,7 @@
         <div class="vert-line"/>
         
         <div class="flx-row fw">
+
             <div class="flx-row fw-sub-l">
                 <div class="flx-row field-sub">Device</div> 
                 <div class="flx-row field-value timeout-value" style="color:{ ( device.ping.ok ? 'var(--green_a)' : 'var(--red)' ) };">
@@ -136,7 +132,6 @@
                 <div class="flx-row field-value timeout-value" style="color:{ ( device.des_ping.ok ? 'var(--aqua_a)' : 'var(--red)' ) };">
                     { des_ping_sec }
                 </div>
-
             </div>
 
         </div>
