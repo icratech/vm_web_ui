@@ -58,6 +58,8 @@
                 <div class="flx-row value"><DateTimeDisplay date={ hdr.hdr_job_end } showTime={ true } /></div>
             </div>
         </div>
+
+        <div class="flx-col"></div>
         
         <!-- GEO LOC -->
         <div class="flx-col end">

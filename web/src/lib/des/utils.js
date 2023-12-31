@@ -16,6 +16,18 @@ import { writable } from 'svelte/store'
 
 import { debugging } from './app'
 
+/* SVELTE-KIT 1.x ADDS TRAILING SLASHES TO PAGE URLS IN SOME CASES
+    THEN REMOVES THEM ON REFRESH.  v 2.x IS SAID TO HAVE FIXED THIS BUT, 
+    UNTIL WE HAVE TIME TO MIGRATE:
+        import { page } from '$app/stores'
+        url = $page.url.pathname 
+        pre = 'device/' 
+        pg = 'DEMO000000'
+*/
+export const routeFixer = ( url, pre, pg ) => { 
+    return ( url.slice(url.length - 1,) === "/" ? pg : pre + pg )
+}
+
 export const debug = ( msg, obj ) => { if ( debugging ) console.log( msg, obj ) }
 
 export const waitMilli = ( ms ) => new Promise( ( res ) => setTimeout( res, ms ) )

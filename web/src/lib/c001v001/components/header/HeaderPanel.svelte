@@ -40,7 +40,7 @@
     <div class="flx-row panel-title-bar">
         <div class="flx-row panel-title-btns">
 
-            { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
+            { #if device.isActive( ) }
             <PillButton
                 img={ editButtonImg }
                 on:click={ editButtonFunc }

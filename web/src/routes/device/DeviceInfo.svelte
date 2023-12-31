@@ -7,6 +7,7 @@
 
     import { Sample, validateLngLat, OP_CODES } from '../../lib/c001v001/models'
     import { Device } from "../../lib/c001v001/device"
+    import HeaderCard from '../../lib/c001v001/components/header/HeaderCard.svelte'
     import BarGaugeCard from "../../lib/c001v001/components/gauge/BarGaugeCard.svelte"
 
     import DeviceMode from "./DeviceMode.svelte"
@@ -84,7 +85,8 @@
             container: ctx,
             style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
             center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
-            zoom : ( sta.sta_logging == OP_CODES.JOB_STARTED ? 5.5 : 1 ),
+            zoom : ( sta.sta_logging == OP_CODES.JOB_STARTED ? 5.5 : 0.9
+             ),
             interactive: true
         } )
 
@@ -136,10 +138,19 @@
 
         <div class="flx-col conn">
             <DeviceConn bind:device />
+            <div class="flx-col gauge">
+                <BarGaugeCard bind:cfg bind:smp/>
+            </div>
+            <!-- <HeaderCard bind:hdr /> -->
         </div>
-        <div class="flx-col gauge">
+
+        <!-- <div class="flx-col">
+            <HeaderCard bind:hdr />
+         </div> -->
+    
+        <!-- <div class="flx-col gauge">
             <BarGaugeCard bind:cfg bind:smp/>
-        </div>
+        </div> -->
 
     </div>
 
@@ -166,7 +177,7 @@
     .layout {  
         padding: 0; 
         padding-right: 0.5em;
-        gap: 1em; 
+        gap: 0em; 
     }
     .title-bar {
         justify-content: space-between;
@@ -205,7 +216,8 @@
 
     .conn {
         padding-right: 0.5em;
-        padding-bottom: 0.5em;
+        /* padding-bottom: 0.5em; */
+        gap: 0.75em
     }
 
     .map {

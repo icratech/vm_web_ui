@@ -1,8 +1,10 @@
 
 <script>
-
-    import { setContext, onMount } from 'svelte';
+    
+    import { page } from '$app/stores'
     import { goto } from '$app/navigation'
+    import { get } from 'svelte/store'
+    import { setContext, onMount } from 'svelte'
 
     import { ALERT_CODES, alert, waitMilli, debug } from '../lib/des/utils'
     import { 
@@ -34,7 +36,6 @@
 
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
     import btn_img_cmd_red from "$lib/images/btn-img-cmd-red.svg"
-	import { get } from 'svelte/store';
 
     const role = new RoleCheck( )
 
@@ -72,7 +73,7 @@
             return undefined
         } 
 
-        page = window.location.href.split( "/" ).pop( )
+        page_url_name = window.location.href.split( "/" ).pop( )
 
     } )
 
@@ -193,13 +194,13 @@
     setInterval(countDownWS, 1000)
 
 
-    $: page = "";
+    $: page_url_name = "";
     let page_name = "HOME"
     let home_btn_image = btn_img_home_aqua
     let device_btn_image = btn_img_gauge_aqua
     let job_btn_image = btn_img_report_aqua
     $: {
-        switch ( page ) {
+        switch ( page_url_name ) {
             case '' : { 
                 page_name = "HOME"
                 home_btn_image = btn_img_home_orange
@@ -238,24 +239,29 @@
         }
     }
 
-    const gotoHome = ( ) => {
-        goto( '/' ) 
-        page = ''
+    const checkURL = ( ) => { debug("+layoute.svelte -> deviceSelected( ) -> current url: ", $page.url.pathname ) }
+    const gotoHome = async( ) => {
+        await goto( '/' ) 
+        page_url_name = ''
+        // checkURL( )
     }
 
-    const gotoDevice = ( ) => {
-        goto( '/device' ) 
-        page = 'device'
+    const gotoDevice = async( ) => {
+        await goto( '/device' ) 
+        page_url_name = 'device'
+        // checkURL( )
     }
 
-    const gotoJob = ( ) => {
-        goto( '/job' ) 
-        page = 'job'
+    const gotoJob = async( ) => {
+        await goto( '/job' ) 
+        page_url_name = 'job'
+        // checkURL( )
     }
 
-    const gotoDes = ( ) => {
-        goto( '/des_admin' ) 
-        page = 'des'
+    const gotoDes = async( ) => {
+        await goto( '/des_admin' ) 
+        page_url_name = 'des'
+        // checkURL( )
     }
 
     let email = ""

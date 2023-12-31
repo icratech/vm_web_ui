@@ -1,10 +1,11 @@
 
 <script>
-
+    
+    import { page } from '$app/stores'
     import { goto } from '$app/navigation'
     import { getContext, onMount } from 'svelte'
 
-    import { debug } from '../../lib/des/utils'
+    import { routeFixer, debug } from '../../lib/des/utils'
     import { AUTH, DESSearchParam } from '../../lib/des/api'
 
     import { getDevices, updateDevicesStore } from '../../lib/c001v001/device'
@@ -43,7 +44,7 @@
     }
 
     const deviceSelected = ( d ) => { 
-        goto( `device/${d.reg.des_dev_serial }` ) 
+        goto( routeFixer( $page.url.pathname, 'device/', d.reg.des_dev_serial ) )
     }
 
 </script>

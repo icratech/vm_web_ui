@@ -10,7 +10,11 @@ import { AUTH, getRequestAuth, postRequestAuth, wsConnectionAuth,
 import { validateMeasuredValue, validateSerialNumber } from '../des/device'
 import { FormatDateTime } from '../common/format'
 
-import { newChartData, CHT_DATASET_INDEX } from './chart_display'
+import { 
+    newChartData, 
+    CHT_DATASET_INDEX, 
+    CHT_DEFALTS 
+} from './chart_display'
 import { 
     device_class, device_version, newC001V001_DESRegistration,
     Admin, 
@@ -45,7 +49,8 @@ export const API_URL_C001_V001_DEVICE_CFG =  `${ API_URL_C001_V001_DEVICE }/conf
 export const API_URL_C001_V001_DEVICE_EVT =  `${ API_URL_C001_V001_DEVICE }/event`
 
 /* DEVICE-VIEWER-LEVEL OPERATIONS */
-export const API_URL_C001_V001_DEVICE_JOB_EVTS =  `${ API_URL_C001_V001_DEVICE }/job_events`
+export const API_URL_C001_V001_DEVICE_JOB_EVTS = `${ API_URL_C001_V001_DEVICE }/job_events`
+export const API_URL_C001_V001_DEVICE_JOB_SAMPLES = `${ API_URL_C001_V001_DEVICE }/job_samples`
 export const API_URL_C001_V001_DEVICE_SEARCH =  `${ API_URL_C001_V001_DEVICE }/search` // NOT IMPLEMENTED
 export const API_URL_C001_V001_DEVICE_LIST =  `${ API_URL_C001_V001_DEVICE }/list`
 
@@ -162,8 +167,6 @@ export const DES_PING_LIMIT = 10000
 */
 export const PING_LIMIT = 30000
 
-
-
 /* DEVICE DATA STRUCTURE  *****************************************************************************/
 export class Device {
     constructor( 
@@ -206,6 +209,9 @@ export class Device {
         /* USED ON DEVICE PAGE TO DISPLAY ACTIVE JOB */
         this.job = new Job( )
         this.job_evts = [ ]
+        this.cht_point_limit = CHT_DEFALTS.LIMIT
+        this.cht_scale_margin = CHT_DEFALTS.MARGIN
+        this.cht_auto_scale = false
 
         /* USED ON ADMIN PAGE TO DISPLAY CMDARCHIVE */
         this.cmd = new Job()
@@ -220,9 +226,8 @@ export class Device {
         /** https://docs.mapbox.com/mapbox-gl-js/api/markers/#marker */
         /* DEVICE PAGE MAP MARKER */
         this.mark_el = document.createElement('div')
-        this.mark = new mapboxgl.Marker( 
-            this.mark_el, { anchor: 'bottom-right' } ).setLngLat( 
-                validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) 
+        this.mark = new mapboxgl.Marker( this.mark_el, { anchor: 'bottom-right' } ).setLngLat( 
+            validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) 
         ) 
 
         /* DEVICE SEARCH PAGE MAP MARKER */
@@ -230,13 +235,17 @@ export class Device {
         this.s_mark_el.addEventListener('click', ( ) => { goto( '/device/' + this.reg.des_dev_serial ); this.highlight = false } )
         this.s_mark_el.addEventListener('mouseover', ( ) => { this.highlight = true; updateDevicesStore( ) } )
         this.s_mark_el.addEventListener('mouseleave', ( ) => { this.highlight = false; updateDevicesStore( ) } )
-        this.s_mark = new mapboxgl.Marker( 
-            this.s_mark_el, { anchor: 'bottom-right' } ).setLngLat( 
-                validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) 
+        this.s_mark = new mapboxgl.Marker( this.s_mark_el, { anchor: 'bottom-right' } ).setLngLat( 
+            validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) 
         )
 
         this.resetChart( )
     }
+
+    /* STATUS METHODS  ******************************************************************/
+    isActive = ( ) => {
+        return this.sta.sta_logging > OP_CODES.JOB_START_REQ
+    } 
     
     /* MAP METHODS ( LIVE ) **************************************************************/
     updateDeviceSearchMap( ) { }
@@ -268,77 +277,39 @@ export class Device {
     }
 
     /* CHART METHODS ( LIVE ) ************************************************************/
-    updateChartData( ) {
-
-        this.pushPoint( 
-            { x: this.smp.smp_time, y: this.smp.smp_ch4 },
-            this.cht_ch4, this.cht.options.scales.y_ch4,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.pushPoint( 
-            { x: this.smp.smp_time, y: this.smp.smp_hi_flow },
-            this.cht_hi_flow, this.cht.options.scales.y_hi_flow,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.pushPoint(
-            { x: this.smp.smp_time, y: this.smp.smp_lo_flow },
-            this.cht_lo_flow, this.cht.options.scales.y_lo_flow,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.pushPoint(
-            { x: this.smp.smp_time, y: this.smp.smp_press },
-            this.cht_press, this.cht.options.scales.y_press,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.pushPoint(
-            { x: this.smp.smp_time, y: this.smp.smp_bat_amp },
-            this.cht_bat_amp, this.cht.options.scales.y_bat_amp,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.pushPoint(
-            { x: this.smp.smp_time, y: this.smp.smp_bat_volt },
-            this.cht_bat_volt, this.cht.options.scales.y_bat_volt,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-        this.pushPoint(
-            { x: this.smp.smp_time, y: this.smp.smp_mot_volt },
-            this.cht_mot_volt, this.cht.options.scales.y_mot_volt,
-            this.cht_point_limit,
-            this.cht_scale_margin
-        )
-        
-    }
-    pushPoint( point, set = [ ], scale, limit, scale_margin ) {
-
-        point.y = validateMeasuredValue( point.y )
-        let len = set.data.push( point ) 
-        for ( len; len > limit; len-- ) {
-            set.data.shift( )
+    smpToXYPoints( smp ) {
+        let time = smp.smp_time
+        return {
+            ch4: { x: time, y: smp.smp_ch4 },
+            hi_flow: { x: time, y: smp.smp_hi_flow },
+            lo_flow: { x: time, y: smp.smp_lo_flow },
+            press: { x: time, y: smp.smp_press },
+            bat_amp: { x: time, y: smp.smp_bat_amp },
+            bat_volt: { x: time, y: smp.smp_bat_volt },
+            mot_volt: { x: time, y: smp.smp_mot_volt },
         }
-        let x_min = set.data[0].x
-        // let x_min = set.pushSample( limit, point )
-        // let filt = set.data.filter( x => x.x >= x_min )
-        // let Ys = filt.map( p => p.y )
-        // let min = Math.min( ...Ys ) // debug( min )
-        // let max = Math.max( ...Ys ) // debug( max )
-        // if ( max - min > 0 ) {
-        //     scale.min = min - ( ( max - min ) * scale_margin )
-        //     scale.max = max +  ( ( max - min ) * scale_margin )
-        // }    
-        this.cht.options.scales.x.min = x_min
-        this.cht.options.scales.x.max = point.x
+    }
+    loadChartSample( ) {
+
+        let lim = this.cht_point_limit
+        let margin = this.cht_scale_margin
+        let auto = this.cht_auto_scale
+        let xys = this.smpToXYPoints( this.smp )
+
+        this.cht.pushPoint( this.cht_ch4, xys.ch4, lim, margin, auto )
+
+        this.cht.pushPoint( this.cht_hi_flow, xys.hi_flow, lim, margin, auto )
+
+        this.cht.pushPoint( this.cht_lo_flow, xys.lo_flow, lim, margin, auto )
+
+        this.cht.pushPoint( this.cht_press, xys.press, lim, margin, auto )
+
+        this.cht.pushPoint( this.cht_bat_amp, xys.bat_amp, lim, margin, auto )
+
+        this.cht.pushPoint( this.cht_bat_volt, xys.bat_volt, lim, margin, auto )
+
+        this.cht.pushPoint( this.cht_mot_volt, xys.mot_volt, lim, margin, auto )
+
     }
     resetChart( ) {
         /* CHART DATA ( LIVE ) **************************************************************/
@@ -351,8 +322,44 @@ export class Device {
         this.cht_bat_amp = this.cht.data.datasets[CHT_DATASET_INDEX.BAT_AMP]
         this.cht_bat_volt = this.cht.data.datasets[CHT_DATASET_INDEX.BAT_VOLT]
         this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX.MOT_VOLT]
-        this.cht_point_limit = 200
-        this.cht_scale_margin = 0.2
+    }
+    loadChartXYPoints = async( xyp ) => { 
+        this.cht_ch4.data = [ ...xyp.ch4, ...this.cht_ch4.data ]
+        this.cht_hi_flow.data =  [ ...xyp.hi_flow, ...this.cht_hi_flow.data ]
+        this.cht_lo_flow.data =  [ ...xyp.lo_flow, ...this.cht_lo_flow.data ]
+        this.cht_press.data =  [ ...xyp.press, ...this.cht_press.data ]
+        this.cht_bat_amp.data =  [ ...xyp.bat_amp, ...this.cht_bat_amp.data ]
+        this.cht_bat_volt.data =  [ ...xyp.bat_volt, ...this.cht_bat_volt.data ]
+        this.cht_mot_volt.data =  [ ...xyp.mot_volt, ...this.cht_mot_volt.data ]
+
+        let flow = this.cht_lo_flow.data.map( f => f.y )
+        if ( flow.some( f => { return f > this.cfg.cfg_flow_tog } ) ) {
+            this.cht.options.scales.y_hi_flow.display = true
+            this.cht_hi_flow.hidden = false
+
+            this.cht.options.scales.y_lo_flow.display = false
+            this.cht_lo_flow.hidden = true
+        } else {
+            this.cht.options.scales.y_hi_flow.display = false
+            this.cht_hi_flow.hidden = true
+
+            this.cht.options.scales.y_lo_flow.display = true
+            this.cht_lo_flow.hidden = false
+        } 
+
+        let auto = this.cht_auto_scale
+        let margin = this.cht_scale_margin
+        let start = ( this.cht.limitDataset( this.cht_press, this.cht_point_limit ) ).start
+
+        this.cht.autoScale( this.cht_ch4, start, margin, auto )
+        this.cht.autoScale( this.cht_press, start, margin, auto )
+        this.cht.autoScale( this.cht_hi_flow, start, margin, auto )
+        this.cht.autoScale( this.cht_lo_flow, start, margin, auto )
+        this.cht.autoScale( this.cht_bat_amp, start, margin, auto )
+        this.cht.autoScale( this.cht_bat_volt, start, margin, auto )
+        this.cht.autoScale( this.cht_mot_volt, start, margin, auto )
+        
+        // updateDevicesStore( )
     }
 
     /* WEBSOCKET METHODS **************************************************************/
@@ -488,7 +495,7 @@ export class Device {
     
                         }
                         // debug( `sample -> ${ this.reg.des_dev_serial }:\n` )
-                        this.updateChartData( )
+                        this.loadChartSample( )
                         break
     
                     case "live": 
@@ -531,21 +538,19 @@ export class Device {
     }
 
     /* HTTP METHODS **********************************************************************/
-    startJob = async( ) => {
-        // debug( "Start new job for device: ", this.reg.des_dev_serial ) 
-
+    updateReg = async( ) => {
         let au = get( AUTH )
-
         if ( !this.socket ) { await this.connectWS( ) }
-
         this.reg.des_job_reg_user_id = au.user.id
         this.reg.des_job_reg_app = client_app
+    }
+    startJob = async( ) => {
+        // debug( "Start new job for device: ", this.reg.des_dev_serial ) 
         
+        await this.updateReg( )
         this.sta.sta_logging = OP_CODES.JOB_START_REQ
         this.ping = new Ping( )
-
         this.cfg = validateCFG( this.cfg )
-        
         updateDevicesStore( )
 
         let dev = {
@@ -567,35 +572,20 @@ export class Device {
     endJob = async( ) => {
         // debug( "End current job for device: ", this.reg.des_dev_serial ) 
 
-        let au = get( AUTH )
-
-        if ( !this.socket ) { await this.connectWS( ) }
-
-        this.reg.des_job_reg_user_id = au.user.id
-        this.reg.des_job_reg_app = client_app
-
-        let dev = {
-            reg: this.reg
-        } //  debug( "Send END JOB Request:\n", dev )  
+        await this.updateReg( )
+        let dev = { reg: this.reg } //  debug( "Send END JOB Request:\n", dev )  
 
         let res = await postRequestAuth( API_URL_C001_V001_DEVICE_END, dev )
 
-        if ( res.err !== null )  
+        if ( res.err !== null ) 
             alert( ALERT_CODES.ERROR, res.err )
-
     }
     setAdmin = async( ) => {
         // debug( "Set Admin for device: ", this.reg.des_dev_serial ) 
         
-        let au = get( AUTH )
-        
-        if ( !this.socket ) { await this.connectWS( ) }
-        
-        this.adm.adm_user_id = au.user.id
+        await this.updateReg( )
+        this.adm.adm_user_id = this.reg.des_job_reg_user_id
         this.adm.adm_app = client_app
-
-        this.reg.des_job_reg_user_id = au.user.id
-        this.reg.des_job_reg_app = client_app
 
         let dev = {
             adm: this.adm,
@@ -613,15 +603,9 @@ export class Device {
     setState = async( ) => {
         // debug( "Set State for device: ", this.reg.des_dev_serial ) 
         
-        let au = get( AUTH )
-        
-        if ( !this.socket ) { await this.connectWS( ) }
-        
-        this.sta.sta_user_id = au.user.id
+        await this.updateReg( )
+        this.sta.sta_user_id = this.reg.des_job_reg_user_id
         this.sta.sta_app = client_app
-
-        this.reg.des_job_reg_user_id = au.user.id
-        this.reg.des_job_reg_app = client_app
 
         let dev = {
             sta: this.sta,
@@ -639,15 +623,9 @@ export class Device {
     setHeader = async( ) => {
         // debug( "Set Header for device: ", this.reg.des_dev_serial ) 
         
-        let au = get( AUTH )
-        
-        if ( !this.socket ) { await this.connectWS( ) }
-        
-        this.hdr.hdr_user_id = au.user.id
+        await this.updateReg( )
+        this.hdr.hdr_user_id =  this.reg.des_job_reg_user_id
         this.hdr.hdr_app = client_app
-
-        this.reg.des_job_reg_user_id = au.user.id
-        this.reg.des_job_reg_app = client_app
 
         let dev = {
             hdr: this.hdr,
@@ -665,16 +643,10 @@ export class Device {
     setConfig = async( ) => { 
         // debug( "Set Config for device: ", this.reg.des_dev_serial ) 
         
-        let au = get( AUTH )
-        
-        if ( !this.socket ) { await this.connectWS( ) }
-        
-        this.cfg.cfg_user_id = au.user.id
+        await this.updateReg( )
+        this.cfg.cfg_user_id = this.reg.des_job_reg_user_id
         this.cfg.cfg_app = client_app
         this.cfg = validateCFG( this.cfg )
-
-        this.reg.des_job_reg_user_id = au.user.id
-        this.reg.des_job_reg_app = client_app
         
         let dev = {
             cfg: this.cfg,
@@ -697,15 +669,9 @@ export class Device {
     newEvent = async( evt ) => {
         // debug( "Create Event for device: ", this.reg.des_dev_serial ) 
         
-        let au = get( AUTH )
-        
-        if ( !this.socket ) { await this.connectWS( ) }
-        
-        evt.evt_user_id = au.user.id
+        await this.updateReg( )
+        evt.evt_user_id = this.reg.des_job_reg_user_id
         evt.evt_app = client_app
-
-        this.reg.des_job_reg_user_id = au.user.id
-        this.reg.des_job_reg_app = client_app
 
         let dev = {
             evt: evt,
@@ -720,15 +686,11 @@ export class Device {
         //     debug( `Event sent to device ${ this.reg.des_dev_serial }: `, res.json )
 
     }
-    getActiveJobEvents = async( ) => {
-        // debug( "Get Events for active job: ", this.reg.des_job_name ) 
-        
-        let au = get( AUTH )
-        
-        // if ( !this.socket ) { await this.connectWS( ) }
+    qryActiveJobEvents = async( ) => {
+        // debug( "c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> QRY ACTIVE JOB EVENTS." ) 
         
         let dev = { reg: this.reg } 
-        // debug( "Send GET ACTIVE JOB EVENTS Request:\n", dev )
+        // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> Send QRY ACTIVE JOB EVENTS Request: `, dev )
 
         let res = await postRequestAuth( API_URL_C001_V001_DEVICE_JOB_EVTS, dev )
 
@@ -738,7 +700,25 @@ export class Device {
         else 
             this.job_evts = ( res.json.events  === null ? [ ] : res.json.events )
 
-        debug( "ACTIVE JOB EVENTS: ", this.job_evts.length )
+        debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> ACTIVE JOB EVENTS: `, this.job_evts.length )
+    }
+    qryActiveSampleSet = async( ) => {
+        // debug( "c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> QRY ACTIVE JOB SAMPLES." ) 
+        
+        let dev = { reg: this.reg } 
+        // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> Send QRY ACTIVE JOB SAMPLES Request: `, dev )
+
+        let url = `${ API_URL_C001_V001_DEVICE_JOB_SAMPLES }?qty=${ this.cht_point_limit }`
+        let res = await postRequestAuth( url, dev )
+
+        if ( res.err !== null )  
+            alert( ALERT_CODES.ERROR, res.err )
+        
+        else 
+            if ( res.json.xy_points !== null ) 
+                await this.loadChartXYPoints( res.json.xy_points )
+
+        debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> ACTIVE JOB SAMPLES: `, this.cht_press.data.length )
     }
 
     /* HTTP METHODS ( DES_ADMIN ) *************************************************************/

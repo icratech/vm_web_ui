@@ -56,7 +56,7 @@ export class LineChartModel {
         zoomHandler =  defaultZoomHandler
         ) {
 
-        this.type = 'line'
+        this.type = 'line' //'scatter'
         
         this.data = { 
             labels: [ ], 
@@ -140,37 +140,60 @@ export class LineChartModel {
         }
 
         this.plugins = [ chartAreaBorder ]
+        
+        this.auto = false
     }
 
-    pushPoint( point, set = [ ], scale, limit, scale_margin ) {
+    pushPoint( set = [ ], point, lim, margin, auto = this.auto ) {
+        // debug( "chart.pushPoint( )" )
+        set.data.push( point ) 
 
-        let len = set.data.push( point ) 
-        for ( len; len > limit; len-- ) {
-            set.data.shift( )
-        }
-        let x_min = set.data[0].x
-        // let x_min = set.pushSample( limit, point )
-        // let filt = set.data.filter( x => x.x >= x_min )
-        // let Ys = filt.map( p => p.y )
-        // let min = Math.min( ...Ys ) // debug( min )
-        // let max = Math.max( ...Ys ) // debug( max )
-        // if ( max - min > 0 ) {
-        //     scale.min = min - ( ( max - min ) * scale_margin )
-        //     scale.max = max +  ( ( max - min ) * scale_margin )
-        // }    
-        this.options.scales.x.min = x_min
+        let limited = this.limitDataset( set.data, lim )
+        set.data = limited.data
+
+        this.options.scales.x.min = limited.start
         this.options.scales.x.max = point.x
+  
+        this.autoScale( set, limited.start, margin, auto )
     }
 
-    autoScale( set, scale, margin ) {
-        let Ys = set.data.map( p => p.y )
-        let min = Math.min( ...Ys ) // debug( min )
-        let max = Math.max( ...Ys )  // debug( max )
-        if ( max - min > 0 ) {
-            scale.min = min - ( ( max - min ) * margin )
-            scale.max = max +  ( ( max - min ) * margin )
-        } 
+    limitDataset( arrXY, lim ) {
+        let len = arrXY.length
+        let data = [ ]
+        let start = 0
+        if ( len > 0 ) {
+            data = ( len > lim ? arrXY.slice( len - lim, ) : arrXY )
+            start = data[0].x 
+        }
+        return { data, start }
     }
+
+    arrYFromPoints( arrXY, start ) {
+        return arrXY.reduce( ( ys, xy ) => { 
+            if ( xy.x >= start ) ys.push( xy.y )
+            return ys
+        }, [ ] ) 
+    }
+
+    autoScale( set, start, margin, auto = this.auto ) {
+
+        let scale = this.getDatasetScale( set )
+
+        let arrY = this.arrYFromPoints( set.data, start )
+
+        if ( auto ) {
+            let min = Math.min( ...arrY ) // debug( min )
+            let max = Math.max( ...arrY ) // debug( max )
+            let span = max - min // debug( span )
+            if ( span > 0 ) {
+                scale.min = min - ( span * margin )
+                scale.max = max +  ( span * margin )
+            } 
+        }
+
+    }
+
+    getDatasetScale( set ) { return this.options.scales[ set.yAxisID ] }
 
 }
 export class LineChartDataSet {
@@ -203,7 +226,7 @@ export class LineChartScale {
         min,
         max,
         position,
-        color,
+        color = RGBA( BASE.LIGHT, 0.7 ),
         gridColor,
         showGrid,
         display = true,
@@ -287,7 +310,6 @@ export class LineChartXScale {
 }
 
 /* CHART SECECTION CURSOR */
-
 export class LineChartXSelectScale {
     constructor( ) {
         this.type = 'linear'

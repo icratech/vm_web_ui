@@ -8,7 +8,7 @@ import {
     LineChartDataSet, 
     LineChartXSelectScale, 
     CHART_LINE_WIDTH, 
-    CHART_MARKER_RADIUS 
+    CHART_MARKER_RADIUS
 } from '../common/chart/line_chart'
 
 
@@ -31,6 +31,12 @@ export const CHT_DATASET_INDEX = {
     BAT_AMP: 5,
     BAT_VOLT: 6,
     MOT_VOLT: 7
+}
+
+export const CHT_DEFALTS = {
+    LIMIT: 100,
+    AUTO: true,
+    MARGIN: 0.2,
 }
 
 const newChartDataSets = ( datasets = [ ] ) => {
@@ -82,7 +88,7 @@ const newChartDataSets = ( datasets = [ ] ) => {
 
     return datasets
 }
-const newChartScales = ( ) => {
+export const newChartScales = ( ) => {
 
     return {
         
@@ -91,7 +97,8 @@ const newChartScales = ( ) => {
         y: new LineChartXSelectScale( ),
         
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
-            RGBA( CHT_COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false 
+            RGBA( CHT_COLORS.CH4, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false,
+            true 
         ),
         
         y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75, -5.0, 250, "left", 
@@ -100,11 +107,13 @@ const newChartScales = ( ) => {
         ),
         
         y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, -0.1, 2.5, "left",
-            RGBA( CHT_COLORS.LO_FLOW, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true, 
+            RGBA( CHT_COLORS.LO_FLOW, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true,
+            true 
         ),
         
         y_press: new LineChartScale( "Press ( kPa )", 0, 0, 7000, "right", 
-            RGBA( CHT_COLORS.PRESS, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false 
+            RGBA( CHT_COLORS.PRESS, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false,
+            true 
         ),
         
         y_bat_amp: new LineChartScale( "Bat ( A )", 0, 0, 1.5, "right", 
@@ -131,3 +140,5 @@ export const newChartData = ( ) => {
     cht.data.datasets = newChartDataSets( cht.data.datasets )
     return cht
 }
+
+

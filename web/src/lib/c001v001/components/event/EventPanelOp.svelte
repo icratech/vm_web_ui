@@ -12,7 +12,7 @@
 
     import btn_img_edit from "$lib/images/btn-img-edit-aqua.svg"
     
-    onMount( async( ) => { await device.getActiveJobEvents( ) } )
+    onMount( async( ) => { await device.qryActiveJobEvents( ) } )
     export let device = new Device( )
 
     $: show_evt_list = true
@@ -20,7 +20,7 @@
     $: eventButtonHint = ( show_evt_list ? "New Event" : "Events" )
 
     const reloadEvents = async( ) => {
-        await device.getActiveJobEvents( )
+        await device.qryActiveJobEvents( )
         show_evt_list = !show_evt_list
     }
 </script>
@@ -30,7 +30,7 @@
     <div class="flx-row panel-title-bar">
         <div class="flx-row panel-title-btns">
 
-            { #if device.sta.sta_logging > OP_CODES.JOB_START_REQ }
+            { #if device.isActive( ) }
             <PillButton
                 img={ btn_img_edit }
                 on:click={ ( ) => { show_evt_list = !show_evt_list } }

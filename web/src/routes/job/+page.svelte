@@ -1,10 +1,11 @@
 
 <script>
 
+    import { page } from '$app/stores'
     import { goto } from '$app/navigation'
     import { getContext, onMount } from 'svelte'
 
-    import { debug } from '../../lib/des/utils'
+    import { routeFixer, debug } from '../../lib/des/utils'
     import { AUTH, DESSearchParam } from '../../lib/des/api'
     
     import { getJobs, updateJobsStore } from "../../lib/c001v001/job"
@@ -44,7 +45,7 @@
     }
     
     const jobSelected = ( j ) => { 
-        goto( `job/${ j.reg.des_job_name }` )
+        goto( routeFixer( $page.url.pathname, 'job/', j.reg.des_job_name ) )
     }
 
 </script>

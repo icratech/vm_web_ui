@@ -2,11 +2,14 @@
     
     import { getContext, onMount } from 'svelte'
 
+    import { debug } from '../../../lib/des/utils'
     import { AUTH } from '../../../lib/des/api'
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
+    // import LineChartChan from '../../../lib/common/chart/LineChartChan.svelte'
     import Modal from '../../../lib/common/modal/Modal.svelte'
     
-    import { getDevices } from '../../../lib/c001v001/device'
+    import { getDevices, updateDevicesStore } from '../../../lib/c001v001/device'
+    import { newChartScales } from '../../../lib/c001v001/chart_display'
     import HeaderPanel from "../../../lib/c001v001/components/header/HeaderPanel.svelte"
     import ConfigPanel from "../../../lib/c001v001/components/config/ConfigPanel.svelte"
     import EventPanelOp from "../../../lib/c001v001/components/event/EventPanelOp.svelte"
@@ -19,13 +22,43 @@
     $: DEVICES_LOADED = getContext( 'devices_loaded' )
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
-    // /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
-    // onMount( async( ) => { 
-    //     if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-    //         AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-    //         await getDevices( )
-    //     }
-    // } )
+    // $: channels = [ ]
+    // const getChannels = ( ) => {
+    //     channels = [ ]
+    //     device.cht.data.datasets.forEach(set => {
+    //         let scale = device.cht.getDatasetScale( set )
+    //         if ( scale.title.text )
+    //             channels.push( { set, scale } )
+    //     });
+        
+        
+    // }
+    // const updateSettings = async( ) => {
+    //     await updateDevicesStore( )
+    // }
+
+    let waitingForDevice = true
+    $: {
+        if ( device && waitingForDevice === true ) { 
+            debug( "DEVICES_LOADED: ", $DEVICES_LOADED )
+            waitingForDevice = !$DEVICES_LOADED
+            if ( !waitingForDevice ) {
+                if ( device.isActive( ) )
+                    device.qryActiveSampleSet( )
+                // getChannels( )
+            }
+        }
+    }
+    
+    const toggleAuto = ( ) => {
+        device.cht_auto_scale = !device.cht_auto_scale
+        if ( !device.cht_auto_scale ) 
+            device.cht.options.scales = newChartScales( )
+        updateDevicesStore( )
+    }
+
+    /* CALLED IF USER REFRESHES OR NAVIGATED DIRECTLY TO THIS PAGE */
+    onMount( async( ) => { waitingForDevice = true } )
 
     /* USED TO EXPOSE THE MODALS' OPEN( ) METHOD 
     SO IT CAN BE CALLED FROM OTHER COMPONENTS */
@@ -37,7 +70,7 @@
 <dvi class="flx-col container">
 
     { #if device }
-    <div class="flx-row content">
+    <div class="flx-row content"  on:click={ toggleAuto } on:keydown>
 
         <Modal bind:this={ startModal } on:confirm={ async( ) => { device.startJob( ) } }>
             <h3 class='fg-accent' slot="title">Start a new job</h3>
@@ -68,6 +101,12 @@
             </div>
     
             <div class="flx-row action">
+
+                <!-- <div class="flx-col panel-cont">
+                    { #each channels as chn, index ( index ) }
+                        <LineChartChan bind:dataset={ chn.set } bind:scale={ chn.scale } on:update={ updateSettings }/>
+                    { /each }
+                </div> -->
 
                 <div class="flx-col panel-cont">
                     <HeaderPanel bind:device />

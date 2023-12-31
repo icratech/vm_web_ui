@@ -7,7 +7,11 @@ import { ALERT_CODES, alert, waitMilli, debug } from '../des/utils'
 import { AUTH, getRequest, getRequestAuth, postRequestAuth } from '../des/api'
 import { FormatDateTime } from "../common/format"
 
-import { newChartData, CHT_DATASET_INDEX } from './chart_display'
+import { 
+    newChartData, 
+    CHT_DATASET_INDEX, 
+    CHT_DEFALTS
+} from './chart_display'
 import { 
     device_class, device_version, newC001V001_DESRegistration, 
     validateLngLat, 
@@ -101,6 +105,8 @@ export const getJobs = async( ) => {
 
 }
 
+
+
 /* JOB CLASS *******************************************************************************************/
 export class Job {
     constructor(
@@ -125,12 +131,16 @@ export class Job {
         this.reports = []
         this.reg = reg
         
+        /* USED ON JOB PAGE TO MANAGE CHART DISPLAY AND POINT SELECTION */
+        this.selection = 0
+        this.selected_smp = new Sample( )
+        this.cht_scale_margin = CHT_DEFALTS.MARGIN
+
         /* WEB SOCKET CONNECTION STATUS */
         this.socket = false
 
+        /* JOB SEARCH PAGE MAP MARKER HOVER EFFECT */
         this.highlight = false
-        this.selection = 0
-        this.selected_smp = new Sample( )
 
         /* JOB SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
@@ -230,7 +240,7 @@ export class Job {
             this.configs = j.configs
             this.events = j.events
             this.samples = j.samples
-            await this.updateChartData( j.xypoints )
+            await this.loadChartXYPoints( j.xypoints )
             this.reports = j.reports
             return { ok: true, msg: null }
         }
@@ -399,9 +409,9 @@ export class Job {
     }
     
     /* CHART DATA */
-    updateChartData = async( xyp ) => {
+    loadChartXYPoints = async( xyp ) => {
         
-        debug(  "job.updateChartData( ) -> samples: ", this.samples.length )
+        debug(  "job.loadChartXYPoints( ) -> samples: ", this.samples.length )
         
         this.xypoints = xyp
         this.cht_ch4.data = xyp.ch4
