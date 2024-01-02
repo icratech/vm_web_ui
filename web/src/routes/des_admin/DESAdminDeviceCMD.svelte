@@ -2,6 +2,7 @@
 
     import { debug } from '../../lib/des/utils'
 
+    import { Device } from '../../lib/c001v001/device'
     import { DemoDevice } from "../../lib/des_api"
     import PillButton from "../../lib/common/button/PillButton.svelte"
     
@@ -18,7 +19,7 @@
     import btn_img_connect_green from "$lib/images/btn-img-connect-green.svg"
     import btn_img_reset_aqua from "$lib/images/btn-img-reset-aqua.svg"
 
-    export let device = new DemoDevice( )
+    export let device = new Device( )
 
 
 </script>
@@ -47,22 +48,22 @@
     <div class="flx-col btns">
         <PillButton 
             img={ btn_img_cmd_red }
-            on:click={ device.dev.setAdmin }
+            on:click={ device.setAdmin }
             hint="Admin"
         />
         <PillButton 
             img={ btn_img_cmd_orange }
-            on:click={ device.dev.setState }
+            on:click={ device.setState }
             hint="State"
         />
         <PillButton 
             img={ btn_img_cmd_yellow }
-            on:click={ device.dev.setHeader }
+            on:click={ device.setHeader }
             hint="Header"
         />
         <PillButton 
             img={ btn_img_cmd_green }
-            on:click={ device.dev.setConfig }
+            on:click={ device.setConfig }
             hint="Config"
         />
     </div>

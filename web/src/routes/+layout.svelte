@@ -16,6 +16,7 @@
     import { 
 		JOBS, JOBS_LOADED, getJobs,
         EVT_TYPES, EVT_TYPES_LOADED, getEventTypes,  
+		DES_JOBS, DES_JOBS_LOADED, getDESJobs,
     } from '../lib/c001v001/job'
 
     import { DEVICES, DEVICES_LOADED, getDevices, disconnectDevices, } from '../lib/c001v001/device'
@@ -51,6 +52,8 @@
     setContext( 'jobs', JOBS )
     setContext( 'jobs_loaded', JOBS_LOADED )
 
+    setContext( 'des_jobs', DES_JOBS )
+    setContext( 'des_jobs_loaded', DES_JOBS_LOADED )
    
     onMount( async( ) => {
 
@@ -104,6 +107,9 @@
         JOBS.set( [ ] )
         JOBS_LOADED.set( false )
         
+        DES_JOBS.set( [ ] )
+        DES_JOBS_LOADED.set( false )
+        
         gotoHome( )
         
         debug( "cleanSessionData( ) -> End: ", get( AUTH ).user.email )
@@ -120,6 +126,7 @@
         await getEventTypes( )
         await getDevices( )
         await getJobs( )
+        await getDESJobs( )
     }
     
     /* WEBSOCKET METHODS **************************************************************/

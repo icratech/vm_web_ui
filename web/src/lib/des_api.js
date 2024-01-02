@@ -28,6 +28,9 @@ import {
 
 
 export const DEMO_DEVICES = writable( [ ] )
+export const DEMO_DEVICES_LOADED = writable( false )
+export const updateDemoDevicesStore = async( ) => { DEMO_DEVICES.update( ( ) => { return [ ...get( DEMO_DEVICES ) ] } ) }
+
 
 /* DEMO! - NOT FOR PRODUCTION  *********************************************************************/
 export const API_URL_GET_RUN_DEMO_SIM = `${ WS_SERVER }/api/001/001/demo/sim` 
@@ -62,13 +65,13 @@ export class DemoDevice {
             ws.close( )
             this.sim.run = false
             debug( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } ONERROR:\n`, JSON.stringify( e ) )
-            this.update( )
+            updateDemoDevicesStore( )
         }
         ws.onmessage = ( msg ) => {
         
             let data =  JSON.parse( JSON.parse( msg.data ) )
             debug( `class DemoDevice: ${ this.dev.reg.des_dev_serial } ONMESSAGE:\n`, data )
-            this.update( )
+            updateDemoDevicesStore( )
         } 
         this.sim.run = true
        
@@ -79,7 +82,7 @@ export class DemoDevice {
                 debug( `class DemoDevice -> ${ this.dev.reg.des_dev_serial } -> WebSocket CLOSED: -> sim ${ this.sim.run }\n` )
                 this.update( )
         }
-        this.update( )
+        tupdateDemoDevicesStore( )
    }
 
 }

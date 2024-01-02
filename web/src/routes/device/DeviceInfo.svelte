@@ -144,14 +144,6 @@
             <!-- <HeaderCard bind:hdr /> -->
         </div>
 
-        <!-- <div class="flx-col">
-            <HeaderCard bind:hdr />
-         </div> -->
-    
-        <!-- <div class="flx-col gauge">
-            <BarGaugeCard bind:cfg bind:smp/>
-        </div> -->
-
     </div>
 
     <br>

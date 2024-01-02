@@ -14,5 +14,7 @@
 </script>
 
 <InputText bind:cls bind:enabled bind:txt bind:place 
-    on:input={ ( ) => { txt = formatSerialNumber( txt ) } }
+    on:input={ ( e ) => { 
+        txt = formatSerialNumber( txt ) 
+    } }
 />

@@ -35,6 +35,8 @@ export const API_URL_C001_V001_JOB_EVTS = `${ API_URL_C001_V001_JOB }/event_list
 
 export const API_URL_C001_V001_JOB_USER_WS =  `${ API_URL_C001_V001_JOB_WS }/ws`
 
+export const API_URL_C001_V001_JOB_DES_LIST = `${ API_URL_C001_V001_JOB }/des_list`
+
 export const EVT_TYPES = writable( [ ] )
 export const EVT_TYPES_LOADED = writable( false )
 export const updateEvtTypesStore = async( ) => { EVT_TYPES.update( ( ) => { return [ ...get( EVT_TYPES ) ] } ) }
@@ -106,6 +108,41 @@ export const getJobs = async( ) => {
 }
 
 
+export const DES_JOBS = writable( [ ] )
+export const DES_JOBS_LOADED = writable( false )
+export const updateDESJobsStore = ( ) => { DES_JOBS.update( ( ) => { return [ ...get( DES_JOBS ) ] } ) }
+export const getDESJobs = async( ) => {
+    DES_JOBS_LOADED.set( false )
+    let res = await getRequestAuth( API_URL_C001_V001_JOB_DES_LIST )
+    if ( res.err !== null ) {
+        if ( res.err !== 'Unauthorized' )
+            alert( ALERT_CODES.ERROR, res.err )
+    } else {
+        let jobs = ( res.json.jobs === null ? [ ] : res.json.jobs )
+        jobs.forEach( j => {
+            if ( get( DES_JOBS ).filter( s => { return s.reg.des_job_name === j.reg.des_job_name } )[0] === undefined ) {
+                let job = new Job(
+                    j.admins,
+                    j.states,
+                    j.headers,
+                    j.configs,
+                    j.events,
+                    j.samples,
+                    j.xypoints,
+                    j.reports,
+                    j.reg,
+                )
+                DES_JOBS.update( sjobs => { return [ ...sjobs, job ] } )
+            }
+        } )
+    
+        get( DES_JOBS ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
+        DES_JOBS_LOADED.set( true )
+
+        debug( "c001v001/job.js -> getJobs( ) -> DES_JOBS: ", get( DES_JOBS ).length )
+    }
+
+}
 
 /* JOB CLASS *******************************************************************************************/
 export class Job {
@@ -141,6 +178,7 @@ export class Job {
 
         /* JOB SEARCH PAGE MAP MARKER HOVER EFFECT */
         this.highlight = false
+        this.selected = false
 
         /* JOB SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')

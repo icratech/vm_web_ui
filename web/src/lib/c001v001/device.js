@@ -106,11 +106,10 @@ export const getDevices = async( ) => {
     if ( res.err !== null ) {
         if ( res.err !== 'Unauthorized' )
             alert( ALERT_CODES.ERROR, res.err )
-    }
-    else {
+    } else {
         let devs = ( res.json.devices === null ? [ ] : res.json.devices )  // debug( "c001v001/device.js -> getDevices( ) -> response:\n", devs )
         devs.forEach( dev => {
-            if( get( DEVICES ).filter( s => { return s.reg.des_dev_serial == dev.reg.des_dev_serial } )[0] == undefined ) {
+            if( get( DEVICES ).filter( s => { return s.reg.des_dev_serial === dev.reg.des_dev_serial } )[0] === undefined ) {
                 let device = new Device(
                     dev.adm,
                     dev.sta,
@@ -324,13 +323,13 @@ export class Device {
         this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX.MOT_VOLT]
     }
     loadChartXYPoints = async( xyp ) => { 
-        this.cht_ch4.data = [ ...xyp.ch4, ...this.cht_ch4.data ]
-        this.cht_hi_flow.data =  [ ...xyp.hi_flow, ...this.cht_hi_flow.data ]
-        this.cht_lo_flow.data =  [ ...xyp.lo_flow, ...this.cht_lo_flow.data ]
-        this.cht_press.data =  [ ...xyp.press, ...this.cht_press.data ]
-        this.cht_bat_amp.data =  [ ...xyp.bat_amp, ...this.cht_bat_amp.data ]
-        this.cht_bat_volt.data =  [ ...xyp.bat_volt, ...this.cht_bat_volt.data ]
-        this.cht_mot_volt.data =  [ ...xyp.mot_volt, ...this.cht_mot_volt.data ]
+        this.cht_ch4.data = [ ...xyp.ch4 ] 
+        this.cht_hi_flow.data =  [ ...xyp.hi_flow ] 
+        this.cht_lo_flow.data =  [ ...xyp.lo_flow ] 
+        this.cht_press.data =  [ ...xyp.press ] 
+        this.cht_bat_amp.data =  [ ...xyp.bat_amp ] 
+        this.cht_bat_volt.data =  [ ...xyp.bat_volt ] 
+        this.cht_mot_volt.data =  [ ...xyp.mot_volt ] 
 
         let flow = this.cht_lo_flow.data.map( f => f.y )
         if ( flow.some( f => { return f > this.cfg.cfg_flow_tog } ) ) {
@@ -573,7 +572,7 @@ export class Device {
         // debug( "End current job for device: ", this.reg.des_dev_serial ) 
 
         await this.updateReg( )
-        let dev = { reg: this.reg } //  debug( "Send END JOB Request:\n", dev )  
+        let dev = { reg: this.reg } // debug( "Send END JOB Request:\n", dev )  
 
         let res = await postRequestAuth( API_URL_C001_V001_DEVICE_END, dev )
 
