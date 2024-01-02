@@ -70,7 +70,7 @@
 <dvi class="flx-col container">
 
     { #if device }
-    <div class="flx-row content"  on:click={ toggleAuto } on:keydown>
+    <div class="flx-row content">
 
         <Modal bind:this={ startModal } on:confirm={ async( ) => { device.startJob( ) } }>
             <h3 class='fg-accent' slot="title">Start a new job</h3>
@@ -90,6 +90,7 @@
             <div slot="footer">Send command</div>
         </Modal>
      
+        <!-- on:click={ toggleAuto } on:keydown -->
         <div class="flx-col status">
             <DeviceInfo bind:device on:start={ startModal.open } on:end={ endModal.open } />
         </div>

@@ -58,6 +58,7 @@ export const API_URL_C001_V001_DEVICE_LIST =  `${ API_URL_C001_V001_DEVICE }/lis
 export const API_URL_C001_V001_DEVICE_USER_WS =  `${ API_URL_C001_V001_DEVICE_WS }/ws`
 
 /* DEVELOPMENT *** NOT FOR PRODUCTION *** */
+export const API_URL_C001_V001_DEVICE_FILES =  `${ API_URL_C001_V001_DEVICE }/files`
 export const API_URL_C001_V001_DEVICE_DBG =  `${ API_URL_C001_V001_DEVICE }/debug`
 export const API_URL_C001_V001_DEVICE_MSG_LIMIT =  `${ API_URL_C001_V001_DEVICE }/msg_limit`
 export const API_URL_C001_V001_DEVICE_SIM_OLS = `${ API_URL_C001_V001_DEVICE }/sim_offline_start`
@@ -94,9 +95,13 @@ export const registerDevice = async( serial ) => {
     
     else 
         // debug("registerDevice( ): ", res.json)
-        alert( ALERT_CODES.SUCCESS, `${ res.json.device.reg.des_dev_serial } registered.` )
-    
+        if ( res.json.device !== null ) {
+            dev = res.json.device 
+            debug( "c001v001/device.js -> registerDevice( ) ->  SUCCESS: dev: ", dev )
+            alert( ALERT_CODES.SUCCESS, `${ res.json.device.reg.des_dev_serial } registered.` )
+        }
 
+    
     await getDevices( )
 }
 
@@ -718,6 +723,26 @@ export class Device {
                 await this.loadChartXYPoints( res.json.xy_points )
 
         debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> ACTIVE JOB SAMPLES: `, this.cht_press.data.length )
+    }
+    /* USED TO DOWNLOAD DEVICE INIT FILES UPON REGISTRATION */
+    getDeviceFiles = async( ) => {
+        // debug( "c001v001/device.js -> getDeviceFilesobs( ): ", this.reg.des_dev_serial )
+        let dev = { reg: this.reg } 
+        let res = await postRequestAuth( API_URL_C001_V001_DEVICE_FILES, dev )  
+        if ( res.err !== null ) {
+            if ( res.err !== 'Unauthorized' )
+                alert( ALERT_CODES.ERROR, res.err )
+        } else {
+            let files = ( res.json.files === null ? { } : res.json.files )
+            let out = {
+                adm: files.adm,
+                sta: files.sta,
+                hdr: files.hdr,
+                cfg: files.cfg,
+                evt: files.evt,
+            } // debug( "c001v001/device.js -> getDeviceFilesobs( ) -> FILES: ", out )
+            return out
+        }
     }
 
     /* HTTP METHODS ( DES_ADMIN ) *************************************************************/

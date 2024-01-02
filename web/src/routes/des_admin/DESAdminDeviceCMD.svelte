@@ -21,6 +21,68 @@
 
     export let device = new Device( )
 
+    const downloadDeviceFiles = async( ) => {
+        let files = await device.getDeviceFiles( )
+        debug( "DESAdminDeviceCMD.svelte -> downloadDeviceFiles( ) -> FILES: ", files )
+
+        await jsonDownload( files.adm, "adm" )
+        await jsonDownload( files.sta, "sta" )
+        await jsonDownload( files.hdr, "hdr" )
+        await jsonDownload( files.cfg, "cfg" )
+        await jsonDownload( files.evt, "evt" )
+
+    }
+
+    /* JSON FILE -> DOWNLOAD & SAVE */
+    const jsonDownload = async( obj, name ) => {
+
+        let file = `[${ JSON.stringify( obj ) }]`
+        // let bytes = await doc.save( ) 
+        let blob = new Blob( [ file ], { type: 'data:text/json; charset=utf-8;' } )
+        // let fileName = `${ name }-${ FormatTimeCodeDashed( Date.now( ) ) }.json`
+        let fileName = `${ name }.json`
+        let saveOptions = { description: "JSON", accept: { "tex/plain" : [ ".json" ] } }
+
+        await saveBlobToFile( blob, fileName, saveOptions )
+
+    }
+    /* JSON -> SAVE */
+    const saveBlobToFile = async( blob, fileName, saveOptions ) => {
+
+        if ( window.navigator && window.navigator.msSaveOrOpenBlob ) {
+
+            window.navigator.msSaveOrOpenBlob( blob )
+
+        } else {
+
+            // if ( window.showSaveFilePicker ) {
+
+            //     /* ALLOW USER TO CHOOSE NAME & LOCATION */
+            //     let handle = await showSaveFilePicker( {
+            //         suggestedName: fileName,
+            //         types: [ saveOptions ]
+            //     } )
+
+            //     let writable = await handle.createWritable( )
+            //     await writable.write( blob )
+            //     writable.close( )
+
+            // } else {
+
+                /* SAVE IN DEFAULT DOWNLOADS FOLDER */
+                const url = window.URL.createObjectURL( blob )
+                let link = document.createElement( 'a' )
+                link.href = url
+                link.download = fileName
+                link.target="_blank"
+                link.click( )
+
+                // For Firefox it is necessary to delay revoking the ObjectURL.
+                setTimeout( ( ) => { window.URL.revokeObjectURL( url ) }, 250)
+
+            // }
+        }
+    }
 
 </script>
 
@@ -29,6 +91,11 @@
 
     <div class="flx-col btns">
         <PillButton 
+            img={ btn_img_cmd_pink }
+            on:click={ downloadDeviceFiles }
+            hint="Get Files"
+        />
+        <!-- <PillButton 
             img={ btn_img_disconnect_red }
             hint="Disconnect DES"
         />
@@ -39,10 +106,7 @@
         <PillButton 
             img={ btn_img_reset_aqua }
             hint="Reset DES"
-        />
-        <PillButton 
-            img={ btn_img_cmd_pink }
-        />
+        /> -->
     </div>
 
     <div class="flx-col btns">
@@ -69,7 +133,7 @@
     </div>
 
     <div class="flx-col btns">
-        <PillButton 
+        <!-- <PillButton 
             img={ btn_img_cmd_aqua }
         />
         <PillButton 
@@ -80,7 +144,7 @@
         />
         <PillButton 
             img={ btn_img_cmd_pink }
-        />
+        /> -->
     </div>
 
 </div>

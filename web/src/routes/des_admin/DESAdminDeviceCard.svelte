@@ -35,9 +35,10 @@
 
 </script>
 
-<div class="flx-row container { highlight }"
+<!-- <div class="flx-row container { highlight }"
     on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } 
->
+> -->
+<div class="flx-row container { highlight }">
 
     <div class="flx-row">
         <DESAdminDeviceInfo bind:device />
