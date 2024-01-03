@@ -278,7 +278,7 @@ export class Job {
             this.configs = j.configs
             this.events = j.events
             this.samples = j.samples
-            await this.loadChartXYPoints( j.xypoints )
+            if ( this.samples !== null ) { await this.loadChartXYPoints( j.xypoints ) }
             this.reports = j.reports
             return { ok: true, msg: null }
         }

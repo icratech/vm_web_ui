@@ -142,6 +142,9 @@
     }
 
 
+    $: smpCount = ( job.samples !== null ? job.samples.length : 0 )
+    $: smpFunc = ( job.samples !== null ? ( ) => { tableSelected( "samples" ) } : ( )=>{ } )
+
 </script>
 
 <dvi class="flx-col container">
@@ -236,9 +239,9 @@
                         />EVENTS : { job.events.length }</div>
 
                     <div class="flx-row tlb-selector"><PillButton 
-                        on:click={ ( ) => { tableSelected( "samples" ) } }
+                        on:click={ smpFunc }
                         cls={ ( tblSmp ? trueColor : falseColor ) }
-                        />SAMPLES : { job.samples.length }</div>
+                        />SAMPLES : { smpCount }</div>
                         
                     <!-- <div class="flx-row tlb-selector"><PillButton 
                         />REPORTS : { job.reports.length }</div> -->
