@@ -2,29 +2,13 @@
     
     import { createEventDispatcher } from "svelte"
 
-    import { debugging } from '../../lib/des/app'
     import { debug } from '../../lib/des/utils'
-
-    import { Sample, OP_CODES } from '../../lib/c001v001/models'
     import { Device } from '../../lib/c001v001/device'
 
-    import { DemoDevice } from "../../lib/des_api"
-
-    import PillButton from "../../lib/common/button/PillButton.svelte"
     import DeviceMode from "../device/DeviceMode.svelte"
     import DeviceConn from "../device/DeviceConn.svelte"
-
-    import btn_img_cmd from "$lib/images/btn-img-cmd-yellow.svg"
-    import btn_img_confirm from "$lib/images/btn-img-confirm-aqua.svg"
-    import btn_img_reset from "$lib/images/btn-img-reset-grey.svg"
-    import btn_img_start from "$lib/images/btn-img-start-green.svg"
-    import btn_img_stop from "$lib/images/btn-img-stop-red.svg"
     
     export let device = new Device( )
-    $: cfg = device.cfg
-    $: hdr = device.hdr
-    $: sta = device.sta
-    $: smp = ( device.smp ? device.smp : new Sample( ) )
 
     $: highlight = ( device.highlight ? 'highlight' : '' ) 
     let dispatch = createEventDispatcher( )
@@ -34,8 +18,7 @@
 
 
 <div class="flx-col container { highlight }"
-    on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } 
->
+    on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } >
 
     <div class="flx-col layout">
 
@@ -49,23 +32,6 @@
 
             <DeviceMode bind:device={ device } />
 
-            <!-- <div class="flx-row btns">
-
-                { #if debugging }
-                <PillButton 
-                    on:click={ device.startJob }
-                    img={ btn_img_start }
-                    hint={ "Start Job" } 
-                />
-                <PillButton 
-                    on:click={ device.endJob }
-                    img={ btn_img_stop }
-                    hint={ "End Job" } 
-                />
-                { /if }
-
-            </div>    -->
-
         </div>
 
     </div>
@@ -77,11 +43,6 @@
 <style>
     
     .container {
-        /* background-color: var(--light_aa);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
-        border-radius: 0.5em; */
-        /* height:100%; */
         padding: 1em;
         gap: 0.5em;
     }
@@ -93,7 +54,6 @@
     .title-bar {
         justify-content: space-between;
         align-items: center;
-        /* padding-bottom: 0.5em; */
     }
     
     .ser-cont { 

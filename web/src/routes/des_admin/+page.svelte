@@ -15,12 +15,9 @@
     import DESAdminDeviceCard from './DESAdminDeviceCard.svelte'
     import DesAdminDeviceInfo from './DESAdminDeviceInfo.svelte'
     import DesAdminJobBadge from './DESAdminJobBadge.svelte'
-    import DesAdminJobDbList from './DESAdminJobDBList.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
     import SerialNumInput from '../../lib/des/components/SerialNumInput.svelte'
-	import { each } from 'svelte/internal';
-	import { validateSerialNumber } from '../../lib/des/device';
 
     $: DEVICES = getContext( 'devices' )
     $: DEVICES_LOADED = getContext( 'devices_loaded' )

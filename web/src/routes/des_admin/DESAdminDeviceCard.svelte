@@ -138,7 +138,7 @@
         </div>
 
         <div class="flx-row cmd">
-            <PillButton img={ btn_img_status } on:click={ device.startJob } />
+            <PillButton img={ btn_img_status } on:click={ device.getReport } />
             <p>Request device status report: Admin, State, Header, Config</p>
         </div>
 

@@ -40,8 +40,8 @@ export const API_URL_C001_V001_DEVICE_DES_CLIENT_DISCONNECT =  `${ API_URL_C001_
 
 /* DEVICE-OPERATOR-LEVEL OPERATIONS */
 export const API_URL_C001_V001_DEVICE_START =  `${ API_URL_C001_V001_DEVICE }/start`
-export const API_URL_C001_V001_DEVICE_CANCEL_START =  `${ API_URL_C001_V001_DEVICE }/cancel_start`
 export const API_URL_C001_V001_DEVICE_END =  `${ API_URL_C001_V001_DEVICE }/end`
+export const API_URL_C001_V001_DEVICE_REPORT =  `${ API_URL_C001_V001_DEVICE }/report`
 export const API_URL_C001_V001_DEVICE_ADM =  `${ API_URL_C001_V001_DEVICE }/admin`
 export const API_URL_C001_V001_DEVICE_STA =  `${ API_URL_C001_V001_DEVICE }/state`
 export const API_URL_C001_V001_DEVICE_HDR =  `${ API_URL_C001_V001_DEVICE }/header`
@@ -583,6 +583,16 @@ export class Device {
 
         if ( res.err !== null ) 
             alert( ALERT_CODES.ERROR, res.err )
+    }
+    getReport = async( ) => {
+        await this.updateReg( )
+        let dev = { reg: this.reg }        
+        
+        let res = await postRequestAuth( API_URL_C001_V001_DEVICE_REPORT, dev )
+
+        if ( res.err !== null ) 
+            alert( ALERT_CODES.ERROR, res.err )
+
     }
     setAdmin = async( ) => {
         // debug( "Set Admin for device: ", this.reg.des_dev_serial ) 
