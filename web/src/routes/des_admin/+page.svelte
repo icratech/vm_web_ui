@@ -61,7 +61,7 @@
         // let x = $JOBS.filter( ( jb ) => { return jb.reg.des_job_name  == j.reg.des_job_name } )[0]
         await j.getJobData( )
         job = j
-        tableSelected( "events" )
+        tableSelected( "states" )
         // debug( "selected job: ", j )
     }
 
@@ -70,8 +70,8 @@
     $: rows = [ ]
     const trueColor = 'bg-orange'
     const falseColor = 'bg-grey'
-    let tblAdm = true
-    let tblSta = false
+    let tblAdm = false
+    let tblSta = true
     let tblHdr = false
     let tblCfg = false
     let tblEvt = false
@@ -135,12 +135,28 @@
     }
     const getTblValues = ( ) => {
         rows = [ ]
-        gettblColumns( tbl[ 0 ] )
-        for ( let i = 0; i < tbl.length; i++ ) {
-            rows.push( gettblRow( tbl[ i ] ) )
+        if ( tbl && tbl.length > 0 ) {
+            gettblColumns( tbl[ 0 ] )
+            for ( let i = 0; i < tbl.length; i++ ) {
+                rows.push( gettblRow( tbl[ i ] ) )
+            }
         }
     }
 
+    $: admCount = ( job.admins !== null ? job.admins.length : 0 )
+    $: admFunc = ( job.admins !== null ? ( ) => { tableSelected( "admins" ) } : ( )=>{ } )
+
+    $: staCount = ( job.states !== null ? job.states.length : 0 )
+    $: staFunc = ( job.states !== null ? ( ) => { tableSelected( "states" ) } : ( )=>{ } )
+
+    $: hdrCount = ( job.headers !== null ? job.headers.length : 0 )
+    $: hdrFunc = ( job.headers !== null ? ( ) => { tableSelected( "headers" ) } : ( )=>{ } )
+
+    $: cfgCount = ( job.configs !== null ? job.configs.length : 0 )
+    $: cfgFunc = ( job.configs !== null ? ( ) => { tableSelected( "configs" ) } : ( )=>{ } )
+
+    $: evtCount = ( job.events !== null ? job.events.length : 0 )
+    $: evtFunc = ( job.events !== null ? ( ) => { tableSelected( "events" ) } : ( )=>{ } )
 
     $: smpCount = ( job.samples !== null ? job.samples.length : 0 )
     $: smpFunc = ( job.samples !== null ? ( ) => { tableSelected( "samples" ) } : ( )=>{ } )
@@ -209,58 +225,54 @@
 
             <div class="flx-row"><h3>{ job_title }</h3></div>
 
-            <div class="flx-row tbl-container">
+            <div class="flx-row db-container">
 
                 <div class="flx-col tbl-menu">
                     
-                    <div class="flx-row tlb-selector"><PillButton 
-                        on:click={ ( ) => { tableSelected( "admins" ) } }
-                        cls={ ( tblAdm ? trueColor : falseColor ) }
-                        />ADMINS : { job.admins.length }</div>
+                    <div class="flx-row tlb-selector">
+                        <PillButton on:click={ admFunc } cls={ ( tblAdm ? trueColor : falseColor ) } />ADMINS : { admCount }</div>
                 
-                    <div class="flx-row tlb-selector"><PillButton 
-                        on:click={ ( ) => { tableSelected( "states" ) } }
-                        cls={ ( tblSta ? trueColor : falseColor ) }
-                        />STATES : { job.states.length }</div>
+                    <div class="flx-row tlb-selector">
+                        <PillButton on:click={ staFunc } cls={ ( tblSta ? trueColor : falseColor ) } />STATES : { staCount }</div>
                 
-                    <div class="flx-row tlb-selector"><PillButton 
-                        on:click={ ( ) => { tableSelected( "headers" ) } }
-                        cls={ ( tblHdr ? trueColor : falseColor ) }
-                        />HEADERS : { job.headers.length }</div>
+                    <div class="flx-row tlb-selector">
+                        <PillButton on:click={ hdrFunc } cls={ ( tblHdr ? trueColor : falseColor ) } />HEADERS : { hdrCount }</div>
         
-                    <div class="flx-row tlb-selector"><PillButton 
-                        on:click={ ( ) => { tableSelected( "configs" ) } }
-                        cls={ ( tblCfg ? trueColor : falseColor ) }
-                        />CONFIGS : { job.configs.length }</div>
+                    <div class="flx-row tlb-selector">
+                        <PillButton on:click={ cfgFunc } cls={ ( tblCfg ? trueColor : falseColor ) } />CONFIGS : { cfgCount }</div>
                                     
-                    <div class="flx-row tlb-selector"><PillButton 
-                        on:click={ ( ) => { tableSelected( "events" ) } }
-                        cls={ ( tblEvt ? trueColor : falseColor ) }
-                        />EVENTS : { job.events.length }</div>
+                    <div class="flx-row tlb-selector">
+                        <PillButton on:click={ evtFunc } cls={ ( tblEvt ? trueColor : falseColor ) } />EVENTS : { evtCount }</div>
 
-                    <div class="flx-row tlb-selector"><PillButton 
-                        on:click={ smpFunc }
-                        cls={ ( tblSmp ? trueColor : falseColor ) }
-                        />SAMPLES : { smpCount }</div>
+                    <div class="flx-row tlb-selector">
+                        <PillButton on:click={ smpFunc } cls={ ( tblSmp ? trueColor : falseColor ) } />SAMPLES : { smpCount }</div>
                         
                     <!-- <div class="flx-row tlb-selector"><PillButton 
                         />REPORTS : { job.reports.length }</div> -->
                         
                 </div>
 
-                <div class="flx-col tbl-rows">
-                    <div class="flx-row">
-                        { #each cols as col, index ( index ) }
-                            <div class="flx-row tbl-cell col-hdr">{ col.slice( 4, ) }</div>
-                        { /each }
-                    </div>
-                    { #each rows as row, index ( index ) }
-                    <div class="flx-row">
-                        { #each row as val, index ( index ) }
-                        <div class="flx-row tbl-cell ">{ val }</div>
-                        { /each }
-                    </div>
-                    { /each }
+                <div class="flx-col tbl-container">
+                    <table>
+    
+                        <thead>
+                            <tr>
+                                { #each cols as col, index ( index ) }
+                                    <th>{ ( col.slice( 4, ) ).replace( '_', ' ').toUpperCase( ) }</th>
+                                { /each }
+                            </tr>
+                        </thead>
+                        <tbody>
+                                { #each rows as row, index ( index ) }
+                                    <tr>
+                                        { #each row as val, index ( index ) }
+                                        <td>{ val }</td>
+                                        { /each }
+                                    </tr>
+                                { /each }
+                        </tbody>
+    
+                    </table>
                 </div>
 
             </div>
@@ -278,7 +290,6 @@
 
 <style>
     .container {
-        overflow: hidden;
         height: 100%;
         gap: 1rem;
     }
@@ -317,20 +328,20 @@
     }
 
     .panel {
+        overflow: hidden;
         padding: 0;
         height: auto;
         gap: 0.5em;
     }
 
     .select-list {
-        overflow-x: visible;
         overflow-y: auto;
         padding: 1em;
         width: 100%;
         height: 100%;
     }
 
-    .tbl-container {
+    .db-container {
         height: 100%;
     }
     .tbl-menu {
@@ -340,31 +351,46 @@
         border-radius: 0.5em;
         max-width: 13em;
         min-width: 13em;
-        width: 13em;
         height: 100%;
         padding:1em;
     }
     .tlb-selector {
-        /* justify-content: flex-end; */
         align-items: center;
         width: auto;
     }
-    .tbl-rows {
+
+    .tbl-container {
+        width: 100%;
+        height: auto;
         overflow: auto;
-        gap: 0.5em;
     }
-    .col-hdr {
-        font-weight: 500;
-        color: var(--orange_07);
+
+    table, th, td {
+        text-align: center;
+        border-collapse: collapse;
+        white-space: nowrap;
+        text-align: left;
+        padding: 0.75em;
     }
-    .tbl-cell {
-        font-size: 0.85em;
-        max-width: 6em;
-        min-width: 6em;
-        width: 6em;
-        padding-bottom: 0.25em;
-        padding-right: 0;
+    table {
+        width: 100%;
     }
+    table thead {
+        color: var(--orange_05);
+    }
+    table th {
+        border-bottom: 0.2em solid var(--aqua_04);
+    }
+    table th, td {
+        border-left: 0.1em solid var(--orange_03);
+    }
+    table th:first-child, td:first-child {
+		border-left: none;
+	}
+    table tr:nth-child(even) {
+        background-color:  var(--light_005);
+    }
+
     .input-container {
         gap: 0.25rem;
     }

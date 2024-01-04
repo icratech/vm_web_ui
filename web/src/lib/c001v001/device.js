@@ -724,7 +724,7 @@ export class Device {
 
         debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> ACTIVE JOB SAMPLES: `, this.cht_press.data.length )
     }
-    /* USED TO DOWNLOAD DEVICE INIT FILES UPON REGISTRATION */
+    /* USED TO DOWNLOAD DEVICE INITIALIZATION FILES UPON REGISTRATION */
     getDeviceFiles = async( ) => {
         // debug( "c001v001/device.js -> getDeviceFilesobs( ): ", this.reg.des_dev_serial )
         let dev = { reg: this.reg } 

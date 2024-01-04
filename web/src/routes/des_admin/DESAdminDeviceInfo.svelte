@@ -26,30 +26,6 @@
     $: sta = device.sta
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    $: DESDevConnColor = 'bg-accent'
-    $: DESDevConnHint = 'DES Client OK'
-    $: DESDevConnImage = btn_img_confirm 
-    const DESDevConnFucn = ( ) => { 
-            device.des_ping.time = 0
-            device.des_ping.ok = false
-            device.refreshDESClient( )
-        }
-    $: {
-        if ( !device.des_ping.ok ) { 
-            DESDevConnColor = 'bg-yellow' 
-            DESDevConnHint = 'DES Connecting...'
-            DESDevConnImage = btn_img_cmd
-        } else if ( !device.ping.ok ) { 
-            DESDevConnColor = 'bg-grey' 
-            DESDevConnHint = 'Reset DES Client'
-            DESDevConnImage = btn_img_reset
-        } else { 
-            DESDevConnColor = 'bg-accent' 
-            DESDevConnHint = 'DES Client OK'
-            DESDevConnImage = btn_img_confirm
-        }
-    }
-
     $: highlight = ( device.highlight ? 'highlight' : '' ) 
     let dispatch = createEventDispatcher( )
 
@@ -73,13 +49,7 @@
 
             <DeviceMode bind:device={ device } />
 
-            <div class="flx-row btns">
-
-                <PillButton 
-                    on:click={ DESDevConnFucn }
-                    img={ DESDevConnImage }
-                    hint={ DESDevConnHint } 
-                />
+            <!-- <div class="flx-row btns">
 
                 { #if debugging }
                 <PillButton 
@@ -94,7 +64,7 @@
                 />
                 { /if }
 
-            </div>   
+            </div>    -->
 
         </div>
 
@@ -107,10 +77,10 @@
 <style>
     
     .container {
-        background-color: var(--light_aa);
+        /* background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
-        border-radius: 0.5em;
+        border-radius: 0.5em; */
         /* height:100%; */
         padding: 1em;
         gap: 0.5em;
@@ -150,5 +120,6 @@
         justify-content: flex-end; 
         gap: 1em;
     }
+    
 
 </style>

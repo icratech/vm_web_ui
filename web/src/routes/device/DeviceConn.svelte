@@ -96,24 +96,6 @@
         </div>
     </div>
 
-    <!-- <div class="flx-row field">
-        <div class="flx-row field-name">Firmware</div>
-        <div class="vert-line"/>
-
-        <div class="flx-row fw">
-            <div class="flx-row fw-sub-l">
-                <div class="flx-row field-sub">Logger</div>
-                <div class="flx-row field-value">{ device.sta.sta_log_fw }</div>
-            </div>
-
-            <div class="flx-row fw-sub-l">
-                <div class="flx-row field-sub">Modem</div>
-                <div class="flx-row field-value">{ device.sta.sta_mod_fw }</div>
-            </div>
-        </div>
-    </div> -->
-
-
     <div class="flx-row field">
         <div class="flx-row field-name">Pings</div>
         <div class="vert-line"/>
@@ -122,14 +104,14 @@
 
             <div class="flx-row fw-sub-l">
                 <div class="flx-row field-sub">Device</div> 
-                <div class="flx-row field-value timeout-value" style="color:{ ( device.ping.ok ? 'var(--green_a)' : 'var(--red)' ) };">
+                <div class="flx-row field-value-l timeout-value" style="color:{ ( device.ping.ok ? 'var(--green_a)' : 'var(--red)' ) };">
                     { dev_ping_sec }
                 </div>
             </div>
 
             <div class="flx-row fw-sub-r">
                 <div class="flx-row field-sub">Server</div>
-                <div class="flx-row field-value timeout-value" style="color:{ ( device.des_ping.ok ? 'var(--aqua_a)' : 'var(--red)' ) };">
+                <div class="flx-row field-value-r timeout-value" style="color:{ ( device.des_ping.ok ? 'var(--aqua_a)' : 'var(--red)' ) };">
                     { des_ping_sec }
                 </div>
             </div>
@@ -196,12 +178,17 @@
     }
     /* .date { color: var(--orange_a); } */
 
-    .field-value { 
+    .field-value-l { 
         /* color: var( --orange_a); */
         justify-content: flex-start;
         align-items: center; 
-        max-width: 3.75em;
-        min-width: 3.75em;
+        width: auto;
+    }
+    .field-value-r { 
+        /* color: var( --orange_a); */
+        justify-content: flex-end;
+        align-items: center; 
+        width: auto;
     }
 
     .field-text-l { 

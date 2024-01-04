@@ -77,7 +77,6 @@
 <style>
 
     .container {
-        justify-content: flex-start;
         overflow-y: hidden;
         align-items: center;
         height: 100%;
