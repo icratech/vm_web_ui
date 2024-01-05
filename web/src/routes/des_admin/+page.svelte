@@ -220,60 +220,60 @@
             </div>
             { :else if showDatabases }
 
-            <div class="flx-row"><h3>{ job_title }</h3></div>
+            <div class="flx-col tbl-layout">
 
-            <div class="flx-row db-container">
+                <div class="flx-row"><h3>{ job_title }</h3></div>
 
-                <div class="flx-col tbl-menu">
+                <div class="flx-row db-container">
+
+                    <div class="flx-col tbl-menu">
+                        
+                        <div class="flx-row tlb-selector">
+                            <PillButton on:click={ admFunc } cls={ ( tblAdm ? trueColor : falseColor ) } />ADMINS : { admCount }</div>
                     
-                    <div class="flx-row tlb-selector">
-                        <PillButton on:click={ admFunc } cls={ ( tblAdm ? trueColor : falseColor ) } />ADMINS : { admCount }</div>
-                
-                    <div class="flx-row tlb-selector">
-                        <PillButton on:click={ staFunc } cls={ ( tblSta ? trueColor : falseColor ) } />STATES : { staCount }</div>
-                
-                    <div class="flx-row tlb-selector">
-                        <PillButton on:click={ hdrFunc } cls={ ( tblHdr ? trueColor : falseColor ) } />HEADERS : { hdrCount }</div>
-        
-                    <div class="flx-row tlb-selector">
-                        <PillButton on:click={ cfgFunc } cls={ ( tblCfg ? trueColor : falseColor ) } />CONFIGS : { cfgCount }</div>
-                                    
-                    <div class="flx-row tlb-selector">
-                        <PillButton on:click={ evtFunc } cls={ ( tblEvt ? trueColor : falseColor ) } />EVENTS : { evtCount }</div>
+                        <div class="flx-row tlb-selector">
+                            <PillButton on:click={ staFunc } cls={ ( tblSta ? trueColor : falseColor ) } />STATES : { staCount }</div>
+                    
+                        <div class="flx-row tlb-selector">
+                            <PillButton on:click={ hdrFunc } cls={ ( tblHdr ? trueColor : falseColor ) } />HEADERS : { hdrCount }</div>
+            
+                        <div class="flx-row tlb-selector">
+                            <PillButton on:click={ cfgFunc } cls={ ( tblCfg ? trueColor : falseColor ) } />CONFIGS : { cfgCount }</div>
+                                        
+                        <div class="flx-row tlb-selector">
+                            <PillButton on:click={ evtFunc } cls={ ( tblEvt ? trueColor : falseColor ) } />EVENTS : { evtCount }</div>
 
-                    <div class="flx-row tlb-selector">
-                        <PillButton on:click={ smpFunc } cls={ ( tblSmp ? trueColor : falseColor ) } />SAMPLES : { smpCount }</div>
-                        
-                    <!-- <div class="flx-row tlb-selector"><PillButton 
-                        />REPORTS : { job.reports.length }</div> -->
-                        
+                        <div class="flx-row tlb-selector">
+                            <PillButton on:click={ smpFunc } cls={ ( tblSmp ? trueColor : falseColor ) } />SAMPLES : { smpCount }</div>
+                            
+                        <!-- <div class="flx-row tlb-selector"><PillButton 
+                            />REPORTS : { job.reports.length }</div> -->
+                            
+                    </div>
+
+                    <div class="flx-col tbl-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    { #each cols as col, index ( index ) }
+                                        <th>{ ( col.slice( 4, ) ).replace( '_', ' ').toUpperCase( ) }</th>
+                                    { /each }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    { #each rows as row, index ( index ) }
+                                        <tr>
+                                            { #each row as val, index ( index ) }
+                                            <td>{ val }</td>
+                                            { /each }
+                                        </tr>
+                                    { /each }
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
-
-                <div class="flx-col tbl-container">
-                    <table>
-    
-                        <thead>
-                            <tr>
-                                { #each cols as col, index ( index ) }
-                                    <th>{ ( col.slice( 4, ) ).replace( '_', ' ').toUpperCase( ) }</th>
-                                { /each }
-                            </tr>
-                        </thead>
-                        <tbody>
-                                { #each rows as row, index ( index ) }
-                                    <tr>
-                                        { #each row as val, index ( index ) }
-                                        <td>{ val }</td>
-                                        { /each }
-                                    </tr>
-                                { /each }
-                        </tbody>
-    
-                    </table>
-                </div>
-
             </div>
-
             { /if }
 
 
@@ -327,7 +327,7 @@
     .panel {
         overflow: hidden;
         padding: 0;
-        height: auto;
+        height: 100%;
         gap: 0.5em;
     }
 
@@ -339,8 +339,11 @@
     }
 
     .db-container {
+        overflow: hidden;
+        /* overflow: auto; */
         height: 100%;
     }
+
     .tbl-menu {
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
@@ -356,9 +359,14 @@
         width: auto;
     }
 
+    .tbl-layout {
+        overflow: hidden;
+        height: 100%;
+    }
+
     .tbl-container {
         width: 100%;
-        height: auto;
+        height: 100%;
         overflow: auto;
     }
 
@@ -369,9 +377,10 @@
         text-align: left;
         padding: 0.75em;
     }
-    table {
+    /* table {
         width: 100%;
-    }
+        height: 100%;
+    } */
     table thead {
         color: var(--orange_05);
     }
