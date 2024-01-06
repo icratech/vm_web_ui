@@ -38,13 +38,13 @@
                 { :else }
                     <div class="flx-col validation">
                         { #if !nameLength }
-                            <p class="alert invalid">Name must be 3 or more characthers.</p>
+                            <p class="alert invalid">Name must be 3 or more characters.</p>
                         { /if }
                         { #if !validEmail }
                             <p class="alert invalid">Email must be a valid email address.</p>
                         { /if }
                         { #if !pwLength }
-                            <p class="alert invalid">Password must be 8 or more charachters.</p>
+                            <p class="alert invalid">Password must be 8 or more characters.</p>
                         { /if }
                         { #if !pwMatch }
                             <p class="alert invalid">Password and confirmation must match.</p> 
