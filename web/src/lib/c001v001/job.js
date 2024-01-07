@@ -1,8 +1,9 @@
 import { writable, get } from 'svelte/store'
 import { goto } from '$app/navigation'
 import mapboxgl from 'mapbox-gl'
+mapboxgl.accessToken = MAPBOX_TOKEN
 
-import { HTTP_SERVER, WS_SERVER, client_app } from '../des/app'
+import { HTTP_SERVER, WS_SERVER, client_app, MAPBOX_TOKEN, MAPBOX_STYLE } from '../des/app'
 import { ALERT_CODES, alert, waitMilli, debug } from '../des/utils'
 import { AUTH, getRequest, getRequestAuth, postRequestAuth } from '../des/api'
 import { FormatDateTime } from "../common/format"
@@ -42,13 +43,13 @@ export const EVT_TYPES_LOADED = writable( false )
 export const updateEvtTypesStore = async( ) => { EVT_TYPES.update( ( ) => { return [ ...get( EVT_TYPES ) ] } ) }
 export const getEventTypes = async( ) => {
 
-    let res = await getRequest( API_URL_C001_V001_JOB_EVENT_TYPE_LIST )
+    let res = await getRequestAuth( API_URL_C001_V001_JOB_EVENT_TYPE_LIST )
 
     if ( res.err !== null ) 
         alert( ALERT_CODES.ERROR, res.err )
 
     else {    
-            let typs = res.json.data.event_types
+            let typs = res.json.event_types
 
             typs.forEach( t => { 
                 if( get( EVT_TYPES ).filter( e => { return e.evt_typ_code == t.evt_typ_code } )[0] == undefined ) {
@@ -61,7 +62,6 @@ export const getEventTypes = async( ) => {
                 }        
             } )
             EVT_TYPES_LOADED.set( true )
-    
             debug( "c001v001/job.js -> getEventTypes( ) -> EVT_TYPES: ", get( EVT_TYPES ).length )
     }
 
@@ -79,29 +79,20 @@ export const getJobs = async( ) => {
             alert( ALERT_CODES.ERROR, res.err )
     }
     else {
-            let jobs = ( res.json.data.jobs === null ? [ ] : res.json.data.jobs ) 
-            // debug( "c001v001/job.js -> getJobs( ) -> response:\n", jobs )
-
+            let jobs = ( res.json.jobs === null ? [ ] : res.json.jobs ) // debug( "c001v001/job.js -> getJobs( ) -> response:\n", jobs )
             jobs.forEach( j => {
-                if ( get( JOBS ).filter( s =>{ return s.reg.des_job_name == j.reg.des_job_name } )[0] == undefined ) {
-                    let job = new Job(
-                        j.admins,
-                        j.states,
-                        j.headers,
-                        j.configs,
-                        j.events,
-                        j.samples,
-                        j.xypoints,
-                        j.reports,
-                        j.reg,
-                    )
-                    JOBS.update( sjobs => { return [ ...sjobs, job ] } )
+                let stored = get( JOBS ).filter( sj =>{ return sj.reg.des_job_name === j.reg.des_job_name } )[0]
+                if ( stored === undefined ) {
+                    let job = new Job( )
+                    job.reg = j.reg
+                    JOBS.update( sjobs => { return [ ...sjobs, job ] } ) // debug( "new job: ", job )
+                 } else {
+                    stored.reg = j.reg
+                    updateJobsStore( ) // debug( "stored job: ", stored )
                 }
             } )
-    
             get( JOBS ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
             JOBS_LOADED.set( true )
-
             debug( "c001v001/job.js -> getJobs( ) -> JOBS: ", get( JOBS ).length )
     }
 
@@ -172,6 +163,7 @@ export class Job {
         this.selection = 0
         this.selected_smp = new Sample( )
         this.cht_scale_margin = CHT_DEFALTS.MARGIN
+        this.cht_auto_scale = false
 
         /* WEB SOCKET CONNECTION STATUS */
         this.socket = false
@@ -179,6 +171,13 @@ export class Job {
         /* JOB SEARCH PAGE MAP MARKER HOVER EFFECT */
         this.highlight = false
         this.selected = false
+
+        /* JOB PAGE MAP MARKER */
+        this.mark_el = document.createElement('div')
+        this.mark_el.className = 'marker job'; 
+        this.mark = new mapboxgl.Marker( this.mark_el, { anchor: 'bottom-right' } ).setLngLat( 
+            validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ) 
+        ) 
 
         /* JOB SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
@@ -201,6 +200,20 @@ export class Job {
         
         this.cht = newChartData( )
         this.resetChart( )
+    }
+
+    /* JOB PAGE MAP */
+    makeMap( ctx ) {
+        this.map = new mapboxgl.Map( {
+            container: ctx,
+            style: MAPBOX_STYLE, 
+            center: validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ),
+            zoom :  5.5,
+            interactive: true,
+            preserveDrawingBuffer: true
+        } )
+        this.mark.setLngLat( validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ) )
+        this.mark.addTo( this.map )
     }
 
     /* WEBSOCKET METHODS **************************************************************/
@@ -448,9 +461,7 @@ export class Job {
     
     /* CHART DATA */
     loadChartXYPoints = async( xyp ) => {
-        
-        debug(  "job.loadChartXYPoints( ) -> samples: ", this.samples.length )
-        
+        // debug(  "job.loadChartXYPoints( ) -> samples: ", this.samples.length )
         this.xypoints = xyp
         this.cht_ch4.data = xyp.ch4
         this.cht_hi_flow.data = xyp.hi_flow
@@ -459,9 +470,7 @@ export class Job {
         this.cht_bat_amp.data = xyp.bat_amp
         this.cht_bat_volt.data = xyp.bat_volt
         this.cht_mot_volt.data = xyp.mot_volt
-
-        // this.cht.options.scales.x.min = this.cht_ch4.data[0].x
-        // this.cht.options.scales.x.max = this.cht_ch4.data[this.cht_ch4.data.length -1].x
+        
         let flow = this.cht_lo_flow.data.map( f => f.y )
         if ( flow.some( f => { return f > 2.5 } ) ) {
             this.cht.options.scales.y_hi_flow.display = true
@@ -477,10 +486,14 @@ export class Job {
             this.cht_lo_flow.hidden = false
         } 
         
-        this.cht.autoScale( this.cht_ch4,  this.cht.options.scales.y_ch4, 0.1 )
-        this.cht.autoScale( this.cht_press,  this.cht.options.scales.y_press, 0.1 )
-        this.cht.autoScale( this.cht_hi_flow,  this.cht.options.scales.y_hi_flow, 0.1 )
-        this.cht.autoScale( this.cht_lo_flow,  this.cht.options.scales.y_lo_flow, 0.1 )
+        let auto = this.cht_auto_scale
+        let margin = this.cht_scale_margin
+        let start = ( this.cht.limitDataset( this.cht_press, this.cht_point_limit ) ).start
+        
+        this.cht.autoScale( this.cht_ch4, start, margin, auto )
+        this.cht.autoScale( this.cht_press, start, margin, auto )
+        this.cht.autoScale( this.cht_hi_flow, start, margin, auto )
+        this.cht.autoScale( this.cht_lo_flow, start, margin, auto )
 
     }
     resetChart= ( ) =>  {

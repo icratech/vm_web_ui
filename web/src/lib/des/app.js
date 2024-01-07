@@ -20,7 +20,11 @@ export const SERVER = ( local ? "://127.0.0.1:8007" : "://des1.data2desk.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )
 export const WS_SERVER = ( local ? `ws${ SERVER }` : `wss${ SERVER }` )
 
+
 export const client_app = `client_app v${ APP_VERSION }`
+
+export const MAPBOX_TOKEN =  'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
+export const MAPBOX_STYLE = 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9'
 /* TODO : END REPLACE WITH ENV VARIABLES FOR PRODUCTION *******************************/
 
 

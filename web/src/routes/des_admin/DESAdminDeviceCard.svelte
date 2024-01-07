@@ -6,8 +6,6 @@
     import { Device } from "../../lib/c001v001/device"
     import { device_class, device_version } from '../../lib/c001v001/models'
     
-    import { DemoDevice } from "../../lib/des_api"
-
     import PillButton from "$lib/common/button/PillButton.svelte"
     import InputNum from "$lib/common/input_num/InputNum.svelte"
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"

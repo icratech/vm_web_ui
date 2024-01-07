@@ -376,7 +376,7 @@ export const ROLES = {
     SUPER: "super",
     ADMIN: "admin",
     OPERATOR: "operator",
-    USER: "user",
+    VIEWER: "viewer",
     DEVICE: "device",
 }
 export class RoleCheck {
@@ -398,11 +398,12 @@ export class RoleCheck {
             ? true : false 
         )
     }
-    isUser = ( role ) => {
+    isViewer = ( role ) => {
         return ( 
             role === ROLES.SUPER || 
             role === ROLES.ADMIN || 
-            role === ROLES.OPERATOR 
+            role === ROLES.OPERATOR ||
+            role === ROLES.VIEWER
             ? true : false 
             )
     }

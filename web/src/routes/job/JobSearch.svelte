@@ -4,16 +4,19 @@
 
     import { debug } from '../../lib/des/utils'
     import { DESSearchParam } from '../../lib/des/api'
+    import { MAPBOX_TOKEN, MAPBOX_STYLE } from '../../lib/des/app'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
 
     import { JOBS, JOBS_LOADED, getJobs } from "../../lib/c001v001/job"
-    import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
+    import { validateLngLat } from '../../lib/c001v001/models'
 
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
     import 'mapbox-gl/dist/mapbox-gl.css'
-    mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
+    mapboxgl.accessToken = MAPBOX_TOKEN
     
+    import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
+
     export let search = new DESSearchParam( )
 
     $: zoom = 2.3
@@ -30,7 +33,7 @@
 
         map = new mapboxgl.Map(  {
             container: ctx,
-            style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
+            style: MAPBOX_STYLE, 
             center: origin,
             zoom : zoom   
         } )
@@ -43,7 +46,10 @@
             dispatch( 'filter' ) // debug( "JobSearch -> map.on( dragend ) -> Search region:", search )
         } )
 
-        $JOBS.forEach( j =>{ j.s_mark.addTo( map ) } ) 
+        $JOBS.forEach( j =>{ 
+            j.s_mark.setLngLat( validateLngLat( j.reg.des_job_lng, j.reg.des_job_lat ) )
+            j.s_mark.addTo( map ) 
+        } ) 
         
     }
     let map

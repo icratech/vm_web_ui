@@ -2,18 +2,19 @@
     
     import { onMount } from "svelte"
 
-    import PillButton from "../../../common/button/PillButton.svelte"
-
+    import { AUTH, RoleCheck } from '../../../des/api'
     import { OP_CODES } from '../../models'
 	import { Device } from "../../device"
     
+    import PillButton from "../../../common/button/PillButton.svelte"
     import EventBuilderOp from "./EventBuilderOp.svelte"
     import EventCard from "./EventCard.svelte"
 
     import btn_img_edit from "$lib/images/btn-img-edit-aqua.svg"
     
-    onMount( async( ) => { await device.qryActiveJobEvents( ) } )
+    const role = new RoleCheck( )
     export let device = new Device( )
+    onMount( async( ) => { await device.qryActiveJobEvents( ) } )
 
     $: show_evt_list = true
     $: title = ( show_evt_list ? "Event List" : "Create Event" )
@@ -30,7 +31,7 @@
     <div class="flx-row panel-title-bar">
         <div class="flx-row panel-title-btns">
 
-            { #if device.isActive( ) }
+            { #if device.isActive( ) && role.isOperator( $AUTH.user.role ) }
             <PillButton
                 img={ btn_img_edit }
                 on:click={ ( ) => { show_evt_list = !show_evt_list } }

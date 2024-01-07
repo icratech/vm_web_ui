@@ -27,9 +27,7 @@
 </script>
 
 <div class="flx-row container { highlight }"
-    on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } 
->
-
+    on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } >
 
     <div class="flx-col layout">
 

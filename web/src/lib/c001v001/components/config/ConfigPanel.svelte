@@ -1,11 +1,11 @@
 <script>
 
     import { debug } from '../../../des/utils'
-    import PillButton from '../../../common/button/PillButton.svelte'
-    
+    import { AUTH, RoleCheck } from '../../../des/api'
     import { OP_CODES } from '../../models'
     import { Device } from "../../device"
 
+    import PillButton from '../../../common/button/PillButton.svelte'
     import ConfigBuilder from "./ConfigBuilder.svelte"
     import ConfigCard from "./ConfigCard.svelte"
     
@@ -13,6 +13,7 @@
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
 
+    const role = new RoleCheck( )
     export let device = new Device( )
     $: cfg = device.cfg
     let clone_cfg = structuredClone( cfg )
@@ -39,7 +40,7 @@
     <div class="flx-row panel-title-bar">
         <div class="flx-row panel-title-btns">
 
-            { #if device.isActive( ) }
+            { #if device.isActive( ) && role.isOperator( $AUTH.user.role ) }
             <PillButton
                 img={ editButtonImg }
                 on:click={ editButtonFunc }

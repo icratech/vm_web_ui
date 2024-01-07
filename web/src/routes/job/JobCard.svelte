@@ -18,6 +18,7 @@
     $: stat  = JSON.parse( job.reg.des_job_json )
     $: hdr = stat.hdr
     $: evt = stat.evt
+    $: reports = job.reports
 
     $: highlight = ( job.highlight ? 'highlight' : '' ) 
 
@@ -39,6 +40,7 @@
 
     <div class="vert-line sep"/>
     <div class="flx-col report-list">
+        <!-- { job.reports.length } -->
         <!-- { #each job.reports as rep ( rep.rep_id ) }
             <ReportTitle bind:job bind:rep />
         { /each } -->
@@ -46,7 +48,9 @@
         
     <div class="flx-row evt">
         <div class="vert-line sep"/>
-        <EventCard bind:evt />
+        <div class="flx-col">
+            <EventCard bind:evt />
+        </div>
     </div>
 
 </div>

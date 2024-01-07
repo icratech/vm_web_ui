@@ -3,7 +3,7 @@
     import { getContext, onMount } from 'svelte'
 
     import { debug } from '../../../lib/des/utils'
-    import { AUTH } from '../../../lib/des/api'
+    import { AUTH, RoleCheck } from '../../../lib/des/api'
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     // import LineChartChan from '../../../lib/common/chart/LineChartChan.svelte'
     import Modal from '../../../lib/common/modal/Modal.svelte'

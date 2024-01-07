@@ -4,6 +4,7 @@
 
     import { debug } from '../../lib/des/utils'
     import { DESSearchParam } from '../../lib/des/api'
+    import { MAPBOX_TOKEN, MAPBOX_STYLE } from '../../lib/des/app'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
 
@@ -11,7 +12,7 @@
  
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
     import 'mapbox-gl/dist/mapbox-gl.css'
-    mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
+    mapboxgl.accessToken = MAPBOX_TOKEN
     
     import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
 
@@ -35,7 +36,7 @@
 
         map = new mapboxgl.Map(  {
             container: ctx,
-            style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
+            style: MAPBOX_STYLE, 
             center: origin,
             zoom : zoom   
         } )
@@ -49,17 +50,10 @@
         } )
 
         $DEVICES.forEach( d =>{
-
             d.s_mark.setLngLat( validateLngLat( d.hdr.hdr_geo_lng, d.hdr.hdr_geo_lat ) )
             d.updateMarkerMode( ) 
             d.s_mark.addTo( map )
-
-            d.updateDeviceSearchMap = ( lng, lat ) => { 
-                d.s_mark.setLngLat( validateLngLat( lng, lat ) ) 
-                d.updateMarkerMode( )
-                debug( "updateDeviceSearchMap( ): ", d.s_mark.getOffset( ) )
-            }  
-            
+            d.updateDeviceSearchMap( )
         } ) 
         
     }

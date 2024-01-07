@@ -2,8 +2,9 @@
 import { writable, get } from 'svelte/store'
 import { goto } from '$app/navigation'
 import mapboxgl from 'mapbox-gl'
+mapboxgl.accessToken = MAPBOX_TOKEN
 
-import { HTTP_SERVER, WS_SERVER, client_app } from '../des/app'
+import { HTTP_SERVER, WS_SERVER, client_app, MAPBOX_TOKEN, MAPBOX_STYLE } from '../des/app'
 import { ALERT_CODES, alert, waitMilli, debug } from '../des/utils'
 import { AUTH, getRequestAuth, postRequestAuth, wsConnectionAuth, 
     refreshJWT, DESRegistration, Ping } from '../des/api'
@@ -26,7 +27,6 @@ import {
     MODES, OP_CODES, getMode
 } from './models'
 import { Job } from './job'
-
 
 /* DEVICE API ROUTES **********************************************************************************/
 export const API_URL_C001_V001 = `api/${ device_class }/${ device_version }`
@@ -252,8 +252,29 @@ export class Device {
     } 
     
     /* MAP METHODS ( LIVE ) **************************************************************/
-    updateDeviceSearchMap( ) { }
-    updateDevicePageMap( ) { }
+    makeMap( ctx ) {
+        this.map = new mapboxgl.Map( { 
+            container: ctx,
+            style: MAPBOX_STYLE,
+            center: validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ),
+            // zoom : ( 0.9 ),
+            zoom: ( this.isActive( ) ? 5.5 : 0.9 ),
+            interactive: true
+        } )  
+        this.mark.setLngLat( validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) )
+        this.mark.addTo( this.map ) 
+        this.updateMarkerMode( )
+    }
+    updateDeviceSearchMap( ) {      
+        this.s_mark.setLngLat( validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) )
+        this.updateMarkerMode( )
+    }
+    updateDevicePageMap( ) {     
+        this.mark.setLngLat( validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) )  
+        this.updateMarkerMode( )
+        if ( this.map )
+            this.map.easeTo( { center: validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ), zoom: ( this.isActive( ) ? 5.5 : 0.9 ), duration: 2000 } ) 
+    }
     updateMarkerMode = ( ) => {
         // debug( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt ) 
         switch ( getMode( this.cfg, this.smp ) ) {
@@ -407,8 +428,9 @@ export class Device {
                             this.reg.des_job_end = this.hdr.hdr_job_end
                             this.reg.des_job_lng = this.hdr.hdr_geo_lng 
                             this.reg.des_job_lat = this.hdr.hdr_geo_lat
-                            this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
-                            this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )     
+                            this.updateDeviceSearchMap( )
+                            // this.updateDevicePageMap( this.isActive( ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )  
+                            this.updateDevicePageMap( )     
                         }
     
                         this.cfg = msg.data.cfg
@@ -450,6 +472,13 @@ export class Device {
                     case "state":
                         this.sta = msg.data
                         this.reg.des_job_name = this.sta.sta_job_name
+
+                        switch (this.sta.sta_logging ) {
+                            case OP_CODES.JOB_END_REQ:
+                            case OP_CODES.JOB_START_REQ:
+                            case OP_CODES.GPS_ACQ:
+                                this.ping = new Ping( )
+                        } 
                         // debug("new state received from device: ", this.sta)
                         break
         

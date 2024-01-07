@@ -16,14 +16,6 @@
     $: DEVICES = getContext( 'devices' )
     $: DEVICES_LOADED = getContext( 'devices_loaded' )
 
-    // /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
-    // onMount( async( ) => { 
-    //     if ( !$DEVICES_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-    //         AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-    //         await getDevices( )
-    //     }
-    // } )
-
     $: search = new DESSearchParam( )
 
     const checkBounds = ( d ) => { 
@@ -58,7 +50,7 @@
         </div>
         
         <div class="flx-col device-list">
-            { #each $DEVICES.filter( d => {  return  checkBounds( d ) && checkTextFilter( d, search ) } ) as device ( device.reg.des_job_name ) }
+            { #each $DEVICES.filter( d => {  return  checkBounds( d ) && checkTextFilter( d, search ) } ) as device, index ( index ) }
                 <DeviceCard bind:device on:device-selected={ ( e ) => { deviceSelected( e.detail ) } } />
             { /each }
         </div>

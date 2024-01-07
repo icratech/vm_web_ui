@@ -67,7 +67,7 @@
     }
 
     /* CAUSES UPDATE ON RELOAD */
-    $: { if ( !loaded && job ) { loadJobData( ) } }
+    $: { if ( job && !loaded ) { loadJobData( ) } }
 
 
     $: btn_img_evt_list = btn_img_edit_pink
@@ -202,19 +202,19 @@
     $: evt = new Event( )
     $: {  if ( job ) { evt.evt_time = job.selection } }
 
-    let map
-    const makeMap = async( ctx ) => {
+    // let map
+    // const makeMap = async( ctx ) => {
 
-        map = new mapboxgl.Map( {
-            container: ctx,
-            style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
-            center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
-            zoom :  5.5,
-            interactive: true,
-            preserveDrawingBuffer: true
-        } )
-        job.s_mark.addTo( map )
-    }
+    //     map = new mapboxgl.Map( {
+    //         container: ctx,
+    //         style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
+    //         center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
+    //         zoom :  5.5,
+    //         interactive: true,
+    //         preserveDrawingBuffer: true
+    //     } )
+    //     job.s_mark.addTo( map )
+    // }
 
     
     /* PDF FILE -> GENERATION */
@@ -290,7 +290,7 @@
         yPos -= PDF_H1
 
         /* CREATE MAP IMAGE -> TODO: ADD MARKER*/
-        let mapBytes = await pdfGetImageBytes( map.getCanvas( ).toDataURL( 'image/png' ) )
+        let mapBytes = await pdfGetImageBytes( job.map.getCanvas( ).toDataURL( 'image/png' ) )
         let mapPNG = await doc.embedPng( mapBytes )
         let mapPNGSize = mapPNG.scale( 0.56 )
         page.drawImage( mapPNG, {
@@ -694,7 +694,7 @@
             <div class="flx-col status">
                 
                     <div class="flx-col map map-cont">
-                        <div class="map-container" use:makeMap />
+                        <div class="map-container" use:job.makeMap />
                     </div>
 
                     <div class="flx-col">

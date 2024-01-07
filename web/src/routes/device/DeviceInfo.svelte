@@ -3,10 +3,11 @@
     import { createEventDispatcher } from 'svelte'
 
     import { debug } from '../../lib/des/utils'
-    import PillButton from '../../lib/common/button/PillButton.svelte'
+    import { AUTH, RoleCheck } from '../../lib/des/api'
 
-    import { Sample, validateLngLat, OP_CODES } from '../../lib/c001v001/models'
+    import { Sample, OP_CODES } from '../../lib/c001v001/models'
     import { Device } from "../../lib/c001v001/device"
+    import PillButton from '../../lib/common/button/PillButton.svelte'
     import HeaderCard from '../../lib/c001v001/components/header/HeaderCard.svelte'
     import BarGaugeCard from "../../lib/c001v001/components/gauge/BarGaugeCard.svelte"
 
@@ -21,10 +22,7 @@
     import btn_img_disconnected_red from "$lib/images/btn-img-disconnect-red.svg"
     import btn_img_connected_orange from "$lib/images/btn-img-connect-orange.svg"
     
-    import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
-    import 'mapbox-gl/dist/mapbox-gl.css'
-    mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
-    
+    const role = new RoleCheck( )
     export let device = new Device( )
     $: cfg = device.cfg
     $: hdr = device.hdr
@@ -76,26 +74,9 @@
     }
 
     $: socketButtonImage = ( device.socket ? btn_img_connected_orange : btn_img_disconnected_red )
-    $: socketButtonText = ( device.socket ? 'Disconnect' : 'Connect' )
+    $: socketButtonText = ( device.socket ? 'Pause live updates' : 'Resume live updates' )
     $: socketButtonFunc =  ( ) => { ( device.socket ? device.disconnectWS( ) : device.connectWS( ) ) }
     
-    const makeMap = ( ctx ) => {
-
-        let map = new mapboxgl.Map(  {
-            container: ctx,
-            style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
-            center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
-            zoom : ( sta.sta_logging == OP_CODES.JOB_STARTED ? 5.5 : 0.9
-             ),
-            interactive: true
-        } )
-
-        device.mark.addTo( map )
-        device.updateDevicePageMap = ( act, lng, lat ) => { 
-            device.mark.setLngLat( validateLngLat( lng, lat ) )
-            map.easeTo( { center: validateLngLat( lng, lat ), zoom: ( act ? 5.5 : 1 ), duration: 2500 } ) 
-        }
-    }
 
     const dispatch = createEventDispatcher( )
 
@@ -118,7 +99,7 @@
 
             <div class="flx-row btns">
 
-                { #if device.ping.ok }
+                { #if device.ping.ok &&  role.isOperator( $AUTH.user.role ) }
                 <PillButton 
                     on:click={ cmdButtonFunc }
                     bind:img={ cmdButtonIcon }
@@ -149,7 +130,7 @@
     <br>
     
     <div class="flx-col map">
-        <div class="map-container" use:makeMap />
+        <div class="map-container" use:device.makeMap />
     </div>
 
     <div></div>

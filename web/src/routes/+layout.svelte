@@ -8,9 +8,9 @@
 
     import { ALERT_CODES, alert, waitMilli, debug } from '../lib/des/utils'
     import { 
-        AUTH, UserSession, login, logout, terminateUser, refreshJWT,
+        AUTH, RoleCheck, UserSession, login, logout, terminateUser, refreshJWT,
         API_URL_USER_WS, wsConnectionAuth, updateUserSession, WS_LIVE_LIMIT,
-        USERS, USERS_LOADED, getUserList, RoleCheck
+        USERS, USERS_LOADED, getUserList
     } from '../lib/des/api'
 
     import { 
@@ -122,11 +122,16 @@
         }
     }
     const updateSessionData = async( ) => { 
-        await getUserList( )
-        await getEventTypes( )
-        await getDevices( )
-        await getJobs( )
-        await getDESJobs( )
+        debug( "+layoute.svelte -> updateSessionData( ) -> $AUTH.user.role: ", $AUTH.user.role )
+
+        if ( role.isViewer( $AUTH.user.role ) ) {
+            await getUserList( )
+            await getEventTypes( )
+            await getDevices( )
+            await getJobs( )
+        }
+        
+        if ( role.isSuper( $AUTH.user.role ) ) await getDESJobs( )
     }
     
     /* WEBSOCKET METHODS **************************************************************/
@@ -300,11 +305,13 @@
                         img={ home_btn_image } 
                         hint={ null } 
                     />
+
                     <PillButton 
                         on:click={ gotoDevice } 
                         img={ device_btn_image } 
                         hint={ 'Device list' }  
                     />
+
                     <PillButton 
                         on:click={ gotoJob } 
                         img={ job_btn_image } 
@@ -316,11 +323,11 @@
   
                     <div class="flx-col admin">
 
-                        <PillButton 
+                        <!-- <PillButton 
                             on:click={ async( ) => { await terminateUser( $AUTH.user ) } } 
                             img={ btn_img_cmd_red } 
                             hint={ "If you don't know..." } 
-                        />
+                        /> -->
 
                         <PillButton 
                             on:click={ gotoDes } 
