@@ -651,19 +651,19 @@
 
         } else {
 
-            if ( window.showSaveFilePicker ) {
+            // if ( window.showSaveFilePicker ) {
 
-                /* ALLOW USER TO CHOOSE NAME & LOCATION */
-                let handle = await showSaveFilePicker( {
-                    suggestedName: fileName,
-                    types: [ saveOptions ]
-                } )
+            //     /* ALLOW USER TO CHOOSE NAME & LOCATION */
+            //     let handle = await showSaveFilePicker( {
+            //         suggestedName: fileName,
+            //         types: [ saveOptions ]
+            //     } )
 
-                let writable = await handle.createWritable( )
-                await writable.write( blob )
-                writable.close( )
+            //     let writable = await handle.createWritable( )
+            //     await writable.write( blob )
+            //     writable.close( )
 
-            } else {
+            // } else {
 
                 /* SAVE IN DEFAULT DOWNLOADS FOLDER */
                 const url = window.URL.createObjectURL( blob )
@@ -676,7 +676,7 @@
                 // For Firefox it is necessary to delay revoking the ObjectURL.
                 setTimeout( ( ) => { window.URL.revokeObjectURL( url ) }, 250)
 
-            }
+            // }
         }
     }
 

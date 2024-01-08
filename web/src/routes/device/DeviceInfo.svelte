@@ -99,7 +99,7 @@
 
             <div class="flx-row btns">
 
-                { #if device.ping.ok &&  role.isOperator( $AUTH.user.role ) }
+                { #if device.ping.ok && role.isOperator( $AUTH.user.role ) }
                 <PillButton 
                     on:click={ cmdButtonFunc }
                     bind:img={ cmdButtonIcon }
