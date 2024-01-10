@@ -1,34 +1,30 @@
 
 <script>
 
-    import { getContext } from "svelte"
+    // import { getContext } from "svelte"
 
     import InputText from "../../../common/input_text/InputText.svelte"
     import InputTextArea from "../../../common/input_text_area/InputTextArea.svelte"
     import PillButton from "../../../common/button/PillButton.svelte"
     import DateTimeDisplay from "../../../common/date_time/DateTimeDisplay.svelte"
 
-    import { Job } from '../../job'
-    import { Event, OP_CODES } from '../../models'
-    
-    import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
-    import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
+    import { Event, EventType } from '../../models'
 
-    export let job = new Job( )
     export let evt = new Event( )
+    export let evt_type = new EventType( )
 
-    $: EVT_TYPES = getContext( 'evt_types' )
-    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.REPORT_EVENT } )[0]
+    // $: EVT_TYPES = getContext( 'evt_types' )
+    // $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.REPORT_EVENT } )[0]
         
-    const sendEvent = ( ) => { 
-        evt.evt_code = evt_type.evt_typ_code
-        job.newEvent( evt )  
-        clearEvent( )
-    }
+    // const sendEvent = ( ) => { 
+    //     evt.evt_code = evt_type.evt_typ_code
+    //     job.newEvent( evt )  
+    //     clearEvent( )
+    // }
 
-    const clearEvent = ( ) => {
-        evt = new Event( ) 
-    }
+    // const clearEvent = ( ) => {
+    //     evt = new Event( ) 
+    // }
 
     $: msg_limit = evt.evt_msg.length >= evt.MaxMsg
     $: msg_limit_style = ( msg_limit ? "color: var(--red);" : "color: var(--grey_03);"  )
@@ -65,22 +61,6 @@
         </div>
         
         <div class="flx-row foot">
-
-            <div class="flx-row btns">
-                
-                <PillButton 
-                    img={ btn_img_cancel }
-                    on:click={ clearEvent }
-                    hint={ 'Cancel' } 
-                />
-
-                <PillButton 
-                    on:click={ sendEvent }
-                    img={ btn_img_confirm }
-                    hint={ 'Send Event' } 
-                />
-
-            </div>
 
             <DateTimeDisplay bind:date={ evt.evt_time }/>
 
@@ -124,10 +104,6 @@
         font-size: 1.1em;
         font-style: oblique;
         font-weight: 500;
-    }
-
-    .btns {
-        justify-content: flex-start;
     }
 
 </style>

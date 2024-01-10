@@ -200,7 +200,7 @@
 
     $: evt_code = OP_CODES.REPORT_EVENT
     $: evt = new Event( )
-    $: {  if ( job ) { evt.evt_time = job.selection } }
+    $: {  if ( job && evt ) { evt.evt_time = job.selection } }
 
     // let map
     // const makeMap = async( ctx ) => {
@@ -765,7 +765,7 @@
 
 
                     <div class="flx-col control-cont">
-                        <EventPanelRep bind:job bind:cur_evt={evt} bind:evt_code bind:evts 
+                        <EventPanelRep bind:job bind:new_evt={evt} bind:smp={ job.selected_smp } bind:evts 
                             bind:rep_title={ rep.rep_title }
                             bind:title={ selected_title }
                             bind:btn_img_add_evt 

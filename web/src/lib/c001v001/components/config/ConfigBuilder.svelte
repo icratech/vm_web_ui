@@ -87,8 +87,9 @@
         </div>
         <div class="flx-row field">
             <div class="flx-row title"></div>
+            <div class="vert-line"/>
             <div class="flx-row col-head">Depth (m)</div>
-            <div class="flx-row col-head">Multiplier (kPa/m)</div>
+            <div class="flx-row col-head">Multi (kPa/m)</div>
             <div class="flx-row col-head"></div>
         </div>
         <div class="flx-row field">
@@ -241,12 +242,12 @@
 
 <style>
 
-    .container {
+    /* .container {
         min-width: 35em;
-    }  
+    }   */
 
     .cont {
-        gap: 0.75em;
+        gap: 0.5em;
     }
 
     .in {
@@ -275,27 +276,17 @@
         color: var(--orange); 
         justify-content: flex-start; 
         align-items: center; 
-        padding-left: 0.5em;
-        max-width: 9em;
-        min-width: 9em;
+        padding-right: 0.5em;
+        max-width: 8em;
+        min-width: 8em;
         width: 9em;
     }
     .value { 
         align-items: center; 
-        padding-left: 0.5em;
-        gap: 0.5em;
+        justify-content: flex-start;
+        padding-right: 1em;
+        width: auto;
     }
-    /* .unit { 
-        color: var(--orange_a); 
-        align-items: center; 
-        justify-content: flex-start;
-        padding-left: 0.5em;
-    } */
 
-    /* .sec { 
-        color: var(--orange_a); 
-        align-items: center; 
-        justify-content: flex-start;
-    } */
 
 </style>

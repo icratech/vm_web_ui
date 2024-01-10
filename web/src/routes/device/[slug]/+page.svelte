@@ -5,7 +5,6 @@
     import { debug } from '../../../lib/des/utils'
     import { AUTH, RoleCheck } from '../../../lib/des/api'
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
-    // import LineChartChan from '../../../lib/common/chart/LineChartChan.svelte'
     import Modal from '../../../lib/common/modal/Modal.svelte'
     
     import { getDevices, updateDevicesStore } from '../../../lib/c001v001/device'
@@ -22,21 +21,6 @@
     $: DEVICES_LOADED = getContext( 'devices_loaded' )
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
-    // $: channels = [ ]
-    // const getChannels = ( ) => {
-    //     channels = [ ]
-    //     device.cht.data.datasets.forEach(set => {
-    //         let scale = device.cht.getDatasetScale( set )
-    //         if ( scale.title.text )
-    //             channels.push( { set, scale } )
-    //     });
-        
-        
-    // }
-    // const updateSettings = async( ) => {
-    //     await updateDevicesStore( )
-    // }
-
     let waitingForDevice = true
     $: {
         if ( device && waitingForDevice === true ) { 
@@ -45,7 +29,6 @@
             if ( !waitingForDevice ) {
                 if ( device.isActive( ) )
                     device.qryActiveSampleSet( )
-                // getChannels( )
             }
         }
     }
@@ -109,12 +92,21 @@
                     { /each }
                 </div> -->
 
-                <div class="flx-col panel-cont">
+                <div class="flx-col panel-cont wFull">
                     <HeaderPanel bind:device />
                 </div>
 
-                <div class="flx-col panel-cont">
+                <div class="flx-col panel-cont w1440" >
                     <ConfigPanel bind:device />
+                </div>
+
+                <div class="flx-col w1024" >
+                    <div class="flx-col panel-cont">
+                        <HeaderPanel bind:device />
+                    </div>
+                    <div class="flx-col panel-cont">
+                        <ConfigPanel bind:device />
+                    </div>
                 </div>
 
                 <div class="flx-col panel-cont">
@@ -158,7 +150,7 @@
     .chart { min-height: 38em; }
 
     .action {
-        overflow: hidden;
+        overflow-y: hidden;
         justify-content: space-between;
         height: 100%;
     }
@@ -172,23 +164,31 @@
         gap: 0.5em; 
     }
 
-    .end-modal {
-        width: auto;
+    .end-modal { width: auto; }
+
+    .wFull { display: flex; }
+    .w1440 { display: flex; }
+    .w1024 { 
+        display: none; 
+        gap: 1em;
     }
+
     /* LAP TOP */
     @media(max-width: 1440px) {
         .status {
             max-width: 33%;
             min-width: 33%;
         }
-        .panel { max-width: 67%;  }
+        .panel { max-width: 67%; }
         .chart { min-height: 30em; }
+        .wFull { display: none; }
     }
 
     /* TABLET */
     @media(max-width: 1024px) { 
         .container { 
             padding-right: 0.5em; 
+            height: auto;
         }
         .content { 
             flex-direction: column; 
@@ -205,11 +205,25 @@
             max-width: 100%;  
             gap: 0.5em;
         }
+        .panel-cont { height: auto; }
         .chart { min-height: 23em; }
         .action {
             flex-direction: row;
             border: none;
             padding: 0;
+        }
+        .wFull { display: none; }
+        .w1440 { display: none; }
+        .w1024 { display: flex; }
+    }
+
+    /* MOBILE 768 */
+    @media(max-width: 768px) { 
+        .action {
+            flex-direction: column;
+            border: none;
+            padding: 0;
+            padding-left: 0.5em;
         }
     }
 
@@ -234,13 +248,9 @@
             max-width: 100%;  
             gap: 0.5em;
         }
+        
+        .panel-cont {padding-right: 0; }
         .chart { display:none; padding: 0; }
-        .action {
-            flex-direction: column;
-            border: none;
-            padding: 0;
-            padding-left: 0.5em;
-        }
     }
 
 

@@ -47,8 +47,11 @@
     }
 
     /* MOBILE */
-    @media(max-width: 425px) { 
-        .panel { flex-direction: column; }
+    @media(max-width: 768px) { 
+        .panel { 
+            overflow-y: auto;
+            flex-direction: column; 
+        }
     }
 
 </style>

@@ -174,20 +174,22 @@
     }
 
     /* MOBILE */
-    @media(max-width: 425px) { 
+    @media(max-width: 768px) { 
         .title {
             padding: 0 1em;
         }
         .flx-col.content-wrapper {
             max-width: 100%;
-            padding: 0;
+            padding: 0.25em;
             background-color: transparent;
             border: none;
+            height: 90%;
         }
         .content {
             flex-direction: column;
             border:none;
-            padding: 0.5em;
+            padding: 0.25em;
+            overflow-y: auto;
         }
         .footer { 
             padding-right: 1em;

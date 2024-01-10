@@ -40,11 +40,11 @@
 
         <div class="flx-row btns"> 
 
-            <PillButton 
+            <!-- <PillButton 
                 on:click={ toggleEdit }
                 img={ btn_img_edit }
                 hint={ 'Edit' }
-            />
+            /> -->
 
             <PillButton 
                 on:click={ ( ) => { dispatch( "generate-pdf", rep ) } }

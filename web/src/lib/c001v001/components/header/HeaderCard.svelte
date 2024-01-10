@@ -54,7 +54,6 @@
             <div class="flx-row field">
                 <div class="flx-row field-title title">End</div>
                 <div class="vert-line"/>
-                <!-- <div class="flx-row value"><DateTimeDisplay date={ hdr.hdr_job_start } showDate={ false} /></div> -->
                 <div class="flx-row value"><DateTimeDisplay date={ hdr.hdr_job_end } showTime={ true } /></div>
             </div>
         </div>
@@ -76,12 +75,6 @@
         </div>
         
     </div>
-
-    <!-- <br>
-    <div class="flx-col footer">
-            <UserBadge bind:user={ user } />
-        <div style="padding-right: 0.5em;"><DateTimeDisplay date={ hdr.hdr_time } /></div>
-    </div> -->
 
 </div>
 
@@ -113,7 +106,12 @@
         gap:0;
     }
 
-    .geo-title { color: var(--orange_a); }
+    .geo-title { 
+        color: var(--orange_a); 
+        max-width: 3em;
+        min-width: 3em;
+        width: 3em;
+    }
 
     .start {
         align-items: flex-start;

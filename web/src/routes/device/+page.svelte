@@ -108,7 +108,7 @@
     }
 
     /* MOBILE */
-    @media(max-width: 425px) {
+    @media(max-width: 768px) {
 
         .content { 
             flex-direction: column; 
@@ -119,6 +119,10 @@
             min-height: 28em;
             max-width: 100%;
             min-width: 100%;
+        }
+        .device-list {
+            /* overflow-y: auto; */
+            padding-left: 0;
         }
     }
 </style>

@@ -104,12 +104,12 @@
                 img={ btn_img_confirm }
                 hint={ 'Confirm' }
             />
-            { :else }
+            <!-- { :else }
             <PillButton 
                 on:click={ toggleEdit }
                 img={ color_code_btn }
                 hint={ 'Edit' }
-            />
+            /> -->
             { /if }
         </div>
 

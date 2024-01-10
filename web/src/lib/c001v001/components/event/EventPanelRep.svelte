@@ -1,26 +1,32 @@
 <script>
 
-    import { createEventDispatcher } from 'svelte'
-
-    import PillButton from "../../../common/button/PillButton.svelte"
+    import { onMount, getContext, createEventDispatcher } from 'svelte'
     
+    import { RGBA, BASE } from '$lib/common/colors'
+    import { AUTH, RoleCheck } from '../../../des/api'
+    import { Event, Sample, OP_CODES } from '../../models'
 	import { Job } from '../../job'
-    import { Event } from '../../models'
     
+    import PillButton from "../../../common/button/PillButton.svelte"
     import EventBuilderRep from "./EventBuilderRep.svelte"
     import EventCard from "./EventCard.svelte"
 
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_add_pink from "$lib/images/btn-img-add-pink.svg"
+    import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
     
     const dispatch = createEventDispatcher( )
 
-    // onMount( async( ) => { await job.getJobEvents( ) } )
+    const role = new RoleCheck( )
     export let job = new Job( )
-    export let cur_evt = new Event( )
-    export let evt_code = 2001
+    export let new_evt = new Event( )
+    export let smp = new Sample( )
+    $: { new_evt.evt_time = smp.smp_time }
+    // onMount( async( ) => { await reloadEvents( ) } )
 
-    import { RGBA, BASE } from '$lib/common/colors'
+    $: EVT_TYPES = getContext( 'evt_types' )
+    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.REPORT_EVENT } )[0]
+
     export let  color_code = BASE.LIGHT
     export let  color_code_fg = 'fg-pink'
     export let  color_code_border = RGBA(color_code, 0.5)
@@ -28,22 +34,24 @@
 
     export let evts = [ ]
     export let rep_title = "Report"
-    export let title = "Event List"
-    $: show_evt_list = true
-    $: title = ( show_evt_list ? title : "Create Event" )
-    $: eventButtonHint = ( show_evt_list ? "New Event" : "Events" )
+    $: edit = false
+    $: editButtonImg = ( edit ? btn_img_cancel : btn_img_add_evt )
+    $: editButtonHint = ( edit ? "Cancel" : "New Event" )
+    $: editButtonFunc = ( ) => { edit = !edit }
+    $: title = ( edit ? "Event List" : "Create Event" )
 
-    const reloadEvents = ( ) => {
-        // show_evt_list = true
-        // evt_list = [ ]
-        // job.getJobEvents( )
-        show_evt_list = !show_evt_list
+    const reloadEvents = async( ) => {
+        evts = [ ]
+        await job.getJobEvents( )
+        new_evt = new Event( )
+        edit = false
     }
 
-    let edit = false
-    const toggleEdit = ( ) => {
-        edit = !edit
-        dispatch( "edit" )
+    const sendEvent = async( ) => {
+        /* TODO: IF EMPTY, DON'T SEND */
+        new_evt.evt_code = evt_type.evt_typ_code
+        await job.newEvent( new_evt )  
+        await reloadEvents( )
     }
 
 </script>
@@ -52,20 +60,22 @@
 
     <div class="flx-row" style="border-bottom: solid 0.1em { color_code_border };">
 
-        <div class="flx-col btns"> 
+        <div class="flx-row btns"> 
+
+            { #if role.isOperator( $AUTH.user.role ) }
+            <PillButton
+                img={ editButtonImg }
+                on:click={editButtonFunc }
+                hint={ editButtonHint }
+            />
+            { /if }
 
             { #if edit }
-            <PillButton 
-                on:click={ toggleEdit }
-                img={ btn_img_cancel }
-                hint={ 'Cancel' }
-            />
-            { :else }
-            <PillButton 
-                on:click={ toggleEdit }
-                img={ btn_img_add_evt }
-                hint={ 'Add Section' }
-            />
+                <PillButton
+                    img={ btn_img_confirm }
+                    on:click={ sendEvent }
+                    hint={ "Confirm" }
+                />
             { /if }
 
 
@@ -84,26 +94,16 @@
         </div>
     </div>
 
-    { #if show_evt_list }
-
+    { #if edit }
+    <div class="flx-col">
+        <EventBuilderRep bind:evt={new_evt} bind:evt_type/>
+    </div>
+    { :else }
     <div class="flx-col evts">
-        { #each evts as evt ( evt.evt_time ) }
+        { #each evts as evt, index ( index ) }
             <EventCard bind:evt />
         { /each }
     </div>
-
-    { :else }
-
-    <div class="flx-col">
-        
-        <EventBuilderRep 
-            bind:job
-            bind:evt={ cur_evt }
-            bind:evt_code
-            on:complete={ reloadEvents }
-        />
-    </div>
-
     { /if }
 
 </div>

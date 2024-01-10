@@ -29,46 +29,58 @@
 <div class="flx-row container { highlight }"
     on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } >
 
-    <div class="flx-col layout">
+    <div class="flx-col stat">
 
         <div class="flx-row title-bar">
-
             <div class="flx-row ser-cont">
                 <div class="flx-row fg-accent ser-lbl">Serial #</div>
                 <div class="vert-line"/>
                 <div class="flx-row ser">{ device.reg.des_dev_serial }</div>
             </div>  
-
             <DeviceMode bind:device />
-
         </div>
 
         { #if active }
+        <DeviceConn bind:device />
+        <BarGaugeCard bind:cfg bind:smp/> 
+        { :else }
+        <div class="flx-col w1440">
             <DeviceConn bind:device />
-            <BarGaugeCard bind:cfg bind:smp/>     
+        </div>
         { /if }
 
     </div>
 
     { #if active }
-
-        <div class="flx-row sec">
-            <div class="vert-line sep"/>
+    <div class="flx-row sec">
+        <div class="vert-line sep"/>
+        <div class="flx-col">
             <HeaderCard bind:hdr />
-            
+            <div class="flx-col w1440"><EventCard bind:evt={evt} /></div>
         </div>
-        
-        <div class="flx-row sec">
-            <div class="vert-line sep"/>
-            <div class="flx-col">
-                <EventCard bind:evt={evt} />
-            </div>
-        </div>
-
+    </div>
     { :else }
-        <div class="off"><DeviceConn bind:device /></div>    
-        <div class="sec off"></div>   
+    <div class="flx-row sec wFull">
+        <div class="vert-line sep"/>
+        <div class="flx-col">
+            <DeviceConn bind:device />
+        </div>
+    </div>
+    <div class="flx-row sec w1440">
+        <div class="vert-line sep"/>
+        <div class="flx-col">
+            <EventCard bind:evt={evt} />
+        </div>
+    </div>
     { /if }
+    
+
+    <div class="flx-row sec wFull">
+        <div class="vert-line sep"/>
+        <div class="flx-col">
+            <EventCard bind:evt={evt} />
+        </div>
+    </div>
 
 </div>
 
@@ -85,9 +97,8 @@
     .container:hover { background-color: var(--light_007); }
     .highlight { background-color: var(--light_007); }
 
-    .layout {  
+    .stat {  
         padding: 0; 
-        padding-right: 0.5em;
         gap: 0.5em; 
     }
     .sec {
@@ -126,12 +137,14 @@
         gap: 1em;
     }
 
-    .off { width: 100%; }
+    .wFull { display: flex; }
+    .w1440 { display: none }
+
 
     /* LAP TOP */
     @media(max-width: 1440px) {
-        .evt { display: none; }
-        /* .off { width: 50%; } */
+        .wFull { display: none; }
+        .w1440 { display: flex; }
     }
 
     /* TABLET */
@@ -139,19 +152,26 @@
         .container {
             flex-direction: column;
             padding: 0.5em;
-            gap: 0.5em;
         }
-        .layout { 
-            padding-top: 0; 
-            padding-right: 0; 
-            width: 100%;
-        }
+        .stat { padding-right: 0; }
+        .wFull { display: flex; }
+        .w1440 { display: none; }
         .sep { display: none; }
-        .off { display: none; }
+    }
+
+    /* SHITE TABLET */
+    @media(max-width: 768px) {
+        .container { flex-direction: row; }
+        .stat { padding-right: 0.5em; }
+        .wFull { display: none; }
+        .w1440 { display: flex; }
     }
 
     /* MOBILE */
     @media(max-width: 425px) {
+        .container { flex-direction: column; }
+        .wFull { display: none; }
+        .w1440 { display: flex; }
     }
 
 </style>

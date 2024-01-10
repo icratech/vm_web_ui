@@ -9,6 +9,7 @@
     import { Device } from "../../lib/c001v001/device"
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import HeaderCard from '../../lib/c001v001/components/header/HeaderCard.svelte'
+    import HeaderPanel from "../../lib/c001v001/components/header/HeaderPanel.svelte"
     import BarGaugeCard from "../../lib/c001v001/components/gauge/BarGaugeCard.svelte"
 
     import DeviceMode from "./DeviceMode.svelte"
@@ -122,7 +123,9 @@
             <div class="flx-col gauge">
                 <BarGaugeCard bind:cfg bind:smp/>
             </div>
-            <!-- <HeaderCard bind:hdr /> -->
+            <div class="flx-col panel-cont w1440">
+                <HeaderPanel bind:device />
+            </div>
         </div>
 
     </div>
@@ -199,9 +202,12 @@
         height: 100%;
     }
 
+    .w1440 { display: none }
+
     /* LAP TOP */
     @media(max-width: 1440px) {
 
+        .w1440 { display: flex }
     }
 
     /* TABLET */
@@ -216,6 +222,7 @@
             padding-right: 0; 
         }
         .title-bar {padding-bottom: 0.75em; }
+        .w1440 { display: none }
     }
     
     /* MOBILE */

@@ -1,35 +1,13 @@
 
 <script>
 
-    import { createEventDispatcher, getContext } from "svelte"
-
     import InputText from "../../../common/input_text/InputText.svelte"
     import InputTextArea from "../../../common/input_text_area/InputTextArea.svelte"
-    import PillButton from "../../../common/button/PillButton.svelte"
 
-    import { Event, OP_CODES } from '../../models'
-    import { Device } from "../../device"
+    import { Event, EventType } from '../../models'
 
-    import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
-    import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
-
-    export let device = new Device( )
-    $: evt = new Event( )
-
-    $: EVT_TYPES = getContext( 'evt_types' )
-    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.OPERATOR_EVENT } )[0]
-        
-    const sendEvent = async( ) => { 
-        evt.evt_code = evt_type.evt_typ_code
-        device.job_evts = [ ]
-        await device.newEvent( evt )  
-        clearEvent( )
-    }
-
-    const clearEvent = ( ) => {
-        evt = new Event( )
-        dispatch( 'complete' )
-    }
+    export let evt = new Event( )
+    export let evt_type = new EventType( )
 
     $: msg_limit = evt.evt_msg.length >= evt.MaxMsg
     $: msg_limit_style = ( msg_limit ? "color: var(--red);" : "color: var(--grey_03);"  )
@@ -39,8 +17,6 @@
         evt.evt_msg = evt.evt_msg.slice( 0, evt.MaxMsg )  
     }
 
-    let dispatch = createEventDispatcher( )
-    
 </script>
 
 <div class="flx-col container">
@@ -55,7 +31,6 @@
         <div class="flx-row in">
             <p class="lbl">Title:</p>
             <InputText enabled={ true } bind:txt={ evt.evt_title } place="Optional Title" />
-            <!-- <p class="count" style={ title_limit_style }>{ evt.MaxTitle - evt.evt_title.length }</p> -->
         </div>
         
         <div class="flx-row in">
@@ -63,22 +38,6 @@
         </div>
         
         <div class="flx-row foot">
-
-            <div class="flx-row btns">
-                
-                <PillButton 
-                    img={ btn_img_cancel }
-                    on:click={ clearEvent }
-                    hint={ 'Cancel' } 
-                />
-
-                <PillButton 
-                    on:click={ sendEvent }
-                    img={ btn_img_confirm }
-                    hint={ 'Send Event' } 
-                />
-
-            </div>
 
             <div class="flx-row count" style={ msg_limit_style }>
                 { #if msg_limit }
@@ -120,10 +79,6 @@
         font-size: 1.1em;
         font-style: oblique;
         font-weight: 500;
-    }
-
-    .btns {
-        justify-content: flex-start;
     }
 
 </style>
