@@ -37,26 +37,56 @@
 
                 case OP_CODES.JOB_STARTED: 
                     if ( device.ping.ok ) {
+
                         switch ( getMode( cfg, smp ) ) {
+
                             case MODES.BUILD: 
                                 lbl = 'BUILD'
                                 color_code = CHT_COLORS.PRESS
+                                break
+                            
+                            case MODES.MOVE_BV:
+                                color_code = BASE.BLUE
+                                if ( cfg.cfg_vlv_pos === MODES.BUILD ) 
+                                    lbl = 'B to V'
+                                else
+                                    lbl = 'V to B'
                                 break
 
                             case MODES.VENT: 
                                 lbl = 'VENT'
                                 color_code = BASE.AQUA
                                 break
+                            
+                            case MODES.MOVE_VF:
+                                color_code = BASE.BLUE
+                                if ( cfg.cfg_vlv_pos === MODES.VENT )
+                                    lbl = 'V to F'
+                                else 
+                                    lbl = 'F to V'
+                                break
 
                             case MODES.HI_FLOW:
                                 lbl = 'FLOW'
                                 color_code = CHT_COLORS.HI_FLOW
+                                break
+                            
+                            case MODES.MOVE_HL:
+                                color_code = BASE.BLUE
+                                if ( cfg.cfg_vlv_pos === MODES.HI_FLOW )
+                                    lbl = 'HF to LF'
+                                else 
+                                    lbl = 'LF to HF'
                                 break
 
                             case MODES.LO_FLOW:
                                 lbl = 'FLOW'
                                 color_code = CHT_COLORS.LO_FLOW
                                 break
+
+                            default: 
+                                lbl = 'ERR'
+                                color_code = BASE.RED
                         }
                     }
                     break

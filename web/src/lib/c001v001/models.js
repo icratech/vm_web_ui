@@ -43,23 +43,64 @@ export const OP_CODES = {
 /* MODE ( VALVE POSITIONS ) *************************************************************************/
 export const MODES = {
     BUILD: 0,
+    MOVE_BV: 1,
     VENT: 2,
+    MOVE_VF: 3,
     HI_FLOW: 4,
-    LO_FLOW: 6
+    MOVE_HL: 5,
+    LO_FLOW: 6,
+    ERR: 7
 }
 
 export const getMode = ( cfg, smp ) => {
 
-    switch ( cfg.cfg_vlv_tgt ) {
+    let ctgt = cfg.cfg_vlv_tgt
+    let cpos = cfg.cfg_vlv_pos
+    
+    let spos = smp.smp_vlv_pos
 
-        case MODES.BUILD: return MODES.BUILD
+    if ( ctgt != cpos ) {
 
-        case MODES.VENT: return MODES.VENT
+        switch ( ctgt ) {
 
-        case MODES.HI_FLOW: 
-        case MODES.LO_FLOW:
-            return ( smp.smp_lo_flow > cfg.cfg_flow_tog ? MODES.HI_FLOW : MODES.LO_FLOW ) 
+            case MODES.BUILD:  return MODES.MOVE_BV
+    
+            case MODES.VENT: 
+                if ( cpos === MODES.BUILD || spos == MODES.MOVE_BV )
+                    return MODES.MOVE_BV
+                else
+                    return MODES.MOVE_VF
+    
+            case MODES.HI_FLOW: 
+                if ( cpos === MODES.VENT || spos === MODES.MOVE_VF )
+                    return MODES.MOVE_VF
+                else 
+                    return MODES.MOVE_HL
+
+            case MODES.LO_FLOW: return MODES.MOVE_HL
+
+            default: return MODES.ERR     
+            
+        }
+
+    } else {
+
+        switch ( cpos ) {
+
+            case MODES.BUILD: return MODES.BUILD
+    
+            case MODES.VENT: return MODES.VENT
+    
+            case MODES.HI_FLOW: return MODES.HI_FLOW
+            
+            case MODES.LO_FLOW: return MODES.LO_FLOW
+
+            default: return MODES.ERR     
+        
+        }
+
     }
+
 
 }
 

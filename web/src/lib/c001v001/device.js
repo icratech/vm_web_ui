@@ -257,7 +257,6 @@ export class Device {
             container: ctx,
             style: MAPBOX_STYLE,
             center: validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ),
-            // zoom : ( 0.9 ),
             zoom: ( this.isActive( ) ? 5.5 : 0.9 ),
             interactive: true
         } )  
@@ -269,11 +268,17 @@ export class Device {
         this.s_mark.setLngLat( validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) )
         this.updateMarkerMode( )
     }
-    updateDevicePageMap( ) {     
+    updateDevicePageMap( ) { 
         this.mark.setLngLat( validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) )  
         this.updateMarkerMode( )
         if ( this.map )
-            this.map.easeTo( { center: validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ), zoom: ( this.isActive( ) ? 5.5 : 0.9 ), duration: 2000 } ) 
+            this.map.easeTo( 
+                { 
+                    center: validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ), 
+                    zoom: ( this.isActive( ) ? 5.5 : 0.9 ), 
+                    duration: 2000, 
+                } 
+        ) 
     }
     updateMarkerMode = ( ) => {
         // debug( this.reg.des_dev_serial + " updateMarkerMode( ) -> this..cfg.cfg_vlv_tgt: " + this.cfg.cfg_vlv_tgt ) 
@@ -287,17 +292,29 @@ export class Device {
             case MODES.VENT: 
                 this.mark_el.className = 'marker vent'; 
                 this.s_mark_el.className = 'marker vent'; 
-                break
+                break;
 
             case MODES.HI_FLOW: 
                 this.mark_el.className = 'marker hi_flow'; 
                 this.s_mark_el.className = 'marker hi_flow';
-                break
+                break;
 
             case MODES.LO_FLOW: 
                 this.mark_el.className = 'marker lo_flow'; 
                 this.s_mark_el.className = 'marker lo_flow'; 
-                break
+                break;
+        
+            case MODES.MOVE_BV:
+            case MODES.MOVE_VF:
+            case MODES.MOVE_HL:
+                this.mark_el.className = 'marker vlv_move'; 
+                this.s_mark_el.className = 'marker vlv_move'; 
+                break;
+
+            default: 
+                this.mark_el.className = 'marker err'; 
+                this.s_mark_el.className = 'marker err'; 
+                break;
         }
     }
 
@@ -429,7 +446,6 @@ export class Device {
                             this.reg.des_job_lng = this.hdr.hdr_geo_lng 
                             this.reg.des_job_lat = this.hdr.hdr_geo_lat
                             this.updateDeviceSearchMap( )
-                            // this.updateDevicePageMap( this.isActive( ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )  
                             this.updateDevicePageMap( )     
                         }
     
@@ -483,14 +499,14 @@ export class Device {
                         break
         
                     case "header":
+                        // debug("new header received from device: ", this.hdr)
                         this.hdr = msg.data
                         this.reg.des_job_start = this.hdr.hdr_job_start
                         this.reg.des_job_end = this.hdr.hdr_job_end
                         this.reg.des_job_lng = this.hdr.hdr_geo_lng 
                         this.reg.des_job_lat = this.hdr.hdr_geo_lat
-                        this.updateDeviceSearchMap( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
-                        this.updateDevicePageMap( ( this.hdr.hdr_job_start > 0 && this.hdr.hdr_job_end == 0 ), this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat )
-                        // debug("new header received from device: ", this.hdr)
+                        this.updateDeviceSearchMap( )
+                        this.updateDevicePageMap( )
                         break
     
                     case "config":
@@ -512,22 +528,42 @@ export class Device {
                         this.smp = msg.data
                         this.updateMarkerMode( )
           
-                        if ( this.smp.smp_lo_flow < this.cfg.cfg_flow_tog ) {
-                            this.cht.options.scales.y_lo_flow.display = true
-                            this.cht_lo_flow.hidden = false
-    
-                            this.cht.options.scales.y_hi_flow.display = false
-                            this.cht_hi_flow.hidden = true
-    
-                        } else {
-                            this.cht.options.scales.y_lo_flow.display = false
-                            this.cht_lo_flow.hidden = true
-    
-                            this.cht.options.scales.y_hi_flow.display = true
-                            this.cht_hi_flow.hidden = false
-    
+                        let mode = getMode( this.cfg, this.smp )
+                        switch ( mode ) {
+                            case MODES.BUILD:
+                            case MODES.MOVE_BV:
+                            case MODES.VENT:
+                                this.cht.options.scales.y_hi_flow.display = false
+                                this.cht_hi_flow.hidden = true
+                                this.cht.options.scales.y_lo_flow.display = false
+                                this.cht_lo_flow.hidden = true
+                                break
+                            
+                            case MODES.MOVE_VF:
+                            case MODES.HI_FLOW:
+                            case MODES.MOVE_HL:
+                                this.cht.options.scales.y_hi_flow.display = true
+                                this.cht_hi_flow.hidden = false
+                                this.cht.options.scales.y_lo_flow.display = false
+                                this.cht_lo_flow.hidden = true
+                                break
+                            
+                            case MODES.LO_FLOW:
+                                this.cht.options.scales.y_hi_flow.display = false
+                                this.cht_hi_flow.hidden = true
+                                this.cht.options.scales.y_lo_flow.display = true
+                                this.cht_lo_flow.hidden = false
+                                break
+
+                            case MODES.ERR:
+                                this.cht.options.scales.y_hi_flow.display = false
+                                this.cht_hi_flow.hidden = true
+                                this.cht.options.scales.y_lo_flow.display = false
+                                this.cht_lo_flow.hidden = true
+                                break
                         }
-                        // debug( `sample -> ${ this.reg.des_dev_serial }:\n` )
+                      
+                        // debug( `sample -> ${ this.reg.des_dev_serial }:\n`, mode )
                         this.loadChartSample( )
                         break
     

@@ -26,9 +26,8 @@
         if ( device && waitingForDevice === true ) { 
             debug( "DEVICES_LOADED: ", $DEVICES_LOADED )
             waitingForDevice = !$DEVICES_LOADED
-            if ( !waitingForDevice ) {
-                if ( device.isActive( ) )
-                    device.qryActiveSampleSet( )
+            if ( !waitingForDevice && device.isActive( ) ) {
+                device.qryActiveSampleSet( )
             }
         }
     }
