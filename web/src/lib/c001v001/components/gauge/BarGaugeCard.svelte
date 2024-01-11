@@ -27,7 +27,7 @@
         max={ 2 }
         unit={ "L/min" }
     />
-    { :else if cfg.cfg_vlv_pos === MODES.HI_FLOW }
+    { :else }
     <BarGaugeH title="Flow"
         base_color={ CHT_COLORS.HI_FLOW }
         bind:num={ smp.smp_hi_flow }

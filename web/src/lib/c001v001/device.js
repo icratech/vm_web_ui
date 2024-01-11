@@ -533,11 +533,11 @@ export class Device {
                             case MODES.BUILD:
                             case MODES.MOVE_BV:
                             case MODES.VENT:
-                                this.cht.options.scales.y_hi_flow.display = false
-                                this.cht_hi_flow.hidden = true
-                                this.cht.options.scales.y_lo_flow.display = false
-                                this.cht_lo_flow.hidden = true
-                                break
+                                // this.cht.options.scales.y_hi_flow.display = false
+                                // this.cht_hi_flow.hidden = true
+                                // this.cht.options.scales.y_lo_flow.display = false
+                                // this.cht_lo_flow.hidden = true
+                                // break
                             
                             case MODES.MOVE_VF:
                             case MODES.HI_FLOW:
@@ -555,12 +555,12 @@ export class Device {
                                 this.cht_lo_flow.hidden = false
                                 break
 
-                            case MODES.ERR:
-                                this.cht.options.scales.y_hi_flow.display = false
-                                this.cht_hi_flow.hidden = true
-                                this.cht.options.scales.y_lo_flow.display = false
-                                this.cht_lo_flow.hidden = true
-                                break
+                            // case MODES.ERR:
+                            //     this.cht.options.scales.y_hi_flow.display = false
+                            //     this.cht_hi_flow.hidden = true
+                            //     this.cht.options.scales.y_lo_flow.display = false
+                            //     this.cht_lo_flow.hidden = true
+                            //     break
                         }
                       
                         // debug( `sample -> ${ this.reg.des_dev_serial }:\n`, mode )

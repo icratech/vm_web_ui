@@ -66,13 +66,13 @@ export const getMode = ( cfg, smp ) => {
             case MODES.BUILD:  return MODES.MOVE_BV
     
             case MODES.VENT: 
-                if ( cpos === MODES.BUILD || spos == MODES.MOVE_BV )
+                if ( cpos === MODES.BUILD )
                     return MODES.MOVE_BV
                 else
                     return MODES.MOVE_VF
     
             case MODES.HI_FLOW: 
-                if ( cpos === MODES.VENT || spos === MODES.MOVE_VF )
+                if ( cpos === MODES.VENT )
                     return MODES.MOVE_VF
                 else 
                     return MODES.MOVE_HL

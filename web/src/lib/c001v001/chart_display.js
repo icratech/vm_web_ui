@@ -101,18 +101,18 @@ export const newChartScales = ( ) => {
             true 
         ),
         
-        y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75, -5.0, 250, "left", 
-            RGBA( CHT_COLORS.HI_FLOW, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), true,
-            false 
-        ),
-        
-        y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, -0.1, 2.5, "left",
-            RGBA( CHT_COLORS.LO_FLOW, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true,
+        y_hi_flow: new LineChartScale( "Flow ( L/min )", 1.75, -5.0, 250, "left", 
+            RGBA( CHT_COLORS.HI_FLOW, 0.9 ), RGBA( BASE.LIGHT, 0.1 ), false,
             true 
         ),
         
+        y_lo_flow: new LineChartScale( "Flow ( L/min )", 1, -0.1, 2.5, "left",
+            RGBA( CHT_COLORS.LO_FLOW, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false,
+            false 
+        ),
+        
         y_press: new LineChartScale( "Press ( kPa )", 0, 0, 7000, "right", 
-            RGBA( CHT_COLORS.PRESS, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), false,
+            RGBA( CHT_COLORS.PRESS, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true,
             true 
         ),
         
