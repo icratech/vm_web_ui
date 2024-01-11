@@ -103,7 +103,8 @@
         cfg = job.configs.reduce( ( pre, cur ) => { return ( 
             pre &&
             pre.cfg_time >= sec.sec_start &&
-            pre.cfg_time < sec.sec_end
+            pre.cfg_time < sec.sec_end //&&
+            // pre.cfg_vlv_tgt == pre.cfg_vlv_pos
         ) ? pre : cur } ) 
         job.chartZoomTo( sec.sec_start, sec.sec_end )
         sectionEvents( sec ) // debug( "Section Events: ", evts )
@@ -119,7 +120,9 @@
     $: { // debug( "Selected Section Mode SMP: ", sec.smp ) // debug( "Selected Section Mode CFG: ", sec.cfg )
         if ( sec.cfg.cfg_time > 0 && sec.smp.smp_time > 0  ){
 
-            switch ( getMode( sec.cfg, sec.smp ) ) {
+            // let mode = getMode( sec.cfg, sec.smp )
+            // debug( "job/[slug]/+page -> mode: ", sec.cfg.cfg_vlv_tgt )
+            switch ( sec.cfg.cfg_vlv_tgt ) {
 
                 case MODES.BUILD: 
                     color_code = CHT_COLORS.PRESS

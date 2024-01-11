@@ -24,7 +24,9 @@
     $: cfg = job.configs.reduce( ( pre, cur ) => { return ( 
         pre &&
         pre.cfg_time >= sec.sec_start &&
-        pre.cfg_time < sec.sec_end
+        pre.cfg_time < sec.sec_end &&
+        pre.cfg_vlv_tgt == pre.cfg_vlv_pos //&&
+        // cur.cfg_vlv_tgt == cur.cfg_vlv_pos
     ) ? pre : cur } )
 
     $: smp = job.samples.reduce( ( pre, cur ) => { return ( 
@@ -39,7 +41,9 @@
     $: color_code_btn = btn_img_edit_aqua
     $: color_code_border = RGBA(color_code, 0.5)
     $: {
-        switch ( getMode( cfg, smp ) ) {
+        let mode = getMode( cfg, smp )
+        // debug( "ReportSecTitle -> mode: ", mode )
+        switch ( mode ) {
 
             case MODES.BUILD: 
                 color_code = CHT_COLORS.PRESS

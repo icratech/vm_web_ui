@@ -15,7 +15,7 @@
             return ( 
                 pre &&
                 pre.cfg_time >= sec.sec_start &&
-                pre.cfg_time < sec.sec_end
+                pre.cfg_time < sec.sec_end 
             ) ? pre : cur } )
 
         debug( "Section Start: ", sec.sec_start )

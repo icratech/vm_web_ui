@@ -471,7 +471,7 @@ export class Job {
         this.cht_bat_volt.data = xyp.bat_volt
         this.cht_mot_volt.data = xyp.mot_volt
         
-        let flow = this.cht_lo_flow.data.map( f => f.y )
+        let flow = this.cht_hi_flow.data.map( f => f.y )
         if ( flow.some( f => { return f > 2.5 } ) ) {
             this.cht.options.scales.y_hi_flow.display = true
             this.cht_hi_flow.hidden = false
