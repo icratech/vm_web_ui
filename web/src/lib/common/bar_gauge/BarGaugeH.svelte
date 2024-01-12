@@ -12,9 +12,9 @@
         width = ( val < 0 ? 0 : val ) 
     }
 
-    const bar_color = RGBA(base_color, 0.2)
-    const bar_border_color = RGBA(base_color, 0.5)
-    const title_color = RGBA(base_color, 0.7)
+    const bar_color = RGBA(base_color, 0.15)
+    const bar_border_color = RGBA(base_color, 0.45)
+    const title_color = RGBA(base_color, 0.65)
 
 </script>
 
@@ -79,8 +79,10 @@
     }
 
     .bar {
-        height: 0.7em;
+        height: 0.9em;
         /* border-radius: 0.2em; */
+        /* border-top-left-radius: 0.25em;
+        border-bottom-left-radius: 0.25em; */
     }
 
     .num {

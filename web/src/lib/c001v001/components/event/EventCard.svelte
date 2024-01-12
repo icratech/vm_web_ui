@@ -109,13 +109,8 @@
     .container {
         
         border-bottom: solid 0.05em var(--light_01);
-        /* border-right: solid 0.05em var(--light_01); */
-        /* border-radius: 0.5em; */
         justify-content: space-between;
         padding: 0.5em;
-        /* max-height: 9em;
-        min-height: 9em;
-        height: 9em; */
         gap: 0;
     }
     .title-bar { 

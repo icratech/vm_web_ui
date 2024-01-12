@@ -61,20 +61,31 @@ export const getMode = ( cfg, smp ) => {
 
     if ( ctgt != cpos ) {
 
+        // return spos
         switch ( ctgt ) {
 
-            case MODES.BUILD:  return MODES.MOVE_BV
+            case MODES.BUILD:  
+                if ( spos === MODES.LO_FLOW || spos === MODES.MOVE_HL )
+                    return MODES.MOVE_HL
+                else if ( spos === MODES.HI_FLOW || spos === MODES.MOVE_VF )
+                    return MODES.MOVE_VF
+                else
+                    return MODES.MOVE_BV
     
             case MODES.VENT: 
-                if ( cpos === MODES.BUILD )
+                if ( spos === MODES.BUILD || spos === MODES.MOVE_BV )
                     return MODES.MOVE_BV
+                else if ( spos === MODES.LO_FLOW || spos === MODES.MOVE_HL )
+                    return MODES.MOVE_HL
                 else
                     return MODES.MOVE_VF
     
             case MODES.HI_FLOW: 
-                if ( cpos === MODES.VENT )
+                if ( spos === MODES.BUILD || spos === MODES.MOVE_BV )
+                    return MODES.MOVE_BV
+                else if ( spos === MODES.VENT || spos === MODES.MOVE_VF )
                     return MODES.MOVE_VF
-                else 
+                else  
                     return MODES.MOVE_HL
 
             case MODES.LO_FLOW: return MODES.MOVE_HL
@@ -85,19 +96,20 @@ export const getMode = ( cfg, smp ) => {
 
     } else {
 
-        switch ( cpos ) {
+        return cpos
+        // switch ( cpos ) {
 
-            case MODES.BUILD: return MODES.BUILD
+        //     case MODES.BUILD: return MODES.BUILD
     
-            case MODES.VENT: return MODES.VENT
+        //     case MODES.VENT: return MODES.VENT
     
-            case MODES.HI_FLOW: return MODES.HI_FLOW
+        //     case MODES.HI_FLOW: return MODES.HI_FLOW
             
-            case MODES.LO_FLOW: return MODES.LO_FLOW
+        //     case MODES.LO_FLOW: return MODES.LO_FLOW
 
-            default: return MODES.ERR     
+        //     default: return MODES.ERR     
         
-        }
+        // }
 
     }
 

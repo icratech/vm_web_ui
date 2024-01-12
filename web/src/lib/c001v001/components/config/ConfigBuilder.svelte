@@ -65,6 +65,11 @@
         <div class="flx-row in">Valve Position</div>
         <div class="flx-row panel-title-btns">   
             <PillButton
+                img={ btn_img_vlv_build }
+                on:click={ ( ) => { cfg.cfg_vlv_tgt = MODES.BUILD } }
+                hint='BUILD'
+            />
+            <PillButton
                 img={ btn_img_vlv_vent }
                 on:click={ ( ) => { cfg.cfg_vlv_tgt = MODES.VENT } }
                 hint='VENT'
@@ -73,11 +78,6 @@
                 img={ btn_img_vlv_flow }
                 on:click={ ( ) => { cfg.cfg_vlv_tgt = MODES.HI_FLOW } }
                 hint='FLOW'
-            />
-            <PillButton
-                img={ btn_img_vlv_build }
-                on:click={ ( ) => { cfg.cfg_vlv_tgt = MODES.BUILD } }
-                hint='BUILD'
             />
         </div>
 
