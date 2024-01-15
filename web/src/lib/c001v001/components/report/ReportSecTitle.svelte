@@ -36,35 +36,36 @@
         pre.smp_hi_flow > cur.smp_hi_flow 
     ) ? pre : cur } )
 
-    $: color_code = BASE.LIGHT
+    $: color = BASE.LIGHT
+    $: textColor = RGBA(color, 0.7)
     $: color_code_fg = 'fg-accent'
     $: color_code_btn = btn_img_edit_aqua
-    $: color_code_border = RGBA(color_code, 0.5)
+    $: color_code_border = RGBA(color, 0.25)
     $: {
         let mode = getMode( cfg, smp )
         // debug( "ReportSecTitle -> mode: ", mode )
         switch ( mode ) {
 
             case MODES.BUILD: 
-                color_code = CHT_COLORS.PRESS
+                color = CHT_COLORS.PRESS
                 color_code_fg = 'fg-green'
                 color_code_btn = btn_img_edit_green
                 break
 
             case MODES.VENT: 
-                color_code = BASE.AQUA
+                color = BASE.AQUA
                 color_code_fg = 'fg-aqua'
                 color_code_btn = btn_img_edit_aqua
                 break
 
             case MODES.HI_FLOW:
-                color_code = CHT_COLORS.HI_FLOW
+                color = CHT_COLORS.HI_FLOW
                 color_code_fg = 'fg-orange'
                 color_code_btn = btn_img_edit_orange
                 break
 
             case MODES.LO_FLOW:
-                color_code = CHT_COLORS.LO_FLOW
+                color = CHT_COLORS.LO_FLOW
                 color_code_fg = 'fg-yellow'
                 color_code_btn = btn_img_edit_yellow
                 break
@@ -78,9 +79,9 @@
 
 </script>
 
-<div class="flx-col container" 
-    style="border: solid 0.1em { ( sec.selected ? color_code_border : 'transparent' ) };  
-    background-color: { ( sec.selected ? RGBA(color_code, 0.1) : '' ) };" 
+<div class="flx-col container" style="
+    border-right: solid 0.1em { ( sec.selected ? color_code_border : 'transparent' ) };  
+    background-color: { ( sec.selected ? RGBA(color, 0.1) : '' ) };" 
     on:keydown on:click={ ( ) => { 
         dispatch( "section-selected", sec )
         sec.selected = true
@@ -89,15 +90,33 @@
 
     <div class="flx-row">
 
-        <div class="flx-row title { color_code_fg }" style="border-bottom: solid 0.1em { color_code_border };">
+        <div class="flx-row title" style="color: { textColor }; border-bottom: solid 0.1em { color_code_border };">
             { sec.sec_name }
         </div>
 
     </div>
 
-    <div class="flx-row sec-dates">
+    <div class="flx-row sub-title">
+        <!-- <div class="flx-col"></div> -->
+        <div class="flx-col  sec-dates">
+            <div class="flx-row start">
+                <div class="flx-row field">
+                        <div class="flx-row field-title { color_code_fg }">Start</div>
+                    <div class="vert-line"/> 
+                    <div class="flx-row date"><DateTimeDisplay date={ sec.sec_start } cls={ color_code_fg } /></div>
+                </div>        
+            </div>
+    
+            <div class="flx-row end">
+                <div class="flx-row field">
+                    <div class="flx-row field-title { color_code_fg }">End</div>
+                    <div class="vert-line"/> 
+                    <div class="flx-row date"><DateTimeDisplay date={ sec.sec_end } cls={ color_code_fg } /></div>
+                </div>      
+            </div>
+        </div>
 
-        <div class="flx-col btn">
+        <!-- <div class="flx-col btn">
             { #if edit }
             <PillButton 
                 on:click={ toggleEdit }
@@ -108,16 +127,16 @@
                 img={ btn_img_confirm }
                 hint={ 'Confirm' }
             />
-            <!-- { :else }
+            { :else }
             <PillButton 
                 on:click={ toggleEdit }
                 img={ color_code_btn }
                 hint={ 'Edit' }
-            /> -->
+            />
             { /if }
-        </div>
+        </div> -->
 
-        <div class="flx-col start">
+        <!-- <div class="flx-row start">
             <div class="flx-row field">
                     <div class="flx-row field-title { color_code_fg }">Start</div>
                     <div class="vert-line"/> 
@@ -130,7 +149,7 @@
             </div>
         </div>
 
-        <div class="flx-col end">
+        <div class="flx-row end">
             <div class="flx-row field">
                     <div class="flx-row field-title { color_code_fg }">End</div>
                     <div class="vert-line"/> 
@@ -141,7 +160,9 @@
                     <div class="vert-line"/> 
                     <div class="flx-row date"><DateTimeDisplay date={ sec.sec_end } cls={ color_code_fg } showDate={ false } /></div>
             </div>
-        </div>
+        </div> -->
+        
+
 
     </div>
     
@@ -149,7 +170,7 @@
 
 <style>
     .container {
-        border-radius: 0.5em;
+        /* border-radius: 0.5em; */
         padding: 0.5em;
         gap: 0;
     }
@@ -158,12 +179,17 @@
     }
     .title {
         font-size: 1.2em;
-        font-style: oblique;
+        padding: 0.5em;
+        padding-top: 0;
+        padding-bottom: 0.25em;
+    }
+    .sub-title {
+        padding-left: 3em;
     }
     
     .sec-dates {
         justify-content: space-between;
-        padding: 0.5em 0;
+        padding: 0;
         gap:0;
     }
 
@@ -186,13 +212,14 @@
         min-width: 3em;
         width: 3em;
     }
-    .date { padding-left: 0.75em; }
     .start {
         align-items: flex-start;
+        padding-bottom: 0.25em;
         gap: 0;
     }
     .end {
-        align-items: flex-end;
+        align-items: flex-start;
+        margin-top: -0.25em;
         gap: 0;
     }
 

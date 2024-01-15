@@ -1,6 +1,6 @@
 <script>
 
-    import { getContext, onMount } from "svelte"
+    import { getContext } from "svelte"
     import { Chart } from "chart.js/auto" 
     import { PDFDocument, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
@@ -8,7 +8,6 @@
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
 
     import { debug } from '../../../lib/des/utils'
-    import { AUTH } from '../../../lib/des/api'
     import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
     import { PDF_RGB_BASE } from "../../../lib/common/pdf/pdf"
     import { RGBA, BASE } from '../../../lib/common/colors'
@@ -21,9 +20,10 @@
     import { Header, validateLngLat, Config, Event, Sample, Report, Section, SectionDataSet, 
         OP_CODES, MODES, getMode } from '../../../lib/c001v001/models'
     import { NewPDFChartData, PDF_RGB_COLORS } from "../../../lib/c001v001/components/report/report_pdf"
+    import HeaderPanel from '../../../lib/c001v001/components/header/HeaderPanel.svelte'
     import HeaderCard from '../../../lib/c001v001/components/header/HeaderCard.svelte'
     import ReportCard from '../../../lib/c001v001/components/report/ReportCard.svelte'
-    import ReportTitle from '../../../lib/c001v001/components/report/ReportTitle.svelte'
+    import ReportBadge from "../../../lib/c001v001/components/report/ReportBadge.svelte"
     import BarGaugeCardReport from '../../../lib/c001v001/components/gauge/BarGaugeCardReport.svelte'
     import ConfigCard from '../../../lib/c001v001/components/config/ConfigCard.svelte'
     import EventPanelRep from '../../../lib/c001v001/components/event/EventPanelRep.svelte'
@@ -31,7 +31,7 @@
     import vent_medic_logo from "$lib/images/vent-medic-logo.png"
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
-    import btn_img_add from "$lib/images/btn-img-add-aqua.svg"
+    import btn_img_add from "$lib/images/btn-img-add-pink.svg"
     import btn_img_edit_pink from "$lib/images/btn-img-edit-pink.svg"
     import btn_img_edit_green from "$lib/images/btn-img-edit-green.svg"
     import btn_img_add_pink from "$lib/images/btn-img-add-pink.svg"
@@ -71,7 +71,7 @@
 
 
     $: btn_img_evt_list = btn_img_edit_pink
-    $: selected_title = 'Report'
+    $: selected_title = 'All Sections'
     $: selected_title_cls = 'fg-pink'
 
     $: hdr = new Header( ) // TODO: ENABLE EDIT HEADER  let new_hdr = new Header( )
@@ -83,6 +83,7 @@
         job.selectReport( rep )
         job.chartZoomTo( hdr.hdr_start, hdr.hdr_end )
         sec = new Section( )
+        evts_sec = null
         cfg = new Config( )
         // cfg = job.configs.reduce( ( pre, cur ) => { return ( 
         //     pre &&
@@ -91,7 +92,7 @@
         // ) ? pre : cur } )
         reportEvents( ) // debug( "Report Events: ", evts )
         btn_img_evt_list = btn_img_edit_pink
-        selected_title = rep.rep_title
+        selected_title = 'All Sections'
     }
 
     $: sec = new Section( )
@@ -99,6 +100,7 @@
     const sectionSelected = async( section ) => { 
         job.deselectSection( rep )
         sec = section // debug( "Selected Section: ", sec ) 
+        evts_sec = section
         job.selectSectionMode( sec )
         cfg = job.configs.reduce( ( pre, cur ) => { return ( 
             pre &&
@@ -156,18 +158,28 @@
     }
 
     $: evts = [ ]
+    $: evts_sec = null
     const reportEvents = ( ) => { 
         evts = job.events.filter( e => { 
             return ( e.evt_addr == job.reg.des_dev_serial || e.evt_code > OP_CODES.OPERATOR_EVENT )
-        } )
+        } )    
     }
     const sectionEvents = ( sec ) => { 
         evts = job.events.filter( e => {  // debug( "Section Event: ", e ) 
             return ( 
                 ( e.evt_time >= sec.sec_start && e.evt_time <= sec.sec_end ) && 
-                ( e.evt_addr == job.reg.des_dev_serial || e.evt_code > 2000 )
+                ( e.evt_addr == job.reg.des_dev_serial || e.evt_code >= OP_CODES.REPORT_EVENT )
             )
         } )
+    }
+    const reloadEvents = async( sec ) => { 
+        evts = [ ]
+        await job.getJobEvents( )
+        if ( sec === null ) { 
+            reportEvents( )
+        } else {
+            sectionEvents( sec )
+        }
     }
     const makeChart = async( ctx, d ) => {
 
@@ -204,6 +216,12 @@
     $: evt_code = OP_CODES.REPORT_EVENT
     $: evt = new Event( )
     $: {  if ( job && evt ) { evt.evt_time = job.selection } }
+    const saveEvent = async( ) => {
+        /* TODO: IF EMPTY, DON'T SEND */
+        evt.evt_code = OP_CODES.REPORT_EVENT
+        await job.newEvent( evt )  
+        await reloadEvents( evts_sec )
+    }
 
     // let map
     // const makeMap = async( ctx ) => {
@@ -701,44 +719,37 @@
                     </div>
 
                     <div class="flx-col">
+                        <!-- <HeaderPanel bind:hdr /> -->
                         <HeaderCard bind:hdr />
                     </div>
 
                     <div class="flx-row new-rep">
                         { #if making_report }
-                        
                             <PillButton 
                                 on:click={ ( ) => { making_report = false } }
                                 img={ btn_img_cancel }
                                 hint={ 'Cancel' } 
                             />
-
                             <PillButton 
                                 on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
                                 img={ btn_img_confirm }
                                 hint={ 'Confirm' } 
                             />
-
                             <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
-
                         { :else }
-
                             <PillButton 
                                 on:click={ ( ) => { making_report = true } }
                                 img={ btn_img_add }
                                 hint={ null } 
                             />
-
-                            <div class="flx-row new-rep-lbl">New Report</div>
-
+                            <h3 class="panel-title">Reports</h3>
                         { /if }
                     </div>
 
                     <div class="flx-col report-list">
-                        { #each job.reports as rep ( rep.rep_id ) }
-                        <ReportTitle 
-                            bind:rep 
-                            on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
+                        { #each job.reports as rep, index ( index ) }
+                        <ReportBadge bind:rep 
+                            on:report-selected={ ( e ) => { reportSelected( e.detail ) } } 
                             on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
                             on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
                         />
@@ -753,31 +764,35 @@
                     <LineChart bind:chartdata={ job.cht } />
                 </div>
                 
-                <div class="flx-row controls">
+                <div class="flx-row action">
 
 
-                    <div class="flx-col rep-sections">
+                    <div class="flx-col panel-cont">
                         
                         <ReportCard
-                            bind:job bind:rep 
+                            bind:job bind:rep
                             on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
                             on:section-selected={ ( e ) => { sectionSelected( e.detail ) } }
+                            on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
+                            on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
                         />
 
                     </div>
 
 
-                    <div class="flx-col control-cont">
-                        <EventPanelRep bind:job bind:new_evt={evt} bind:smp={ job.selected_smp } bind:evts 
-                            bind:rep_title={ rep.rep_title }
-                            bind:title={ selected_title }
-                            bind:btn_img_add_evt 
-                            bind:color_code_border
-                            bind:color_code_fg
+                    <div class="flx-col panel-cont" style="
+                        border-bottom: solid 0.05em { RGBA(color_code, 0.25) };
+                        border-right: solid 0.05em { RGBA(color_code, 0.25) };
+                    ">
+                        <EventPanelRep bind:job bind:new_evt={evt} bind:smp={ job.selected_smp } 
+                            bind:evts 
+                            bind:sec_name={ selected_title }
+                            bind:color={ color_code }
+                            on:send-event={ saveEvent }
                         />
                     </div>
 
-                    <div class="flx-col gauge">
+                    <div class="flx-col panel-cont">
                         <br>
                         <div class="flx-col">
                             <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
@@ -787,43 +802,7 @@
                             <ConfigCard bind:cfg />
                         </div>
                     </div>
-                    
-                    <!-- <div class="flx-col btns">
-        
-                        <PillButton 
-                            on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
-                            img={ btn_img_report }
-                            hint={ 'New Report' } 
-                        />
-
-                        <PillButton 
-                            on:click={ ( new_sec.sec_name != "" ? makeSection( cur_rep ) : debug( "enter a section name" ) ) }
-                            img={ btn_img_report }
-                            hint={ 'New Section' } 
-                        />
-
-                        <PillButton 
-                            on:click={ ( ) => { job.newHeader( new_hdr ) } }
-                            img={ btn_img_report }
-                            hint={ 'New Header' } 
-                        />
-
-                        <PillButton 
-                        on:click={ ( ) => { job.newEvent( cur_evt ) } }
-                            img={ btn_img_report }
-                            hint={ 'New Event' } 
-                        />
-
-                    </div> -->
-
-                    <!-- <div class="flx-col txts">
-
-                        <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
-                        
-                        <InputText bind:txt={ new_sec.sec_name } place={ "Please enter a section name" } enabled={ true } />
-
-                    </div> -->
-
+  
                 </div>
      
             </div>
@@ -859,15 +838,11 @@
         gap: 0.5em;
     }
     .new-rep {
-        border-bottom: solid 0.1em var(--accent_aa);
-        padding: 0 1em;
+        border-bottom: solid 0.05em var(--light_01);
+        padding: 0 0.5em;
+        padding-top: 0.75em;
         padding-bottom: 0.5em;
-        margin-bottom: 0.5em;
         gap: 0.75em;
-    }
-    .new-rep-lbl {
-        align-items: center;
-        font-size: 1.2em;
     }
     .map-cont {
         min-height: 28em;
@@ -895,20 +870,24 @@
 
     .chart { min-height: 30em; }
 
-    .controls {
+    .action {
         overflow: hidden;
         justify-content: space-between;
         height: 100%;
-        gap:2em;
     }
 
-    .rep-sections {
-        height: 100%;;
+    .panel-cont { 
+        border-bottom: solid 0.05em var(--light_007);
+        border-right: solid 0.05em var(--light_007);
+        border-bottom-right-radius: 0.25em;
+        padding: 1em;
+        padding-top: 0;
+        gap: 0.5em; 
     }
 
-    .gauge {
+    /* .gauge {
         justify-content: flex-start; 
         height: auto;
-    }
+    } */
 
 </style>

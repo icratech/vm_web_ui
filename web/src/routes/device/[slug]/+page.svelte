@@ -157,7 +157,7 @@
     .panel-cont { 
         border-bottom: solid 0.05em var(--light_007);
         border-right: solid 0.05em var(--light_007);
-        border-radius: 0.5em;
+        border-radius: 0.25em;
         padding: 1em;
         gap: 0.5em; 
     }

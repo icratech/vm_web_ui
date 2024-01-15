@@ -30,7 +30,6 @@
     on:keydown on:click={ ( ) => { dispatch( "device-selected", device ) } } >
 
     <div class="flx-col stat">
-
         <div class="flx-row title-bar">
             <div class="flx-row ser-cont">
                 <div class="flx-row fg-accent ser-lbl">Serial #</div>

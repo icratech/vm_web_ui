@@ -98,9 +98,7 @@
 </script>
 
 <!-- background-color: { bgColor }; -->
-<div class="flx-col container" style="
-    border-right: solid 0.05em { borderColor };
-">
+<div class="flx-col container" style=" border-right: solid 0.05em { borderColor };">
   
     <div class="flx-row title-bar" style="border-bottom: solid 0.05em { lineColor };">
         { #if evt_type }

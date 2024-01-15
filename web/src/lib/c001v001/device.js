@@ -530,15 +530,9 @@ export class Device {
           
                         let mode = getMode( this.cfg, this.smp )
                         switch ( mode ) {
-                            case MODES.BUILD:
-                            case MODES.MOVE_BV:
-                            case MODES.VENT:
-                                // this.cht.options.scales.y_hi_flow.display = false
-                                // this.cht_hi_flow.hidden = true
-                                // this.cht.options.scales.y_lo_flow.display = false
-                                // this.cht_lo_flow.hidden = true
-                                // break
-                            
+                            // case MODES.BUILD:
+                            // case MODES.MOVE_BV:
+                            // case MODES.VENT:
                             case MODES.MOVE_VF:
                             case MODES.HI_FLOW:
                             case MODES.MOVE_HL:
