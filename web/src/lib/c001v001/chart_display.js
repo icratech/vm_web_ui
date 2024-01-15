@@ -111,7 +111,7 @@ export const newChartScales = ( ) => {
             false 
         ),
         
-        y_press: new LineChartScale( "Press ( kPa )", 0, 0, 7000, "right", 
+        y_press: new LineChartScale( "Press ( kPaA )", 0, 0, 7000, "right", 
             RGBA( CHT_COLORS.PRESS, 1.0 ), RGBA( BASE.LIGHT, 0.1 ), true,
             true 
         ),

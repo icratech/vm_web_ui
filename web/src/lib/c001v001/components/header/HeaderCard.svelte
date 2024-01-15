@@ -131,17 +131,10 @@
         min-width: 6em;
     }
 
-
     .value { 
         align-items: center; 
-        /* width: 11em; */
     }
 
-    /* .footer {
-        align-items: flex-end;
-        padding-right: 1em;
-        gap: 0.5em;
-    } */
 
     /* LAP TOP */
     @media(max-width: 1440px) {
@@ -149,12 +142,12 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
 
     }
 
     /* MOBILE */
-    @media(max-width: 425px) { 
+    @media(max-width: 450px) { 
     
     }
 

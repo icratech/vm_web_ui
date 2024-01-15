@@ -40,7 +40,7 @@
         base_color={ CHT_COLORS.PRESS }
         bind:num={ smp.smp_press }
         max={ 7000 }
-        unit={ "kPa" }
+        unit={ "kPaA" }
     />
     
     <BarGaugeH title="Battery"
@@ -67,7 +67,7 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
         .container { 
             background-color: transparent;
             border: none;
@@ -77,7 +77,7 @@
     }
 
     /* MOBILE */
-    @media(max-width: 425px) { 
+    @media(max-width: 450px) { 
     
     }
 

@@ -28,7 +28,7 @@
     <div class="flx-row seg">
         <div class={ col }>{ ye }</div>
         <div>-</div>
-        <div class={ ( date == 0 ? 'off' :  cls ) }>{ mo }</div>
+        <div class={ ( date == 0 ? 'off' :  cls ) }>{ mo.toLocaleUpperCase( ) }</div>
         <div>-</div>
         <div class={ col }>{ da }</div>
     </div>

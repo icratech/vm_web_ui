@@ -80,7 +80,7 @@
     }
 
     /* MOBILE */
-    @media(max-width: 425px) { 
+    @media(max-width: 450px) { 
         .container {
             padding: 0;
         }

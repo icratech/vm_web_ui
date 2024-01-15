@@ -25,7 +25,7 @@
         clone_cfg = structuredClone( cfg )
         edit = !edit
     }
-    $: title = ( edit ? "Edit Configuration" : "Current Configuration" )
+    $: title = ( edit ? "Edit Configuration" : "Configuration" )
 
     const editConfig = ( ) => {
         device.cfg = clone_cfg
@@ -38,38 +38,35 @@
 <div class="flx-col container">
 
     <div class="flx-row panel-title-bar">
-        <div class="flx-row panel-title-btns">
 
-            { #if device.isActive( ) && role.isOperator( $AUTH.user.role ) }
+        { #if device.isActive( ) && role.isOperator( $AUTH.user.role ) }
+        <div class="flx-row panel-title-btns">
             <PillButton
                 img={ editButtonImg }
                 on:click={ editButtonFunc }
                 hint={ editButtonHint }
             />
-            { /if }
-
             { #if edit }
-
-                <PillButton
-                    img={ btn_img_confirm }
-                    on:click={ editConfig }
-                    hint={ "Confirm" }
-                />
-
+            <PillButton
+                img={ btn_img_confirm }
+                on:click={ editConfig }
+                hint={ "Confirm" }
+            />
             { /if }
-
         </div>
+        { /if }
+
         <h3 class="panel-title">{ title }</h3>
     </div>
     { #if edit }
 
-    <div class="flx-col">
+    <div class="flx-col cfg">
         <ConfigBuilder bind:cfg={ clone_cfg } />
     </div>
 
     { :else }
 
-    <div class="flx-col">
+    <div class="flx-col cfg">
         <ConfigCard bind:cfg />
      </div>
 
@@ -80,26 +77,34 @@
 <style>
 
     .container {
-        overflow-y: auto;
         padding-right: 0.5em;
         height: 100%;
         gap: 1rem;
     }
-
     .panel-title-bar {
+        border-bottom: solid 0.05em var(--light_01);
         justify-content: space-between;
-        /* padding-left: 1em; */
         padding-top: 0;
         padding-right: 0.5em;
         width: 100%;
+        height: 2.75em;
     }
     .panel-title-btns {
         flex-direction: row;
         width: auto;
+        gap: 1rem;
     }
     .panel-title {
         align-items: flex-end;
         width: 100%;
+        height: 2.75em;
     }
+
+    .cfg {
+        overflow-y: auto;
+        padding-right: 0.5em;
+        gap: 1.5rem;
+    }
+
 
 </style>

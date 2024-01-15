@@ -92,12 +92,12 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
 
         .content { padding-right: 1em; }
         .search {
-            max-width: 45%;
-            min-width: 45%;
+            max-width: 50%;
+            min-width: 50%;
             padding-right: 0.5em; 
         }
         
@@ -108,7 +108,7 @@
     }
 
     /* MOBILE */
-    @media(max-width: 768px) {
+    @media(max-width: 450px) {
 
         .content { 
             flex-direction: column; 
@@ -119,10 +119,6 @@
             min-height: 28em;
             max-width: 100%;
             min-width: 100%;
-        }
-        .device-list {
-            /* overflow-y: auto; */
-            padding-left: 0;
         }
     }
 </style>

@@ -327,39 +327,24 @@ export class Job {
         if ( this.events === null ) { this.events = [ ] }
         debug( "JOB EVENTS:\n", this.events )
     }
-    getSelectedEvents = ( xmin, xmax ) => {
-        
-    }
-    getReports = async( ) => {
-
-    }
+    getSelectedEvents = ( xmin, xmax ) => {  }
+    getReports = async( ) => {  }
     newReport = async( rep ) => { 
         
         let au = get( AUTH ) 
 
         rep.rep_user_id = au.user.id
-        rep.reg = this.reg
-        debug( "job.createReport( ) -> rep: ", rep )
+        rep.reg = this.reg //  debug( "job.createReport( ) -> rep: ", rep )
     
-        let req = new Request( API_URL_C001_V001_JOB_NEW_REPORT, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${ au.acc_token }`
-            },
-            body: JSON.stringify( rep )
-        } )
-        let res = await fetch( req )
-        let json = await res.json( )
-    
-        if ( json.status == "success" ) {
-            let j = JSON.parse( JSON.stringify( json.data ) )
-            debug( "Report: \n", j )
-        }
-        // rep.rep_job_id = this.reg.des_job_id
-        // this.reports.push( rep )
-        // debug( "Reports: ", this.reports )
+        let res = await postRequestAuth( API_URL_C001_V001_JOB_NEW_REPORT, rep )
+        if ( res.err !== null ) 
+            return { ok: false, msg: res.err }
+
+        else if ( res.json.report !== null ) 
+            this.reports = [ ...this.reports, res.json.report ]
+        
+        updateJobsStore( )
+        debug( "job.createReport( ) -> job.reports AFTER: ", this.reports )
     }
     newHeader = async( hdr ) => {
         debug( "job.newHeader( ): ", this.reg.des_job_name ) 

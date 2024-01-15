@@ -72,12 +72,12 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
         /* .icon:hover .hint { display: none; } */
     }
 
     /* MOBILE */
-    @media(max-width: 425px) { 
+    @media(max-width: 450px) { 
         
     }
 

@@ -30,11 +30,34 @@
 
 
 <div class="flx-row panel">
-    <HeaderBuilder bind:hdr={ device.hdr }/>
-    <ConfigBuilder bind:cfg={ device.cfg }/>
+    <div class="flx-col sec">
+        <h3 class="panel-title">Header</h3>
+        <HeaderBuilder bind:hdr={ device.hdr }/>
+    </div>
+    <div class="flx-col sec">
+        <h3 class="panel-title">Configuration</h3>
+        <ConfigBuilder bind:cfg={ device.cfg }/>
+    </div>
+    
 </div>
 
 <style>
+
+    .panel { 
+        gap: 1.5em;
+    }
+    .sec {
+        padding: 0;
+        height: 100%;
+        width: 355px;
+    }
+
+    .panel-title {
+        border-bottom: solid 0.05em var(--light_01);
+        align-items: flex-end;
+        min-height: 1.6em;
+        width: 100%;
+    }
 
     /* LAP TOP */
     @media(max-width: 1440px) {
@@ -42,15 +65,17 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
-        
+    @media(max-width: 1100px) {
     }
 
     /* MOBILE */
-    @media(max-width: 768px) { 
+    @media(max-width: 450px) { 
         .panel { 
-            overflow-y: auto;
             flex-direction: column; 
+        }
+        
+        .sec {
+            width: 100%;
         }
     }
 

@@ -23,11 +23,11 @@
     
     $: zoom = 2.3
     $: origin = [ -110, 65 ]
+    // $: {
+    //     if ( window.matchMedia( "( max-width: 550px )" ) ) { origin = [ -110, 70 ], zoom = 1.25 }
+    // }
     onMount( ( ) => {
-        if (window.matchMedia( "( max-width: 425px )" ) ) {
-            origin = [ -110, 75 ]
-            zoom = 1.5
-        }
+        if ( window.matchMedia( "( max-width: 550px )" ) ) { origin = [ -110, 70 ], zoom = 1.25 }
     } )
 
     let map
@@ -57,6 +57,10 @@
         } ) 
         
     }
+    const resetSearch = ( ) => {
+        search = new DESSearchParam( )
+        map.easeTo( { center: origin, zoom: zoom, duration: 1000 } ) 
+    }
 
     const dispatch = createEventDispatcher( )
     
@@ -69,10 +73,7 @@
         <PillButton
             img={ btn_img_reset }
             hint={ 'Reset filters' } 
-            on:click={ ( ) => { 
-                search = new DESSearchParam( )
-                // getDevices( ) 
-            } }
+            on:click={ resetSearch }
         />
 
         <InputText enabled={ true } bind:txt={ search.token } place="Search text"/>
@@ -109,11 +110,11 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
     }
 
     /* MOBILE */
-    @media(max-width: 425px) {
+    @media(max-width: 450px) {
         .container {
             padding-right: 0;
             padding-left: 1em;

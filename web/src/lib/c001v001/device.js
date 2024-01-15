@@ -258,7 +258,7 @@ export class Device {
             style: MAPBOX_STYLE,
             center: validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ),
             zoom: ( this.isActive( ) ? 5.5 : 0.9 ),
-            interactive: true
+            interactive: false
         } )  
         this.mark.setLngLat( validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) )
         this.mark.addTo( this.map ) 

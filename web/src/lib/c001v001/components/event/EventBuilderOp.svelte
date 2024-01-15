@@ -21,51 +21,66 @@
 
 <div class="flx-col container">
 
-    <div class="flx-col card-content">
+    <!-- <div class="flx-row field">
+        <div class="flx-row title"></div>
+        <div class="vert-line vl"/>
+        <div class="flx-row value">{ ( evt_type ? evt_type.evt_typ_name : 'UNKNOWN EVT CODE' ) }</div> 
+    </div> -->
 
-        <div class="flx-row in">
-            <p class="lbl">Type:</p>
-            <div class="flx-row">{ ( evt_type ? evt_type.evt_typ_name : 'UNKNOWN EVT CODE' ) }</div> 
-        </div>
-        
-        <div class="flx-row in">
-            <p class="lbl">Title:</p>
-            <InputText enabled={ true } bind:txt={ evt.evt_title } place="Optional Title" />
-        </div>
-        
-        <div class="flx-row in">
-            <InputTextArea enabled={ true } bind:txt={ evt.evt_msg } remMinHeight=14.5 place="Message" />
-        </div>
-        
-        <div class="flx-row foot">
+    <!-- <div class="flx-row field">
+        <div class="flx-row title">Title</div>
+        <div class="vert-line"/>
+        <InputText enabled={ true } bind:txt={ evt.evt_title } place="Optional Title" />
+    </div> -->
+    
+    <div class="flx-row value">{ ( evt_type ? evt_type.evt_typ_name : 'UNKNOWN EVT CODE' ) }</div>
 
-            <div class="flx-row count" style={ msg_limit_style }>
-                { #if msg_limit }
-                    Maximum Characters: { evt.MaxMsg }
-                { :else }
-                    { evt.MaxMsg - evt.evt_msg.length } 
-                { /if }
-            </div>
+    <InputText enabled={ true } bind:txt={ evt.evt_title } place="Optional Title" />
+    
+    <div class="flx-row in">
+        <InputTextArea enabled={ true } bind:txt={ evt.evt_msg } remMinHeight=14.5 place="Message" />
+    </div>
+    
+    <div class="flx-row foot">
 
+        <div class="flx-row count" style={ msg_limit_style }>
+            { #if msg_limit }
+                Maximum Characters: { evt.MaxMsg }
+            { :else }
+                Characters remaining: { evt.MaxMsg - evt.evt_msg.length } 
+            { /if }
         </div>
-     
+
     </div>
 
 </div>
 
 <style>
 
-    .in {
-        gap: 1em;
+    .container {
+        gap: 0.5em;
+    }  
+    /* .field { 
+        height: 2em; 
+        gap: 0;         
     }
-    .lbl {
-        display: flex;
-        flex-direction: row;
+    .title {
+        color: var( --accent_a);
         justify-content: flex-end;
         align-items: center;
-        color: var( --accent_a);
-        font-size: 1rem;
-        width: 3em;
+        padding-right: 0.75em;
+        max-width: 6em;
+        min-width: 6em;
+    }
+    .vl {
+        margin-bottom: -0.5em;
+    } */
+    .value { 
+        align-items: center; 
+    }
+
+    .in {
+        gap: 1em;
     }
 
     .foot {

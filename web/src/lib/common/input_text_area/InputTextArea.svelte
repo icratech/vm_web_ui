@@ -68,7 +68,7 @@
         color: var(--light);
         background-color: var(--aqua_01);
         padding: 0.35em 0.5rem;
-        border-radius: 0.5rem;
+        border-radius: 0.25rem;
         border-left: solid 0.15em transparent;
         border-top: solid 0.15em transparent;
         border-right: solid 0.05em var(--light_01);

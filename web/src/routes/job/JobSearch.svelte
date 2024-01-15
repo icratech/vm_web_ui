@@ -22,7 +22,7 @@
     $: zoom = 2.3
     $: origin = [ -110, 65 ]
     onMount( ( ) => {
-        if (window.matchMedia( "( max-width: 425px )" ) ) {
+        if (window.matchMedia( "( max-width: 450px )" ) ) {
             origin = [ -110, 75 ]
             zoom = 1.5
         }
@@ -105,11 +105,11 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
     }
 
     /* MOBILE */
-    @media(max-width: 425px) {
+    @media(max-width: 450px) {
         .container {
             padding-right: 0;
             padding-left: 1em;

@@ -26,7 +26,7 @@
     $: editButtonImg = ( edit ? btn_img_cancel : btn_img_edit )
     $: editButtonHint = ( edit ? "Cancel" : "New Event" )
     $: editButtonFunc = ( ) => { edit = !edit }
-    $: title = ( edit ? "Event List" : "Create Event" )
+    $: title = ( edit ? "New Event" : "Event List" )
 
     const reloadEvents = async( ) => {
         device.job_evts = [ ]
@@ -47,25 +47,22 @@
 <div class="flx-col container">
 
     <div class="flx-row panel-title-bar">
+        { #if device.isActive( ) && role.isOperator( $AUTH.user.role ) }
         <div class="flx-row panel-title-btns">
-
-            { #if device.isActive( ) && role.isOperator( $AUTH.user.role ) }
             <PillButton
                 img={ editButtonImg }
                 on:click={editButtonFunc }
                 hint={ editButtonHint }
             />
-            { /if }
-
             { #if edit }
-                <PillButton
-                    img={ btn_img_confirm }
-                    on:click={ sendEvent }
-                    hint={ "Confirm" }
-                />
+            <PillButton
+                img={ btn_img_confirm }
+                on:click={ sendEvent }
+                hint={ "Confirm" }
+            />
             { /if }
-
         </div>
+        { /if }
         <h3 class="panel-title">{ title }</h3>
     </div>
 
@@ -86,28 +83,33 @@
 <style>
 
     .container {
+        padding-right: 0.5em;
         height: 100%;
         gap: 1rem;
     }
-
     .panel-title-bar {
+        border-bottom: solid 0.05em var(--light_01);
         justify-content: space-between;
         padding-top: 0;
         padding-right: 0.5em;
         width: 100%;
+        height: 2.75em;
     }
     .panel-title-btns {
         flex-direction: row;
         width: auto;
+        gap: 1rem;
     }
     .panel-title {
         align-items: flex-end;
         width: 100%;
+        height: 2.75em;
     }
 
     .evts {
         overflow-y: auto;
         padding-right: 0.5em;
+        gap: 1.5rem;
     }
 
 </style>

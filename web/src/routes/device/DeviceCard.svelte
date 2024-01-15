@@ -148,7 +148,7 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
         .container {
             flex-direction: column;
             padding: 0.5em;
@@ -160,15 +160,15 @@
     }
 
     /* SHITE TABLET */
-    @media(max-width: 768px) {
+    /* @media(max-width: 768px) {
         .container { flex-direction: row; }
         .stat { padding-right: 0.5em; }
         .wFull { display: none; }
         .w1440 { display: flex; }
-    }
+    } */
 
     /* MOBILE */
-    @media(max-width: 425px) {
+    @media(max-width: 450px) {
         .container { flex-direction: column; }
         .wFull { display: none; }
         .w1440 { display: flex; }

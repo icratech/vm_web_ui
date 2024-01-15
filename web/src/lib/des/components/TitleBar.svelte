@@ -130,17 +130,28 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
 
     }
 
     /* MOBILE */
-    @media(max-width:425px) {
+    @media (max-width:450px) or (max-height:450px) {
 
+        .container {
+            padding: 0.25em 1em;
+            border: none;
+        }
         .content {
             flex-direction: column;
             padding-bottom: 0.5em;
             gap: 0;
+        }
+        .subtitle {
+            display: none;
+        }
+        .logo { 
+            margin-top: 0.5em; 
+            height: 2.5em;
         }
 
         .page-block { display: none; }
@@ -154,4 +165,17 @@
         }
 
     }
+/*     
+    @media(max-height:450px) {
+        .container {
+            padding: 0.25em 1em;
+        }
+        .subtitle {
+            display: none;
+        }
+        .logo { 
+            margin-top: 0.5em; 
+            height: 2.25em;
+        }
+    } */
 </style>

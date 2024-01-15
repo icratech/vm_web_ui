@@ -59,7 +59,7 @@
             <div slot="content" class="flx-row">
                 <DeviceStartPanel bind:device />
             </div>
-            <div slot="footer">Send command</div>
+            <div slot="footer"></div>
         </Modal>
      
         <Modal bind:this={ endModal } on:confirm={ async( ) => { device.endJob( ) } }>
@@ -69,7 +69,7 @@
                 <h4>Click confirm to end the current job.</h4>
                 <h4>This action cannot be undone.</h4>
             </div>
-            <div slot="footer">Send command</div>
+            <div slot="footer"></div>
         </Modal>
      
         <!-- on:click={ toggleAuto } on:keydown -->
@@ -155,15 +155,17 @@
     }
 
     .panel-cont { 
-        background-color: var(--light_002);
-        border-bottom: solid 0.05em var(--light_01);
-        border-right: solid 0.05em var(--light_01);
+        border-bottom: solid 0.05em var(--light_007);
+        border-right: solid 0.05em var(--light_007);
         border-radius: 0.5em;
         padding: 1em;
         gap: 0.5em; 
     }
 
-    .end-modal { width: auto; }
+    .end-modal { 
+        align-items: center;
+        width: auto; 
+    }
 
     .wFull { display: flex; }
     .w1440 { display: flex; }
@@ -173,7 +175,7 @@
     }
 
     /* LAP TOP */
-    @media(max-width: 1440px) {
+    @media(max-width: 1500px) {
         .status {
             max-width: 33%;
             min-width: 33%;
@@ -184,7 +186,7 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) { 
+    @media(max-width: 1100px) { 
         .container { 
             padding-right: 0.5em; 
             height: auto;
@@ -205,7 +207,7 @@
             gap: 0.5em;
         }
         .panel-cont { height: auto; }
-        .chart { min-height: 23em; }
+        .chart { min-height: 29em; }
         .action {
             flex-direction: row;
             border: none;
@@ -217,17 +219,17 @@
     }
 
     /* MOBILE 768 */
-    @media(max-width: 768px) { 
+    @media(max-width: 700px) { 
         .action {
             flex-direction: column;
             border: none;
             padding: 0;
             padding-left: 0.5em;
         }
-    }
+    } 
 
     /* MOBILE */
-    @media(max-width: 425px) { 
+    @media(max-width: 450px) { 
         .container { 
             padding-right: 0.5em; 
         }

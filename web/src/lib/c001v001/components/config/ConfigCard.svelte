@@ -177,16 +177,16 @@
         justify-content: flex-start; 
         align-items: center; 
         padding-left: 2em;
-        max-width: 9em;
-        min-width: 9em;
-        width: 9em;
+        max-width: 8.5em;
+        min-width: 8.5em;
+        width: 8.5em;
     }
     .value { 
         justify-content: flex-end; 
         align-items: center; 
-        max-width: 9em;
-        min-width: 9em;
-        width: 9em;
+        max-width: 8.5em;
+        min-width: 8.5em;
+        width: 8.5em;
     }
     .unit { 
         color: var(--orange_a); 

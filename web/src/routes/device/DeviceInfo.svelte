@@ -123,7 +123,7 @@
             <div class="flx-col gauge">
                 <BarGaugeCard bind:cfg bind:smp/>
             </div>
-            <div class="flx-col panel-cont w1440">
+            <div class="flx-col panel-cont mq-w1500">
                 <HeaderPanel bind:device />
             </div>
         </div>
@@ -192,26 +192,24 @@
 
     .conn {
         padding-right: 0.5em;
-        /* padding-bottom: 0.5em; */
         gap: 0.75em
     }
 
     .map {
         border-radius: 0.5em;
-        min-height: 15em;
+        min-height: 18em;
         height: 100%;
     }
 
-    .w1440 { display: none }
+    .mq-w1500 { display: none }
 
     /* LAP TOP */
-    @media(max-width: 1440px) {
-
-        .w1440 { display: flex }
+    @media(max-width: 1500px) {
+        .mq-w1500 { display: flex }
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
         .container { 
             background-color: transparent;
             flex-direction: row; 
@@ -222,11 +220,11 @@
             padding-right: 0; 
         }
         .title-bar {padding-bottom: 0.75em; }
-        .w1440 { display: none }
+        .mq-w1500 { display: none }
     }
     
     /* MOBILE */
-    @media(max-width: 425px) {
+    @media(max-width: 550px) {
         .container { 
             flex-direction: column; 
             padding-top: 0;

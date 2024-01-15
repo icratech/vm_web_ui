@@ -25,7 +25,7 @@
         clone_hdr = structuredClone( hdr )
         edit = !edit
     }
-    $: title = ( edit ? "Edit Job Header" : "Current Job Header" )
+    $: title = ( edit ? "Edit Job Header" : "Job Header" )
 
     const editHeader = ( ) => {
         device.hdr = clone_hdr
@@ -39,38 +39,34 @@
 <div class="flx-col container">
 
     <div class="flx-row panel-title-bar">
-        <div class="flx-row panel-title-btns">
 
-            { #if device.isActive( ) && role.isOperator( $AUTH.user.role ) }
+        { #if device.isActive( ) && role.isOperator( $AUTH.user.role ) }
+        <div class="flx-row panel-title-btns">
             <PillButton
                 img={ editButtonImg }
                 on:click={ editButtonFunc }
                 hint={ editButtonHint }
             />
-            { /if }
-
             { #if edit }
-
-                <PillButton
-                    img={ btn_img_confirm }
-                    on:click={ editHeader }
-                    hint={ "Confirm" }
-                />
-
+            <PillButton
+                img={ btn_img_confirm }
+                on:click={ editHeader }
+                hint={ "Confirm" }
+            />
             { /if }
-
         </div>
+        { /if }
         <h3 class="panel-title">{ title }</h3>
     </div>
     { #if edit }
 
-    <div class="flx-col">
+    <div class="flx-col hdr">
         <HeaderBuilder bind:hdr={ clone_hdr } />
     </div>
 
     { :else }
 
-    <div class="flx-col">
+    <div class="flx-col hdr">
         <HeaderCard bind:hdr />
      </div>
 
@@ -81,25 +77,34 @@
 <style>
 
     .container {
-        overflow-y: auto;
         padding-right: 0.5em;
         height: 100%;
         gap: 1rem;
     }
-
     .panel-title-bar {
+        border-bottom: solid 0.05em var(--light_01);
         justify-content: space-between;
         padding-top: 0;
         padding-right: 0.5em;
         width: 100%;
+        height: 2.75em;
     }
     .panel-title-btns {
         flex-direction: row;
         width: auto;
+        gap: 1rem;
     }
     .panel-title {
         align-items: flex-end;
         width: 100%;
+        height: 2.75em;
     }
+
+    .hdr {
+        overflow-y: auto;
+        padding-right: 0.5em;
+        gap: 1.5rem;
+    }
+
 
 </style>

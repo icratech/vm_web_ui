@@ -103,7 +103,7 @@
 }
 
 /* TABLET */
-@media(max-width: 1024px) {
+@media(max-width: 1100px) {
 
     .content { padding-right: 1em; }
     .search {
@@ -119,7 +119,7 @@
 }
 
 /* MOBILE */
-@media(max-width: 425px) {
+@media(max-width: 450px) {
 
     .content { 
         flex-direction: column; 

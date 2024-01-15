@@ -55,6 +55,7 @@
     setContext( 'des_jobs', DES_JOBS )
     setContext( 'des_jobs_loaded', DES_JOBS_LOADED )
    
+    let sideNav = true
     onMount( async( ) => {
 
         if ( sessionStorage.getItem( 'des_auth') && sessionStorage.getItem( 'des_auth') != 'none' ) { 
@@ -77,7 +78,7 @@
         } 
 
         page_url_name = window.location.href.split( "/" ).pop( )
-
+        sideNav = ( window.matchMedia( "( max-width: 550px )" ) ? false : true ) 
     } )
 
     const cleanSessionData = async( ) => {
@@ -381,12 +382,12 @@
     }
 
     /* TABLET */
-    @media(max-width: 1024px) {
+    @media(max-width: 1100px) {
         .page { padding: 0; }
     }
 
     /* MOBILE */
-    @media(max-width: 425px) {
+    @media(max-width: 450px) {
         .layout { flex-direction: column; }
         .nav { flex-direction: row; width: 100%; }
         .ops { flex-direction: row; }

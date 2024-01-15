@@ -17,37 +17,38 @@
 
 <div class="flx-col container">
 
-    <div class="flx-col  card-content">
+    <div class="flx-row field">
+        <div class="flx-row title">Company</div>
+        <div class="vert-line vl"/>
+        <InputText enabled={ true } bind:txt={ hdr.hdr_well_co } place="Company name"/>
+    </div>
+    
+    <div class="flx-row field">
+        <div class="flx-row title">Well Name</div>
+        <div class="vert-line vl"/>
+        <InputText enabled={ true } bind:txt={ hdr.hdr_well_name } place="Well name" />
+    </div>
 
-        <div class="flx-row in">
-            <p class="lbl">Company:</p>
-            <InputText enabled={ true } bind:txt={ hdr.hdr_well_co } place="Company name"/>
-        </div>
-        
-        <div class="flx-row in">
-            <p class="lbl">Well Name:</p>
-            <InputText enabled={ true } bind:txt={ hdr.hdr_well_name } place="Well name" />
-        </div>
-        
-        <div class="flx-row in">
-            <p class="lbl">Surf Loc:</p>
-            <InputText enabled={ true } bind:txt={ hdr.hdr_well_sf_loc } place="Well location / UWI"/>
-        </div>
-        
-        <div class="flx-row in">
-            <p class="lbl">Bot Loc:</p>
-            <InputText enabled={ true } bind:txt={ hdr.hdr_well_bh_loc } place="Bottom-hole location"/>
-        </div>
-        
-        <div class="flx-row in">
-            <p class="lbl">License:</p>
-            <InputText enabled={ true } bind:txt={ hdr.hdr_well_lic } place="Well License #"/>
-        </div>
+    <div class="flx-row field">
+        <div class="flx-row title">Surf Loc</div>
+        <div class="vert-line vl"/>
+        <InputText enabled={ true } bind:txt={ hdr.hdr_well_sf_loc } place="Well location / UWI"/>
+    </div>
 
-        <div class="flx-row card-title meta">
-            <UserBadge bind:user={ user } />
-        </div>
+    <div class="flx-row field">
+        <div class="flx-row title">Bot Loc</div>
+        <div class="vert-line vl"/>
+        <InputText enabled={ true } bind:txt={ hdr.hdr_well_bh_loc } place="Bottom-hole location"/>
+    </div>
 
+    <div class="flx-row field">
+        <div class="flx-row title">License</div>
+        <div class="vert-line vl"/>
+        <InputText enabled={ true } bind:txt={ hdr.hdr_well_lic } place="Well License #"/>
+    </div>
+
+    <div class="flx-row card-title meta">
+        <UserBadge bind:user={ user } />
     </div>
     
 </div>
@@ -55,19 +56,22 @@
 <style>
 
     .container {
-        min-width: 35em;
-    }    
-
-    .in {
         gap: 0.5em;
+    }    
+    .field { 
+        height: 2em; 
+        gap: 0;         
     }
-    .lbl {
-        display: flex;
-        flex-direction: row;
+    .title {
+        color: var( --accent_a);
         justify-content: flex-end;
         align-items: center;
-        color: var( --accent_a);
-        width: 7em;
+        padding-right: 0.75em;
+        max-width: 6em;
+        min-width: 6em;
+    }
+    .vl {
+        margin-bottom: -0.5em;
     }
     .meta {
         padding: 0;
@@ -75,7 +79,7 @@
     }
 
     /* MOBILE */
-    @media(max-width: 425px) { 
+    @media(max-width: 450px) { 
         
         .container {
             min-width: none;
