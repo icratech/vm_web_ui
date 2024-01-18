@@ -79,7 +79,7 @@
         padding: 0.5em;
     }
 
-    .sub-title {
+    /* .sub-title {
         justify-content: space-between;
     }
 
@@ -109,6 +109,6 @@
     }
     .val {
         font-size: 1.1em;
-    }
+    } */
 
 </style>

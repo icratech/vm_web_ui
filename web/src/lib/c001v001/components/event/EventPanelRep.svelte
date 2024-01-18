@@ -18,7 +18,7 @@
     const dispatch = createEventDispatcher( )
 
     const role = new RoleCheck( )
-    export let job = new Job( )
+    // export let job = new Job( )
     export let new_evt = new Event( )
     export let smp = new Sample( )
     $: { new_evt.evt_time = smp.smp_time }

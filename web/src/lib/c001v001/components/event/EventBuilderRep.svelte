@@ -11,7 +11,7 @@
     import { Event, EventType } from '../../models'
 
     export let evt = new Event( )
-    export let evt_type = new EventType( )
+    // export let evt_type = new EventType( )
 
     // $: EVT_TYPES = getContext( 'evt_types' )
     // $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.REPORT_EVENT } )[0]

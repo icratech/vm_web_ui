@@ -289,11 +289,10 @@
     const pdfDownload = async( doc, report ) => {
 
         let pdfBytes = await doc.save( ) 
-        let blob = new Blob( [ pdfBytes ], { type: 'text/rtf' } )
+        let blob = new Blob( [ pdfBytes ], { type: "application/pdf" } )
         let fileName = `${ report.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
-        let saveOptions = { description: "PDF", accept: { "tex/plain" : [ ".pdf" ] } }
 
-        await saveBlobToFile( blob, fileName, saveOptions )
+        await saveBlobToFile( blob, fileName )
 
     }
     /* PDF REPORT -> TITLE PAGE */
@@ -671,12 +670,12 @@
         // let bytes = await doc.save( ) 
         let blob = new Blob( [ doc ], { type: 'data:text/csv; charset=utf-8;' } )
         let fileName = `${ report.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.csv`
-        let saveOptions = { description: "CSV", accept: { "tex/plain" : [ ".csv" ] } }
+        let saveOptions = { description: "CSV", accept: { "text/plain" : [ ".csv" ] } }
 
         await saveBlobToFile( blob, fileName, saveOptions )
     }
     /* CSV / PDF / IMG FILE -> SAVE */
-    const saveBlobToFile = async( blob, fileName, saveOptions ) => {
+    const saveBlobToFile = async( blob, fileName ) => {
 
         if ( window.navigator && window.navigator.msSaveOrOpenBlob ) {
 
@@ -684,32 +683,16 @@
 
         } else {
 
-            // if ( window.showSaveFilePicker ) {
+            /* SAVE IN DEFAULT DOWNLOADS FOLDER */
+            const url = window.URL.createObjectURL( blob )
+            let link = document.createElement( 'a' )
+            link.href = url
+            link.download = fileName
+            link.target="_blank"
+            link.click( )
 
-            //     /* ALLOW USER TO CHOOSE NAME & LOCATION */
-            //     let handle = await showSaveFilePicker( {
-            //         suggestedName: fileName,
-            //         types: [ saveOptions ]
-            //     } )
-
-            //     let writable = await handle.createWritable( )
-            //     await writable.write( blob )
-            //     writable.close( )
-
-            // } else {
-
-                /* SAVE IN DEFAULT DOWNLOADS FOLDER */
-                const url = window.URL.createObjectURL( blob )
-                let link = document.createElement( 'a' )
-                link.href = url
-                link.download = fileName
-                link.target="_blank"
-                link.click( )
-
-                // For Firefox it is necessary to delay revoking the ObjectURL.
-                setTimeout( ( ) => { window.URL.revokeObjectURL( url ) }, 250)
-
-            // }
+            // For Firefox it is necessary to delay revoking the ObjectURL.
+            setTimeout( ( ) => { window.URL.revokeObjectURL( url ) }, 250)
         }
     }
 
