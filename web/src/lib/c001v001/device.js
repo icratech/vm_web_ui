@@ -93,18 +93,28 @@ export const registerDevice = async( serial ) => {
     if ( res.err !== null ) 
         alert( ALERT_CODES.ERROR, res.err )
     
-    else 
+    else  if ( res.json.device !== null ) {
         // debug("registerDevice( ): ", res.json)
-        if ( res.json.device !== null ) {
-            dev = res.json.device 
-            debug( "c001v001/device.js -> registerDevice( ) ->  SUCCESS: dev: ", dev )
-            alert( ALERT_CODES.SUCCESS, `${ res.json.device.reg.des_dev_serial } registered.` )
-        }
-
-    
-    await getDevices( )
+        dev = res.json.device 
+        addDevice( dev )
+        await connectDevices( )
+        debug( "c001v001/device.js -> registerDevice( ) ->  SUCCESS: dev: ", dev )
+        alert( ALERT_CODES.SUCCESS, `${ res.json.device.reg.des_dev_serial } registered.` )
+    }
 }
-
+export const addDevice = ( dev ) => {
+    let device = new Device(
+        dev.adm,
+        dev.sta,
+        dev.hdr,
+        dev.cfg,
+        dev.evt,
+        dev.smp,
+        dev.reg,
+        dev.dbg
+    )
+    DEVICES.update( sdevs => { return [ device, ...sdevs ] } )
+}
 export const getDevices = async( ) => {
     DEVICES_LOADED.set( false )
     let res = await getRequestAuth( API_URL_C001_V001_DEVICE_LIST )
@@ -115,17 +125,7 @@ export const getDevices = async( ) => {
         let devs = ( res.json.devices === null ? [ ] : res.json.devices )  // debug( "c001v001/device.js -> getDevices( ) -> response:\n", devs )
         devs.forEach( dev => {
             if( get( DEVICES ).filter( s => { return s.reg.des_dev_serial === dev.reg.des_dev_serial } )[0] === undefined ) {
-                let device = new Device(
-                    dev.adm,
-                    dev.sta,
-                    dev.hdr,
-                    dev.cfg,
-                    dev.evt,
-                    dev.smp,
-                    dev.reg,
-                    dev.dbg
-                )
-                DEVICES.update( sdevs => { return [ ...sdevs, device ] } )
+                addDevice( dev )
             }        
         } )
         await connectDevices( )
@@ -133,14 +133,13 @@ export const getDevices = async( ) => {
         DEVICES_LOADED.set( true )
         debug( "c001v001/device.js -> getDevices( ) -> DEVICES: ", get( DEVICES ).length ) 
     }
-
 }
-
 export const connectDevices = async( ) => { 
-    get( DEVICES ).forEach( async( d ) => { if ( !d.socket ) { await d.connectWS( ) } } )
+    get( DEVICES ).forEach( async( d ) => { 
+        if ( !d.socket ) { await d.connectWS( ) } 
+    } )
     updateDevicesStore( )
 }
-
 export const disconnectDevices = async( ) => { 
     // debug( "des_api.js -> disconnectDevices( ) -> DEVICES: ", get( DEVICES ) )
     get( DEVICES ).forEach( async( d ) => { if ( d.socket ) { await d.disconnectWS( ) } } )
@@ -517,9 +516,6 @@ export class Device {
                     
                     case "event":
                         this.evt = msg.data
-                        if ( this.sta.sta_logging == OP_CODES.JOB_START_REQ && this.evt.evt_code == OP_CODES.GPS_ACQ ) {
-                            this.sta.sta_logging = OP_CODES.GPS_ACQ
-                        }
                         this.job_evts.unshift( this.evt )
                         // debug("new event received from device: ", this.evt)
                         break

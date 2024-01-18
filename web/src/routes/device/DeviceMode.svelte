@@ -3,12 +3,13 @@
     
     import { RGBA, BASE } from "../../lib/common/colors"
     
-    import { OP_CODES, MODES, getMode } from '../../lib/c001v001/models'
+    import { OP_CODES, MODES, Sample, getMode } from '../../lib/c001v001/models'
     import { Device } from '../../lib/c001v001/device'
     import { CHT_COLORS } from '../../lib/c001v001/chart_display'
     
     export let device = new Device( )
     $: hdr = device.hdr
+    $: evt = device.evt
     $: cfg = device.cfg
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
@@ -25,18 +26,19 @@
     $: {
             lbl = 'OFF'
             color_code = BASE.CHAR
+
             switch ( device.sta.sta_logging ) {
 
                 case OP_CODES.DES_REG_REQ:
                 case OP_CODES.JOB_START_REQ:
                 case OP_CODES.JOB_END_REQ:
-                    lbl = 'CMD'
-                    color_code = BASE.PURPLE
-                    break
-
-                case OP_CODES.GPS_ACQ:
-                    lbl = 'GPS'
-                    color_code = BASE.PINK
+                    if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ && device.evt.evt_code == OP_CODES.GPS_ACQ ) {
+                        lbl = 'GPS'
+                        color_code = BASE.PINK
+                    } else {
+                        lbl = 'CMD'
+                        color_code = BASE.PURPLE
+                    }
                     break
 
                 case OP_CODES.JOB_STARTED: 

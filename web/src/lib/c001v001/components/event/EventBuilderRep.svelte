@@ -41,14 +41,14 @@
 
     <div class="flx-col card-content">
 
-        <div class="flx-row in">
+        <!-- <div class="flx-row in">
             <p class="lbl">Type:</p>
             { #if evt_type }
             <div class="flx-row">{ ( evt_type ? evt_type.evt_typ_name : 'UNKNOWN EVT CODE' ) }</div> 
             { /if } 
 
             <DateTimeDisplay bind:date={ evt.evt_time }/>
-        </div>
+        </div> -->
         
         <div class="flx-row in">
             <p class="lbl">Title:</p>

@@ -14,9 +14,13 @@
    
     $: evtColorCode = 'fg-accent'
     $: {
+        /* SHOW GPS IF DEVICE DATA WAS RELOADED DURING A START REQUEST */
+        if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ && device.evt.evt_code == OP_CODES.GPS_ACQ ) {
+            evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.GPS_ACQ } )[0] 
+        }
+
         if ( evt_type ) {
             
-
             if ( evt_type.evt_typ_code < OP_CODES.SYSTEM_EVENT ) {
                 switch ( evt_type.evt_typ_code ) {
 
@@ -69,14 +73,20 @@
         if ( dev_ping_sec < 0 ) { 
             dev_ping_sec = 0 
             device.ping.ok = false
-
         } else {
             device.ping.ok = true
         }
         
         des_ping_sec = DES_PING_LIMIT /1000 - Math.floor( ( now - device.des_ping.time ) / 1000 )
 
-        if ( des_ping_sec < 0 ) { des_ping_sec = 0  }
+        if ( des_ping_sec < 0 ) { 
+            des_ping_sec = 0  
+            device.des_ping.ok = false
+            dev_ping_sec = 0 
+            device.ping.ok = false
+        } else {
+            device.des_ping.ok = true
+        }
     }
     setInterval(countDown, 1000)
 

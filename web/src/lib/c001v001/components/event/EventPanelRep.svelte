@@ -121,7 +121,7 @@
     </div>
 
     { #if edit }
-    <div class="flx-col">
+    <div class="flx-col evt-build">
         <div class="flx-row sub-title">
             { #if role.isOperator( $AUTH.user.role ) }
             <div class="flx-row btns"> 
@@ -131,7 +131,9 @@
             <div class="flx-row"></div>
             { /if }
         </div>
-        <EventBuilderRep bind:evt={new_evt} bind:evt_type/>
+        <div class="flx-col evts">
+            <EventBuilderRep bind:evt={new_evt} bind:evt_type/>
+        </div>
     </div>
     { :else }
     <div class="flx-col evts">
@@ -198,6 +200,10 @@
         border: solid 0.05em var(--light_03);
     }
 
+    .evt-build {
+        overflow: hidden;
+        gap: 0.5em;
+    }
     .evts {
         overflow-y: auto;
         padding-right: 0.5em;

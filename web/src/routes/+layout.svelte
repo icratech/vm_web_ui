@@ -377,13 +377,16 @@
 
     
     /* LAP TOP */
-    @media(max-width: 1440px) {
-        
+    @media(max-width: 1500px) {
+        .page { 
+            padding-left: 0; 
+            padding-right: 0.5em; 
+        }
     }
 
     /* TABLET */
     @media(max-width: 1100px) {
-        .page { padding: 0; }
+        /* .page { padding: 0; } */
     }
 
     /* MOBILE */

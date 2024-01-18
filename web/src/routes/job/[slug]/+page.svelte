@@ -1,6 +1,6 @@
 <script>
 
-    import { getContext } from "svelte"
+    import { getContext, onMount } from "svelte"
     import { Chart } from "chart.js/auto" 
     import { PDFDocument, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
@@ -45,13 +45,30 @@
     $: JOBS_LOADED = getContext( 'jobs_loaded' )
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
 
-    // /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
-    // onMount( async( ) => { 
-    //     if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-    //         AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-    //         await getJobs( )
-    //     }
-    // } )
+    $: titleSize = 33
+    $: lableSize = 23
+    $: tickSize = 19
+    $: mapZoom = 6.5
+    onMount( (  ) => { 
+        if ( window.innerWidth <= 550 ) {
+            debug( " window.innerWidth <= 550: ", window.innerWidth )
+            titleSize = 7
+            lableSize = 5.5
+            tickSize = 4.5
+        } else if ( window.innerWidth <= 1000 ) {
+            debug( " window.innerWidth <= 1100: ", window.innerWidth )
+            titleSize = 14.75
+            lableSize = 10.25
+            tickSize = 9
+        } else if ( window.innerWidth <= 1500 ) {
+            debug( " window.innerWidth <= 1500: ", window.innerWidth )
+            titleSize = 23
+            lableSize = 16
+            tickSize = 13.5
+        } else {
+            debug( " window.innerWidth: ", window.innerWidth )
+        }
+    } )
 
     $: loadingMsg = "Loading..."
     $: loaded = false
@@ -68,7 +85,6 @@
 
     /* CAUSES UPDATE ON RELOAD */
     $: { if ( job && !loaded ) { loadJobData( ) } }
-
 
     $: btn_img_evt_list = btn_img_edit_pink
     $: selected_title = 'All Sections'
@@ -118,7 +134,7 @@
     $: color_code = BASE.PINK
     $: color_code_fg = 'fg-pink'
     $: btn_img_add_evt = btn_img_edit_pink
-    $: color_code_border = RGBA(color_code, 0.5)
+    $: borderColor = RGBA(color_code, 0.35)
     $: { // debug( "Selected Section Mode SMP: ", sec.smp ) // debug( "Selected Section Mode CFG: ", sec.cfg )
         if ( sec.cfg.cfg_time > 0 && sec.smp.smp_time > 0  ){
 
@@ -247,11 +263,9 @@
         /* CREATE TITLE PAGE */
         await pdfWriteTitlePage( pdfDoc, report, hdr, FONT )
 
-        /* REPORT SECTION PAGES */
-        let data = NewPDFChartData( job )
+        /* REPORT SECTION PAGES */ // debug( "titleSize: ", titleSize ) // debug( "lableSize: ", lableSize ) // debug( "tickSize: ", tickSize )
+        let data = NewPDFChartData( job, titleSize, lableSize, tickSize )
         const pdf_canvas = document.getElementById( 'sec_plot' ) 
-        pdf_canvas.width = 650
-        pdf_canvas.height = 550
 
         for ( let i = 0; i < report.rep_secs.length; i++ ) {
 
@@ -268,10 +282,8 @@
         /* ADD A FOOTER TO EACH PAGE */
         pdfWriteFooters( pdfDoc, report.rep_title, job.reg.des_job_name, FONT )
 
-
         /* DOWNLOAD / SAVE REPORT */
         pdfDownload( pdfDoc, report )
-
     }
     /* PDF FILE -> DOWNLOAD & SAVE */
     const pdfDownload = async( doc, report ) => {
@@ -292,10 +304,10 @@
         let yPos = PDF_PAGE_H - 5 * PDF_H1
 
         /* CREATE LOGO IMAGE */
-        // let logoBytes = await getImageBytes( vent_medic_logo ) 
         let logoBytes = await ( await fetch( vent_medic_logo ) ).arrayBuffer( )
         let logoPNG = await doc.embedPng( logoBytes )
-        let logoPNGSize = logoPNG.scale( 0.175 )
+        let ls = logoPNG.size( ) // debug( `PNG Size: `, ls )
+        let logoPNGSize = logoPNG.scale( 320/ls.width ) // debug( `PNG Size: `, logoPNGSize )
         yPos -= ( logoPNGSize.height + 10 )
         page.drawImage( logoPNG, {
             x: pdfCenterImage( logoPNGSize.width ),
@@ -313,16 +325,17 @@
         /* CREATE MAP IMAGE -> TODO: ADD MARKER*/
         let mapBytes = await pdfGetImageBytes( job.map.getCanvas( ).toDataURL( 'image/png' ) )
         let mapPNG = await doc.embedPng( mapBytes )
-        let mapPNGSize = mapPNG.scale( 0.56 )
+        let s = mapPNG.size( ) // debug( `PNG Size: `, s )
+        let mapPNGSize = mapPNG.scale( 180/s.height ) // debug( `PNG Size: `, mapPNGSize )
         page.drawImage( mapPNG, {
-            x: PDF_PAGE_W / 2, 
+            x: PDF_PAGE_W / 2 + PDF_MARGIN, // PDF_PAGE_W / 2 - ( PDF_PAGE_W / 2 - s.width ), 
             y: yPos - mapPNGSize.height - 10 ,
             width: mapPNGSize.width,
             height: mapPNGSize.height,
         } )
         let mrkSize = 7
         page.drawCircle( {
-            x: ( PDF_PAGE_W / 2 ) + ( mapPNGSize.width / 2 ) - ( mrkSize / 2 ),
+            x: ( PDF_PAGE_W / 2 ) + ( mapPNGSize.width / 2 ) - ( mrkSize / 2 ) + PDF_MARGIN,
             y: yPos - ( mapPNGSize.height / 2 ) - 10 + ( mrkSize / 2 ),
             size: mrkSize,
             borderWidth: 1.75,
@@ -397,12 +410,15 @@
         page.drawLine( pdfHzLineOptions( yPos -= 8 ) )
         
         /* CREATE CHART IMAGE */
+        canv.width = 625
+        canv.height = 500
         const pdf_chart = await makeChart( canv, data )
         let plotBytes = await pdfGetImageBytes( canv.toDataURL( ) )
         pdf_chart.destroy( )
         
         let plotPNG = await doc.embedPng( plotBytes )
-        let plotPNGSize = plotPNG.scale( 0.34 )
+        let s = plotPNG.size( ) // debug( `PNG Size: `, s )
+        let plotPNGSize = plotPNG.scale( 625/s.width ) // debug( `PNG Size: `, plotPNGSize )
 
         page.drawImage( plotPNG, {
             x: pdfCenterImage( plotPNGSize.height ), // USE HEIGHT BECASUE WE'RE ROTATING (-90)
@@ -599,7 +615,6 @@
     const PDF_H3 = 13
     const PDF_P = 10
 
-
     /* CSV FILE -> GENERATION */
     const generateCSV = async( report ) => {
 
@@ -659,10 +674,7 @@
         let saveOptions = { description: "CSV", accept: { "tex/plain" : [ ".csv" ] } }
 
         await saveBlobToFile( blob, fileName, saveOptions )
-
     }
-
-    
     /* CSV / PDF / IMG FILE -> SAVE */
     const saveBlobToFile = async( blob, fileName, saveOptions ) => {
 
@@ -703,7 +715,7 @@
 
 </script>
 
-<canvas style="display: none;" id="sec_plot"/>
+<canvas style="display: none; font-size: 11pt;" id="sec_plot"/>
 
 <div class="flx-col container">
 
@@ -713,48 +725,51 @@
         { #if loaded }
 
             <div class="flx-col status">
-                
-                    <div class="flx-col map map-cont">
-                        <div class="map-container" use:job.makeMap />
-                    </div>
 
+                <div class="map" use:job.makeMap />
+
+
+                <div class="flx-col stat-det">
                     <div class="flx-col">
-                        <!-- <HeaderPanel bind:hdr /> -->
                         <HeaderCard bind:hdr />
                     </div>
 
-                    <div class="flx-row new-rep">
-                        { #if making_report }
-                            <PillButton 
-                                on:click={ ( ) => { making_report = false } }
-                                img={ btn_img_cancel }
-                                hint={ 'Cancel' } 
-                            />
-                            <PillButton 
-                                on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
-                                img={ btn_img_confirm }
-                                hint={ 'Confirm' } 
-                            />
-                            <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
-                        { :else }
-                            <PillButton 
-                                on:click={ ( ) => { making_report = true } }
-                                img={ btn_img_add }
-                                hint={ null } 
-                            />
-                            <h3 class="panel-title">Reports</h3>
-                        { /if }
-                    </div>
 
-                    <div class="flx-col report-list">
-                        { #each job.reports as rep, index ( index ) }
-                        <ReportBadge bind:rep 
-                            on:report-selected={ ( e ) => { reportSelected( e.detail ) } } 
-                            on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
-                            on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
-                        />
-                        { /each }
+                    <div class="flx-col rep-select">
+                        <div class="flx-row new-rep">
+                            { #if making_report }
+                                <PillButton 
+                                    on:click={ ( ) => { making_report = false } }
+                                    img={ btn_img_cancel }
+                                    hint={ 'Cancel' } 
+                                />
+                                <PillButton 
+                                    on:click={ ( new_rep.rep_title != "" ? makeReport : debug( "enter a report title" ) ) }
+                                    img={ btn_img_confirm }
+                                    hint={ 'Confirm' } 
+                                />
+                                <InputText bind:txt={ new_rep.rep_title } place={ "Please enter a report title" } enabled={ true } />
+                            { :else }
+                                <PillButton 
+                                    on:click={ ( ) => { making_report = true } }
+                                    img={ btn_img_add }
+                                    hint={ null } 
+                                />
+                                <h3 class="panel-title">Reports</h3>
+                            { /if }
+                        </div>
+                        <div class="flx-col report-list">
+                            { #each job.reports as rep, index ( index ) }
+                            <ReportBadge bind:rep 
+                                on:report-selected={ ( e ) => { reportSelected( e.detail ) } } 
+                                on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
+                                on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
+                            />
+                            { /each }
+                        </div>
                     </div>
+            </div>
+
 
             </div>
 
@@ -766,9 +781,22 @@
                 
                 <div class="flx-row action">
 
+                    <!-- <div class="flx-col cht-btns">
+                        <PillButton />
+                        <PillButton />
+                        <PillButton />
+                        <PillButton />
+                        <PillButton />
+                        <PillButton />
+                        <PillButton />
+                        <PillButton />
+                    </div> -->
 
-                    <div class="flx-col panel-cont">
-                        
+                    <!-- <div id="rep" class="flx-col panel-cont" style="
+                        border-bottom: solid 0.05em { borderColor };
+                        border-right: solid 0.05em { borderColor };
+                    "> -->
+                    <div id="rep" class="flx-col panel-cont">
                         <ReportCard
                             bind:job bind:rep
                             on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
@@ -776,14 +804,14 @@
                             on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
                             on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
                         />
-
                     </div>
 
 
-                    <div class="flx-col panel-cont" style="
-                        border-bottom: solid 0.05em { RGBA(color_code, 0.25) };
-                        border-right: solid 0.05em { RGBA(color_code, 0.25) };
-                    ">
+                    <!-- <div id="evt" class="flx-col panel-cont" style="
+                        border-bottom: solid 0.05em { borderColor };
+                        border-right: solid 0.05em { borderColor };
+                    "> -->
+                    <div id="evt" class="flx-col panel-cont">
                         <EventPanelRep bind:job bind:new_evt={evt} bind:smp={ job.selected_smp } 
                             bind:evts 
                             bind:sec_name={ selected_title }
@@ -792,8 +820,13 @@
                         />
                     </div>
 
-                    <div class="flx-col panel-cont">
-                        <br>
+
+                    <!-- <div id="cfg" class="flx-col panel-cont" style="
+                        border-bottom: solid 0.05em { borderColor };
+                        border-right: solid 0.05em { borderColor };
+                    "> -->
+                    <div id="cfg" class="flx-col panel-cont">
+                        <!-- <br> -->
                         <div class="flx-col">
                             <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
                         </div>
@@ -802,7 +835,6 @@
                             <ConfigCard bind:cfg />
                         </div>
                     </div>
-  
                 </div>
      
             </div>
@@ -817,7 +849,7 @@
 </div>
 
 <style>
-    
+
     .container {
         overflow: hidden;
         height: 100%;
@@ -825,17 +857,28 @@
     }
 
     .content { 
-        /* background-color: var(--light_01); */
         height: 100%;
     }
 
     .status {
-        /* background-color: var(--light_01); */
         max-width: 25%;
         min-width: 25%;
-        width: auto;
-        padding-right: 0.5em;
-        gap: 0.5em;
+        gap: 1em;
+    }
+    .map {
+        aspect-ratio: 1 / 1;
+        border-radius: 0.5em;
+        min-height: 37.7em; 
+    }
+    .stat-det {
+        overflow: hidden;
+        height: 100%;
+        gap: 0.5em; 
+    }
+    .rep-select {
+        overflow: hidden;
+        height: 100%;
+        gap: 0.5em; 
     }
     .new-rep {
         border-bottom: solid 0.05em var(--light_01);
@@ -844,19 +887,14 @@
         padding-bottom: 0.5em;
         gap: 0.75em;
     }
-    .map-cont {
-        min-height: 28em;
-        height: 28em;
-    }
     .report-list {
         padding-right: 0.5em;
         overflow: auto;
-        height: 100%;
+        height: auto;
         gap: 0.75em;
     }
 
     .panel {
-        /* background-color: var(--light_01); */
         padding: 0 1em;
         padding-left: 0;
         height: auto;
@@ -868,8 +906,7 @@
         height: 50%;
     }
 
-    .chart { min-height: 30em; }
-
+    .chart { min-height: 38em; }
     .action {
         overflow: hidden;
         justify-content: space-between;
@@ -879,15 +916,131 @@
     .panel-cont { 
         border-bottom: solid 0.05em var(--light_007);
         border-right: solid 0.05em var(--light_007);
-        border-bottom-right-radius: 0.25em;
+        border-bottom-right-radius: 0.5em;
         padding: 1em;
         padding-top: 0;
+        height: 100%;
         gap: 0.5em; 
     }
 
-    /* .gauge {
-        justify-content: flex-start; 
-        height: auto;
+    /* .cht-btns {
+        justify-content: flex-start;
+        width: auto;
     } */
+
+    /* LAP TOP */
+    @media(max-width: 1500px) {
+        .content {
+            gap: 0.5em;
+        }
+        .status {
+            max-width: 27.5%;
+        }    
+        .map {
+            min-height: 29.65em;
+        }
+        .chart { 
+            min-height: 32.5em;
+        }
+    }
+
+    
+    /* TABLET */
+    @media(max-width: 1100px) {
+        .container { 
+            padding-right: 0.5em; 
+            height: auto;
+        }
+        .content {
+            flex-direction: column;
+            overflow: auto;
+        }
+        .status {
+            flex-direction: row-reverse;
+            min-height: 30em;
+            max-height: 30em;
+            max-width: unset;
+            min-width: unset;
+            padding-right: 0.5em; 
+            width: 100%;
+        }
+        /* .stat-det {
+            flex-direction: row;
+        } */
+        .map {
+            min-height: unset;
+            min-width: 29em;
+        }
+        .rep-select {
+            margin-right: 1em; 
+        }
+        .panel {
+            padding-top: 0.5em;
+            padding-right: 0.5em;
+            /* padding-left: 0.5em; */
+        }
+        .chart { 
+            min-height: 27.5em;
+        }
+        .panel-cont { 
+            padding-left: 0;
+        }
+        #cfg {
+            display: none;
+        }
+    }
+
+    @media (max-width: 1100px) and (max-height: 800px) {
+        .chart { 
+            min-height: 32em;
+        }
+     }
+
+    /* MOBILE */
+    @media(max-width: 450px) {
+        .container { 
+            padding-right: 0.5em; 
+        }
+        .content {
+            flex-direction: column;
+            /* padding-right: 0.5em; */
+        }
+        .status {
+            flex-direction: column;
+            min-height: unset;
+            max-height: unset;
+            height: 100%;
+            padding: 1.5em;
+            padding-right: 0.75em;
+        }
+        .stat-det {
+            flex-direction: column;
+        }
+        .map {
+            min-height: 29em;
+            min-width: unset;
+        }
+        /* .chart {
+            display: none;
+        } */
+        
+        .action {
+            flex-direction: column;
+            padding-left: 1em;
+        }
+    }
+    
+    @media (max-width: 800px) and (max-height: 380px) {
+        .map {
+            min-height: unset;
+            min-width: 25em;
+        }
+     }
+    /* MOBILE */
+    @media(max-width: 380px) { 
+        .map {
+            min-height: 26.2em;
+        }
+    }
 
 </style>

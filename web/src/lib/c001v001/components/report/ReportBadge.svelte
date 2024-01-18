@@ -13,7 +13,8 @@
 
     let color = BASE.PINK
     $: textColor = ( rep.selected && highlight ? RGBA(color, 0.7) : RGBA(BASE.LIGHT, 0.5) )
-    $: lineColor = ( rep.selected && highlight ? RGBA(color, 0.45) : RGBA(BASE.LIGHT, 0.25) )
+    $: lineColor = ( rep.selected && highlight ? RGBA(color, 0.30) : RGBA(BASE.LIGHT, 0.15) )
+    $: bgColor = ( rep.selected && highlight ? RGBA(color, 0.15) : RGBA(BASE.LIGHT, 0) )
 
     let dispatch = createEventDispatcher( )
 
@@ -27,11 +28,13 @@
     } } >
         
     <div class="flx-col title-block">
+        <!-- <div class="flx-row title" style="border-bottom: solid 0.05em { lineColor };">{ rep.rep_title }</div> -->
         <div class="flx-row title" style="
+            background-color: { bgColor };
             border-bottom: solid 0.05em { lineColor };
-            ">{ rep.rep_title }</div>
+        ">{ rep.rep_title }</div>
             
-        <div class="flx-row sub-title">
+        <!-- <div class="flx-row sub-title">
             <div class="flx-row btns"> 
                 { #if rep.selected }
                 <div class="flx-row btn fg-red_08" on:click={ ( ) => { dispatch( "generate-pdf", rep ) } } on:keyup>PDF</div>
@@ -43,7 +46,7 @@
                 <div class="lbl">Sections:</div>
                 <div class="val" style="color: { textColor };">{ rep.rep_secs.length }</div> 
             </div>
-        </div>
+        </div> -->
     </div>
 
 
@@ -55,7 +58,8 @@
     .container {
         justify-content: space-between;
         align-items: flex-start; 
-        padding: 0.5em;
+        border-bottom-right-radius: 0.25em;
+        padding: 0;
     }
     .container:hover {
         background-color: var(--light_005);
@@ -63,12 +67,13 @@
     .title-block {
         justify-content: space-between;
         padding-top: 0;
-        padding-right: 0.5em;
+        padding: 0;
         width: 100%;
         gap: 0.35em;
     }
 
     .title {
+        border-bottom-right-radius: 0.25em;
         color: var(--light_07);
         font-size: 1.2em;
         padding: 0.5em;

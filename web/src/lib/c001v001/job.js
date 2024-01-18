@@ -203,13 +203,13 @@ export class Job {
     }
 
     /* JOB PAGE MAP */
-    makeMap( ctx ) {
+    makeMap( ctx, zoom = 6.5 ) {
         this.map = new mapboxgl.Map( {
             container: ctx,
             style: MAPBOX_STYLE, 
             center: validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ),
-            zoom :  5.5,
-            interactive: true,
+            zoom :  zoom,
+            interactive: false,
             preserveDrawingBuffer: true
         } )
         this.mark.setLngLat( validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ) )

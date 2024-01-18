@@ -53,7 +53,8 @@ export class LineChartModel {
     constructor( 
         title, 
         color,
-        zoomHandler =  defaultZoomHandler
+        // zoomHandler =  defaultZoomHandler,
+        fontSize = 16
         ) {
 
         this.type = 'line' //'scatter'
@@ -75,9 +76,9 @@ export class LineChartModel {
             parsing: false, 
             layout: {
                 padding: {
-                    left: 5,
-                    right: 5,
-                    bottom: 5,
+                    left: fontSize / 3,
+                    right: fontSize / 3,
+                    bottom: fontSize / 3,
                 }
             },
             interaction: { 
@@ -93,10 +94,13 @@ export class LineChartModel {
                 x: LineChartXScale 
             },
             plugins: { 
-                chartAreaBorder: { borderColor: RGBA( BASE.LIGHT, 0.1 ), borderWidth: 1 },
+                chartAreaBorder: { 
+                    borderColor: RGBA( BASE.LIGHT, 0.1 ), 
+                    borderWidth: ( fontSize/16 < 0.5 ? 0.5 : fontSize/16 ) 
+                },
                 title: { 
                     text: title, 
-                    font: { size: 16 },
+                    font: { size: fontSize },
                     position: "bottom",
                     display: false 
                 },
@@ -106,11 +110,11 @@ export class LineChartModel {
                     display: false,
                     labels: {
                         textAlign: "center",
-                        boxHeight: 20,
-                        boxWidth: 20,
-                        borderRadius: 10,
+                        boxHeight: fontSize * 1.25,
+                        boxWidth: fontSize * 1.25,
+                        borderRadius: fontSize * 1.25,
                         useBorderRadius: true,
-                        padding: 10,
+                        padding: fontSize * 3 / 2,
                     },
                 },
                 decimation: { 
@@ -230,6 +234,8 @@ export class LineChartScale {
         gridColor,
         showGrid,
         display = true,
+        labelSize = 12,
+        tickSize = 10
     ) {
         this.type = "linear"
         this.min = min
@@ -240,21 +246,20 @@ export class LineChartScale {
         this.border = {
             display: false,
             color: gridColor,
-            width: 1,
+            width: tickSize/10,
         }
         this.title = {
             display: true,
             align: "end",
-            font: { size: 12 },
-            padding: { top: 6, bottom: 6 },
+            font: { size: labelSize },
+            padding: { top: labelSize/2, bottom: labelSize/2 },
             color: color,
             text: title,
         }
         this.ticks = { 
-            // count: 5,
-            font: { size: 10 },
+            font: { size: tickSize },
             color: color,
-            padding: 5,
+            padding: tickSize/2,
             callback: function( value ) {
                 return value.toFixed( 1 )
             }
@@ -262,7 +267,6 @@ export class LineChartScale {
         this.grid = { 
             display: showGrid,
             color: gridColor,
-
             drawTicks: false,
         }
         // this.border = {
@@ -273,7 +277,7 @@ export class LineChartScale {
     }
 }
 export class LineChartXScale {
-    constructor( ) {
+    constructor( tickSize = 10 ) {
         this.type = 'time'
         this.time = {
             displayFormats: {
@@ -285,7 +289,7 @@ export class LineChartXScale {
             }
         }
         this.grid = { 
-            tickLength: 10,
+            tickLength: tickSize,
             drawTicks: false,
             color: RGBA( BASE.LIGHT, 0.1 ),
             display: true
@@ -299,12 +303,12 @@ export class LineChartXScale {
         //     text: "Time",
         // }
         this.ticks = {
-            font: { size: 10 },
+            font: { size: tickSize },
             autoSkip: true,
-            autoSkipPadding: 50,
+            autoSkipPadding: tickSize * 10,
             maxRotation: 0,
             color: RGBA( BASE.LIGHT, 0.7 ),
-            padding: 15,
+            padding: tickSize * 1.5,
         }
     }
 }

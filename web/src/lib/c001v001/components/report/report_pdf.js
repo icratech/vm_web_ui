@@ -48,126 +48,108 @@ export const PDF_RGB_COLORS = {
 const CHART_LINE_WIDTH = 5
 const CHART_MARKER_RADIUS = 2
 
-export const NewPDFChartScales = ( ) => {
+export const NewPDFChartScales = ( labelSize = 23, tickSize = 20 ) => {
 
     let scales = {
         
-        x: new LineChartXScale( ),
+        x: new LineChartXScale( tickSize ),
 
-        y: new LineChartXSelectScale( ),
+        y: new LineChartXSelectScale( null, null, null, null, null, null, null, false, false, labelSize, tickSize ),
         
         y_ch4: new LineChartScale( "Ch4 ( % )", 3, -5, 100, "left", 
-            RGBA( PDFCOLORS.CH4, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false 
+            RGBA( PDFCOLORS.CH4, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false, true,
+            labelSize, tickSize
         ),
         
-        y_hi_flow: new LineChartScale( "Hi Flow ( L/min )", 1.75, -5.0, 250, "left", 
-            RGBA( PDFCOLORS.HI_FLOW, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), true,
+        y_hi_flow: new LineChartScale( "Flow ( L/min )", 1.75, -5.0, 250, "left", 
+            RGBA( PDFCOLORS.HI_FLOW, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false, true,
+            labelSize, tickSize
         ),
         
         y_lo_flow: new LineChartScale( "Lo Flow ( L/min )", 1, -0.1, 2.5, "left",
-            RGBA( PDFCOLORS.LO_FLOW, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), true, 
+            RGBA( PDFCOLORS.LO_FLOW, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false,  false,
+            labelSize, tickSize
         ),
         
-        y_press: new LineChartScale( "Press ( kPa )", 0, 0, 7000, "right", 
-            RGBA( PDFCOLORS.PRESS, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false 
+        y_press: new LineChartScale( "Press ( kPaA )", 0, 0, 7000, "right", 
+            RGBA( PDFCOLORS.PRESS, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), true, true, 
+            labelSize, tickSize
         ),
         
         y_bat_amp: new LineChartScale( "Bat ( A )", 0, 0, 1.5, "right", 
-            RGBA( PDFCOLORS.BAT_AMP, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false, 
-            false  
+            RGBA( PDFCOLORS.BAT_AMP, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false, false,  
+            labelSize, tickSize
         ),
         
         y_bat_volt: new LineChartScale( "Bat ( V )", 1, 0, 15, "right", 
-            RGBA( PDFCOLORS.BAT_VOLT, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false, 
-            false 
+            RGBA( PDFCOLORS.BAT_VOLT, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false, false,
+            labelSize, tickSize
         ),
         
         y_mot_volt: new LineChartScale( "Mot ( V )", 2, 0, 15, "right", 
-            RGBA( PDFCOLORS.MOT_VOLT, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false, 
-            false  
+            RGBA( PDFCOLORS.MOT_VOLT, 1.0 ), RGBA( PDFBASE.DARK, 0.5 ), false, false, 
+            labelSize, tickSize
         )
 
     }
     scales.x.grid.color = RGBA( PDFBASE.DARK, 0.5 )
     scales.x.ticks.color = RGBA( PDFBASE.DARK, 0.5 )
-    scales.x.ticks.font.size = 19
-
-    scales.y_ch4.title.font.size = 23
-    scales.y_ch4.ticks.font.size = 19
-
-    scales.y_hi_flow.title.font.size = 23
-    scales.y_hi_flow.ticks.font.size = 19
-
-    scales.y_lo_flow.title.font.size = 23
-    scales.y_lo_flow.ticks.font.size = 19
-
-    scales.y_press.title.font.size = 23
-    scales.y_press.ticks.font.size = 19
-
-    scales.y_bat_amp.title.font.size = 23
-    scales.y_bat_amp.ticks.font.size = 19
-
-    scales.y_bat_volt.title.font.size = 23
-    scales.y_bat_volt.ticks.font.size = 19
-
-    scales.y_mot_volt.title.font.size = 23
-    scales.y_mot_volt.ticks.font.size = 19
 
     return scales
 }
-export const NewPDFChartDataSets = ( datasets = [ ] ) => {
+export const NewPDFChartDataSets = ( datasets = [ ], tickSize = 20 ) => {
     // return [
 
          /* 1 */
         datasets.push( new LineChartDataSet( [ ], "Methane", "y_ch4", true,
-            CHART_LINE_WIDTH, RGBA( PDFCOLORS.CH4, 0.7 ), 
-            CHART_MARKER_RADIUS, RGBA( PDFCOLORS.CH4, 0.7 ) 
+            tickSize/4, RGBA( PDFCOLORS.CH4, 0.7 ), 
+            tickSize/10, RGBA( PDFCOLORS.CH4, 0.7 ) 
         ) )
 
          /* 2 */
          datasets.push( new LineChartDataSet( [ ], "High Flow", "y_hi_flow", true, 
-            CHART_LINE_WIDTH, RGBA( PDFCOLORS.HI_FLOW, 0.7 ), 
-            CHART_MARKER_RADIUS, RGBA( PDFCOLORS.HI_FLOW, 0.7 ) 
+         tickSize/4, RGBA( PDFCOLORS.HI_FLOW, 0.7 ), 
+         tickSize/10, RGBA( PDFCOLORS.HI_FLOW, 0.7 ) 
         ) )
 
          /* 3 */
-         datasets.push( new LineChartDataSet( [ ], "Low Flow", "y_lo_flow", true,
-            CHART_LINE_WIDTH,  RGBA( PDFCOLORS.LO_FLOW, 0.7 ), 
-            CHART_MARKER_RADIUS, RGBA( PDFCOLORS.LO_FLOW, 0.7 ) 
+         datasets.push( new LineChartDataSet( [ ], "Low Flow", "y_lo_flow", false,
+         tickSize/4,  RGBA( PDFCOLORS.LO_FLOW, 0.7 ), 
+         tickSize/10, RGBA( PDFCOLORS.LO_FLOW, 0.7 ) 
         ) )
 
          /* 4 */
          datasets.push( new LineChartDataSet( [ ], "Pressure", "y_press", true,
-            CHART_LINE_WIDTH, RGBA( PDFCOLORS.PRESS, 0.7 ), 
-            CHART_MARKER_RADIUS, RGBA( PDFCOLORS.PRESS, 0.7 ) 
+         tickSize/4, RGBA( PDFCOLORS.PRESS, 0.7 ), 
+         tickSize/10, RGBA( PDFCOLORS.PRESS, 0.7 ) 
         ) )
 
          /* 5 */
-         datasets.push( new LineChartDataSet( [ ], "Battery Amps", "y_bat_amp", true, 
-            CHART_LINE_WIDTH, RGBA( PDFCOLORS.BAT_AMP, 0.7 ), 
-            CHART_MARKER_RADIUS, RGBA( PDFCOLORS.BAT_AMP, 0.7 ) 
+         datasets.push( new LineChartDataSet( [ ], "Battery Amps", "y_bat_amp", false, 
+         tickSize/4, RGBA( PDFCOLORS.BAT_AMP, 0.7 ), 
+         tickSize/10, RGBA( PDFCOLORS.BAT_AMP, 0.7 ) 
         ) )
 
          /* 6 */
          datasets.push( new LineChartDataSet( [ ], "Battery Volts", "y_bat_volt", true,
-            CHART_LINE_WIDTH, RGBA( PDFCOLORS.BAT_VOLT, 0.7 ),  
-            CHART_MARKER_RADIUS, RGBA( PDFCOLORS.BAT_VOLT, 0.7 ) 
+         tickSize/4, RGBA( PDFCOLORS.BAT_VOLT, 0.7 ),  
+         tickSize/10, RGBA( PDFCOLORS.BAT_VOLT, 0.7 ) 
         ) ) 
 
          /* 7 */
          datasets.push( new LineChartDataSet( [ ], "Motor Volts", "y_mot_volt", true,
-            CHART_LINE_WIDTH, RGBA( PDFCOLORS.MOT_VOLT, 0.7 ), 
-            CHART_MARKER_RADIUS, RGBA( PDFCOLORS.MOT_VOLT, 0.7 ) 
+         tickSize/4, RGBA( PDFCOLORS.MOT_VOLT, 0.7 ), 
+         tickSize/10, RGBA( PDFCOLORS.MOT_VOLT, 0.7 ) 
         ) )
 
     // ]
 
     return datasets
 }
-export const NewPDFChartData = ( job ) => {
-    let cht = new LineChartModel( "", RGBA( PDFBASE.LIGHT, 1 ) )
+export const NewPDFChartData = ( job, titleSize = 33, labelSize = 23, tickSize = 19 ) => {
+    let cht = new LineChartModel( "", RGBA( PDFBASE.LIGHT, 1 ), titleSize )
 
-    cht.options.scales = NewPDFChartScales( )
+    cht.options.scales = NewPDFChartScales( labelSize, tickSize )
     
     cht.options.maintainAspectRatio = true
     cht.options.layout.padding = {
@@ -178,9 +160,9 @@ export const NewPDFChartData = ( job ) => {
     }
     
     cht.options.plugins.title.position = 'top'
-    cht.options.plugins.title.font.size = 33
+    cht.options.plugins.title.font.size = titleSize
     cht.options.plugins.title.display = true
-    cht.data.datasets = NewPDFChartDataSets( cht.data.datasets )
+    cht.data.datasets = NewPDFChartDataSets( cht.data.datasets, tickSize )
 
     cht.data.datasets[CHT_DATASET_INDEX.CH4].data = [ ...job.cht.data.datasets[CHT_DATASET_INDEX.CH4].data ]
     cht.data.datasets[CHT_DATASET_INDEX.HI_FLOW].data = [ ...job.cht.data.datasets[CHT_DATASET_INDEX.HI_FLOW].data ]

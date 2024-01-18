@@ -46,7 +46,7 @@
     .section-list {
         overflow: auto;
         padding-right: 0.5em;
-        gap: 1.5em;
+        gap: 0.75em;
     }
 
 </style>

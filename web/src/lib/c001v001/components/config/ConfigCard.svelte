@@ -60,8 +60,8 @@
                 <UserBadge bind:user={ user } />
             </div>
         </div>
-        
-        <div class="flx-row field"><div class="flx-row title"></div><div class="vert-line"/></div>
+        <br>
+        <!-- <div class="flx-row field"><div class="flx-row title"></div><div class="vert-line"/></div> -->
     </div>
 
     <div class="flx-col sec">
@@ -83,7 +83,7 @@
     </div>
     
     <div class="flx-col sec">
-        <div class="flx-row field">
+        <div class="flx-row col-head-row">
             <div class="flx-row title"></div>
             <div class="vert-line"/>
             <div class="flx-row col-head">Max </div>
@@ -100,7 +100,7 @@
     </div>
     
     <!-- <div class="flx-col sec"> -->
-        <div class="flx-row field">
+        <div class="flx-row col-head-row">
             <div class="flx-row title"></div>
             <div class="vert-line"/>
             <div class="flx-row col-head">Sample </div>
@@ -138,8 +138,8 @@
 
     .sec { 
         border-bottom: solid 0.05em var(--light_01); 
-        padding-bottom: 0.5em;
-        margin-bottom: 1em;
+        padding-bottom: 0.25em;
+        margin-bottom: 0.5em;
         gap: 0;
     }
 
@@ -155,7 +155,7 @@
     .operator {
         align-items: flex-end;
         padding-right: 1em;
-        gap: 0.5em;
+        gap: 0;
     }
 
     .field { 
@@ -172,10 +172,15 @@
         min-width: 6em;
     }
 
+    .col-head-row {
+        height: 1.5em; 
+        gap: 0;   
+    }
     .col-head { 
         color: var(--accent_a); 
         justify-content: flex-start; 
         align-items: center; 
+        padding: 0;
         padding-left: 2em;
         max-width: 8.5em;
         min-width: 8.5em;

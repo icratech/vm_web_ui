@@ -55,9 +55,15 @@
                 break 
             
             case OP_CODES.JOB_START_REQ:
-                cmdButtonHint = 'Job Start Pending' 
-                cmdButtonIcon = btn_img_cmd_purple
-                cmdButtonFunc = ( ) => { device.setState( ) }
+                if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ && device.evt.evt_code == OP_CODES.GPS_ACQ ) {
+                    cmdButtonHint = 'Acquiring GPS' 
+                    cmdButtonIcon = btn_img_cmd_pink
+                    cmdButtonFunc = ( ) => { }
+                } else {
+                    cmdButtonHint = 'Job Start Pending' 
+                    cmdButtonIcon = btn_img_cmd_purple
+                    cmdButtonFunc = ( ) => { device.setState( ) }
+                }
                 break
 
             case OP_CODES.JOB_END_REQ:
@@ -66,11 +72,6 @@
                 cmdButtonFunc = ( ) => { device.setState( ) }
                 break
 
-            case OP_CODES.GPS_ACQ:
-                cmdButtonHint = 'Acquiring GPS' 
-                cmdButtonIcon = btn_img_cmd_pink
-                cmdButtonFunc = ( ) => { }
-                break
         }
     }
 
