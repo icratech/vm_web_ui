@@ -138,7 +138,7 @@
     { :else }
     <div class="flx-col evts">
         { #each evts as evt, index ( index ) }
-            <EventCard bind:evt />
+            <EventCard bind:evt on:event-selected />
         { /each }
     </div>
     { /if }

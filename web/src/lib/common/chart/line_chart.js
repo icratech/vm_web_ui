@@ -90,9 +90,7 @@ export class LineChartModel {
                 // includeInvisible: false, 
             },
             events: [ 'click' ],
-            scales: { 
-                x: LineChartXScale 
-            },
+            scales: { x: LineChartXScale },
             plugins: { 
                 chartAreaBorder: { 
                     borderColor: RGBA( BASE.LIGHT, 0.1 ), 

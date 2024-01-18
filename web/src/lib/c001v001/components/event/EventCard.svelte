@@ -1,7 +1,7 @@
 
 <script>
 
-    import { getContext } from 'svelte'
+    import { getContext, createEventDispatcher } from 'svelte'
     
     import { RGBA, BASE } from "../../../common/colors"
     import DateTimeDisplay from '../../../common/date_time/DateTimeDisplay.svelte'
@@ -95,10 +95,14 @@
         }
     }
 
+    const dispatch = createEventDispatcher( )
+    const eventSelected = ( ) => { dispatch( "event-selected", evt ) }
 </script>
 
 <!-- background-color: { bgColor }; -->
-<div class="flx-col container" style=" border-right: solid 0.05em { borderColor };">
+<div class="flx-col container" style=" border-right: solid 0.05em { borderColor };"
+    on:click={ eventSelected } on:keydown
+>
   
     <div class="flx-row title-bar" style="border-bottom: solid 0.05em { lineColor };">
         { #if evt_type }

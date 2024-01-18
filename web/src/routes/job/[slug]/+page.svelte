@@ -800,6 +800,10 @@
                             bind:sec_name={ selected_title }
                             bind:color={ color_code }
                             on:send-event={ saveEvent }
+                            on:event-selected={ ( e ) => { // debug( "event selected: ", e.detail.evt_time ) 
+                                job.selection = e.detail.evt_time
+                                job.chartPointSelect(  )
+                            } }
                         />
                     </div>
 

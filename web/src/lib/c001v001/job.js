@@ -194,9 +194,9 @@ export class Job {
             this.highlight = false 
             updateJobsStore( )
         } )
-        this.s_mark = new mapboxgl.Marker( 
-            this.s_mark_el, { anchor: 'bottom-right' } 
-            ).setLngLat( validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ) )
+        this.s_mark = new mapboxgl.Marker( this.s_mark_el, { anchor: 'bottom-right' } ).setLngLat( 
+            validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ) 
+        )
         
         this.cht = newChartData( )
         this.resetChart( )
@@ -500,28 +500,47 @@ export class Job {
             debug( "job.cht.options.onClick( e ) -> e: ", e )
             this.selection = Math.floor( e.chart.scales.x.getValueForPixel( e.x ) )
             debug( "job.cht.options.onClick( e ) -> this.selection: ", this.selection )
-
-            let xs = this.cht_press.data.map( d => d.x )
-            if ( xs[0] > this.selection ) { this.selection = xs[0] }
-            else if ( xs.pop( ) < this.selection  ) { this.selection = xs.pop( ) }
-            else { 
-                let pre = xs.filter( x => x <= this.selection ).pop( ) 
-                let sub = xs.filter( x => x >= this.selection )[0] 
-                this.selection = ( this.selection - pre < sub - this.selection ? pre : sub )                
-            }
+            
+            this.chartPointSelect( )
+            // let xs = this.cht_press.data.map( d => d.x )
+            // if ( xs[0] > this.selection ) { this.selection = xs[0] }
+            // else if ( xs.pop( ) < this.selection  ) { this.selection = xs.pop( ) }
+            // else { 
+            //     let pre = xs.filter( x => x <= this.selection ).pop( ) 
+            //     let sub = xs.filter( x => x >= this.selection )[0] 
+            //     this.selection = ( this.selection - pre < sub - this.selection ? pre : sub )                
+            // }
     
-            this.cht_select.data = [  
-                { x: this.selection, y: Number.MIN_SAFE_INTEGER }, 
-                { x: this.selection, y: Number.MAX_SAFE_INTEGER } 
-            ]
-            this.selected_smp = this.samples.filter( s => s.smp_time == this.selection )[0]
+            // this.cht_select.data = [  
+            //     { x: this.selection, y: Number.MIN_SAFE_INTEGER }, 
+            //     { x: this.selection, y: Number.MAX_SAFE_INTEGER } 
+            // ]
+            // this.selected_smp = this.samples.filter( s => s.smp_time == this.selection )[0]
 
-            updateJobsStore( )
+            // updateJobsStore( )
         }
 
         this.cht.options.scales.y_hi_flow.display = true
         this.cht_point_limit = 0
         this.cht_scale_margin = 0.1
+    }
+    chartPointSelect = ( ) => {            
+        let xs = this.cht_press.data.map( d => d.x )
+        if ( xs[0] > this.selection ) { this.selection = xs[0] }
+        else if ( xs.pop( ) < this.selection  ) { this.selection = xs.pop( ) }
+        else { 
+            let pre = xs.filter( x => x <= this.selection ).pop( ) 
+            let sub = xs.filter( x => x >= this.selection )[0] 
+            this.selection = ( this.selection - pre < sub - this.selection ? pre : sub )                
+        }
+
+        this.cht_select.data = [  
+            { x: this.selection, y: Number.MIN_SAFE_INTEGER }, 
+            { x: this.selection, y: Number.MAX_SAFE_INTEGER } 
+        ]
+        this.selected_smp = this.samples.filter( s => s.smp_time == this.selection )[0]
+
+        updateJobsStore( )
     }
     chartZoomSelect = ( e ) => { 
         // debug( "job.chartZoomSelect...\n", e.chart )
@@ -542,12 +561,12 @@ export class Job {
         let xmin = xs[0]
         let xmax = xs[xs.length-1]
     
-        debug( `chartZoomSelect( ):`, { 
-            unix_min: xmin, 
-            unix_max: xmax, 
-            date_min: FormatDateTime( xmin ), 
-            date_max:  FormatDateTime( xmax ) 
-        } )
+        // debug( `chartZoomSelect( ):`, { 
+        //     unix_min: xmin, 
+        //     unix_max: xmax, 
+        //     date_min: FormatDateTime( xmin ), 
+        //     date_max:  FormatDateTime( xmax ) 
+        // } )
     
         dats.forEach( ds => { 
             let scl = e.chart.scales[ds.yAxisID]
