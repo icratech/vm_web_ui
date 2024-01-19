@@ -50,11 +50,21 @@
     $: tickSize = 19
     $: mapZoom = 6.5
     onMount( (  ) => { 
-        if ( window.innerWidth <= 550 ) {
+        if ( window.innerWidth <= 400 ) {
+            debug( " window.innerWidth <= 400: ", window.innerWidth )
+            titleSize = 6.5
+            lableSize = 4.7
+            tickSize = 3.9
+        } else if ( window.innerWidth <= 550 ) {
             debug( " window.innerWidth <= 550: ", window.innerWidth )
             titleSize = 7
             lableSize = 5.5
             tickSize = 4.5
+        } else if ( window.innerWidth <= 850 ) {
+            debug( " window.innerWidth <= 1100: ", window.innerWidth )
+            titleSize = 12.5
+            lableSize = 9
+            tickSize = 7.8
         } else if ( window.innerWidth <= 1000 ) {
             debug( " window.innerWidth <= 1100: ", window.innerWidth )
             titleSize = 14.75
@@ -924,7 +934,7 @@
             max-width: 27.5%;
         }    
         .map {
-            min-height: 29.65em;
+            min-height: 30em;
         }
         .chart { 
             min-height: 32.5em;
@@ -933,7 +943,7 @@
 
     
     /* TABLET */
-    @media(max-width: 1100px) {
+    @media(max-width: 1200px) {
         .container { 
             padding-right: 0.5em; 
             height: auto;
@@ -944,19 +954,16 @@
         }
         .status {
             flex-direction: row-reverse;
-            min-height: 30em;
-            max-height: 30em;
+            min-height: 33.3em;
+            max-height: 33.3em;
             max-width: unset;
             min-width: unset;
             padding-right: 0.5em; 
             width: 100%;
         }
-        /* .stat-det {
-            flex-direction: row;
-        } */
         .map {
             min-height: unset;
-            min-width: 29em;
+            min-width: 29.2em;
         }
         .rep-select {
             margin-right: 1em; 
@@ -967,7 +974,7 @@
             /* padding-left: 0.5em; */
         }
         .chart { 
-            min-height: 27.5em;
+            min-height: 35em;
         }
         .panel-cont { 
             padding-left: 0;
@@ -977,11 +984,50 @@
         }
     }
 
-    @media (max-width: 1100px) and (max-height: 800px) {
-        .chart { 
-            min-height: 32em;
+    @media (max-width: 1100px) and (max-height: 550px ) {
+        .status { 
+            min-height: 31.5em;
         }
-     }
+        .map {
+            min-width: 26.2em;
+        }
+        .chart { 
+            min-height: 33em;
+        }
+    }
+
+    @media (max-width: 850px) {
+        /* .status { 
+            min-height: 31.5em;
+        }
+        .map {
+            min-width: 26.2em;
+        }
+        .chart { 
+            min-height: 33em;
+        } */
+        .status { 
+            min-height: 29.5em;
+        }
+        .map {
+            min-width: 24.6em;
+        }
+        .chart { 
+            min-height: 33em;
+        }
+    }
+
+    /* @media (max-width: 800px) and (max-height: 450px ) {
+        .status { 
+            min-height: 29.5em;
+        }
+        .map {
+            min-width: 26.2em;
+        }
+        .chart { 
+            min-height: 33em;
+        }
+    } */
 
     /* MOBILE */
     @media(max-width: 450px) {
@@ -999,12 +1045,13 @@
             height: 100%;
             padding: 1.5em;
             padding-right: 0.75em;
+            padding-top: 0;
         }
         .stat-det {
             flex-direction: column;
         }
         .map {
-            min-height: 29em;
+            min-height: 31.2em;
             min-width: unset;
         }
         /* .chart {
@@ -1017,12 +1064,21 @@
         }
     }
     
-    @media (max-width: 800px) and (max-height: 380px) {
+    /* @media (max-width: 950px) and (max-height: 450px) {
         .map {
             min-height: unset;
             min-width: 25em;
         }
-     }
+     } */
+
+
+    /* MOBILE */
+    @media(max-width:400px) { 
+        .map {
+            min-height: 29.3em;
+        }
+    }
+
     /* MOBILE */
     @media(max-width: 380px) { 
         .map {

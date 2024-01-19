@@ -16,14 +16,6 @@
     $: JOBS = getContext( 'jobs' )
     $: JOBS_LOADED = getContext( 'jobs_loaded' )
 
-    // /* CALLED IF USER REFRESHES THE PAGE OR NAVIGATED DIRECTLY TO THIS PAGE */
-    // onMount( async( ) => { 
-    //     if ( !JOBS_LOADED && sessionStorage.getItem( 'des_auth') != 'none' ) { 
-    //         AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
-    //         await getJobs( )
-    //     }
-    // } )
-
     $: search = new DESSearchParam( )
 
     const checkBounds = ( j ) => { 
@@ -59,8 +51,8 @@
         </div>
 
         <div class="flx-col job-list">
-            { #each $JOBS.filter( j => {  return  checkBounds( j ) && checkTextFilter( j, search ) } ) as job ( job.reg.des_job_name ) }
-                <JobCard bind:job={ job } on:job-selected={ ( e ) => { jobSelected( e.detail ) } }/>
+            { #each $JOBS.filter( j => {  return  checkBounds( j ) && checkTextFilter( j, search ) } ) as job, index ( index ) }
+                <JobCard bind:job on:job-selected={ ( e ) => { jobSelected( e.detail ) } }/>
             { /each }
         </div>
 
@@ -126,8 +118,8 @@
         padding-right: 0.5em; 
     }
     .search { 
-        max-height: 30em;
-        min-height: 30em;
+        max-height: 37.5em;
+        min-height: 37.5em;
         max-width: 100%;
         min-width: 100%;
     }

@@ -22,7 +22,6 @@
 <style>
 
     .icon {
-        /* outline: 0.2em solid var(--dark_a); outline-offset: -0.1em; */
         background-size: cover;
         cursor: pointer;
         border-bottom: solid 0.1em var(--light_01);
@@ -48,37 +47,32 @@
         top: 1.5em;
         left: 1.5em;
         height: 2em;
-        /* width:max-content; */
     }
     .icon:hover {
         opacity: 1;
     }
-    .icon:hover .hint {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        padding-left: 0.5em;
-        padding-right: 0.5em;
-        width: max-content;
-        z-index: 5;
-        /* visibility: visible; */
-        /* opacity: 1; */
+    @media (hover: hover) {
+        .icon:hover .hint {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding-left: 0.5em;
+            padding-right: 0.5em;
+            width: max-content;
+            z-index: 5;
+        }
     }
-
 
     /* LAP TOP */
-    @media(max-width: 1440px) {
-
-    }
+    /* @media(max-width: 1440px) {
+    } */
 
     /* TABLET */
-    @media(max-width: 1100px) {
-        /* .icon:hover .hint { display: none; } */
-    }
+    /* @media(max-width: 1100px) {
+    } */
 
     /* MOBILE */
-    @media(max-width: 450px) { 
-        
-    }
+    /* @media(max-width: 450px) { 
+    } */
 
 </style>

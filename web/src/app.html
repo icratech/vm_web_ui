@@ -17,31 +17,6 @@
                 color: var(--grey_09);
             }
 
-            /* LAP TOP */
-            @media(max-width: 1440px) {
-                * { 
-                    font-size: 11px;
-                    --gap: 1em;
-                }
-            }
-
-            /* TABLET */
-            @media(max-width: 1200px) {
-                * { 
-                    font-size: 10.5px;
-                    --gap: 0.75em;
-                }
-            }
-
-            /* MOBILE */
-            @media(max-width: 900px) { 
-                * { 
-                    font-size: 10px;
-                    --gap: 0.5em;
-                }
-                
-            }
-
             h1 { font-size: 2.5em; font-weight: 350; }
             h2 { font-size: 2.1em; font-weight: 300; }
             h3 { font-size: 1.7em; font-weight: 300; }
@@ -126,42 +101,43 @@
             }
 
             .marker {
-                width: 1.5em;
-                height: 1.5em;
+                width: 1.35em;
+                height: 1.35em;
                 border-top-left-radius: 50%;
                 border-top-right-radius: 50%;
                 border-bottom-left-radius: 50%;
+                border: solid 0.2em var(--grey);
                 cursor: pointer;
                 position: absolute;
-                z-index: 1;
+                z-index: 10;
             }
             .marker.vent {
                 background-color: var(--aqua_04);
-                border: solid 0.2em var(--aqua);
+                border-color: var(--aqua);
             }
             .marker.build {
                 background-color: var(--green_03);
-                border: solid 0.2em var(--green);
+                border-color: var(--green);
             }
             .marker.hi_flow {
                 background-color: var(--orange_04);
-                border: solid 0.2em var(--orange);
+                border-color: var(--orange);
             }
             .marker.lo_flow {
                 background-color: var(--yellow_03);
-                border: solid 0.2em var(--yellow);
+                border-color: var(--yellow);
             }
             .marker.vlv_move {
                 background-color: var(--blue_03);
-                border: solid 0.2em var(--blue);
+                border-color: var(--blue);
             }
             .marker.err {
                 background-color: var(--red_03);
-                border: solid 0.2em var(--red);
+                border-color: var(--red);
             }
             .marker.job {
                 background-color: var(--pink_04);
-                border: solid 0.2em var(--pink);
+                border-color: var(--pink);
             }
 
             .sqr-btn {
@@ -553,6 +529,35 @@
             .bg-pink_a { background-color: var(--pink_aa); color: var(--light) }
             .bg-pink_a:hover { background-color: var(--pink_a); }
             .bg-pink_a:focus { outline: 0.1rem solid var(--pink_a); outline-offset: 0.15rem; }
+            
+            /* LAP TOP */
+            @media(max-width: 1440px) {
+                * { 
+                    font-size: 11px;
+                    --gap: 1em;
+                }
+            }
+
+            /* TABLET */
+            @media(max-width: 1200px) {
+                * { 
+                    font-size: 10.5px;
+                    --gap: 0.75em;
+                }
+            }
+
+            /* MOBILE */
+            @media (max-width: 900px) or (max-height: 550px) { 
+                * { 
+                    font-size: 10px;
+                    --gap: 0.5em;
+                }
+                .marker {
+                    width: 1.15em;
+                    height: 1.15em;
+                }
+            }
+
         </style>
         
         %sveltekit.head%

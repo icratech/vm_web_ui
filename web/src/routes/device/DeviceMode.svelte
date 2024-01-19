@@ -13,7 +13,7 @@
     $: cfg = device.cfg
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    let arrStyle = `style="font-size: 2.5em; margin-top: -0.25em; padding: 0 0.1em;"`
+    let arrStyle = `style="font-size: 2.0em; margin-top: -0.25em; padding: 0 0.1em;"`
     let rarr = `<span ${ arrStyle }>&rarr;</span>`
     let larr = `<span ${ arrStyle }>&larr;</span>`
     let moveColor = BASE.BLUE

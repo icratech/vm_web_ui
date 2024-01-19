@@ -20,21 +20,28 @@
     export let search = new DESSearchParam( )
 
     $: zoom = 2.3
-    $: origin = [ -110, 65 ]
-    onMount( ( ) => {
-        if (window.matchMedia( "( max-width: 450px )" ) ) {
-            origin = [ -110, 75 ]
-            zoom = 1.5
-        }
-    } )
+    let center = [ -100, 60 ]
+    onMount( ( ) => { checkOrigin( ) } )
+
+    const checkOrigin = ( ) => {
+        if ( window.innerWidth <= 550 || window.innerHeight <= 550 ) {
+            zoom = 1.0
+        } else if ( window.innerWidth <= 1100 && window.innerHeight >= 800 ) {
+            zoom = 2.8
+        } else {
+            zoom = 2.3
+        } // debug( "JobSearch.svelte -> checkOrigin( ): ", { center: center, zoom: zoom } )
+    }
     
+    let map
     const makeMap = ( ctx ) => {
-        // debug( "JobSearch -> makeMap( )" )
+
+        checkOrigin( )
 
         map = new mapboxgl.Map(  {
             container: ctx,
             style: MAPBOX_STYLE, 
-            center: origin,
+            center: center,
             zoom : zoom   
         } )
         map.on( 'zoomend', ( ) => {
@@ -52,8 +59,12 @@
         } ) 
         
     }
-    let map
-
+    const resetSearch = ( ) => {
+        getJobs( )
+        checkOrigin( )
+        search = new DESSearchParam( )
+        map.easeTo( { center: center, zoom: zoom, duration: 1000 } ) 
+    }
     const dispatch = createEventDispatcher( )
 
 </script>
@@ -65,10 +76,7 @@
         <PillButton
             img={ btn_img_reset }
             hint={ 'Reset filters' } 
-            on:click={ ( ) => { 
-                search = new DESSearchParam( )
-                getJobs( ) 
-            } }
+            on:click={ resetSearch }
         />
 
         <InputText enabled={ true } bind:txt={ search.token } place="Search text"/>

@@ -115,8 +115,8 @@
             padding-right: 0.5em; 
         }
         .search { 
-            max-height: 28em;
-            min-height: 28em;
+            max-height: 37.7em;
+            min-height: 37.7em;
             max-width: 100%;
             min-width: 100%;
         }
