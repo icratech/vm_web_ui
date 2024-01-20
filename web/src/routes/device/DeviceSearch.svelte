@@ -25,14 +25,12 @@
     let center = [ -100, 60 ]
     onMount( ( ) => { checkOrigin( ) } )
 
+    $: mapStyle = ""
     const checkOrigin = ( ) => {
         if ( window.innerWidth <= 550 ) {
-            // mapStyle = `min-height: ${ window.innerWidth - ( 2.5 * 11 ) }
-            // px; min-width: ${ window.innerWidth - ( 2.5 * 11 ) }px;`
+            mapStyle = `min-height: ${ window.innerWidth - ( 2.5 * 11 ) }px; min-width: ${ window.innerWidth - ( 2.5 * 11 ) }px;`
             zoom = 1.0
         } else if ( window.innerHeight <= 550 ) {
-            // mapStyle = `min-height: ${ window.innerHeight - 93.5 - ( 1.5 * 11 ) }px; 
-            // max-width: ${ window.innerHeight - 93.5 - ( 1.5 * 11 ) }px;`
             zoom = 1.0
         } else if ( window.innerWidth <= 1100 && window.innerHeight >= 800 ) {
             zoom = 2.8
@@ -94,7 +92,7 @@
     </div>
 
     { #if $DEVICES_LOADED }
-    <div class="map-container" use:makeMap></div>
+    <div class="map-container" style={ mapStyle } use:makeMap></div>
     { /if }
 
 </div>
