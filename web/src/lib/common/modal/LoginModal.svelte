@@ -168,7 +168,9 @@
     }
 
     /* MOBILE */
-    @media(max-width: 450px) { 
-
+    @media (max-width: 900px) or (max-height: 550px) { 
+        .lbl {
+            font-size: 1.2em;
+        }
     }
 </style>

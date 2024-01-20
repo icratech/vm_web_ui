@@ -1,25 +1,20 @@
 <script>
 
     import { getContext, onMount } from "svelte"
-    import { Chart } from "chart.js/auto" 
-    import { PDFDocument, PageSizes, StandardFonts, degrees, rgb } from 'pdf-lib' // npm install pdf-lib
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
     import 'mapbox-gl/dist/mapbox-gl.css'
     mapboxgl.accessToken = 'pk.eyJ1IjoibGVlaGF5Zm9yZCIsImEiOiJjbGtsb3YwNmsxNm11M2VrZWN5bnYwd2FkIn0.q1_Wv8oCDo0Pa6P2W3P7Iw'
 
     import { debug } from '../../../lib/des/utils'
-    import { FormatDate, FormatTime, FormatTimeCodeDashed } from '../../../lib/common/format'
-    import { PDF_RGB_BASE } from "../../../lib/common/pdf/pdf"
     import { RGBA, BASE } from '../../../lib/common/colors'
+    import { CHT_COLORS } from '../../../lib/c001v001/chart_display'
+    import { Header, Config, Event, Report, Section, OP_CODES, MODES } from '../../../lib/c001v001/models'
+    import { generatePDF, generateCSV } from "../../../lib/c001v001/components/report/report_downloads"
+
     import PillButton from '../../../lib/common/button/PillButton.svelte'
     import InputText from '../../../lib/common/input_text/InputText.svelte'
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
 
-	import { getJobs } from '../../../lib/c001v001/job'
-    import { CHT_COLORS } from '../../../lib/c001v001/chart_display'
-    import { Header, validateLngLat, Config, Event, Sample, Report, Section, SectionDataSet, 
-        OP_CODES, MODES, getMode } from '../../../lib/c001v001/models'
-    import { NewPDFChartData, PDF_RGB_COLORS } from "../../../lib/c001v001/components/report/report_pdf"
     import HeaderPanel from '../../../lib/c001v001/components/header/HeaderPanel.svelte'
     import HeaderCard from '../../../lib/c001v001/components/header/HeaderCard.svelte'
     import ReportCard from '../../../lib/c001v001/components/report/ReportCard.svelte'
@@ -28,7 +23,6 @@
     import ConfigCard from '../../../lib/c001v001/components/config/ConfigCard.svelte'
     import EventPanelRep from '../../../lib/c001v001/components/event/EventPanelRep.svelte'
 
-    import vent_medic_logo from "$lib/images/vent-medic-logo.png"
     import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
     import btn_img_add from "$lib/images/btn-img-add-pink.svg"
@@ -42,42 +36,20 @@
 
     export let data
     $: JOBS = getContext(  'jobs' )
-    $: JOBS_LOADED = getContext( 'jobs_loaded' )
     $: job = $JOBS.filter( ( j ) => { return j.reg.des_job_name == data.job_name } )[0]
 
-    $: titleSize = 33
-    $: lableSize = 23
-    $: tickSize = 19
+    const getWidth = ( ) => { return window.innerWidth }
+    const getHeight = ( ) => { return window.innerHeight }
+    $: mapSize =  getWidth( ) * 0.23
     $: mapZoom = 6.5
+    $: screen = { w: 1920, h: 953, r: 1, x: 0 }
     onMount( (  ) => { 
-        if ( window.innerWidth <= 400 ) {
-            debug( " window.innerWidth <= 400: ", window.innerWidth )
-            titleSize = 6.5
-            lableSize = 4.7
-            tickSize = 3.9
-        } else if ( window.innerWidth <= 550 ) {
-            debug( " window.innerWidth <= 550: ", window.innerWidth )
-            titleSize = 7
-            lableSize = 5.5
-            tickSize = 4.5
-        } else if ( window.innerWidth <= 850 ) {
-            debug( " window.innerWidth <= 1100: ", window.innerWidth )
-            titleSize = 12.5
-            lableSize = 9
-            tickSize = 7.8
-        } else if ( window.innerWidth <= 1000 ) {
-            debug( " window.innerWidth <= 1100: ", window.innerWidth )
-            titleSize = 14.75
-            lableSize = 10.25
-            tickSize = 9
-        } else if ( window.innerWidth <= 1500 ) {
-            debug( " window.innerWidth <= 1500: ", window.innerWidth )
-            titleSize = 23
-            lableSize = 16
-            tickSize = 13.5
-        } else {
-            debug( " window.innerWidth: ", window.innerWidth )
-        }
+        screen.w = window.innerWidth
+        screen.h = window.innerHeight
+        screen.r = window.devicePixelRatio
+        if ( window.innerWidth <= 550 ) mapSize = getWidth( ) - 11 * 3.5
+        else if ( window.innerHeight <= 550 ) mapSize = getHeight( ) - 70 
+        else if ( window.innerWidth <= 1000 ) mapSize =  getHeight( ) * 0.25 
     } )
 
     $: loadingMsg = "Loading..."
@@ -148,8 +120,6 @@
     $: { // debug( "Selected Section Mode SMP: ", sec.smp ) // debug( "Selected Section Mode CFG: ", sec.cfg )
         if ( sec.cfg.cfg_time > 0 && sec.smp.smp_time > 0  ){
 
-            // let mode = getMode( sec.cfg, sec.smp )
-            // debug( "job/[slug]/+page -> mode: ", sec.cfg.cfg_vlv_tgt )
             switch ( sec.cfg.cfg_vlv_tgt ) {
 
                 case MODES.BUILD: 
@@ -207,21 +177,21 @@
             sectionEvents( sec )
         }
     }
-    const makeChart = async( ctx, d ) => {
+    // const makeChart = async( ctx, d ) => {
 
-        let chart = new Chart( ctx, d )
+    //     let chart = new Chart( ctx, d )
 
-        return {
-            update( u ) {
-                chart.data.datasets = u.data.datasets
-                chart.options.scales = u.options.scales
-                chart.update( )
-            },
-            destroy( ) { 
-                chart.destroy( ) 
-            }
-        }
-    }
+    //     return {
+    //         update( u ) {
+    //             chart.data.datasets = u.data.datasets
+    //             chart.options.scales = u.options.scales
+    //             chart.update( )
+    //         },
+    //         destroy( ) { 
+    //             chart.destroy( ) 
+    //         }
+    //     }
+    // }
 
     let making_report = false
     let new_rep = new Report( )
@@ -249,466 +219,9 @@
         await reloadEvents( evts_sec )
     }
 
-    // let map
-    // const makeMap = async( ctx ) => {
-
-    //     map = new mapboxgl.Map( {
-    //         container: ctx,
-    //         style: 'mapbox://styles/leehayford/cln378bf7005f01rcbu3yc5n9', 
-    //         center: validateLngLat( hdr.hdr_geo_lng, hdr.hdr_geo_lat ),
-    //         zoom :  5.5,
-    //         interactive: true,
-    //         preserveDrawingBuffer: true
-    //     } )
-    //     job.s_mark.addTo( map )
-    // }
-
-    
-    /* PDF FILE -> GENERATION */
-    const generatePDF = async( report ) => {
-
-        let pdfDoc = await PDFDocument.create( )
-        const FONT = await pdfDoc.embedFont( StandardFonts.TimesRoman )
-
-        /* CREATE TITLE PAGE */
-        await pdfWriteTitlePage( pdfDoc, report, hdr, FONT )
-
-        /* REPORT SECTION PAGES */ // debug( "titleSize: ", titleSize ) // debug( "lableSize: ", lableSize ) // debug( "tickSize: ", tickSize )
-        let data = NewPDFChartData( job, titleSize, lableSize, tickSize )
-        const pdf_canvas = document.getElementById( 'sec_plot' ) 
-
-        for ( let i = 0; i < report.rep_secs.length; i++ ) {
-
-            let section = report.rep_secs[ i ] 
-
-            /* CREATE PLOT PAGE */
-            await pdfWriteSectionPlot( pdfDoc, section, data, pdf_canvas, FONT )
-
-            /* CREATE DATA PAGE */
-            await pdfWriteSectionData( pdfDoc, section, FONT )
-            
-        }
-
-        /* ADD A FOOTER TO EACH PAGE */
-        pdfWriteFooters( pdfDoc, report.rep_title, job.reg.des_job_name, FONT )
-
-        /* DOWNLOAD / SAVE REPORT */
-        pdfDownload( pdfDoc, report )
-    }
-    /* PDF FILE -> DOWNLOAD & SAVE */
-    const pdfDownload = async( doc, report ) => {
-
-        let pdfBytes = await doc.save( ) 
-        let blob = new Blob( [ pdfBytes ], { type: "application/pdf" } )
-        let fileName = `${ report.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.pdf`
-
-        await saveBlobToFile( blob, fileName )
-
-    }
-    /* PDF REPORT -> TITLE PAGE */
-    const pdfWriteTitlePage = async( doc, report, header, font ) => {
-        
-        /* CREATE PAGE */
-        let page = doc.addPage( PDF_PAGE_SIZE )
-        let yPos = PDF_PAGE_H - 5 * PDF_H1
-
-        /* CREATE LOGO IMAGE */
-        let logoBytes = await ( await fetch( vent_medic_logo ) ).arrayBuffer( )
-        let logoPNG = await doc.embedPng( logoBytes )
-        let ls = logoPNG.size( ) // debug( `PNG Size: `, ls )
-        let logoPNGSize = logoPNG.scale( 320/ls.width ) // debug( `PNG Size: `, logoPNGSize )
-        yPos -= ( logoPNGSize.height + 10 )
-        page.drawImage( logoPNG, {
-            x: pdfCenterImage( logoPNGSize.width ),
-            y: yPos,
-            width: logoPNGSize.width,
-            height: logoPNGSize.height,
-        } )
-
-        /* CREATE REPORT TITLE */
-        yPos -= PDF_H1 * 5
-        page.drawText( report.rep_title, pdfTextOptions_H1( PDF_PAGE_XL, yPos, font ) )
-        page.drawLine( pdfHzLineOptions( yPos -= 8 ) )
-        yPos -= PDF_H1
-
-        /* CREATE MAP IMAGE -> TODO: ADD MARKER*/
-        let mapBytes = await pdfGetImageBytes( job.map.getCanvas( ).toDataURL( 'image/png' ) )
-        let mapPNG = await doc.embedPng( mapBytes )
-        let s = mapPNG.size( ) // debug( `PNG Size: `, s )
-        let mapPNGSize = mapPNG.scale( 180/s.height ) // debug( `PNG Size: `, mapPNGSize )
-        page.drawImage( mapPNG, {
-            x: PDF_PAGE_W / 2 + PDF_MARGIN, // PDF_PAGE_W / 2 - ( PDF_PAGE_W / 2 - s.width ), 
-            y: yPos - mapPNGSize.height - 10 ,
-            width: mapPNGSize.width,
-            height: mapPNGSize.height,
-        } )
-        let mrkSize = 7
-        page.drawCircle( {
-            x: ( PDF_PAGE_W / 2 ) + ( mapPNGSize.width / 2 ) - ( mrkSize / 2 ) + PDF_MARGIN,
-            y: yPos - ( mapPNGSize.height / 2 ) - 10 + ( mrkSize / 2 ),
-            size: mrkSize,
-            borderWidth: 1.75,
-            borderColor: PDF_RGB_BASE.ORANGE,
-        } )
-
-        /* CREATE WELL INFORMATION */   
-        let rowHeight = PDF_H3 + 5  
-        let lableX = PDF_PAGE_XL
-        let valueX = lableX + 90
-    
-        /* CREATE WELL INFORMATION */ 
-        yPos -= rowHeight
-        page.drawText( `Company:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
-        page.drawText( header.hdr_well_co, pdfTextOptions_H3( valueX, yPos, font ) )
-
-        yPos -= rowHeight
-        page.drawText( `Well Name:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
-        page.drawText(  header.hdr_well_name, pdfTextOptions_H3( valueX, yPos, font ) )
-
-        yPos -= rowHeight
-        page.drawText( `Surface Loc:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
-        page.drawText( header.hdr_well_sf_loc, pdfTextOptions_H3( valueX, yPos, font ) )
-
-        yPos -= rowHeight
-        page.drawText( `Bottom Loc:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
-        page.drawText( header.hdr_well_bh_loc, pdfTextOptions_H3( valueX, yPos, font ) )
-
-        yPos -= rowHeight
-        page.drawText( `License:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
-        page.drawText( header.hdr_well_lic, pdfTextOptions_H3( valueX, yPos, font ) )
-
-        yPos -= PDF_H3
-
-        yPos -= rowHeight
-        page.drawText( `Longitude:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.ORANGE ) )
-        page.drawText(  header.hdr_geo_lng.toFixed( 5 ), pdfTextOptions_H3( valueX, yPos, font ) )
-        
-        yPos -= rowHeight
-        page.drawText( `Latitude:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.ORANGE ) )
-        page.drawText( header.hdr_geo_lat.toFixed( 5 ), pdfTextOptions_H3( valueX, yPos, font ) )
-
-
-        yPos -= PDF_H3
-
-        yPos -= rowHeight
-        page.drawText( `Job Start:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
-        page.drawText( FormatDate( header.hdr_job_start ), pdfTextOptions_H3( valueX, yPos, font ) )
-        page.drawText( FormatTime( header.hdr_job_start ), pdfTextOptions_H3( valueX + 80, yPos, font ) )
-        
-        yPos -= rowHeight
-        page.drawText( `Job End:`, pdfTextOptions_H3( lableX, yPos, font, PDF_RGB_BASE.AQUA ) )
-        page.drawText( FormatDate( header.hdr_job_end ), pdfTextOptions_H3( valueX, yPos, font ) )
-        page.drawText( FormatTime( header.hdr_job_end ), pdfTextOptions_H3( valueX + 80, yPos, font ) )
-
-
-    }
-    /* PDF REPORT -> PLOT PAGE */
-    const pdfWriteSectionPlot = async( doc, section, data, canv, font ) => {
-
-        /* CREATE PAGE */
-        let page = doc.addPage( PDF_PAGE_SIZE )
-
-        /* GET SECTION DETAILS */ 
-        data.options.plugins.title.text = section.sec_name
-        data.options.scales.x.min = section.sec_start
-        data.options.scales.x.max = section.sec_end    
-
-        /* CREATE PAGE HEADER */
-        let yPos = PDF_PAGE_H - 3 * PDF_H1
-        page.drawText( `${ section.sec_name } Section Plot`, pdfTextOptions_H1( PDF_PAGE_XL, yPos, font ) )
-        page.drawLine( pdfHzLineOptions( yPos -= 8 ) )
-        
-        /* CREATE CHART IMAGE */
-        canv.width = 625
-        canv.height = 500
-        const pdf_chart = await makeChart( canv, data )
-        let plotBytes = await pdfGetImageBytes( canv.toDataURL( ) )
-        pdf_chart.destroy( )
-        
-        let plotPNG = await doc.embedPng( plotBytes )
-        let s = plotPNG.size( ) // debug( `PNG Size: `, s )
-        let plotPNGSize = plotPNG.scale( 625/s.width ) // debug( `PNG Size: `, plotPNGSize )
-
-        page.drawImage( plotPNG, {
-            x: pdfCenterImage( plotPNGSize.height ), // USE HEIGHT BECASUE WE'RE ROTATING (-90)
-            y: yPos - PDF_H1,
-            rotate: degrees( -90 ),
-            width: plotPNGSize.width,
-            height: plotPNGSize.height,
-        } )
-    }
-    /* PDF REPORT -> DATA PAGE */
-    const pdfWriteSectionData = async( doc, section, font ) => {
-
-        /* CREATE PAGE */
-        let page = doc.addPage( PDF_PAGE_SIZE )
-
-        let xPos = PDF_MARGIN
-        let yPos = PDF_PAGE_H - 3 * PDF_H1
-
-        /* CRATE PAGE HEADER */
-        page.drawText( `${ section.sec_name } Section Data`, pdfTextOptions_H1( PDF_PAGE_XL, yPos, font ) )
-        page.drawLine( pdfHzLineOptions( yPos -= 8 ) )
-        yPos -= 5
-
-        /* TABLE FORMATTING */
-        let cols = 9
-        let columnWidths = pdfSectionDataColumnWidths( cols )
-        let columnColors = pdfSectionDataColumnColors( )
-
-        let rows = 33
-        let rowHeight = 20
-        let smps = job.samples.filter( s => s.smp_time >= section.sec_start && s.smp_time <= section.sec_end )
-        let gap = Math.floor( smps.length / rows )
-
-        /* INITIAL ROW DATA */
-        let dat = pdfSectionDataColumnUnits( )
-
-        /* WRITE TABLE */
-        for ( let j = 0; j < rows; j++ ) {
-
-            if ( j == 1 ) { 
-
-                /* SECOND ROW DATA */
-                dat = pdfSectionDataColumnHeaders( ) 
-
-            } else if ( j > 1 ) { 
-
-                /* SUBSEQUENT ROW DATA */
-                dat = pdfSectionDataRow( smps[ (  j * gap < smps.length -1 ? j * gap : smps.length - 1 ) ] )
-
-            }
-
-            /* SET ROW START POSITION */
-            xPos = PDF_MARGIN
-            yPos -= rowHeight
-
-            /* WRITE ROW */
-            for ( let i = 0; i < cols; i ++ ) {
-
-                /* ALTERNATE ROW SHADING */
-                if ( j > 1 && j % 2 != 0 ) { 
-                    page.drawRectangle( { 
-                        x: xPos, 
-                        y: yPos,
-                        height: rowHeight, 
-                        width: columnWidths[ i ],  
-                        color: PDF_RGB_BASE.LIGHTER 
-                    } )
-                }
-
-                /* WRITE ROW DATA */
-                page.drawText( dat[ i ], pdfTextOptions_P( xPos + 8, yPos + 6, font, columnColors[i] ) )
-
-                xPos += columnWidths[ i ]
-            }
-
-        }
-    }
-    const pdfSectionDataColumnUnits = ( ) => { 
-        return [ "", "", "%",    "L/min",    "L/min",    "kPa",  "Amp",  "Volt", "Amp"  ] 
-    }
-    const pdfSectionDataColumnColors = ( ) => {
-        return [
-            PDF_RGB_BASE.GREY,  // Date
-            PDF_RGB_BASE.DARK, // Time
-            PDF_RGB_COLORS.CH4, 
-            PDF_RGB_COLORS.HI_FLOW,
-            PDF_RGB_COLORS.LO_FLOW,
-            PDF_RGB_COLORS.PRESS,
-            PDF_RGB_COLORS.BAT_AMP,
-            PDF_RGB_COLORS.BAT_VOLT,
-            PDF_RGB_COLORS.MOT_VOLT
-        ]
-    }
-    const pdfSectionDataColumnHeaders = ( ) => { 
-        return [ "Date", "Time", "Methane",  "H-Flow",   "L-Flow",   "Pressure", "Batt A",   "Batt V",   "Motor A"  ] 
-    }
-    const pdfSectionDataColumnWidths = ( cols ) => {
-        let w = ( PDF_PAGE_W - ( PDF_MARGIN * 2 ) ) / cols
-        let ws = [ w + 9, w - 9 ]
-        for ( let i = 1; i < cols; i++ ) { ws.push( w ) }
-        return ws
-    }
-    const pdfSectionDataRow = ( smp, dec = 5 ) => {
-        return [ 
-            FormatDate( smp.smp_time ), 
-            FormatTime( smp.smp_time ), 
-            smp.smp_ch4.toFixed( dec ),
-            smp.smp_hi_flow.toFixed( dec ),
-            smp.smp_lo_flow.toFixed( dec ),
-            smp.smp_press.toFixed( dec ),
-            smp.smp_bat_amp.toFixed( dec ),
-            smp.smp_bat_volt.toFixed( dec ),
-            smp.smp_mot_volt.toFixed( dec ) 
-        ]
-    }
-    /* PDF REPORT -> PAGE FOOTER */
-    const pdfWriteFooters = ( doc, title, job_name, font ) => {
-
-        let y = PDF_P * 3
-        let pages = doc.getPages( )
-        let i = 1
-        pages.forEach( p => {
-
-            p.drawText( title, pdfTextOptions_P( PDF_MARGIN, y, font, PDF_RGB_BASE.DARK ) )
-
-            p.drawText( `Page ${ i } of ${ pages.length }`, pdfTextOptions_P( PDF_PAGE_W / 2.2, y, font, PDF_RGB_BASE.DARK ) )
-
-            p.drawText( job_name, pdfTextOptions_P( PDF_PAGE_W - 180, y, font, PDF_RGB_BASE.GREY ) )
-
-            i++
-        } )
-    }
-    /* PDF REPORT -> PAGE FORMATTING */
-    const pdfTextOptions_H1 = ( x, y, font, color=PDF_TEXT_COLOR ) => { 
-        return { 
-            x: x,
-            y: y,
-            size: PDF_H1,
-            font: font,
-            color: color,
-        } 
-    }
-    const pdfTextOptions_H2 = ( x, y, font, color=PDF_TEXT_COLOR ) => { 
-        return { 
-            x: x,
-            y: y,
-            size: PDF_H2,
-            font: font,
-            color: color,
-        } 
-    }
-    const pdfTextOptions_H3 = ( x, y, font, color=PDF_TEXT_COLOR ) => { 
-        return { 
-            x: x,
-            y: y,
-            size: PDF_H3,
-            font: font,
-            color: color,
-        } 
-    }       
-    const pdfTextOptions_P = ( x, y, font, color=PDF_TEXT_COLOR ) => { 
-        return { 
-            x: x,
-            y: y,
-            size: PDF_P,
-            font: font,
-            color: color,
-        } 
-    }
-    const pdfHzLineOptions = ( y ) => { 
-        return {
-            start: { x: PDF_PAGE_XL, y: y },
-            end: { x: PDF_PAGE_XR, y: y },
-            thickness: 1,
-            color: PDF_RGB_BASE.GREY
-        } 
-    }
-    const pdfCenterImage = ( imgW ) => {
-        let x = ( PDF_PAGE_W - imgW ) / 2
-        return x
-    }
-    const pdfGetImageBytes = async( img ) => {
-        return await ( await fetch( img ) ).arrayBuffer( )
-    }
-    const PDF_TEXT_COLOR = PDF_RGB_BASE.GREY
-    const PDF_MARGIN = 50
-    const PDF_PAGE_SIZE = PageSizes.Letter
-    const PDF_PAGE_W = PDF_PAGE_SIZE[0]
-    const PDF_PAGE_H = PDF_PAGE_SIZE[1]
-    const PDF_PAGE_XL = PDF_MARGIN
-    const PDF_PAGE_XR = PDF_PAGE_W - PDF_MARGIN
-    const PDF_H1 = 23
-    const PDF_H2 = 19
-    const PDF_H3 = 13
-    const PDF_P = 10
-
-    /* CSV FILE -> GENERATION */
-    const generateCSV = async( report ) => {
-
-        /* HEADER INFORMATION */
-        const rows = [
-            [ "JOB ID", job.reg.des_job_name ],
-            [ "COMPANY", hdr.hdr_well_co ],
-            [ "WELL NAME", hdr.hdr_well_name ],
-            [ "SURFACE LOCATION", hdr.hdr_well_sf_loc ],
-            [ "BOTTOM LOCATION", hdr.hdr_well_bh_loc ],
-            [ "LICENSE", hdr.hdr_well_lic ],
-            [ "LONGITUDE", hdr.hdr_geo_lng ],
-            [ "LATITUDE", hdr.hdr_geo_lat ],
-            [ "JOB START", FormatDate( hdr.hdr_job_start ), FormatTime( hdr.hdr_job_start ) ],
-            [ "JOB END", FormatDate( hdr.hdr_job_end ), FormatTime( hdr.hdr_job_end )  ],
-            [],
-            csvColumnUnits( ),
-            csvColumnHeaders( ),
-        ]
-
-        /* SAMPLE DATA */
-        for ( let i = 0; i < job.samples.length; i++ ) {
-            rows.push( csvDataRow( job.samples[ i ], 8 ) )
-        }
-
-        let doc = rows.map( e => e.join( "," ) ).join( "\n" )
-
-        csvDownload( doc, report )
-
-    }
-    const csvColumnUnits = ( ) => {
-        return [ "Millisecond", "Date", "24 Hour", "%",    "L/min",    "L/min",    "kPa",  "Amp",  "Volt", "Amp"  ] 
-    }
-    const csvColumnHeaders = ( ) => {
-        return [ "Unix", "Date", "Time", "Methane",  "H-Flow",   "L-Flow",   "Pressure", "Batt A",   "Batt V",   "Motor A"  ] 
-    }
-    const csvDataRow = ( smp, dec = 5 ) => {
-        return [ 
-            smp.smp_time,
-            FormatDate( smp.smp_time ), 
-            FormatTime( smp.smp_time ), 
-            smp.smp_ch4.toFixed( dec ),
-            smp.smp_hi_flow.toFixed( dec ),
-            smp.smp_lo_flow.toFixed( dec ),
-            smp.smp_press.toFixed( dec ),
-            smp.smp_bat_amp.toFixed( dec ),
-            smp.smp_bat_volt.toFixed( dec ),
-            smp.smp_mot_volt.toFixed( dec ) 
-        ]
-    }
-    /* CSV FILE -> DOWNLOAD & SAVE */
-    const csvDownload = async( doc, report ) => {
-
-        // let bytes = await doc.save( ) 
-        let blob = new Blob( [ doc ], { type: 'data:text/csv; charset=utf-8;' } )
-        let fileName = `${ report.rep_title }-${ FormatTimeCodeDashed( Date.now( ) ) }.csv`
-        let saveOptions = { description: "CSV", accept: { "text/plain" : [ ".csv" ] } }
-
-        await saveBlobToFile( blob, fileName, saveOptions )
-    }
-    /* CSV / PDF / IMG FILE -> SAVE */
-    const saveBlobToFile = async( blob, fileName ) => {
-
-        if ( window.navigator && window.navigator.msSaveOrOpenBlob ) {
-
-            window.navigator.msSaveOrOpenBlob( blob )
-
-        } else {
-
-            /* SAVE IN DEFAULT DOWNLOADS FOLDER */
-            const url = window.URL.createObjectURL( blob )
-            let link = document.createElement( 'a' )
-            link.href = url
-            link.download = fileName
-            link.target="_blank"
-            link.click( )
-
-            // For Firefox it is necessary to delay revoking the ObjectURL.
-            setTimeout( ( ) => { window.URL.revokeObjectURL( url ) }, 250)
-        }
-    }
-
 </script>
 
-<canvas style="display: none; font-size: 11pt;" id="sec_plot"/>
+<canvas width=1832 height=1465 style="display: none;" id="sec_plot"/>
 
 <div class="flx-col container">
 
@@ -717,10 +230,10 @@
 
         { #if loaded }
 
-            <div class="flx-col status">
+            <div class="flx-col status" id="stat-panel">
 
-                <div class="map" use:job.makeMap />
-
+                <!-- <div class="map" style="min-height: { getWidth( ) * 0.25 }px; min-width: { getWidth( ) * 0.25 }px;" use:job.makeMap /> -->
+                <div class="map" style= "min-height: { mapSize }px; min-width: { mapSize }px;" use:job.makeMap />
 
                 <div class="flx-col stat-det">
                     <div class="flx-col">
@@ -753,11 +266,7 @@
                         </div>
                         <div class="flx-col report-list">
                             { #each job.reports as rep, index ( index ) }
-                            <ReportBadge bind:rep 
-                                on:report-selected={ ( e ) => { reportSelected( e.detail ) } } 
-                                on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
-                                on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
-                            />
+                            <ReportBadge bind:rep on:report-selected={ ( e ) => { reportSelected( e.detail ) } } />
                             { /each }
                         </div>
                     </div>
@@ -794,8 +303,14 @@
                             bind:job bind:rep
                             on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
                             on:section-selected={ ( e ) => { sectionSelected( e.detail ) } }
-                            on:generate-pdf={ async( e ) => { await generatePDF( e.detail ) } }
-                            on:generate-csv={ async( e ) => { await generateCSV( e.detail ) } }
+                            on:generate-pdf={ async( e ) => { 
+                                debug(  "job/[slug]/+page.svelte -> on:generate-pdf: ", e.detail )
+                                await generatePDF( job, e.detail, hdr, screen ) 
+                            } }
+                            on:generate-csv={ async( e ) => { 
+                                debug(  "job/[slug]/+page.svelte -> on:generate-csv: ", e.detail )
+                                await generateCSV( job, e.detail, hdr ) 
+                            } }
                         />
                     </div>
 
@@ -858,14 +373,12 @@
     }
 
     .status {
-        max-width: 25%;
-        min-width: 25%;
+        max-width: 23%;
+        min-width: 23%;
         gap: 1em;
     }
     .map {
-        aspect-ratio: 1 / 1;
         border-radius: 0.5em;
-        min-height: 37.7em; 
     }
     .stat-det {
         overflow: hidden;
@@ -920,28 +433,16 @@
         gap: 0.5em; 
     }
 
-    /* .cht-btns {
-        justify-content: flex-start;
-        width: auto;
-    } */
-
     /* LAP TOP */
     @media(max-width: 1500px) {
         .content {
             gap: 0.5em;
-        }
-        .status {
-            max-width: 27.5%;
-        }    
-        .map {
-            min-height: 30em;
         }
         .chart { 
             min-height: 32.5em;
         }
     }
 
-    
     /* TABLET */
     @media(max-width: 1200px) {
         .container { 
@@ -954,16 +455,15 @@
         }
         .status {
             flex-direction: row-reverse;
-            min-height: 33.3em;
-            max-height: 33.3em;
+            height: auto;
             max-width: unset;
             min-width: unset;
             padding-right: 0.5em; 
             width: 100%;
         }
         .map {
-            min-height: unset;
-            min-width: 29.2em;
+            min-height: 30em;
+            min-width: 30em;
         }
         .rep-select {
             margin-right: 1em; 
@@ -971,73 +471,24 @@
         .panel {
             padding-top: 0.5em;
             padding-right: 0.5em;
-            /* padding-left: 0.5em; */
         }
-        .chart { 
-            min-height: 35em;
-        }
-        .panel-cont { 
-            padding-left: 0;
-        }
-        #cfg {
-            display: none;
-        }
+        .chart { min-height: 35em; }
+        .panel-cont { padding-left: 0; }
+        #cfg { display: none; }
     }
 
     @media (max-width: 1100px) and (max-height: 550px ) {
-        .status { 
-            min-height: 31.5em;
-        }
-        .map {
-            min-width: 26.2em;
-        }
-        .chart { 
-            min-height: 33em;
-        }
+        .chart { min-height: 33em; }
     }
 
     @media (max-width: 850px) {
-        /* .status { 
-            min-height: 31.5em;
-        }
-        .map {
-            min-width: 26.2em;
-        }
-        .chart { 
-            min-height: 33em;
-        } */
-        .status { 
-            min-height: 29.5em;
-        }
-        .map {
-            min-width: 24.6em;
-        }
-        .chart { 
-            min-height: 33em;
-        }
+        .chart { min-height: 33em; }
     }
-
-    /* @media (max-width: 800px) and (max-height: 450px ) {
-        .status { 
-            min-height: 29.5em;
-        }
-        .map {
-            min-width: 26.2em;
-        }
-        .chart { 
-            min-height: 33em;
-        }
-    } */
 
     /* MOBILE */
     @media(max-width: 450px) {
-        .container { 
-            padding-right: 0.5em; 
-        }
-        .content {
-            flex-direction: column;
-            /* padding-right: 0.5em; */
-        }
+        .container { padding-right: 0.5em; }
+        .content { flex-direction: column; }
         .status {
             flex-direction: column;
             min-height: unset;
@@ -1047,42 +498,10 @@
             padding-right: 0.75em;
             padding-top: 0;
         }
-        .stat-det {
-            flex-direction: column;
-        }
-        .map {
-            min-height: 31.2em;
-            min-width: unset;
-        }
-        /* .chart {
-            display: none;
-        } */
-        
+        .stat-det { flex-direction: column; }
         .action {
             flex-direction: column;
             padding-left: 1em;
-        }
-    }
-    
-    /* @media (max-width: 950px) and (max-height: 450px) {
-        .map {
-            min-height: unset;
-            min-width: 25em;
-        }
-     } */
-
-
-    /* MOBILE */
-    @media(max-width:400px) { 
-        .map {
-            min-height: 29.3em;
-        }
-    }
-
-    /* MOBILE */
-    @media(max-width: 380px) { 
-        .map {
-            min-height: 26.2em;
         }
     }
 

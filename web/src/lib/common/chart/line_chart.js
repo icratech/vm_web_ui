@@ -76,9 +76,9 @@ export class LineChartModel {
             parsing: false, 
             layout: {
                 padding: {
-                    left: fontSize / 3,
-                    right: fontSize / 3,
-                    bottom: fontSize / 3,
+                    left: Math.ceil( fontSize / 3 ),
+                    right: Math.ceil( fontSize / 3 ),
+                    bottom: Math.ceil( fontSize / 3 ),
                 }
             },
             interaction: { 
@@ -94,7 +94,7 @@ export class LineChartModel {
             plugins: { 
                 chartAreaBorder: { 
                     borderColor: RGBA( BASE.LIGHT, 0.1 ), 
-                    borderWidth: ( fontSize/16 < 0.5 ? 0.5 : fontSize/16 ) 
+                    borderWidth: 1, 
                 },
                 title: { 
                     text: title, 
@@ -108,11 +108,11 @@ export class LineChartModel {
                     display: false,
                     labels: {
                         textAlign: "center",
-                        boxHeight: fontSize * 1.25,
-                        boxWidth: fontSize * 1.25,
-                        borderRadius: fontSize * 1.25,
+                        boxHeight: Math.ceil( fontSize * 1.25 ),
+                        boxWidth: Math.ceil( fontSize * 1.25 ),
+                        borderRadius: Math.ceil( fontSize * 1.25 ),
                         useBorderRadius: true,
-                        padding: fontSize * 3 / 2,
+                        padding: Math.ceil( fontSize * 3 / 2 ),
                     },
                 },
                 decimation: { 
@@ -123,7 +123,7 @@ export class LineChartModel {
                     zoom: {
                         mode: "xy",
                         scaleMode: "xy",
-                        wheel: { enabled: true, speed: 0.05, },
+                        wheel: { enabled: true, speed: 0.1, },
                         drag: { enabled: true },
                         // onZoomComplete: zoomHandler
                     },
@@ -244,20 +244,20 @@ export class LineChartScale {
         this.border = {
             display: false,
             color: gridColor,
-            width: tickSize/10,
+            width:  1, // Math.ceil( tickSize/10 ),
         }
         this.title = {
             display: true,
             align: "end",
             font: { size: labelSize },
-            padding: { top: labelSize/2, bottom: labelSize/2 },
+            padding: { top: Math.ceil( labelSize/2 ), bottom: Math.ceil( labelSize/2 ) },
             color: color,
             text: title,
         }
         this.ticks = { 
             font: { size: tickSize },
             color: color,
-            padding: tickSize/2,
+            padding: 1, // Math.ceil( tickSize/10 ),
             callback: function( value ) {
                 return value.toFixed( 1 )
             }
@@ -303,10 +303,10 @@ export class LineChartXScale {
         this.ticks = {
             font: { size: tickSize },
             autoSkip: true,
-            autoSkipPadding: tickSize * 10,
+            autoSkipPadding: Math.ceil( tickSize * 10 ),
             maxRotation: 0,
             color: RGBA( BASE.LIGHT, 0.7 ),
-            padding: tickSize * 1.5,
+            padding: Math.ceil( tickSize * 1.5 ),
         }
     }
 }

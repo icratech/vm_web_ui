@@ -14,7 +14,7 @@
     import JobCard from './JobCard.svelte'
 
     $: JOBS = getContext( 'jobs' )
-    $: JOBS_LOADED = getContext( 'jobs_loaded' )
+    // $: JOBS_LOADED = getContext( 'jobs_loaded' )
 
     $: search = new DESSearchParam( )
 
@@ -68,9 +68,7 @@
         gap: 1rem;
     }
 
-    .content { 
-        height: 100%;
-    }
+    .content { height: 100%; }
 
     .search {
         max-width: 25%;
@@ -99,8 +97,8 @@
 
     .content { padding-right: 1em; }
     .search {
-        max-width: 45%;
-        min-width: 45%;
+        max-width: 50%;
+        min-width: 50%;
         padding-right: 0.5em; 
     }
     
@@ -118,8 +116,8 @@
         padding-right: 0.5em; 
     }
     .search { 
-        max-height: 37.5em;
-        min-height: 37.5em;
+        /* max-height: 37.5em; */
+        /* min-height: 37.5em; */
         max-width: 100%;
         min-width: 100%;
     }

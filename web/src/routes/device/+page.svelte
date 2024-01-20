@@ -14,7 +14,7 @@
     import DeviceCard from './DeviceCard.svelte'
 
     $: DEVICES = getContext( 'devices' )
-    $: DEVICES_LOADED = getContext( 'devices_loaded' )
+    // $: DEVICES_LOADED = getContext( 'devices_loaded' )
 
     $: search = new DESSearchParam( )
 
@@ -115,8 +115,8 @@
             padding-right: 0.5em; 
         }
         .search { 
-            max-height: 37.7em;
-            min-height: 37.7em;
+            /* max-height: 37.7em; */
+            /* min-height: 37.7em; */
             max-width: 100%;
             min-width: 100%;
         }
