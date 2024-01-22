@@ -242,7 +242,7 @@
         .status {
             max-width: 100%;
             min-width: 100%;
-            height: 300em;
+            /* height: 300em; */
         }
         .panel { 
             padding-right: 0.5em; 
