@@ -114,7 +114,7 @@
         align-items: center;
     }
     
-    .map { height: 30em; }
+    .map { height: 100%; }
 
     /* LAP TOP */
     @media(max-width: 1440px) {  }
@@ -123,7 +123,7 @@
     @media(max-width: 1100px) {  }
 
     /* MOBILE */
-    @media(max-width: 450px) {
+    @media(max-width: 550px) {
         .container {
             padding-right: 0;
             padding-left: 1em;
@@ -138,6 +138,7 @@
             padding-right: 0; 
             padding-left: 0; 
         }
+        .map { height: 30em; }
     }
 
 </style>

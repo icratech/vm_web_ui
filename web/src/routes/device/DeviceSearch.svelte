@@ -115,8 +115,8 @@
         align-items: center;
     }
     
-    .map { height: 30em; }
-    
+    .map { height: 100%; }
+
     /* LAP TOP */
     @media(max-width: 1440px) {
 
@@ -142,6 +142,7 @@
             padding-right: 0; 
             padding-left: 0; 
         }
+        .map { height: 30em; }
     }
 
 </style>
