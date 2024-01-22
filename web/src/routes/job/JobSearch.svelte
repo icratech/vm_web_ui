@@ -1,6 +1,6 @@
 <script>
     
-    import { onMount, createEventDispatcher } from 'svelte'
+    import { onMount, getContext, createEventDispatcher } from 'svelte'
 
     import { debug } from '../../lib/des/utils'
     import { DESSearchParam } from '../../lib/des/api'
@@ -8,7 +8,7 @@
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
 
-    import { JOBS, JOBS_LOADED, getJobs } from "../../lib/c001v001/job"
+    import { getJobs } from "../../lib/c001v001/job"
     import { validateLngLat } from '../../lib/c001v001/models'
 
     import mapboxgl from 'mapbox-gl' // npm install mapbox-gl  // npm install @types/mapbox-gl // 
@@ -19,6 +19,9 @@
 
     export let search = new DESSearchParam( )
 
+    const JOBS = getContext( 'jobs' )
+    const JOBS_LOADED = getContext( 'jobs_loaded' )
+
     $: zoom = 2.3
     let center = [ -100, 60 ]
     onMount( ( ) => { checkOrigin( ) } )
@@ -26,7 +29,7 @@
     $: mapStyle = ""
     const checkOrigin = ( ) => {
         if ( window.innerWidth <= 550 ) {
-            mapStyle = `min-height: ${ window.innerWidth - ( 2.5 * 11 ) }px; min-width: ${ window.innerWidth - ( 2.5 * 11 ) }px;`
+            // mapStyle = `min-height: ${ window.innerWidth - ( 2.5 * 11 ) }px; min-width: ${ window.innerWidth - ( 2.5 * 11 ) }px;`
             zoom = 1.0
         } else if ( window.innerHeight <= 550 ) {
             zoom = 1.0
@@ -88,7 +91,8 @@
     </div>
 
     { #if $JOBS_LOADED }
-    <div class="map-container" style={ mapStyle } use:makeMap></div>
+    <!-- <div class="map-container map" style={ mapStyle } use:makeMap></div> -->
+    <div class="map-container map" use:makeMap></div>
     { /if }
 
 </div>
@@ -110,15 +114,13 @@
         align-items: center;
     }
     
+    .map { height: 30em; }
 
     /* LAP TOP */
-    @media(max-width: 1440px) {
-
-    }
+    @media(max-width: 1440px) {  }
 
     /* TABLET */
-    @media(max-width: 1100px) {
-    }
+    @media(max-width: 1100px) {  }
 
     /* MOBILE */
     @media(max-width: 450px) {
