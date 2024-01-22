@@ -7,7 +7,7 @@
 
     import { debugging } from '../../lib/des/app'
     import { routeFixer, debug } from '../../lib/des/utils'
-    import { AUTH } from '../../lib/des/api'
+    import { DESSearchParam } from '../../lib/des/api'
 
     import { registerDevice } from '../../lib/c001v001/device'
     import { Job, getDESJobs } from '../../lib/c001v001/job'
@@ -17,13 +17,16 @@
     import DesAdminJobBadge from './DESAdminJobBadge.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
+    import InputRadio from '../../lib/common/input_radio/InputRadio.svelte'
     import SerialNumInput from '../../lib/des/components/SerialNumInput.svelte'
 
+    import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
+
     $: DEVICES = getContext( 'devices' )
-    $: DEVICES_LOADED = getContext( 'devices_loaded' )
+    // $: DEVICES_LOADED = getContext( 'devices_loaded' )
 
     $: DES_JOBS = getContext( 'des_jobs' )
-    $: DES_JOBS_LOADED = getContext( 'des_jobs_loaded' )
+    // $: DES_JOBS_LOADED = getContext( 'des_jobs_loaded' )
 
     $: showDevices = false
     $: showDatabases = true
@@ -37,7 +40,6 @@
     }
     const showDatabaseList = async( ) => { 
         clearShow( )
-
         showDatabases = true
     }
 
@@ -52,6 +54,60 @@
     }
 
     /* DATABASE */
+    $: jobType = 0
+    const setJobType = ( i ) => {
+        jobType = i
+        debug( "jobType: ", i )
+        filterJobList( )
+    }
+    let search = new DESSearchParam( )
+    const resetSearch = ( ) => {
+        clearTableSelection( )
+        search = new DESSearchParam( )
+        job = new Job( )
+        jobType = 0
+        filterJobList( )
+    }
+    const checkTextFilter = ( j, s ) => {
+        let stat = JSON.parse(j.reg.des_job_json) // debug( "des_admin/+page.svelte -> checkTextFilter( ): ", stat )
+
+        let txtFilter = ( 
+            j.reg.des_dev_serial.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_co.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_name.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_sf_loc.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_bh_loc.toUpperCase( ).includes( s.token.toUpperCase( ) ) ||
+            stat.hdr.hdr_well_lic.toUpperCase( ).includes( s.token.toUpperCase( ) ) 
+        )
+
+        let cmdFilter = j.reg.des_job_name.includes( 'CMDARCHIVE' )
+
+        let filters = j
+        switch ( jobType ) {
+
+            case 0: // INCLUDE CMDARCHIVES 
+                filters = txtFilter
+                break
+            
+            case 1: // EXCLUDE CMDARCIVES
+                filters = !cmdFilter && txtFilter 
+                break
+            
+            case 2: // ONLY SEARCH CMDARCHIVES
+                filters = cmdFilter && txtFilter 
+                break   
+        }
+
+        return filters
+    }
+    $: filteredJobList = $DES_JOBS
+    const filterJobList = ( ) => {
+        clearTableSelection( )
+        search.token = search.token
+        filteredJobList = $DES_JOBS.filter( j => { return checkTextFilter( j, search ) } )
+    }
+
+
     $: job = new Job( )
     $: job_title = ( job.reg.des_job_name !== "" ? job.reg.des_job_name : "Select a database to view table rows" )
     const jobSelected = async( j )=> { 
@@ -200,9 +256,23 @@
                 { /each }
             </div>
             { :else if showDatabases }
+            <div class="flx-row search">
+                <PillButton
+                    img={ btn_img_reset }
+                    hint={ 'Reset filters' } 
+                    on:click={ resetSearch }
+                />
+                <InputText enabled={ true } bind:txt={ search.token } place="Search text"/>
+            </div>
+            <div class="flx-row rad">
+                <div class="flx-row rad-btn { ( jobType == 0 ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ ( ) => { setJobType( 0 ) } } on:keyup>ALL</div>
+                <div class="flx-row rad-btn { ( jobType == 1 ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ ( ) => { setJobType( 1 ) } } on:keyup>! CMD</div>
+                <div class="flx-row rad-btn { ( jobType == 2 ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ ( ) => { setJobType( 2 ) } } on:keyup>CMD</div>
+            </div>
             <div class="flx-col select-list">
                 <div class="flx-row"><h3>DATABASES</h3></div>
-                { #each $DES_JOBS as job, index ( index ) }
+                { #each $DES_JOBS.filter( j => { return checkTextFilter( j, search ) } ) as job, index ( index ) }
+                <!-- { #each filteredJobList as job, index ( index ) } -->
                     <DesAdminJobBadge bind:job on:job-selected={ ( e ) => { jobSelected( e.detail ) } }/>
                 { /each }
             </div>
@@ -305,6 +375,7 @@
         width: 25%;
         height: 100%;
         padding: 0.5em 1em;
+        gap: 0.75em;
     }
     .title {
         justify-content: space-between;
@@ -342,6 +413,22 @@
         overflow: hidden;
         /* overflow: auto; */
         height: 100%;
+    }
+    .rad {
+        justify-content: flex-end;
+    }
+    .rad-btn {
+        border: solid 0.1em var(--light_02);
+        background-color: var(--light_005);
+        border-radius: 0.25em;
+        justify-content: center;
+        align-items: center;
+        height: 2em;
+        width: 8em;
+    }
+    .rad-btn-select {
+        border: solid 0.1em var(--orange_03);
+        background-color: var(--orange_01);
     }
 
     .tbl-menu {

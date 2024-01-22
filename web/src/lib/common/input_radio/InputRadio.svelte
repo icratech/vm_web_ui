@@ -1,11 +1,11 @@
 <script>
 
-    export let lbl
+    export let lbl = null
     export let cls = "fg-orange"
     export let group
-    export let name
+    export let name = null
     export let value
-    export let enabled = false
+    export let enabled = true
 
 </script>
 
