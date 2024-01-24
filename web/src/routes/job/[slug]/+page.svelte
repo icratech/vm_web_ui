@@ -7,7 +7,7 @@
 
     import { debug } from '../../../lib/des/utils'
     import { RGBA, BASE } from '../../../lib/common/colors'
-    import { CHT_COLORS } from '../../../lib/c001v001/chart_display'
+    import { CHT_COLORS, newChartScales } from '../../../lib/c001v001/chart_display'
     import { Header, Config, Event, Report, Section, OP_CODES, MODES } from '../../../lib/c001v001/models'
     import { generatePDF, generateCSV } from "../../../lib/c001v001/components/report/report_downloads"
 
@@ -67,6 +67,27 @@
 
     /* CAUSES UPDATE ON RELOAD */
     $: { if ( job && !loaded ) { loadJobData( ) } }
+
+    $: toggleAutScaleText = ( job && loaded && job.cht_auto_scale ? 'MAX' : 'AUTO' )
+    const toggleAutoScale = ( ) => {
+        if ( job && loaded ) {
+            job.cht_auto_scale = !job.cht_auto_scale
+
+            if ( job.cht_auto_scale ) {
+                let start = job.cht_press.data[ 0 ].x
+                let margin = job.cht_scale_margin
+                let auto = job.cht_auto_scale
+                job.cht.autoScale( job.cht_ch4, start, margin, auto )
+                job.cht.autoScale( job.cht_press, start, margin, auto )
+                job.cht.autoScale( job.cht_hi_flow, start, margin, auto )
+                job.cht.autoScale( job.cht_lo_flow, start, margin, auto )
+            } else {
+                job.cht.options.scales = newChartScales( )
+            }
+
+            debug( "job.cht_auto_scale: ", job.cht_auto_scale )
+        }
+    }
 
     $: btn_img_evt_list = btn_img_edit_pink
     $: selected_title = 'All Sections'
@@ -281,24 +302,19 @@
                     <LineChart bind:chartdata={ job.cht } />
                 </div>
                 
-                <div class="flx-row action">
+                <div class="flx-row cht-btns">
+                    <div class="btn fg-pink" on:click={ toggleAutoScale } on:keyup >{ toggleAutScaleText  }</div>
+                </div>
 
-                    <!-- <div class="flx-col cht-btns">
-                        <PillButton />
-                        <PillButton />
-                        <PillButton />
-                        <PillButton />
-                        <PillButton />
-                        <PillButton />
-                        <PillButton />
-                        <PillButton />
-                    </div> -->
+                <div class="flx-row action">
 
                     <!-- <div id="rep" class="flx-col panel-cont" style="
                         border-bottom: solid 0.05em { borderColor };
                         border-right: solid 0.05em { borderColor };
                     "> -->
-                    <div id="rep" class="flx-col panel-cont">
+                    <div class="flx-col panel-cont rep">
+                        
+                        
                         <ReportCard
                             bind:job bind:rep
                             on:report-selected={ ( e ) => { reportSelected( e.detail ) } }
@@ -314,37 +330,38 @@
                         />
                     </div>
 
-
-                    <!-- <div id="evt" class="flx-col panel-cont" style="
-                        border-bottom: solid 0.05em { borderColor };
-                        border-right: solid 0.05em { borderColor };
-                    "> -->
-                    <div id="evt" class="flx-col panel-cont">
-                        <EventPanelRep bind:job bind:new_evt={evt} bind:smp={ job.selected_smp } 
-                            bind:evts 
-                            bind:sec_name={ selected_title }
-                            bind:color={ color_code }
-                            on:send-event={ saveEvent }
-                            on:event-selected={ ( e ) => { // debug( "event selected: ", e.detail.evt_time ) 
-                                job.selection = e.detail.evt_time
-                                job.chartPointSelect(  )
-                            } }
-                        />
-                    </div>
-
-
-                    <!-- <div id="cfg" class="flx-col panel-cont" style="
-                        border-bottom: solid 0.05em { borderColor };
-                        border-right: solid 0.05em { borderColor };
-                    "> -->
-                    <div id="cfg" class="flx-col panel-cont">
-                        <!-- <br> -->
-                        <div class="flx-col">
-                            <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
+                    <div class="flx-row sec">
+                        <!-- <div id="evt" class="flx-col panel-cont" style="
+                            border-bottom: solid 0.05em { borderColor };
+                            border-right: solid 0.05em { borderColor };
+                        "> -->
+                        <div class="flx-col panel-cont sec-evts">
+                            <EventPanelRep bind:new_evt={evt} bind:smp={ job.selected_smp } 
+                                bind:evts 
+                                bind:sec_name={ selected_title }
+                                bind:color={ color_code }
+                                on:send-event={ saveEvent }
+                                on:event-selected={ ( e ) => { // debug( "event selected: ", e.detail.evt_time ) 
+                                    job.selection = e.detail.evt_time
+                                    job.chartPointSelect(  )
+                                } }
+                            />
                         </div>
-                        <br>
-                        <div class="flx-col">
-                            <ConfigCard bind:cfg />
+    
+    
+                        <!-- <div id="cfg" class="flx-col panel-cont" style="
+                            border-bottom: solid 0.05em { borderColor };
+                            border-right: solid 0.05em { borderColor };
+                        "> -->
+                        <div class="flx-col panel-cont sec-cfg">
+                            <!-- <br> -->
+                            <div class="flx-col">
+                                <BarGaugeCardReport bind:cfg bind:smp={ job.selected_smp }/>
+                            </div>
+                            <!-- <br> -->
+                            <div class="flx-col cfg">
+                                <ConfigCard bind:cfg />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -370,6 +387,7 @@
 
     .content { 
         height: 100%;
+        /* gap: 0.75em; */
     }
 
     .status {
@@ -408,6 +426,7 @@
         padding: 0 1em;
         padding-left: 0;
         height: auto;
+        gap: 0.5em;
     }
 
     .loading {
@@ -416,7 +435,26 @@
         height: 50%;
     }
 
-    .chart { min-height: 38em; }
+    .chart { min-height: 34em; }
+    
+    .cht-btns {
+        border-bottom: solid 0.05em var(--light_01);
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0.5em 1.5em;
+        min-height: 3em;
+    }
+    .btn {
+        cursor: pointer;
+        padding: 0 0.75em;
+        border-radius: 0.25em;
+        border: solid 0.05em var(--light_03);
+    }
+    .btn:hover {
+        background-color: var(--pink_01);
+        border: solid 0.05em var(--pink_05);
+    }
+
     .action {
         overflow: hidden;
         justify-content: space-between;
@@ -431,6 +469,21 @@
         padding-top: 0;
         height: 100%;
         gap: 0.5em; 
+    }
+
+    .rep { 
+        min-width: 33%; 
+        max-width: 33%; 
+    }
+    .sec { 
+        min-width: 66%; 
+        max-width: 66%; 
+    }
+    .sec-cfg {
+        height: auto;
+    }
+    .cfg {
+        padding-top: 0.5em;
     }
 
     /* LAP TOP */
@@ -474,7 +527,17 @@
         }
         .chart { min-height: 35em; }
         .panel-cont { padding-left: 0; }
-        #cfg { display: none; }
+        .rep { 
+            min-width: 50%; 
+            max-width: 50%; 
+        }
+        .sec { 
+            flex-direction: column-reverse;
+            justify-content: flex-start;
+            min-width: 50%; 
+            max-width: 50%; 
+            gap: 1.5em;
+        }
     }
 
     @media (max-width: 1100px) and (max-height: 550px ) {
@@ -502,6 +565,14 @@
         .action {
             flex-direction: column;
             padding-left: 1em;
+        }
+        .rep { 
+            min-width: 100%; 
+            max-width: 100%; 
+        }
+        .sec { 
+            min-width: 100%; 
+            max-width: 100%; 
         }
     }
 

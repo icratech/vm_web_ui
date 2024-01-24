@@ -5,7 +5,7 @@ mapboxgl.accessToken = MAPBOX_TOKEN
 
 import { HTTP_SERVER, WS_SERVER, client_app, MAPBOX_TOKEN, MAPBOX_STYLE } from '../des/app'
 import { ALERT_CODES, alert, waitMilli, debug } from '../des/utils'
-import { AUTH, getRequest, getRequestAuth, postRequestAuth } from '../des/api'
+import { AUTH, RoleCheck, getRequestAuth, postRequestAuth } from '../des/api'
 import { FormatDateTime } from "../common/format"
 
 import { 
@@ -19,6 +19,8 @@ import {
     EventType, 
     Sample 
 } from './models'
+
+const role = new RoleCheck( )
 
 /* JOB API ROUTES *************************************************************************************/
 export const API_URL_C001_V001 = `api/${ device_class }/${ device_version }`
@@ -448,16 +450,23 @@ export class Job {
     loadChartXYPoints = async( xyp ) => {
         // debug(  "job.loadChartXYPoints( ) -> samples: ", this.samples.length )
         this.xypoints = xyp
-        this.cht_ch4.data = xyp.ch4
-        this.cht_hi_flow.data = xyp.hi_flow
-        this.cht_lo_flow.data = xyp.lo_flow
-        this.cht_press.data = xyp.press
+        this.cht_ch4.data = xyp.ch4.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } )
+        this.cht_hi_flow.data = xyp.hi_flow.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } )
+        this.cht_lo_flow.data = xyp.lo_flow.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } )
+        this.cht_press.data = xyp.press.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } )
+        // this.cht_press.data = xyp.press
         this.cht_bat_amp.data = xyp.bat_amp
-        this.cht_bat_volt.data = xyp.bat_volt
-        this.cht_mot_volt.data = xyp.mot_volt
+        this.cht_bat_volt.data = xyp.bat_volt.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } )
+        this.cht_mot_volt.data = xyp.mot_volt.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } )
         
         let flow = this.cht_hi_flow.data.map( f => f.y )
-        if ( flow.some( f => { return f > 2.5 } ) ) {
+        if ( role.isSuper( get(AUTH).user.role )) {
+            this.cht.options.scales.y_hi_flow.display = true
+            this.cht_hi_flow.hidden = false
+
+            this.cht.options.scales.y_lo_flow.display = true
+            this.cht_lo_flow.hidden = false
+        } else if ( flow.some( f => { return f > 2.5 } ) ) {
             this.cht.options.scales.y_hi_flow.display = true
             this.cht_hi_flow.hidden = false
 

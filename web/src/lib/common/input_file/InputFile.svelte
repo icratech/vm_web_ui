@@ -1,6 +1,6 @@
 <script>
     export let accept;
-    export let files;
+    export let files = null;
     export let func;
     export let id;
 </script>
@@ -9,6 +9,7 @@
     id={id}
     type="file"
     style="display:none"
+    webkitdirectory multiple
     accept={accept}
     bind:files={files}
     on:change={func}

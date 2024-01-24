@@ -5,19 +5,25 @@
     import { goto } from '$app/navigation'
     import { getContext, onMount } from 'svelte'
 
-    import { routeFixer, debug } from '../../lib/des/utils'
-    import { AUTH, DESSearchParam } from '../../lib/des/api'
+    import { routeFixer, debug, ALERT_CODES, alert } from '../../lib/des/utils'
+    import { DESSearchParam } from '../../lib/des/api'
     
-    import { getJobs, updateJobsStore } from "../../lib/c001v001/job"
+    import { updateJobsStore } from "../../lib/c001v001/job"
 
     import JobSearch from './JobSearch.svelte'
     import JobCard from './JobCard.svelte'
+	import PillButton from '../../lib/common/button/PillButton.svelte'
+    import InputFile from '../../lib/common/input_file/InputFile.svelte'
+    import btn_img_upload from "$lib/images/btn-img-collapse-pink.svg"
 
     $: JOBS = getContext( 'jobs' )
-    // $: JOBS_LOADED = getContext( 'jobs_loaded' )
+
+    let input_job_data
+    onMount( ( ) => { 
+        input_job_data = document.getElementById( 'input_job_data' )
+    } )
 
     $: search = new DESSearchParam( )
-
     const checkBounds = ( j ) => { 
         return ( 
             j.reg.des_job_lng >= search.lng_min &&  j.reg.des_job_lng <= search.lng_max && 
@@ -40,8 +46,28 @@
         goto( routeFixer( $page.url.pathname, 'job/', j.reg.des_job_name ) )
     }
 
+    const uploadJobData = async( input ) => {
+        debug( "uploadJobData( ): ", input.files.length )
+        if ( input.files.length == 6 ) {
+            let formData = new FormData( )
+            for ( let i = 0; i < input.files.length; i++ ) {
+                let f = input.files[ i ]
+                debug( "uploadJobData( ): ", f.name.split('.')[0] ) 
+                formData.append( f.name.split('.')[0], f ) 
+            }
+            debug( "uploadJobData( ): ", formData ) 
+        } else {
+            /* TODO: ACTUAL VALIDATION */
+            alert( ALERT_CODES.ERROR, "Invalid file count" )
+        }
+    }
+
 </script>
 
+<InputFile id="input_job_data" 
+    func={ async( )=> { await uploadJobData( input_job_data ) } }
+    accept=".json" 
+/>
 <dvi class="flx-col container">
 
     <div class="flx-row content">
@@ -50,10 +76,18 @@
             <JobSearch bind:search on:filter={ ( ) => { updateJobsStore( ) } } />
         </div>
 
-        <div class="flx-col job-list">
-            { #each $JOBS.filter( j => {  return  checkBounds( j ) && checkTextFilter( j, search ) } ) as job, index ( index ) }
-                <JobCard bind:job on:job-selected={ ( e ) => { jobSelected( e.detail ) } }/>
-            { /each }
+        <div class="flx-col content">
+
+            <div class="flx-row btns">
+                <PillButton img={ btn_img_upload } hint={ null } on:click={ input_job_data.click( ) }/>
+                <h4>Upload Job Data</h4>
+            </div>
+
+            <div class="flx-col job-list">
+                { #each $JOBS.filter( j => {  return  checkBounds( j ) && checkTextFilter( j, search ) } ) as job, index ( index ) }
+                    <JobCard bind:job on:job-selected={ ( e ) => { jobSelected( e.detail ) } }/>
+                { /each }
+            </div>
         </div>
 
     </div>
@@ -75,6 +109,11 @@
         min-width: 25%;
         width: auto;
         padding: 0;
+    }
+
+    .btns {
+        align-items: center;
+        gap: 0.5em;
     }
 
     .job-list {

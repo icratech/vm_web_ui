@@ -321,13 +321,13 @@ export class Device {
     smpToXYPoints( smp ) {
         let time = smp.smp_time
         return {
-            ch4: { x: time, y: smp.smp_ch4 },
-            hi_flow: { x: time, y: smp.smp_hi_flow },
-            lo_flow: { x: time, y: smp.smp_lo_flow },
-            press: { x: time, y: smp.smp_press },
-            bat_amp: { x: time, y: smp.smp_bat_amp },
-            bat_volt: { x: time, y: smp.smp_bat_volt },
-            mot_volt: { x: time, y: smp.smp_mot_volt },
+            ch4: { x: time, y: validateMeasuredValue( smp.smp_ch4 ) },
+            hi_flow: { x: time, y: validateMeasuredValue( smp.smp_hi_flow ) },
+            lo_flow: { x: time, y: validateMeasuredValue( smp.smp_lo_flow ) },
+            press: { x: time, y: validateMeasuredValue( smp.smp_press ) },
+            bat_amp: { x: time, y: validateMeasuredValue( smp.smp_bat_amp ) },
+            bat_volt: { x: time, y: validateMeasuredValue( smp.smp_bat_volt ) },
+            mot_volt: { x: time, y: validateMeasuredValue( smp.smp_mot_volt ) },
         }
     }
     loadChartSample( ) {
@@ -365,13 +365,13 @@ export class Device {
         this.cht_mot_volt = this.cht.data.datasets[CHT_DATASET_INDEX.MOT_VOLT]
     }
     loadChartXYPoints = async( xyp ) => { 
-        this.cht_ch4.data = [ ...xyp.ch4 ] 
-        this.cht_hi_flow.data =  [ ...xyp.hi_flow ] 
-        this.cht_lo_flow.data =  [ ...xyp.lo_flow ] 
-        this.cht_press.data =  [ ...xyp.press ] 
+        this.cht_ch4.data = [ ...xyp.ch4.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } ) ] 
+        this.cht_hi_flow.data =  [ ...xyp.hi_flow.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } ) ] 
+        this.cht_lo_flow.data =  [ ...xyp.lo_flow.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } ) ] 
+        this.cht_press.data =  [ ...xyp.press.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } ) ] 
         this.cht_bat_amp.data =  [ ...xyp.bat_amp ] 
-        this.cht_bat_volt.data =  [ ...xyp.bat_volt ] 
-        this.cht_mot_volt.data =  [ ...xyp.mot_volt ] 
+        this.cht_bat_volt.data =  [ ...xyp.bat_volt.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } ) ] 
+        this.cht_mot_volt.data =  [ ...xyp.mot_volt.map( s => { ( s.y === -9999.25 || s.y === -999.25? s.y = null : s.y ); return { x: s.x, y: s.y } } ) ] 
 
         let flow = this.cht_lo_flow.data.map( f => f.y )
         if ( flow.some( f => { return f > this.cfg.cfg_flow_tog } ) ) {
@@ -775,7 +775,7 @@ export class Device {
         // debug( "c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> QRY ACTIVE JOB SAMPLES." ) 
         
         let dev = { reg: this.reg } 
-        // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> Send QRY ACTIVE JOB SAMPLES Request: `, dev )
+        debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> Send QRY ACTIVE JOB SAMPLES Request: `, dev )
 
         let url = `${ API_URL_C001_V001_DEVICE_JOB_SAMPLES }?qty=${ this.cht_point_limit }`
         let res = await postRequestAuth( url, dev )

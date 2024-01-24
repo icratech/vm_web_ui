@@ -32,6 +32,7 @@
         }
     }
     
+    $: toggleAutScaleText = ( device && device.isActive( ) && device.cht_auto_scale ? 'MAX' : 'AUTO' )
     const toggleAuto = ( ) => {
         device.cht_auto_scale = !device.cht_auto_scale
         if ( !device.cht_auto_scale ) 
@@ -83,6 +84,10 @@
                 <LineChart bind:chartdata={ device.cht } />
             </div>
     
+            <div class="flx-row cht-btns">
+                <div class="btn fg-aqua" on:click={ toggleAuto } on:keyup >{ toggleAutScaleText  }</div>
+            </div>
+
             <div class="flx-row action">
 
                 <!-- <div class="flx-col panel-cont">
@@ -144,9 +149,28 @@
         padding: 0 1em;
         padding-left: 0;
         height: auto;
+        gap: 0.5em;
     }
 
-    .chart { min-height: 38em; }
+    .chart { min-height: 34em; }
+   
+    .cht-btns {
+        border-bottom: solid 0.05em var(--light_01);
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0.5em 1.5em;
+        min-height: 3em;
+    }
+    .btn {
+        cursor: pointer;
+        padding: 0 0.75em;
+        border-radius: 0.25em;
+        border: solid 0.05em var(--light_03);
+    }
+    .btn:hover {
+        background-color: var(--aqua_01);
+        border: solid 0.05em var(--aqua_05);
+    }
 
     .action {
         overflow-y: hidden;

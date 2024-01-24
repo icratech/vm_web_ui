@@ -1,5 +1,8 @@
 <script>
 
+    import { debug } from '../../../des/utils'
+    import { AUTH, RoleCheck } from '../../../des/api'
+
     import BarGaugeH from '../../../common/bar_gauge/BarGaugeH.svelte'
 
     import { Config, Sample, MODES } from '../../models'
@@ -7,6 +10,8 @@
 
     export let cfg = new Config( )
     export let smp = new Sample( )
+
+    const role = new RoleCheck( )
 
 </script>
 
@@ -20,18 +25,31 @@
         unit={ "%" }
     />
     
-    { #if cfg.cfg_vlv_pos === MODES.LO_FLOW }
-    <BarGaugeH title="Flow"
+    { #if role.isSuper( $AUTH.user.role )  }
+    <BarGaugeH title="Hi Flow"
+        base_color={ CHT_COLORS.HI_FLOW }
+        bind:num={ smp.smp_hi_flow }
+        max={ 250 }
+        unit={ "L/min" }
+    />
+    <BarGaugeH title="Lo Flow"
         base_color={ CHT_COLORS.LO_FLOW }
         bind:num={ smp.smp_lo_flow }
         max={ 2 }
         unit={ "L/min" }
     />
-    { :else }
+    { :else if cfg.cfg.cfg_vlv_pos === MODES.HI_FLOW }
     <BarGaugeH title="Flow"
         base_color={ CHT_COLORS.HI_FLOW }
         bind:num={ smp.smp_hi_flow }
         max={ 250 }
+        unit={ "L/min" }
+    />
+    { :else }
+    <BarGaugeH title="Flow"
+        base_color={ CHT_COLORS.LO_FLOW }
+        bind:num={ smp.smp_lo_flow }
+        max={ 2 }
         unit={ "L/min" }
     />
     { /if }
@@ -49,6 +67,15 @@
         max={ 14 }
         unit={ "Volts" }
     />
+    
+    { #if role.isSuper( $AUTH.user.role )  }
+    <BarGaugeH title="Motor"
+        base_color={ CHT_COLORS.MOT_VOLT }
+        bind:num={ smp.smp_mot_volt }
+        max={ 14 }
+        unit={ "Volts" }
+    />
+    { /if }
     
 </div>
 

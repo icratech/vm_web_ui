@@ -14,7 +14,7 @@ License:
 
 const APP_VERSION = "0.0.0"
 /* TODO : REPLACE WITH ENV VARIABLES FOR PRODUCTION *******************************/
-const local = true
+const local = false
 export const debugging = true
 export const SERVER = ( local ? "://127.0.0.1:8007" : "://des1.data2desk.com" )
 export const HTTP_SERVER = ( local ? `http${ SERVER }` : `https${ SERVER }` )

@@ -1,13 +1,18 @@
 
 <script>
 
+    import { debug } from '../../../des/utils'
+    import { AUTH, RoleCheck } from '../../../des/api'
+
     import BarGaugeH from '../../../common/bar_gauge/BarGaugeH.svelte'
 
-    import { Config, Sample } from '../../models'
+    import { Config, Sample, MODES } from '../../models'
     import { CHT_COLORS } from '../../chart_display'
 
     export let cfg = new Config( )
     export let smp = new Sample( )
+
+    const role = new RoleCheck( )
 
 </script>
 
@@ -22,18 +27,31 @@
         unit={ "%" }
     />
     
-    { #if smp.smp_lo_flow < cfg.cfg_flow_tog }
+    { #if role.isSuper( $AUTH.user.role )  }
+    <BarGaugeH title="H-Flow"
+        base_color={ CHT_COLORS.HI_FLOW }
+        bind:num={ smp.smp_hi_flow }
+        max={ 250 }
+        unit={ "L/min" }
+    />
     <BarGaugeH title="L-Flow"
         base_color={ CHT_COLORS.LO_FLOW }
         bind:num={ smp.smp_lo_flow }
         max={ 2 }
         unit={ "L/min" }
     />
-    { :else }
-    <BarGaugeH title="H-Flow"
+    { :else if smp.smp_hi_flow > cfg.cfg_flow_tog }
+    <BarGaugeH title="Flow"
         base_color={ CHT_COLORS.HI_FLOW }
         bind:num={ smp.smp_hi_flow }
         max={ 250 }
+        unit={ "L/min" }
+    />
+    { :else }
+    <BarGaugeH title="Flow"
+        base_color={ CHT_COLORS.LO_FLOW }
+        bind:num={ smp.smp_lo_flow }
+        max={ 2 }
         unit={ "L/min" }
     />
     { /if }
@@ -80,8 +98,6 @@
         .container { 
             background-color: transparent;
             border: none;
-            /* padding: 0;  */
-            /* gap: 0.5em;  */
         }
     }
 

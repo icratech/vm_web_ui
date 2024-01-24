@@ -20,6 +20,7 @@
     import InputRadio from '../../lib/common/input_radio/InputRadio.svelte'
     import SerialNumInput from '../../lib/des/components/SerialNumInput.svelte'
 
+    import btn_img_add from "$lib/images/btn-img-add-orange.svg"
     import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
 
     $: DEVICES = getContext( 'devices' )
@@ -43,6 +44,9 @@
         showDatabases = true
     }
 
+    let search = new DESSearchParam( )
+
+
     /* DEVICE */
     let serial
     const callRegisterDevice = async( ) => { 
@@ -52,6 +56,20 @@
     const deviceSelected = ( d ) => { 
         goto( routeFixer( $page.url.pathname, 'device/', d.reg.des_dev_serial ) )
     }
+    const resetDeviceSearch = ( ) => {
+        search = new DESSearchParam( )
+        filterDeviceList( )
+    }
+    const checkDeviceTextFilter = ( d, s ) => {
+        let txtFilter = ( 
+            d.reg.des_dev_serial.toUpperCase( ).includes( s.token.toUpperCase( ) ) 
+            /* OTHER STUFF ...*/
+        )
+        return txtFilter
+    }
+    const filterDeviceList = ( ) => {
+        search.token = search.token
+    }
 
     /* DATABASE */
     $: jobType = 0
@@ -60,15 +78,14 @@
         debug( "jobType: ", i )
         filterJobList( )
     }
-    let search = new DESSearchParam( )
-    const resetSearch = ( ) => {
+    const resetJobSearch = ( ) => {
         clearTableSelection( )
         search = new DESSearchParam( )
         job = new Job( )
         jobType = 0
         filterJobList( )
     }
-    const checkTextFilter = ( j, s ) => {
+    const checkJobTextFilter = ( j, s ) => {
         let stat = JSON.parse(j.reg.des_job_json) // debug( "des_admin/+page.svelte -> checkTextFilter( ): ", stat )
 
         let txtFilter = ( 
@@ -100,11 +117,10 @@
 
         return filters
     }
-    $: filteredJobList = $DES_JOBS
     const filterJobList = ( ) => {
         clearTableSelection( )
         search.token = search.token
-        filteredJobList = $DES_JOBS.filter( j => { return checkTextFilter( j, search ) } )
+        // filteredJobList = $DES_JOBS.filter( j => { return checkJobTextFilter( j, search ) } )
     }
 
 
@@ -239,29 +255,30 @@
             
             { #if showDevices }
             <div class="flx-col select-list">
-                <div class="flx-row"><h3>ADD A DEVICE</h3></div>
-                <div class="flx-row register">
-                    <PillButton cls='bg-accent' on:click={ callRegisterDevice } hint={ null } />
-                    <div class="flx-col input-container">
-                        <SerialNumInput 
-                            enabled ={ debugging }
-                            bind:txt={ serial }
-                            place="Enter a serial # and click the circle over there." 
-                            
-                            /> 
-                    </div>
+
+                <div class="flx-row"><h4>ADD A DEVICE</h4></div>
+                <div class="flx-row search">
+                    <PillButton img={ btn_img_add } hint={ 'Add Device' } on:click={ callRegisterDevice } />
+                    <SerialNumInput enabled={ true } bind:txt={ serial } place="Enter a serial # and click the + over there." /> 
                 </div>
-                { #each $DEVICES as device, index ( index ) }
+
+                <div class="flx-row"><h4>SEARCH DEVICES</h4></div>
+                <div class="flx-row search">
+                    <PillButton
+                        img={ btn_img_reset }
+                        hint={ 'Reset filters' } 
+                        on:click={ resetDeviceSearch }
+                    />
+                    <InputText enabled={ true } bind:txt={ search.token } place="Search by serial #"/>
+                </div>
+                { #each $DEVICES.filter( d => { return checkDeviceTextFilter( d, search ) } ) as device, index ( index ) }
                     <DesAdminDeviceInfo bind:device on:device-selected={ ( e ) => { deviceSelected( e.detail ) } } />
                 { /each }
+
             </div>
             { :else if showDatabases }
             <div class="flx-row search">
-                <PillButton
-                    img={ btn_img_reset }
-                    hint={ 'Reset filters' } 
-                    on:click={ resetSearch }
-                />
+                <PillButton img={ btn_img_reset } hint={ 'Reset filters' } on:click={ resetJobSearch } />
                 <InputText enabled={ true } bind:txt={ search.token } place="Search text"/>
             </div>
             <div class="flx-row rad">
@@ -271,8 +288,7 @@
             </div>
             <div class="flx-col select-list">
                 <div class="flx-row"><h3>DATABASES</h3></div>
-                { #each $DES_JOBS.filter( j => { return checkTextFilter( j, search ) } ) as job, index ( index ) }
-                <!-- { #each filteredJobList as job, index ( index ) } -->
+                { #each $DES_JOBS.filter( j => { return checkJobTextFilter( j, search ) } ) as job, index ( index ) }
                     <DesAdminJobBadge bind:job on:job-selected={ ( e ) => { jobSelected( e.detail ) } }/>
                 { /each }
             </div>
@@ -284,7 +300,7 @@
 
             { #if showDevices }
             <div class="flx-col select-list">
-                { #each $DEVICES as device, index ( index ) }
+                { #each $DEVICES.filter( d => { return checkDeviceTextFilter( d, search ) } ) as device, index ( index ) }
                     <DESAdminDeviceCard bind:device on:device-selected={ ( e ) => { deviceSelected( e.detail ) } } />
                 { /each }
             </div>
@@ -390,10 +406,6 @@
         align-items: center;
         width: auto;
     }
-    .register {
-        align-items: center;
-        gap: 0.75em;
-    }
 
     .panel {
         overflow: hidden;
@@ -483,10 +495,5 @@
     table tr:nth-child(even) {
         background-color:  var(--light_005);
     }
-
-    .input-container {
-        gap: 0.25rem;
-    }
-
 
 </style>
