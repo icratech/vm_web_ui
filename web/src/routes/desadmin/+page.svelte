@@ -25,10 +25,8 @@
     import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
 
     $: DEVICES = getContext( 'devices' )
-    // $: DEVICES_LOADED = getContext( 'devices_loaded' )
 
     $: DES_JOBS = getContext( 'des_jobs' )
-    // $: DES_JOBS_LOADED = getContext( 'des_jobs_loaded' )
 
     onMount( async( ) => {
         await getDESJobs( )
@@ -271,8 +269,6 @@
     $: smpCount = ( job.samples !== null ? job.samples.length : 0 )
     $: smpFunc = ( job.samples !== null ? ( ) => { tableSelected( tblSmp, "samples" ) } : ( )=>{ } )
 
-
-
 </script>
 
 <dvi class="flx-col container">
@@ -308,11 +304,11 @@
                     <PillButton img={ btn_img_reset } hint={ 'Reset filters' } on:click={ resetDeviceSearch } />
                     <InputText enabled={ true } bind:txt={ search.token } place="Search by serial #"/>
                 </div>
-                <div class="flx-col select-list">
+                <!-- <div class="flx-col select-list">
                     { #each $DEVICES.filter( d => { return checkDeviceTextFilter( d, search ) } ) as device, index ( index ) }
                         <DesAdminDeviceInfo bind:device on:device-selected={ ( e ) => { deviceSelected( e.detail ) } } />
                     { /each }
-                </div>
+                </div> -->
             { :else if showDatabases }
             <div class="flx-row"><h4>SEARCH DATABASES</h4></div>
             <div class="flx-row input-row">

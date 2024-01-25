@@ -213,7 +213,7 @@
         border-radius: 0.5em;
         padding: 1em;
     }
-    .container:hover { background-color: var(--light_003); }
+    /* .container:hover { background-color: var(--light_003); } */
 
     .cmd-block { 
         gap: 1em;

@@ -16,7 +16,7 @@
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     
     export let data
-    let DEVICES = getContext(  'devices' )
+    $: DEVICES = getContext(  'devices' )
     $: DEVICES_LOADED = getContext( 'devices_loaded' )
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
@@ -31,15 +31,15 @@
         }
     }
     
-    $: toggleAutScaleText = ( device && device.isActive( ) && device.cht_auto_scale ? 'MAX' : 'AUTO' )
-    const toggleAuto = async( ) => {
+    $: toggleAutScaleText = ( device && device.cht_auto_scale ? 'MAX' : 'AUTO' )
+    const toggleAuto = ( ) => {
         device.cht_auto_scale = !device.cht_auto_scale
         if ( !device.cht_auto_scale ) 
             device.cht.options.scales = newChartScales( )
     }
 
     /* CALLED IF USER REFRESHES OR NAVIGATED DIRECTLY TO THIS PAGE */
-    onMount( async( ) => { waitingForDevice = true } )
+    onMount( ( ) => { waitingForDevice = true } )
 
     /* USED TO EXPOSE THE MODALS' OPEN( ) METHOD 
     SO IT CAN BE CALLED FROM OTHER COMPONENTS */
@@ -71,7 +71,6 @@
             <div slot="footer"></div>
         </Modal>
      
-        <!-- on:click={ toggleAuto } on:keydown -->
         <div class="flx-col status">
             <DeviceInfo bind:device on:start={ startModal.open } on:end={ endModal.open } />
         </div>
@@ -83,7 +82,7 @@
             </div>
     
             <div class="flx-row cht-btns">
-                <div class="btn fg-aqua" on:click={ toggleAuto } on:keyup >{ toggleAutScaleText  }</div>
+                <div class="btn fg-aqua" on:click={ toggleAuto } on:keyup >{ toggleAutScaleText }</div>
             </div>
 
             <div class="flx-row action">

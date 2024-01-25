@@ -55,7 +55,7 @@
     setContext( 'des_jobs', DES_JOBS )
     setContext( 'des_jobs_loaded', DES_JOBS_LOADED )
    
-    let sideNav = true
+    $: sideNav = true
     onMount( async( ) => {
 
         page_url_name = window.location.href.split( "/" )[3]
@@ -103,7 +103,6 @@
         clearInterval( intervalID )
         intervalID = null
     } )
-
 
     const cleanSessionData = async( ) => {
         
@@ -218,15 +217,7 @@
     $: device_btn_image = btn_img_gauge_aqua
     $: job_btn_image = btn_img_report_aqua
     const checkPage = ( ) => {
-        // debug( "+layoute.svelte -> checkPage( ) -> page name: ", page_url_name )
         switch ( page_url_name ) {
-            case '' : { 
-                page_name = "HOME"
-                home_btn_image = btn_img_home_orange
-                device_btn_image = btn_img_gauge_aqua
-                job_btn_image = btn_img_report_aqua
-                break
-            }
             case 'device': {  
                 page_name = "DEVICES"
                 home_btn_image = btn_img_home_aqua
@@ -241,9 +232,16 @@
                 job_btn_image = btn_img_report_pink
                 break
             }
-            case 'des_admin': { 
+            case 'desadmin': { 
                 page_name = "DES ADMINISTRATION"
                 home_btn_image = btn_img_home_aqua
+                device_btn_image = btn_img_gauge_aqua
+                job_btn_image = btn_img_report_aqua
+                break
+            }
+            case '' : { 
+                page_name = "HOME"
+                home_btn_image = btn_img_home_orange
                 device_btn_image = btn_img_gauge_aqua
                 job_btn_image = btn_img_report_aqua
                 break
@@ -258,29 +256,24 @@
         }
     }
 
-    const checkURL = ( ) => { debug("+layoute.svelte -> deviceSelected( ) -> current url: ", $page.url.pathname ) }
     const gotoHome = async( ) => {
-        await goto( '/' ) 
         page_url_name = ''
-        // checkURL( )
+        await goto( '/' ) 
     }
 
     const gotoDevice = async( ) => {
-        await goto( '/device' ) 
         page_url_name = 'device'
-        // checkURL( )
+        await goto( '/device' ) 
     }
 
     const gotoJob = async( ) => {
-        await goto( '/job' ) 
         page_url_name = 'job'
-        // checkURL( )
+        await goto( '/job' ) 
     }
 
     const gotoDes = async( ) => {
-        await goto( '/des_admin' ) 
-        page_url_name = 'des'
-        // checkURL( )
+        page_url_name = 'desadmin'
+        await goto( '/desadmin' ) 
     }
 
     let email = ""

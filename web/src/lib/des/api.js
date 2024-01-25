@@ -195,7 +195,7 @@ export class UserSignUp {
 
 export const AUTH = writable( new UserSession( ) )
 export const updateUserSession = async( ) => { 
-    debug( "updateUserSession" )
+    // debug( "updateUserSession" )
     AUTH.update( ( ) => { return get( AUTH ) } ) 
 }
 

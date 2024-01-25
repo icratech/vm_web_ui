@@ -1,6 +1,6 @@
 <script>
 
-    import { createEventDispatcher } from 'svelte'
+    import { createEventDispatcher, onDestroy } from 'svelte'
 
     import { debug } from '../../lib/des/utils'
     import { AUTH, RoleCheck } from '../../lib/des/api'
@@ -26,18 +26,15 @@
     const role = new RoleCheck( )
     export let device = new Device( )
     $: cfg = device.cfg
-    $: hdr = device.hdr
-    $: sta = device.sta
     $: smp = ( device.smp ? device.smp : new Sample( ) )
 
-    // $: cmdButtonColor = 'bg-accent'
-    $: cmdButtonHint = 'Not Set'
-    $: cmdButtonIcon = btn_img_default
-    $: cmdButtonFunc = ( ) => {
-        debug( "device.sta.sta_logging: ", sta.sta_logging, OP_CODES.JOB_ENDED )
-    } 
+    let cmdButtonHint = 'Not Set'
+    let cmdButtonIcon = btn_img_default
+    let cmdButtonFunc = ( ) => { } 
 
-    $: { switch ( sta.sta_logging ) {
+    const setButtonFunc = ( ) => {
+        // debug( "device.sta.sta_logging: ", device.sta.sta_logging )
+        switch ( device.sta.sta_logging ) {
 
             case OP_CODES.DES_REG_REQ: 
             case OP_CODES.DES_REGISTERED: 
@@ -53,7 +50,7 @@
                 cmdButtonIcon = btn_img_stop_red
                 cmdButtonFunc = ( ) => { dispatch( 'end' ) }
                 break 
-            
+
             case OP_CODES.JOB_START_REQ:
                 if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ && device.evt.evt_code == OP_CODES.GPS_ACQ ) {
                     cmdButtonHint = 'Acquiring GPS' 
@@ -71,9 +68,13 @@
                 cmdButtonIcon = btn_img_cmd_purple
                 cmdButtonFunc = ( ) => { device.setState( ) }
                 break
-
         }
     }
+    let intervalID = setInterval( setButtonFunc, 500 )
+    onDestroy( ( ) => { 
+        clearInterval( intervalID )
+        intervalID = null
+    } )
 
     $: socketButtonImage = ( device.socket ? btn_img_connected_orange : btn_img_disconnected_red )
     $: socketButtonText = ( device.socket ? 'Pause live updates' : 'Resume live updates' )
@@ -122,7 +123,7 @@
         <div class="flx-col conn">
             <DeviceConn bind:device />
             <div class="flx-col gauge">
-                <BarGaugeCard bind:cfg bind:smp/>
+                <BarGaugeCard bind:cfg bind:smp />
             </div>
             <div class="flx-col panel-cont mq-w1500">
                 <HeaderPanel bind:device />
