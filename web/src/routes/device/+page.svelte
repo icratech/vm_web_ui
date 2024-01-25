@@ -6,15 +6,12 @@
     import { getContext, onMount } from 'svelte'
 
     import { routeFixer, debug } from '../../lib/des/utils'
-    import { AUTH, DESSearchParam } from '../../lib/des/api'
+    import { DESSearchParam } from '../../lib/des/api'
 
-    import { getDevices, updateDevicesStore } from '../../lib/c001v001/device'
-    
     import DeviceSearch from './DeviceSearch.svelte'
     import DeviceCard from './DeviceCard.svelte'
 
     $: DEVICES = getContext( 'devices' )
-    // $: DEVICES_LOADED = getContext( 'devices_loaded' )
 
     $: search = new DESSearchParam( )
 
@@ -46,7 +43,7 @@
     <div class="flx-row content">
 
         <div class="flx-col search">
-            <DeviceSearch bind:search on:filter={ ( ) => { updateDevicesStore( ) } } />
+            <DeviceSearch bind:search  />
         </div>
         
         <div class="flx-col device-list">

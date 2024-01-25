@@ -46,8 +46,8 @@ export const openModals = ( initial ) => {
 export const ALERT = writable( "" )
 export const ALERT_CODE = writable( 0 )
 export const ALERT_CODES = {
-    SUCCESS: 0,
-    WARNING: 1,
+    SUCCESS: 1,
+    WARNING: 2,
     ERROR: 3
 }
 

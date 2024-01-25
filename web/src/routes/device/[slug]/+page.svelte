@@ -3,11 +3,10 @@
     import { getContext, onMount } from 'svelte'
 
     import { debug } from '../../../lib/des/utils'
-    import { AUTH, RoleCheck } from '../../../lib/des/api'
+
     import LineChart from '../../../lib/common/chart/LineChart.svelte'
     import Modal from '../../../lib/common/modal/Modal.svelte'
     
-    import { getDevices, updateDevicesStore } from '../../../lib/c001v001/device'
     import { newChartScales } from '../../../lib/c001v001/chart_display'
     import HeaderPanel from "../../../lib/c001v001/components/header/HeaderPanel.svelte"
     import ConfigPanel from "../../../lib/c001v001/components/config/ConfigPanel.svelte"
@@ -17,7 +16,7 @@
     import DeviceStartPanel from '../DeviceStartPanel.svelte'
     
     export let data
-    $: DEVICES = getContext(  'devices' )
+    let DEVICES = getContext(  'devices' )
     $: DEVICES_LOADED = getContext( 'devices_loaded' )
     $: device = $DEVICES.filter( ( d ) => { return d.reg.des_dev_serial == data.serial } )[0]
 
@@ -33,11 +32,10 @@
     }
     
     $: toggleAutScaleText = ( device && device.isActive( ) && device.cht_auto_scale ? 'MAX' : 'AUTO' )
-    const toggleAuto = ( ) => {
+    const toggleAuto = async( ) => {
         device.cht_auto_scale = !device.cht_auto_scale
         if ( !device.cht_auto_scale ) 
             device.cht.options.scales = newChartScales( )
-        updateDevicesStore( )
     }
 
     /* CALLED IF USER REFRESHES OR NAVIGATED DIRECTLY TO THIS PAGE */

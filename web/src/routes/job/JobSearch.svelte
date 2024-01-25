@@ -24,7 +24,10 @@
 
     $: zoom = 2.3
     let center = [ -100, 60 ]
-    onMount( ( ) => { checkOrigin( ) } )
+    onMount( ( ) => { 
+        checkOrigin( ) 
+        getJobs( )
+    } )
 
     $: mapStyle = ""
     const checkOrigin = ( ) => {

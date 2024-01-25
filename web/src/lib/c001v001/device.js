@@ -66,7 +66,10 @@ export const API_URL_C001_V001_DEVICE_SIM_OLS = `${ API_URL_C001_V001_DEVICE }/s
 
 export const DEVICES = writable( [ ] )
 export const DEVICES_LOADED = writable( false )
-export const updateDevicesStore = async( ) => { DEVICES.update( ( ) => { return [ ...get( DEVICES ) ] } ) }
+export const updateDevicesStore = async( ) => { 
+    // debug( "updateDevicesStore" )
+    DEVICES.update( ( ) => { return [ ...get( DEVICES ) ] } ) 
+}
 
 export const DEMO_DEVICES = writable( [ ] )
 
@@ -93,7 +96,7 @@ export const registerDevice = async( serial ) => {
     if ( res.err !== null ) 
         alert( ALERT_CODES.ERROR, res.err )
     
-    else  if ( res.json.device !== null ) {
+    else if ( res.json.device !== null ) {
         // debug("registerDevice( ): ", res.json)
         dev = res.json.device 
         addDevice( dev )
@@ -138,12 +141,9 @@ export const connectDevices = async( ) => {
     get( DEVICES ).forEach( async( d ) => { 
         if ( !d.socket ) { await d.connectWS( ) } 
     } )
-    updateDevicesStore( )
 }
 export const disconnectDevices = async( ) => { 
-    // debug( "des_api.js -> disconnectDevices( ) -> DEVICES: ", get( DEVICES ) )
     get( DEVICES ).forEach( async( d ) => { if ( d.socket ) { await d.disconnectWS( ) } } )
-    updateDevicesStore( )
 }
 
 
@@ -236,8 +236,8 @@ export class Device {
         /* DEVICE SEARCH PAGE MAP MARKER */
         this.s_mark_el = document.createElement('div')
         this.s_mark_el.addEventListener('click', ( ) => { goto( '/device/' + this.reg.des_dev_serial ); this.highlight = false } )
-        this.s_mark_el.addEventListener('mouseover', ( ) => { this.highlight = true; updateDevicesStore( ) } )
-        this.s_mark_el.addEventListener('mouseleave', ( ) => { this.highlight = false; updateDevicesStore( ) } )
+        this.s_mark_el.addEventListener('mouseover', async( ) => { this.highlight = true } )
+        this.s_mark_el.addEventListener('mouseleave', async( ) => { this.highlight = false } )
         this.s_mark = new mapboxgl.Marker( this.s_mark_el, { anchor: 'bottom-right' } ).setLngLat( 
             validateLngLat( this.hdr.hdr_geo_lng, this.hdr.hdr_geo_lat ) 
         )
@@ -399,8 +399,6 @@ export class Device {
         this.cht.autoScale( this.cht_bat_amp, start, margin, auto )
         this.cht.autoScale( this.cht_bat_volt, start, margin, auto )
         this.cht.autoScale( this.cht_mot_volt, start, margin, auto )
-        
-        // updateDevicesStore( )
     }
 
     /* WEBSOCKET METHODS **************************************************************/
@@ -417,16 +415,14 @@ export class Device {
         else {
             res.ws.onopen = ( e ) => {  
                 this.socket = true
-                updateDevicesStore( )
                 debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> WebSocket OPEN` ) 
             }
             res.ws.onerror = ( e ) => { 
                 res.ws.close( )
                 this.socket = false
-                updateDevicesStore( )
                 // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> ws.onerror ERROR: ${ JSON.stringify( e )  }\n` ) 
             }
-            res.ws.onmessage = async( e ) => {
+            res.ws.onmessage = ( e ) => {
     
                 let msg = JSON.parse( JSON.parse( e.data ) )
                 switch ( msg.type ) {
@@ -576,11 +572,8 @@ export class Device {
                         debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> ONMESSAGE: Type unknown: ${ e.data }\n` )
                         break
                 }
-                
-                // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } ONMESSAGE:\n`, msg.data )
-                updateDevicesStore( )
             } 
-            this.disconnectWS =  async( ) => {
+            this.disconnectWS =  ( ) => {
                 if ( res.ws && res.ws.readyState !== WebSocket.CLOSED && res.ws.readyState !== WebSocket.CLOSING ) {
                     res.ws.send( "close" )
                     res.ws.close( ) 
@@ -589,7 +582,6 @@ export class Device {
                 this.highlight = false
                 this.ping = new Ping( )
                 this.des_ping = new Ping( )
-                updateDevicesStore( )
                 debug( `c001v001/device.js -> class Device -> ${ this.reg.des_dev_serial } -> WebSocket CLOSED` ) 
             }
             await waitMilli(1000)
@@ -610,7 +602,6 @@ export class Device {
         this.sta.sta_logging = OP_CODES.JOB_START_REQ
         this.ping = new Ping( )
         this.cfg = validateCFG( this.cfg )
-        updateDevicesStore( )
 
         let dev = {
             adm: this.adm,
@@ -775,7 +766,7 @@ export class Device {
         // debug( "c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> QRY ACTIVE JOB SAMPLES." ) 
         
         let dev = { reg: this.reg } 
-        debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> Send QRY ACTIVE JOB SAMPLES Request: `, dev )
+        // debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> Send QRY ACTIVE JOB SAMPLES Request: `, dev )
 
         let url = `${ API_URL_C001_V001_DEVICE_JOB_SAMPLES }?qty=${ this.cht_point_limit }`
         let res = await postRequestAuth( url, dev )
@@ -813,7 +804,6 @@ export class Device {
     /* HTTP METHODS ( DES_ADMIN ) *************************************************************/
     refreshDESClient = async( ) => {
         // debug( "Connect DES Client: ", this.reg.des_dev_serial ) 
-        // alert( ALERT_CODES.WARNING, "Device may require upto 30 seconds to connect.")
         this.des_ping = new Ping( )
 
         let au = get( AUTH )

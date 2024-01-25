@@ -71,7 +71,10 @@ export const getEventTypes = async( ) => {
 
 export const JOBS = writable( [ ] )
 export const JOBS_LOADED = writable( false )
-export const updateJobsStore = ( ) => { JOBS.update( ( ) => { return [ ...get( JOBS ) ] } ) }
+export const updateJobsStore = ( ) => { 
+    // debug( "updateJobsStore" )
+    JOBS.update( ( ) => { return [ ...get( JOBS ) ] } ) 
+}
 
 export const getJobs = async( ) => { 
     JOBS_LOADED.set( false )
@@ -90,7 +93,6 @@ export const getJobs = async( ) => {
                     JOBS.update( sjobs => { return [ ...sjobs, job ] } ) // debug( "new job: ", job )
                  } else {
                     stored.reg = j.reg
-                    updateJobsStore( ) // debug( "stored job: ", stored )
                 }
             } )
             get( JOBS ).sort( ( a, b ) => b.reg.des_job_reg_time - a.reg.des_job_reg_time )
@@ -188,14 +190,8 @@ export class Job {
             goto( '/job/' + this.reg.des_job_name ) 
             this.highlight = false
         } )
-        this.s_mark_el.addEventListener('mouseover', ( ) => { 
-            this.highlight = true 
-            updateJobsStore( )
-        } )
-        this.s_mark_el.addEventListener('mouseleave', ( ) => { 
-            this.highlight = false 
-            updateJobsStore( )
-        } )
+        this.s_mark_el.addEventListener('mouseover', ( ) => { this.highlight = true } )
+        this.s_mark_el.addEventListener('mouseleave', ( ) => { this.highlight = false } )
         this.s_mark = new mapboxgl.Marker( this.s_mark_el, { anchor: 'bottom-right' } ).setLngLat( 
             validateLngLat( this.reg.des_job_lng, this.reg.des_job_lat ) 
         )
@@ -230,13 +226,11 @@ export class Job {
         const ws = new WebSocket( url )
         ws.onopen = ( e ) => {  
             this.socket = true
-            updateJobsStore( )
-            // debug( `c001v001/job.js -> c001v001/job.js -> class Job -> ${ this.reg.des_job_name } -> WebSocket OPEN` ) 
+            debug( `c001v001/job.js -> c001v001/job.js -> class Job -> ${ this.reg.des_job_name } -> WebSocket OPEN` ) 
         }
         ws.onerror = ( e ) => { 
             ws.close( )
             this.socket = false
-            updateJobsStore( )
             // debug( `c001v001/job.js -> class Job -> ${ this.reg.des_job_name } -> ws.onerror ERROR\n${ JSON.stringify( e )  }\n` ) 
         }
         ws.onmessage = ( e ) => {
@@ -258,9 +252,6 @@ export class Job {
                     debug( `c001v001/job.js -> class Job -> ${ this.reg.des_job_name } ONMESSAGE: Type unknown:\n${ e.data }\n` )
                     break
             }
-            
-            // debug( `c001v001/job.js -> class Job -> ${ this.reg.des_job_name } ONMESSAGE:\n`, msg.data )
-            updateJobsStore( )
         }
         this.disconnectWS =  async( ) => {
             if ( ws && ws.readyState !== WebSocket.CLOSED && ws.readyState !== WebSocket.CLOSING ) {
@@ -268,7 +259,6 @@ export class Job {
                 ws.close( ) 
             }
             this.socket = false
-            updateJobsStore( )
             debug( `c001v001/job.js -> class Job -> ${ this.reg.des_job_name } -> WebSocket CLOSED` ) 
         }
         await waitMilli(1000)
@@ -345,7 +335,6 @@ export class Job {
         else if ( res.json.report !== null ) 
             this.reports = [ ...this.reports, res.json.report ]
         
-        updateJobsStore( )
         debug( "job.createReport( ) -> job.reports AFTER: ", this.reports )
     }
     newHeader = async( hdr ) => {
@@ -395,8 +384,7 @@ export class Job {
         let job = {
             events: [ evt ],
             reg: this.reg
-        }
-        debug( "Send JOB NEW EVENT Request:\n", job ) 
+        } // debug( "Send JOB NEW EVENT Request:\n", job ) 
         
         let req = new Request( API_URL_C001_V001_JOB_NEW_EVT, { 
             method: "POST",
@@ -422,11 +410,9 @@ export class Job {
         this.reports.forEach( r => { 
             ( r.rep_id == rep.rep_id ? r.selected = true : r.selected = false )
         } )
-        updateJobsStore( )
     }
     deselectSection = ( rep ) => { 
         rep.rep_secs.forEach( s => { s.selected = false } )
-        updateJobsStore( )
     }
     /* USED FOR REPORT SECTION COLOR CODING */
     selectSectionMode = ( sec ) => {
@@ -442,8 +428,6 @@ export class Job {
             pre.cfg_time >= sec.sec_start &&
             pre.cfg_time < sec.sec_end
         ) ? pre : cur } )
-        
-        updateJobsStore( )
     }
     
     /* CHART DATA */
@@ -506,27 +490,9 @@ export class Job {
         this.cht.options.plugins.zoom.zoom.onZoomComplete = this.chartZoomSelect
 
         this.cht.options.onClick = ( e ) => {
-            debug( "job.cht.options.onClick( e ) -> e: ", e )
             this.selection = Math.floor( e.chart.scales.x.getValueForPixel( e.x ) )
             debug( "job.cht.options.onClick( e ) -> this.selection: ", this.selection )
-            
             this.chartPointSelect( )
-            // let xs = this.cht_press.data.map( d => d.x )
-            // if ( xs[0] > this.selection ) { this.selection = xs[0] }
-            // else if ( xs.pop( ) < this.selection  ) { this.selection = xs.pop( ) }
-            // else { 
-            //     let pre = xs.filter( x => x <= this.selection ).pop( ) 
-            //     let sub = xs.filter( x => x >= this.selection )[0] 
-            //     this.selection = ( this.selection - pre < sub - this.selection ? pre : sub )                
-            // }
-    
-            // this.cht_select.data = [  
-            //     { x: this.selection, y: Number.MIN_SAFE_INTEGER }, 
-            //     { x: this.selection, y: Number.MAX_SAFE_INTEGER } 
-            // ]
-            // this.selected_smp = this.samples.filter( s => s.smp_time == this.selection )[0]
-
-            // updateJobsStore( )
         }
 
         this.cht.options.scales.y_hi_flow.display = true
@@ -549,7 +515,7 @@ export class Job {
         ]
         this.selected_smp = this.samples.filter( s => s.smp_time == this.selection )[0]
 
-        updateJobsStore( )
+        updateJobsStore( ) /* WE WANT THIS TO HAPPEN NOW */
     }
     chartZoomSelect = ( e ) => { 
         // debug( "job.chartZoomSelect...\n", e.chart )
@@ -592,6 +558,6 @@ export class Job {
         this.cht.options.scales.x.min = xmin
         this.cht.options.scales.x.max = xmax
         this.selection = 0
-        updateJobsStore( )
+        updateJobsStore( ) /* WE WANT THIS TO HAPPEN NOW */
     }
 }

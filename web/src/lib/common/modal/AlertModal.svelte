@@ -52,7 +52,7 @@
         open( )
         alert_interval_id = setInterval( clear_alert, alert_timeout )
     }
-    const clear_alert = ( ) => { 
+    const clear_alert = ( ) => {
 
         if ( alert_interval_id !== null ) { 
             clearInterval( alert_interval_id )
@@ -115,7 +115,7 @@
 
             <div class="flx-row alert-btn">
                 OK
-                <PillButton cls={ 'bg-light' } on:click={ close } />
+                <PillButton cls={ 'bg-light' } on:click={ clear_alert } />
             </div>
 
         </div>

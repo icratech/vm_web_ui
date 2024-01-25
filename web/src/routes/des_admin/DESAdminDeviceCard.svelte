@@ -1,7 +1,7 @@
 <script>
 
     import { debugging } from '../../lib/des/app'
-    import { debug } from '../../lib/des/utils'
+    import { debug, ALERT_CODES, alert } from '../../lib/des/utils'
 
     import { Device } from "../../lib/c001v001/device"
     import { device_class, device_version } from '../../lib/c001v001/models'
@@ -32,13 +32,11 @@
     const downloadDeviceFiles = async( ) => {
         let files = await device.getDeviceFiles( )
         debug( "DESAdminDeviceCMD.svelte -> downloadDeviceFiles( ) -> FILES: ", files )
-
         await jsonDownload( files.adm, "adm" )
         await jsonDownload( files.sta, "sta" )
         await jsonDownload( files.hdr, "hdr" )
         await jsonDownload( files.cfg, "cfg" )
         await jsonDownload( files.evt, "evt" )
-
     }
 
     /* JSON FILE -> DOWNLOAD & SAVE */
@@ -50,7 +48,6 @@
         let saveOptions = { description: "JSON", accept: { "tex/plain" : [ ".json" ] } }
 
         await saveBlobToFile( blob, fileName, saveOptions )
-
     }
     /* JSON -> SAVE */
     const saveBlobToFile = async( blob, fileName, saveOptions ) => {
@@ -94,6 +91,8 @@
             DESDevConnImage = btn_img_reset
         }
     }
+
+    
 
 </script>
 
@@ -154,7 +153,7 @@
     </div>
 
 
-    <div class="flx-col cmd-block">
+    <div class="flx-col cmd-block half">
         
         <div class="flx-row cmd">
             <PillButton img={ btn_img_cmd_red } on:click={ device.setAdmin } />
@@ -176,24 +175,31 @@
             <p>Send Config</p>
         </div>
 
-
-
-
     </div>
 
+    <div class="flx-col cmd-block half">
+        
+        <div class="flx-row cmd">
+            <PillButton img={ btn_img_cmd_red } on:click={ ( ) => { alert( ALERT_CODES.WARNING, "Yet to be implemented") } } />
+            <p>Remove Device</p>
+        </div>
+        
+        <div class="flx-row cmd">
+            <PillButton img={ btn_img_cmd_orange } on:click={ ( ) => { alert( ALERT_CODES.WARNING, "Yet to be implemented") } } />
+            <p>Edit Serial #</p>
+        </div>
+        
+        <div class="flx-row cmd">
+            <PillButton img={ btn_img_cmd_yellow } on:click={ ( ) => { alert( ALERT_CODES.WARNING, "Yet to be implemented") } } />
+            <p>Show Error Log</p>
+        </div>
+        
+        <!-- <div class="flx-row cmd">
+            <PillButton img={ btn_img_cmd_green } on:click={ device.setConfig } />
+            <p>Send Config</p>
+        </div> -->
 
-    <!-- <div class="flx-row">
-        <DESAdminDeviceInfo bind:device />
-
-        { #if debugging }
-        <DesAdminDeviceCMD bind:device />
-        <div class="flx-col"></div>
-        { :else }
-            <div class="flx-col"></div>
-            <div class="flx-col"></div>
-        { /if }
-
-    </div> -->
+    </div>
 
 </div>
 
@@ -211,6 +217,10 @@
 
     .cmd-block { 
         gap: 1em;
+    }
+
+    .half {
+        width: 50%;
     }
 
     .cmd { 

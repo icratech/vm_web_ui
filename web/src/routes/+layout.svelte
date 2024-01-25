@@ -4,7 +4,7 @@
     import { page } from '$app/stores'
     import { goto } from '$app/navigation'
     import { get } from 'svelte/store'
-    import { setContext, onMount } from 'svelte'
+    import { setContext, onMount, onDestroy } from 'svelte'
 
     import { ALERT_CODES, alert, waitMilli, debug } from '../lib/des/utils'
     import { 
@@ -14,12 +14,12 @@
     } from '../lib/des/api'
 
     import { 
-		JOBS, JOBS_LOADED, getJobs,
+		JOBS, JOBS_LOADED, getJobs, updateJobsStore,
         EVT_TYPES, EVT_TYPES_LOADED, getEventTypes,  
 		DES_JOBS, DES_JOBS_LOADED, getDESJobs,
     } from '../lib/c001v001/job'
 
-    import { DEVICES, DEVICES_LOADED, getDevices, disconnectDevices, } from '../lib/c001v001/device'
+    import { DEVICES, DEVICES_LOADED, getDevices, disconnectDevices, updateDevicesStore } from '../lib/c001v001/device'
 
     import TitleBar from '../lib/des/components/TitleBar.svelte'
     import PillButton from '../lib/common/button/PillButton.svelte'
@@ -58,6 +58,10 @@
     let sideNav = true
     onMount( async( ) => {
 
+        page_url_name = window.location.href.split( "/" )[3]
+        sideNav = ( window.matchMedia( "( max-width: 550px )" ) ? false : true ) 
+        checkPage( )
+
         if ( sessionStorage.getItem( 'des_auth') && sessionStorage.getItem( 'des_auth') != 'none' ) { 
             AUTH.set( JSON.parse( sessionStorage.getItem( 'des_auth') ) )
             $AUTH.cleanSessionData = cleanSessionData
@@ -77,9 +81,29 @@
             return undefined
         } 
 
-        page_url_name = window.location.href.split( "/" ).pop( )
-        sideNav = ( window.matchMedia( "( max-width: 550px )" ) ? false : true ) 
     } )
+
+    $: sec = 0
+    let intervalID = setInterval( ( ) => {
+        checkPage( )
+        updateDevicesStore( )
+        updateJobsStore( )
+        updateUserSession( )
+        if ( $AUTH && $AUTH.logged_in ) {
+            let now = Date.now()
+            sec = WS_LIVE_LIMIT /1000 - Math.floor( ( now - $AUTH.ping.time ) / 1000 )
+            if ( sec < 0 ) { 
+                sec = 0
+                $AUTH.ping.ok = false
+            }
+            if ( $AUTH.ping.ok ) refreshJWT( )
+        }
+    }, 500 )
+    onDestroy( ( ) => { 
+        clearInterval( intervalID )
+        intervalID = null
+    } )
+
 
     const cleanSessionData = async( ) => {
         
@@ -146,14 +170,12 @@
                 $AUTH.socket = true
                 $AUTH.ping.ok = true
                 $AUTH.ping.time = Date.now()
-                updateUserSession( )
                 debug( `+layout.svelte -> connectWS( ) -> ${ $AUTH.user.email } -> WebSocket OPEN` ) 
             }
             res.ws.onerror = ( e ) => { 
                 res.ws.close( )
                 $AUTH.socket = false
-                updateUserSession( )
-                debug( `+layout.svelte -> ${ $AUTH.user.email } -> ws.onerror ERROR: ${ JSON.stringify( e )  }\n` ) 
+                // debug( `+layout.svelte -> ${ $AUTH.user.email } -> ws.onerror ERROR: ${ JSON.stringify( e )  }\n` ) 
             }
             res.ws.onmessage = async( e ) => {
 
@@ -175,7 +197,6 @@
                         debug( `+layout.svelte -> ${ $AUTH.user.email } -> ONMESSAGE: Type unknown: ${ e.data }\n` )
                         break
                 }
-                updateUserSession( )
             }
             disconnectWS = async( ) => {
                 if ( res.ws && res.ws.readyState !== WebSocket.CLOSED && res.ws.readyState !== WebSocket.CLOSING ) {
@@ -185,34 +206,19 @@
                 $AUTH.socket = false
                 $AUTH.ping.ok = false
                 $AUTH.ping.time = 0
-                updateUserSession( )
                 debug( `+layout.svelte -> disconnectWS( ) -> WebSocket CLOSED` ) 
             }
             await waitMilli(1000)
         }
     }
 
-    $: sec = 0
-    const countDownWS = ( ) => {
-        if ( $AUTH && $AUTH.logged_in ) {
-            let now = Date.now()
-            sec = WS_LIVE_LIMIT /1000 - Math.floor( ( now - $AUTH.ping.time ) / 1000 )
-            if ( sec < 0 ) { 
-                sec = 0
-                $AUTH.ping.ok = false
-            }
-            if ( $AUTH.ping.ok ) refreshJWT( )
-        }
-    }
-    setInterval(countDownWS, 1000)
-
-
     $: page_url_name = "";
-    let page_name = "HOME"
-    let home_btn_image = btn_img_home_aqua
-    let device_btn_image = btn_img_gauge_aqua
-    let job_btn_image = btn_img_report_aqua
-    $: {
+    $: page_name = ""
+    $: home_btn_image = btn_img_home_aqua
+    $: device_btn_image = btn_img_gauge_aqua
+    $: job_btn_image = btn_img_report_aqua
+    const checkPage = ( ) => {
+        // debug( "+layoute.svelte -> checkPage( ) -> page name: ", page_url_name )
         switch ( page_url_name ) {
             case '' : { 
                 page_name = "HOME"

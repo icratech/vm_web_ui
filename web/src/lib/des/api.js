@@ -194,7 +194,10 @@ export class UserSignUp {
 }
 
 export const AUTH = writable( new UserSession( ) )
-export const updateUserSession = async( ) => { AUTH.update( ( ) => { return get( AUTH ) } ) }
+export const updateUserSession = async( ) => { 
+    debug( "updateUserSession" )
+    AUTH.update( ( ) => { return get( AUTH ) } ) 
+}
 
 /* HANDLES NON-AUTHORIZED GET REQUESTS */
 export const getRequest = async( url ) => {

@@ -8,8 +8,6 @@
     import { routeFixer, debug, ALERT_CODES, alert } from '../../lib/des/utils'
     import { DESSearchParam } from '../../lib/des/api'
     
-    import { updateJobsStore } from "../../lib/c001v001/job"
-
     import JobSearch from './JobSearch.svelte'
     import JobCard from './JobCard.svelte'
 	import PillButton from '../../lib/common/button/PillButton.svelte'
@@ -73,7 +71,7 @@
     <div class="flx-row content">
 
         <div class="flx-col search">
-            <JobSearch bind:search on:filter={ ( ) => { updateJobsStore( ) } } />
+            <JobSearch bind:search />
         </div>
 
         <div class="flx-col content">

@@ -1,6 +1,8 @@
 <script>
 
-    import { getContext } from "svelte"
+    import { getContext, onDestroy } from "svelte"
+
+    import { debug } from '../../lib/des/utils'
 
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
 
@@ -9,14 +11,40 @@
 
     export let device = new Device( )
 
-    $: EVT_TYPES = getContext( 'evt_types' )
-    $: evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == device.sta.sta_logging } )[0]
-   
-    $: evtColorCode = 'fg-accent'
-    $: {
+    let EVT_TYPES = getContext( 'evt_types' )
+    let evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == device.sta.sta_logging } )[0]
+    let evtColorCode = 'fg-accent'
+    let des_ping_sec = 0
+    let dev_ping_sec = 0
+    const countDown = ( ) => {
+
+        let now = Date.now()
+
+        dev_ping_sec = PING_LIMIT /1000 - Math.floor( ( now - device.ping.time ) / 1000 )
+
+        if ( dev_ping_sec < 0 ) { 
+            dev_ping_sec = 0 
+            device.ping.ok = false
+        } else {
+            device.ping.ok = true
+        }
+        
+        des_ping_sec = DES_PING_LIMIT /1000 - Math.floor( ( now - device.des_ping.time ) / 1000 )
+
+        if ( des_ping_sec < 0 ) { 
+            des_ping_sec = 0  
+            device.des_ping.ok = false
+            dev_ping_sec = 0 
+            device.ping.ok = false
+        } else {
+            device.des_ping.ok = true
+        }
+
         /* SHOW GPS IF DEVICE DATA WAS RELOADED DURING A START REQUEST */
         if ( device.sta.sta_logging == OP_CODES.JOB_START_REQ && device.evt.evt_code == OP_CODES.GPS_ACQ ) {
             evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == OP_CODES.GPS_ACQ } )[0] 
+        } else {
+            evt_type = $EVT_TYPES.filter( t  => { return t.evt_typ_code == device.sta.sta_logging } )[0]
         }
 
         if ( evt_type ) {
@@ -61,34 +89,11 @@
 
         }
     }
-
-    $: des_ping_sec = 0
-    $: dev_ping_sec = 0
-    const countDown = ( ) => {
-
-        let now = Date.now()
-
-        dev_ping_sec = PING_LIMIT /1000 - Math.floor( ( now - device.ping.time ) / 1000 )
-
-        if ( dev_ping_sec < 0 ) { 
-            dev_ping_sec = 0 
-            device.ping.ok = false
-        } else {
-            device.ping.ok = true
-        }
-        
-        des_ping_sec = DES_PING_LIMIT /1000 - Math.floor( ( now - device.des_ping.time ) / 1000 )
-
-        if ( des_ping_sec < 0 ) { 
-            des_ping_sec = 0  
-            device.des_ping.ok = false
-            dev_ping_sec = 0 
-            device.ping.ok = false
-        } else {
-            device.des_ping.ok = true
-        }
-    }
-    setInterval(countDown, 1000)
+    let intervalID = setInterval(countDown, 500)
+    onDestroy( ( ) => { 
+        clearInterval( intervalID )
+        intervalID = null
+    } )
 
 
 </script>
@@ -101,7 +106,6 @@
         <div class="vert-line"/>
         <div class="flx-row field-val-row">
             <div class="flx-row field-text-l { evtColorCode }">{ ( evt_type ? evt_type.evt_typ_name : 'UNKNOWN EVT CODE' )  }</div>
-            <!-- <div class="flx-row  field-value timeout-value">( { device.sta.sta_logging } )</div> -->
             <div class="flx-row field-text-r"><DateTimeDisplay date={ device.sta.sta_time }/></div>
         </div>
     </div>

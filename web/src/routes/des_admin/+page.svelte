@@ -17,10 +17,11 @@
     import DesAdminJobBadge from './DESAdminJobBadge.svelte'
     import PillButton from '../../lib/common/button/PillButton.svelte'
     import InputText from '../../lib/common/input_text/InputText.svelte'
-    import InputRadio from '../../lib/common/input_radio/InputRadio.svelte'
     import SerialNumInput from '../../lib/des/components/SerialNumInput.svelte'
 
     import btn_img_add from "$lib/images/btn-img-add-orange.svg"
+    import btn_img_confirm from "$lib/images/btn-img-confirm-green.svg"
+    import btn_img_cancel from "$lib/images/btn-img-cancel-red.svg"
     import btn_img_reset from "$lib/images/btn-img-reset-aqua.svg"
 
     $: DEVICES = getContext( 'devices' )
@@ -28,6 +29,11 @@
 
     $: DES_JOBS = getContext( 'des_jobs' )
     // $: DES_JOBS_LOADED = getContext( 'des_jobs_loaded' )
+
+    onMount( async( ) => {
+        await getDESJobs( )
+        resetJobSearch( )
+    } )
 
     $: showDevices = false
     $: showDatabases = true
@@ -49,9 +55,12 @@
 
     /* DEVICE */
     let serial
+    $: addingDevice = false
     const callRegisterDevice = async( ) => { 
         await registerDevice( serial )
+        addingDevice = false
         serial = null
+        resetDeviceSearch( )
     }
     const deviceSelected = ( d ) => { 
         goto( routeFixer( $page.url.pathname, 'device/', d.reg.des_dev_serial ) )
@@ -125,13 +134,16 @@
 
 
     $: job = new Job( )
-    $: job_title = ( job.reg.des_job_name !== "" ? job.reg.des_job_name : "Select a database to view table rows" )
+    $: job_title = (  job.reg.des_job_name !== "" ? job.reg.des_job_name : "Select a database to view table rows" )
     const jobSelected = async( j )=> { 
-        // let x = $JOBS.filter( ( jb ) => { return jb.reg.des_job_name  == j.reg.des_job_name } )[0]
         await j.getJobData( )
         job = j
-        tableSelected( "states" )
-        // debug( "selected job: ", j )
+        // orderDesc = false
+        clearTableSelection( )
+        tblSta = true
+        tbl = job.states
+        sortFunc = ( a, b ) => { return b.sta_time - a.sta_time }
+        getTblValues( )
     }
 
     $: tbl = [ ]
@@ -156,36 +168,50 @@
         cols = [ ]
         rows = [ ]
     }
-    const tableSelected = ( name ) => {
-        clearTableSelection( )
-        switch( name ) {
+    const tableSelected = ( tblSelected, name ) => {
+        if (  job.reg.des_job_name !== "" ) {
+            
+            if ( tblSelected ) { //debug( "toggle ", orderDesc )
+                orderDesc = !orderDesc
+            }
 
-            case "admins": 
-                tblAdm = true
-                tbl = job.admins
-                break
-            case "states": 
-                tblSta = true
-                tbl = job.states
-                break
-            case "headers": 
-                tblHdr = true
-                tbl = job.headers
-                break
-            case "configs":
-                tblCfg = true
-                tbl = job.configs
-                break
-            case "events": 
-                tblEvt = true
-                tbl = job.events
-                break
-            case "samples":
-                tblSmp = true
-                tbl = job.samples
-                break
+            clearTableSelection( )
+            switch( name ) {
+
+                case "admins": 
+                    tblAdm = true
+                    tbl = job.admins
+                    sortFunc = ( a, b ) => { return b.adm_time - a.adm_time }
+                    break
+                case "states": 
+                    tblSta = true
+                    tbl = job.states
+                    sortFunc = ( a, b ) => { return b.sta_time - a.sta_time }
+                    break
+                case "headers": 
+                    tblHdr = true
+                    tbl = job.headers
+                    sortFunc = ( a, b ) => { return b.hdr_time - a.hdr_time }
+                    break
+                case "configs":
+                    tblCfg = true
+                    tbl = job.configs
+                    sortFunc = ( a, b ) => { return b.cfg_time - a.cfg_time }
+                    break
+                case "events": 
+                    tblEvt = true
+                    tbl = job.events
+                    sortFunc = ( a, b ) => { return b.evt_time - a.evt_time }
+                    break
+                case "samples":
+                    tblSmp = true
+                    tbl = job.samples
+                    sortFunc = ( a, b ) => { return b.smp_time - a.smp_time }
+                    break
+            }
+
+            getTblValues( )
         }
-        getTblValues( )
     }
     const gettblColumns = ( row ) => {
         cols = [ ]
@@ -202,33 +228,50 @@
         } //  debug( "tblRow: ", tblRow )
         return tblRow
     }
+    let orderDesc = false
+    let arrStyle = `style="font-size: 1.5em; color: var(--orange);"`
+    let uarr = `<span ${ arrStyle }>&uarr;</span>`
+    let darr = `<span ${ arrStyle }>&darr;</span>`
+    $: symbol = ( orderDesc ? uarr : darr ) 
+
+    let sortFunc = ( ) => { }
     const getTblValues = ( ) => {
         rows = [ ]
         if ( tbl && tbl.length > 0 ) {
-            gettblColumns( tbl[ 0 ] )
-            for ( let i = 0; i < tbl.length; i++ ) {
-                rows.push( gettblRow( tbl[ i ] ) )
+
+            let data = [ ]
+            if ( orderDesc ) {
+                data = tbl.slice( tbl.length - 1000, ).sort( sortFunc )
+            } else {
+                data = tbl.slice( tbl.length - 1000 )
+            }
+
+            gettblColumns( data[ 0 ] )
+            for ( let i = 0; i < data.length; i++ ) {
+                rows.push( gettblRow( data[ i ] ) )
             }
         }
     }
 
     $: admCount = ( job.admins !== null ? job.admins.length : 0 )
-    $: admFunc = ( job.admins !== null ? ( ) => { tableSelected( "admins" ) } : ( )=>{ } )
+    $: admFunc = ( job.admins !== null ? ( ) => { tableSelected( tblAdm, "admins" ) } : ( )=>{ } )
 
     $: staCount = ( job.states !== null ? job.states.length : 0 )
-    $: staFunc = ( job.states !== null ? ( ) => { tableSelected( "states" ) } : ( )=>{ } )
+    $: staFunc = ( job.states !== null ? ( ) => { tableSelected( tblSta, "states" ) } : ( )=>{ } )
 
     $: hdrCount = ( job.headers !== null ? job.headers.length : 0 )
-    $: hdrFunc = ( job.headers !== null ? ( ) => { tableSelected( "headers" ) } : ( )=>{ } )
+    $: hdrFunc = ( job.headers !== null ? ( ) => { tableSelected( tblHdr, "headers" ) } : ( )=>{ } )
 
     $: cfgCount = ( job.configs !== null ? job.configs.length : 0 )
-    $: cfgFunc = ( job.configs !== null ? ( ) => { tableSelected( "configs" ) } : ( )=>{ } )
+    $: cfgFunc = ( job.configs !== null ? ( ) => { tableSelected( tblCfg, "configs" ) } : ( )=>{ } )
 
     $: evtCount = ( job.events !== null ? job.events.length : 0 )
-    $: evtFunc = ( job.events !== null ? ( ) => { tableSelected( "events" ) } : ( )=>{ } )
+    $: evtFunc = ( job.events !== null ? ( ) => { tableSelected( tblEvt, "events" ) } : ( )=>{ } )
 
     $: smpCount = ( job.samples !== null ? job.samples.length : 0 )
-    $: smpFunc = ( job.samples !== null ? ( ) => { tableSelected( "samples" ) } : ( )=>{ } )
+    $: smpFunc = ( job.samples !== null ? ( ) => { tableSelected( tblSmp, "samples" ) } : ( )=>{ } )
+
+
 
 </script>
 
@@ -240,44 +283,39 @@
 
             <div class="flx-row title">
                 <h1>DES ADMIN</h1>
-                { #if showDevices }
-                <div class="flx-row selector">
-                    <div class="flx-row op-lbl">Show Database List</div>
-                    <PillButton cls='bg-accent' on:click={ showDatabaseList } hint={ null } />
+                <div class="flx-row rad">
+                    <div class="flx-row rad-btn { ( !showDevices ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ showDatabaseList } on:keyup>DATABASES</div>
+                    <div class="flx-row rad-btn { ( !showDatabases ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ showDeviceList } on:keyup>DEVICES</div>
                 </div>
-                { :else if showDatabases }
-                <div class="flx-row selector">
-                    <div class="flx-row op-lbl">Show Device List</div>
-                    <PillButton cls='bg-accent' on:click={ showDeviceList } hint={ null } />
-                </div>
-                { /if }
             </div>
             
             { #if showDevices }
-            <div class="flx-col select-list">
 
-                <div class="flx-row"><h4>ADD A DEVICE</h4></div>
-                <div class="flx-row search">
-                    <PillButton img={ btn_img_add } hint={ 'Add Device' } on:click={ callRegisterDevice } />
-                    <SerialNumInput enabled={ true } bind:txt={ serial } place="Enter a serial # and click the + over there." /> 
+                
+                <div class="flx-row input-row">
+                    { #if addingDevice }
+                    <PillButton img={ btn_img_cancel } hint={ null } on:click={ ( ) => { addingDevice = false; serial = null; } } />
+                    <PillButton img={ btn_img_confirm } hint={ null } on:click={ callRegisterDevice } />
+                    <SerialNumInput enabled={ true } bind:txt={ serial } place="Enter a serial # and click confirm." /> 
+                    { :else }
+                    <PillButton img={ btn_img_add } hint={ null } on:click={ addingDevice = true } />
+                    <div class="flx-row" style="align-items: center;"><h4>ADD A DEVICE</h4></div>
+                    { /if }
                 </div>
 
                 <div class="flx-row"><h4>SEARCH DEVICES</h4></div>
-                <div class="flx-row search">
-                    <PillButton
-                        img={ btn_img_reset }
-                        hint={ 'Reset filters' } 
-                        on:click={ resetDeviceSearch }
-                    />
+                <div class="flx-row input-row">
+                    <PillButton img={ btn_img_reset } hint={ 'Reset filters' } on:click={ resetDeviceSearch } />
                     <InputText enabled={ true } bind:txt={ search.token } place="Search by serial #"/>
                 </div>
-                { #each $DEVICES.filter( d => { return checkDeviceTextFilter( d, search ) } ) as device, index ( index ) }
-                    <DesAdminDeviceInfo bind:device on:device-selected={ ( e ) => { deviceSelected( e.detail ) } } />
-                { /each }
-
-            </div>
+                <div class="flx-col select-list">
+                    { #each $DEVICES.filter( d => { return checkDeviceTextFilter( d, search ) } ) as device, index ( index ) }
+                        <DesAdminDeviceInfo bind:device on:device-selected={ ( e ) => { deviceSelected( e.detail ) } } />
+                    { /each }
+                </div>
             { :else if showDatabases }
-            <div class="flx-row search">
+            <div class="flx-row"><h4>SEARCH DATABASES</h4></div>
+            <div class="flx-row input-row">
                 <PillButton img={ btn_img_reset } hint={ 'Reset filters' } on:click={ resetJobSearch } />
                 <InputText enabled={ true } bind:txt={ search.token } place="Search text"/>
             </div>
@@ -287,7 +325,7 @@
                 <div class="flx-row rad-btn { ( jobType == 2 ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ ( ) => { setJobType( 2 ) } } on:keyup>CMD</div>
             </div>
             <div class="flx-col select-list">
-                <div class="flx-row"><h3>DATABASES</h3></div>
+                <!-- <div class="flx-row"><h3>DATABASES</h3></div> -->
                 { #each $DES_JOBS.filter( j => { return checkJobTextFilter( j, search ) } ) as job, index ( index ) }
                     <DesAdminJobBadge bind:job on:job-selected={ ( e ) => { jobSelected( e.detail ) } }/>
                 { /each }
@@ -315,22 +353,34 @@
                     <div class="flx-col tbl-menu">
                         
                         <div class="flx-row tlb-selector">
-                            <PillButton on:click={ admFunc } cls={ ( tblAdm ? trueColor : falseColor ) } />ADMINS : { admCount }</div>
+                            <div class="flx-row rad-btn { ( tblAdm ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ admFunc } on:keyup>ADMINS</div>
+                            <div class="tbl-row-count">{ admCount }</div>
+                            </div>
                     
                         <div class="flx-row tlb-selector">
-                            <PillButton on:click={ staFunc } cls={ ( tblSta ? trueColor : falseColor ) } />STATES : { staCount }</div>
+                            <div class="flx-row rad-btn { ( tblSta ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ staFunc } on:keyup>STATES</div>
+                            <div class="tbl-row-count">{ staCount }</div>
+                        </div>
                     
                         <div class="flx-row tlb-selector">
-                            <PillButton on:click={ hdrFunc } cls={ ( tblHdr ? trueColor : falseColor ) } />HEADERS : { hdrCount }</div>
+                            <div class="flx-row rad-btn { ( tblHdr ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ hdrFunc } on:keyup>HEADERS</div>
+                            <div class="tbl-row-count">{ hdrCount }</div>
+                        </div>
             
                         <div class="flx-row tlb-selector">
-                            <PillButton on:click={ cfgFunc } cls={ ( tblCfg ? trueColor : falseColor ) } />CONFIGS : { cfgCount }</div>
+                            <div class="flx-row rad-btn { ( tblCfg ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ cfgFunc } on:keyup>CONFIGS</div>
+                            <div class="tbl-row-count">{ cfgCount }</div>
+                        </div>
                                         
                         <div class="flx-row tlb-selector">
-                            <PillButton on:click={ evtFunc } cls={ ( tblEvt ? trueColor : falseColor ) } />EVENTS : { evtCount }</div>
+                            <div class="flx-row rad-btn { ( tblEvt ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ evtFunc } on:keyup>EVENTS</div>
+                            <div class="tbl-row-count">{ evtCount }</div>
+                        </div>
 
                         <div class="flx-row tlb-selector">
-                            <PillButton on:click={ smpFunc } cls={ ( tblSmp ? trueColor : falseColor ) } />SAMPLES : { smpCount }</div>
+                            <div class="flx-row rad-btn { ( tblSmp ? 'fg-orange rad-btn-select' : 'fg-grey' ) }" on:click={ smpFunc } on:keyup>SAMPLES</div>
+                            <div class="tbl-row-count">{ smpCount }</div>
+                        </div>
                             
                         <!-- <div class="flx-row tlb-selector"><PillButton 
                             />REPORTS : { job.reports.length }</div> -->
@@ -342,11 +392,20 @@
                             <thead>
                                 <tr>
                                     { #each cols as col, index ( index ) }
-                                        <th>{ ( col.slice( 4, ) ).replace( '_', ' ').toUpperCase( ) }</th>
+                                        <!-- { debug( "index: ", index ) } -->
+                                        <th on:keydown on:click={ ( ) => { 
+                                            if ( index == 0 ) {
+                                                orderDesc = ! orderDesc
+                                                getTblValues( )
+                                            } 
+                                        } }>
+                                            { ( col.slice( 4, ) ).replace( '_', ' ').toUpperCase( ) } 
+                                            { #if index == 0 } { @html symbol } { /if }
+                                        </th>
                                     { /each }
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody >
                                     { #each rows as row, index ( index ) }
                                         <tr>
                                             { #each row as val, index ( index ) }
@@ -397,37 +456,19 @@
         justify-content: space-between;
         padding-bottom: 1em;
     }
-    .selector {
-        justify-content: flex-end;
-        align-items: center;
-        width: auto;
-    }
-    .op-lbl {
-        align-items: center;
-        width: auto;
-    }
 
+    .input-row {
+        gap: 0.75em;
+    }
     .panel {
         overflow: hidden;
         padding: 0;
         height: 100%;
         gap: 0.5em;
     }
-
-    .select-list {
-        overflow-y: auto;
-        padding: 1em;
-        width: 100%;
-        height: 100%;
-    }
-
-    .db-container {
-        overflow: hidden;
-        /* overflow: auto; */
-        height: 100%;
-    }
     .rad {
         justify-content: flex-end;
+        width: auto;
     }
     .rad-btn {
         border: solid 0.1em var(--light_02);
@@ -436,11 +477,26 @@
         justify-content: center;
         align-items: center;
         height: 2em;
-        width: 8em;
+        min-width: 7em;
+        max-width: 7em;
+        gap: 0.5em;
     }
     .rad-btn-select {
         border: solid 0.1em var(--orange_03);
         background-color: var(--orange_01);
+    }
+
+    .select-list {
+        overflow-y: auto;
+        padding: 1em;
+        padding-top: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .db-container {
+        overflow: hidden;
+        height: 100%;
     }
 
     .tbl-menu {
@@ -448,14 +504,19 @@
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
         border-radius: 0.5em;
-        max-width: 13em;
-        min-width: 13em;
+        width: auto;
         height: 100%;
         padding:1em;
     }
     .tlb-selector {
+        justify-content: space-between;
         align-items: center;
+        gap: 1em;
+    }
+    .tbl-row-count {
         width: auto;
+        font-size: 0.9em;
+        color: var(--aqua_07);
     }
 
     .tbl-layout {
@@ -468,7 +529,13 @@
         height: 100%;
         overflow: auto;
     }
-
+    .tbl-container thead, th {
+        color: var(--aqua_05);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: rgb(7, 33, 33, 0.7);
+    }
     table, th, td {
         text-align: center;
         border-collapse: collapse;
@@ -476,23 +543,13 @@
         text-align: left;
         padding: 0.75em;
     }
-    /* table {
-        width: 100%;
-        height: 100%;
-    } */
-    table thead {
-        color: var(--orange_05);
-    }
-    table th {
-        border-bottom: 0.2em solid var(--aqua_04);
-    }
-    table th, td {
+    .tbl-container th, td {
         border-left: 0.1em solid var(--orange_03);
     }
-    table th:first-child, td:first-child {
+    .tbl-container thead:first-child, th:first-child, td:first-child {
 		border-left: none;
 	}
-    table tr:nth-child(even) {
+    .tbl-container tr:nth-child(even) {
         background-color:  var(--light_005);
     }
 
