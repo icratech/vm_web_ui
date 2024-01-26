@@ -5,7 +5,7 @@ mapboxgl.accessToken = MAPBOX_TOKEN
 
 import { HTTP_SERVER, WS_SERVER, client_app, MAPBOX_TOKEN, MAPBOX_STYLE } from '../des/app'
 import { ALERT_CODES, alert, waitMilli, debug } from '../des/utils'
-import { AUTH, RoleCheck, getRequestAuth, postRequestAuth } from '../des/api'
+import { AUTH, RoleCheck, getRequestAuth, postRequestAuth, postRequestFormDataAuth } from '../des/api'
 import { FormatDateTime } from "../common/format"
 
 import { 
@@ -28,8 +28,10 @@ export const API_URL_C001_V001_JOB = `${ HTTP_SERVER }/${ API_URL_C001_V001 }/jo
 export const API_URL_C001_V001_JOB_WS = `${ WS_SERVER }/${ API_URL_C001_V001 }/job`
 
 export const API_URL_C001_V001_JOB_EVENT_TYPE_LIST =  `${ API_URL_C001_V001_JOB }/event/list`
-
 export const API_URL_C001_V001_JOB_LIST = `${ API_URL_C001_V001_JOB }/list`
+export const API_URL_C001_V001_JOB_DES_LIST = `${ API_URL_C001_V001_JOB }/des_list`
+
+export const API_URL_C001_V001_JOB_UPLOAD = `${ API_URL_C001_V001_JOB }/upload`
 export const API_URL_C001_V001_JOB_DATA = `${ API_URL_C001_V001_JOB }/data`
 export const API_URL_C001_V001_JOB_NEW_REPORT =  `${ API_URL_C001_V001_JOB }/new_report`
 export const API_URL_C001_V001_JOB_NEW_HDR = `${ API_URL_C001_V001_JOB }/new_header`
@@ -38,7 +40,6 @@ export const API_URL_C001_V001_JOB_EVTS = `${ API_URL_C001_V001_JOB }/event_list
 
 export const API_URL_C001_V001_JOB_USER_WS =  `${ API_URL_C001_V001_JOB_WS }/ws`
 
-export const API_URL_C001_V001_JOB_DES_LIST = `${ API_URL_C001_V001_JOB }/des_list`
 
 export const EVT_TYPES = writable( [ ] )
 export const EVT_TYPES_LOADED = writable( false )
@@ -101,7 +102,18 @@ export const getJobs = async( ) => {
     }
 
 }
+export const uploadJobData = async( files ) => {
 
+    let res = await postRequestFormDataAuth( API_URL_C001_V001_JOB_UPLOAD, files )
+    if ( res.err !== null ) {  
+        alert( ALERT_CODES.ERROR, res.err )
+        debug( "jobs.js -> uploadJobData( ) -> ERROR: ", res.err )
+     }else {
+        let job = res.json.job
+        debug( "jobs.js -> uploadJobData( ) -> job: ", job )
+    }
+
+}
 
 export const DES_JOBS = writable( [ ] )
 export const DES_JOBS_LOADED = writable( false )

@@ -285,6 +285,34 @@ export const postRequestAuth = async( url, obj ) => {
     return out
 }
 
+/* HANDLES AUTHORIZED POST REQUESTS -> CALLS JWT REFRESH IF NECESSARY */
+export const postRequestFormDataAuth = async( url, formData ) => {
+    debug( "des/api.js -> postRequestAuth( ) -> url: ", url)
+    let out = { err: null, json: null }
+    let au = get( AUTH )
+    let ref = await refreshJWT( ) // debug( "des/api.js -> postRequestAuth( ) -> ref.err: ", ref.err )
+    if ( ref.ok ) { 
+        debug( "postRequestFormDataAuth( ) -> making POST ", url )
+        debug( "postRequestFormDataAuth( ) -> FormData ", formData )
+        let req = new Request( url, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${ au.acc_token }` },
+            body: formData
+        } )
+        let res = await fetch( req )
+        if ( !res.ok ) {
+            out.err = await res.text() 
+            // debug("des/api.js -> postRequestAuth( ) -> !res.ok", out)
+        } else {
+            out.json = await res.json( )
+        }
+
+    } else {
+        out.err = ref.err
+    }
+    return out
+}
+
 /* HANDLES AUTHORIZED WEBSOCKET REQUESTS -> CALLS JWT REFRESH IF NECESSARY */
 export const wsConnectionAuth = async( url, key, obj ) => {
     debug( "des/api.js -> wsConnectionAuth( ) -> url: ", url)

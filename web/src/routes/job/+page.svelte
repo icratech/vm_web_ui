@@ -8,6 +8,8 @@
     import { routeFixer, debug, ALERT_CODES, alert } from '../../lib/des/utils'
     import { DESSearchParam } from '../../lib/des/api'
     
+    import { uploadJobData, API_URL_C001_V001_JOB_UPLOAD } from '../../lib/c001v001/job'
+
     import JobSearch from './JobSearch.svelte'
     import JobCard from './JobCard.svelte'
 	import PillButton from '../../lib/common/button/PillButton.svelte'
@@ -44,28 +46,53 @@
         goto( routeFixer( $page.url.pathname, 'job/', j.reg.des_job_name ) )
     }
 
-    const uploadJobData = async( input ) => {
-        debug( "uploadJobData( ): ", input.files.length )
-        if ( input.files.length == 6 ) {
-            let formData = new FormData( )
+    let formData = new FormData( )
+    const callUploadJobData = async( input ) => {
+        debug( "uploadJobData( ): ", input.files )
+        // if ( input.files.length == 6 ) {
+            formData = new FormData( )
             for ( let i = 0; i < input.files.length; i++ ) {
                 let f = input.files[ i ]
-                debug( "uploadJobData( ): ", f.name.split('.')[0] ) 
-                formData.append( f.name.split('.')[0], f ) 
+                // debug( "uploadJobData( ): ", { name: f.name.split('.')[0], size: f.size } ) 
+                // formData.append( f.name.split('.')[0], f )
+                debug( "uploadJobData( ): ", { name: f.name, size: f.size } ) 
+                // formData.append( f.name, f ) 
+                formData.append( "files", f ) 
             }
             debug( "uploadJobData( ): ", formData ) 
-        } else {
-            /* TODO: ACTUAL VALIDATION */
-            alert( ALERT_CODES.ERROR, "Invalid file count" )
-        }
+            await uploadJobData( formData )
+            // let out = { err: null, json: null }
+            // let req = new Request( API_URL_C001_V001_JOB_UPLOAD, {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "multipart/form-data; boundary=qrstuvwxyz"
+            //     },
+            //     body: formData
+            // } )
+            // let res = await fetch( req )
+            // if ( !res.ok ) {
+            //     out.err = await res.text() 
+            //     // debug("des/api.js -> postRequestAuth( ) -> !res.ok", out)
+            // } else {
+            //     out.json = await res.json( )
+            // }
+            
+            // debug( "uploadJobData( ): ", out ) 
+        // } else {
+        //     /* TODO: ACTUAL VALIDATION */
+        //     alert( ALERT_CODES.ERROR, "Invalid file count" )
+        // }
     }
 
 </script>
 
 <InputFile id="input_job_data" 
-    func={ async( )=> { await uploadJobData( input_job_data ) } }
-    accept=".json" 
+    func={ async( )=> { await callUploadJobData( input_job_data ) } }
+    accept={ ".json, .bin" }
 />
+<!-- <InputFile id="input_job_data" 
+    func={ async( )=> { await callUploadJobData( input_job_data ) } }
+/> -->
 <dvi class="flx-col container">
 
     <div class="flx-row content">
