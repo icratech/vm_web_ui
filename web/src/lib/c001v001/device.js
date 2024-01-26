@@ -453,11 +453,11 @@ export class Device {
                         break
     
                     case "end_sig":
-                        // debug("new end received from device: ", msg.data)
-                        
+                        this.updateStateWS( msg.data )
                         this.smp = new Sample( )
                         this.resetChart( )
     
+                        // debug("new end received from device: ", msg.data)
                         break    
                     
                     case "end_cmd":
@@ -481,15 +481,7 @@ export class Device {
                         break
     
                     case "state":
-                        this.sta = msg.data
-                        this.reg.des_job_name = this.sta.sta_job_name
-
-                        switch (this.sta.sta_logging ) {
-                            case OP_CODES.JOB_END_REQ:
-                            case OP_CODES.JOB_START_REQ:
-                            case OP_CODES.GPS_ACQ:
-                                this.ping = new Ping( )
-                        } 
+                        this.updateStateWS( msg.data ) 
                         // debug("new state received from device: ", this.sta)
                         break
         
@@ -586,6 +578,17 @@ export class Device {
             }
             await waitMilli(1000)
         }
+    }
+    updateStateWS = ( sta ) => {
+        this.sta = sta
+        this.reg.des_job_name = this.sta.sta_job_name
+
+        switch (this.sta.sta_logging ) {
+            case OP_CODES.JOB_END_REQ:
+            case OP_CODES.JOB_START_REQ:
+            case OP_CODES.GPS_ACQ:
+                this.ping = new Ping( )
+        } 
     }
 
     /* HTTP METHODS **********************************************************************/

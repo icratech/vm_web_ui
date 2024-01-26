@@ -56,8 +56,8 @@
                 // debug( "uploadJobData( ): ", { name: f.name.split('.')[0], size: f.size } ) 
                 // formData.append( f.name.split('.')[0], f )
                 debug( "uploadJobData( ): ", { name: f.name, size: f.size } ) 
-                // formData.append( f.name, f ) 
-                formData.append( "files", f ) 
+                formData.append( f.name, f ) 
+                // formData.append( "files", f ) 
             }
             debug( "uploadJobData( ): ", formData ) 
             await uploadJobData( formData )
