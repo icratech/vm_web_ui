@@ -434,30 +434,24 @@ export class Device {
                         this.sta = msg.data.sta
                         this.reg.des_job_name = this.sta.sta_job_name
     
-                        if ( msg.data.hdr.hdr_addr == this.reg.des_dev_serial ) {
-                            this.hdr = msg.data.hdr
-                            this.reg.des_job_start = this.hdr.hdr_job_start
-                            this.reg.des_job_end = this.hdr.hdr_job_end
-                            this.reg.des_job_lng = this.hdr.hdr_geo_lng 
-                            this.reg.des_job_lat = this.hdr.hdr_geo_lat
-                            this.updateDeviceSearchMap( )
-                            this.updateDevicePageMap( )     
-                        }
+                        if ( msg.data.hdr.hdr_addr == this.reg.des_dev_serial )
+                            this.updateHeaderWS( msg.data.hdr )  
     
                         this.cfg = msg.data.cfg
                         this.updateMarkerMode( )
     
-                        this.evt = msg.data.evt
-                        this.job_evts.unshift( this.evt )
+                        this.updateEventWS( msg.data.evt )
                         
                         break
     
                     case "end_sig":
-                        this.updateStateWS( msg.data )
+                        debug("new end received from device: ", msg.data)
+                        this.updateHeaderWS( msg.data.hdr )
+                        this.updateEventWS( msg.data.evt )
+                        this.updateStateWS( msg.data.sta )
                         this.smp = new Sample( )
                         this.resetChart( )
     
-                        // debug("new end received from device: ", msg.data)
                         break    
                     
                     case "end_cmd":
@@ -487,13 +481,7 @@ export class Device {
         
                     case "header":
                         // debug("new header received from device: ", this.hdr)
-                        this.hdr = msg.data
-                        this.reg.des_job_start = this.hdr.hdr_job_start
-                        this.reg.des_job_end = this.hdr.hdr_job_end
-                        this.reg.des_job_lng = this.hdr.hdr_geo_lng 
-                        this.reg.des_job_lat = this.hdr.hdr_geo_lat
-                        this.updateDeviceSearchMap( )
-                        this.updateDevicePageMap( )
+                        this.updateHeaderWS( msg.data )
                         break
     
                     case "config":
@@ -503,8 +491,7 @@ export class Device {
                         break
                     
                     case "event":
-                        this.evt = msg.data
-                        this.job_evts.unshift( this.evt )
+                        this.updateEventWS( msg.data )
                         // debug("new event received from device: ", this.evt)
                         break
         
@@ -589,6 +576,19 @@ export class Device {
             case OP_CODES.GPS_ACQ:
                 this.ping = new Ping( )
         } 
+    }
+    updateHeaderWS = ( hdr ) => {
+        this.hdr = hdr
+        this.reg.des_job_start = this.hdr.hdr_job_start
+        this.reg.des_job_end = this.hdr.hdr_job_end
+        this.reg.des_job_lng = this.hdr.hdr_geo_lng 
+        this.reg.des_job_lat = this.hdr.hdr_geo_lat
+        this.updateDeviceSearchMap( )
+        this.updateDevicePageMap( ) 
+    }
+    updateEventWS = ( evt ) => {
+        this.evt = evt
+        this.job_evts.unshift( this.evt )
     }
 
     /* HTTP METHODS **********************************************************************/
