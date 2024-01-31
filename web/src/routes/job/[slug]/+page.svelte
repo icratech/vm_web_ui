@@ -221,6 +221,7 @@
         debug(  "new report title: ", new_rep.rep_title )
         await job.newReport( new_rep )
         new_rep = new Report( )
+        reportSelected( job.reports[job.reports.length - 1] )
     }
 
     let new_sec = new Section( )
@@ -308,12 +309,10 @@
 
                 <div class="flx-row action">
 
-                    <!-- <div id="rep" class="flx-col panel-cont" style="
-                        border-bottom: solid 0.05em { borderColor };
-                        border-right: solid 0.05em { borderColor };
-                    "> -->
+                    { #if job.reports.length == 0 }
+                        <div class="flx-row loading"><h3>No reports have been generated</h3></div>
+                    { :else }
                     <div class="flx-col panel-cont rep">
-                        
                         
                         <ReportCard
                             bind:job bind:rep
@@ -328,13 +327,11 @@
                                 await generateCSV( job, e.detail, hdr ) 
                             } }
                         />
+
                     </div>
 
                     <div class="flx-row sec">
-                        <!-- <div id="evt" class="flx-col panel-cont" style="
-                            border-bottom: solid 0.05em { borderColor };
-                            border-right: solid 0.05em { borderColor };
-                        "> -->
+
                         <div class="flx-col panel-cont sec-evts">
                             <EventPanelRep bind:new_evt={evt} bind:smp={ job.selected_smp } 
                                 bind:evts 
@@ -348,11 +345,6 @@
                             />
                         </div>
     
-    
-                        <!-- <div id="cfg" class="flx-col panel-cont" style="
-                            border-bottom: solid 0.05em { borderColor };
-                            border-right: solid 0.05em { borderColor };
-                        "> -->
                         <div class="flx-col panel-cont sec-cfg">
                             <!-- <br> -->
                             <div class="flx-col">
@@ -364,6 +356,7 @@
                             </div>
                         </div>
                     </div>
+                    { /if }
                 </div>
      
             </div>
