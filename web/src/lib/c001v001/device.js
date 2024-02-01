@@ -37,6 +37,7 @@ export const API_URL_C001_V001_DEVICE_WS = `${ WS_SERVER }/${ API_URL_C001_V001 
 export const API_URL_C001_V001_DEVICE_REGISTER =  `${ API_URL_C001_V001_DEVICE }/register`
 export const API_URL_C001_V001_DEVICE_DES_CLIENT_REFRESH =  `${ API_URL_C001_V001_DEVICE }/des_client_refresh`
 export const API_URL_C001_V001_DEVICE_DES_CLIENT_DISCONNECT =  `${ API_URL_C001_V001_DEVICE }/des_client_disconnect`
+export const API_URL_C001_V001_DEVICE_DES_ERROR_LOG =  `${ API_URL_C001_V001_DEVICE }/des_error_log`
 
 /* DEVICE-OPERATOR-LEVEL OPERATIONS */
 export const API_URL_C001_V001_DEVICE_START =  `${ API_URL_C001_V001_DEVICE }/start`
@@ -189,6 +190,8 @@ export class Device {
         this.evt = evt
         this.smp = smp
         this.reg = reg 
+
+        this.des_errors = [ ]
 
         /* USED TO MONITOR THE PHYSICAL DEVICE'S MQTT BROKER CONNECTION 
             THE PHYSICAL DEVICE SENDS A PING EVERY 30 SECONDS
@@ -781,7 +784,21 @@ export class Device {
             if ( res.json.xy_points !== null ) 
                 await this.loadChartXYPoints( res.json.xy_points )
 
-        debug( `c001v001/device.js -> class Device -> ${ this.reg.des_job_name } -> ACTIVE JOB SAMPLES: `, this.cht_press.data.length )
+        debug( `c001v001/device.js -> ${ this.reg.des_job_name } -> ACTIVE JOB SAMPLES: `, this.cht_press.data.length )
+    }
+    qryDESErrorLog = async( ) => {
+        debug( `c001v001/device.js -> ${ this.reg.des_dev_serial }.qryDESErrorLog( )` ) 
+        
+        let dev = { reg: this.reg } 
+        let res = await postRequestAuth( API_URL_C001_V001_DEVICE_DES_ERROR_LOG, dev )
+        if ( res.err !== null )  
+            alert( ALERT_CODES.ERROR, res.err )
+        
+        else
+            this.des_errors = ( res.json.des_errors === null ? [ ] : res.json.des_errors )
+            
+        debug( `c001v001/device.js -> ${ this.reg.des_dev_serial }.qryDESErrorLog( )`, this.des_errors )
+
     }
     /* USED TO DOWNLOAD DEVICE INITIALIZATION FILES UPON REGISTRATION */
     getDeviceFiles = async( ) => {

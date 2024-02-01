@@ -1,6 +1,10 @@
 <script>
 
+    // import Prism from 'prismjs'  // npm install prismjs // npm install @types/prismjs
+    import { JsonView } from '@zerodevx/svelte-json-view' // npm install @zerodevx/svelte-json-view
+
     import { debugging } from '../../lib/des/app'
+    import { DESError } from '../../lib/des/api'
     import { debug, ALERT_CODES, alert } from '../../lib/des/utils'
 
     import { Device } from "../../lib/c001v001/device"
@@ -10,6 +14,7 @@
     import InputNum from "$lib/common/input_num/InputNum.svelte"
     import DateTimeDisplay from "../../lib/common/date_time/DateTimeDisplay.svelte"
     import DESAdminDeviceInfo from "./DESAdminDeviceInfo.svelte"
+    import DesErrorBadge from './DESErrorBadge.svelte'
     
     import btn_img_cmd_red from "$lib/images/btn-img-cmd-red.svg"
     import btn_img_cmd_orange from "$lib/images/btn-img-cmd-orange.svg"
@@ -18,7 +23,7 @@
     import btn_img_cmd_aqua from "$lib/images/btn-img-cmd-aqua.svg"
     import btn_img_cmd_blue from "$lib/images/btn-img-cmd-blue.svg"
     import btn_img_cmd_purple from "$lib/images/btn-img-cmd-purple.svg"
-    // import btn_img_cmd_pink from "$lib/images/btn-img-cmd-pink.svg"
+    import btn_img_collapse from "$lib/images/btn-img-collapse-aqua.svg"
 
     import btn_img_reset from "$lib/images/btn-img-reset-grey.svg"
 
@@ -92,126 +97,154 @@
         }
     }
 
-    
-
+    $: errorLog = false
+    $: errorLogButton = ( errorLog ? btn_img_collapse : btn_img_cmd_yellow )
+    $: errorLogText = ( errorLog ? "Hide Log" : "Show Log" )
+    $: errorCSS = ( errorLog ? "errlog-show" : "errlog-hide" )
+    $: errorLogFunc = async( ) => {
+        if ( errorLog ) {
+            errorLog = false
+        } else { 
+            await device.qryDESErrorLog( )
+            errorLog = true
+        }
+    }
+    $: errorSelected = new DESError( )
+    $: json = ( errorSelected.des_err_json == null ? null : JSON.parse( errorSelected.des_err_json ) )
 </script>
 
-<div class="flx-row container">
 
-    <div class="flx-col">
-        <DESAdminDeviceInfo bind:device />
-            
-        <div class="flx-row field" style="margin-top: -2.5em;">
-            <div class="flx-row field-name">Firmware</div>
-            <div class="vert-line"/>
+<div class="flx-col container">
+    <div class="flx-row controls">
 
-            <div class="flx-row fw">
-                <div class="flx-row fw-sub-l">
-                    <div class="flx-row field-sub">Logger</div>
-                    <div class="flx-row field-value">{ device.sta.sta_log_fw }</div>
-                </div>
+        <div class="flx-col">
+            <DESAdminDeviceInfo bind:device />
+                
+            <div class="flx-row field" style="margin-top: -2.5em;">
+                <div class="flx-row field-name">Firmware</div>
+                <div class="vert-line"/>
 
-                <div class="flx-row fw-sub-r">
-                    <div class="flx-row field-sub">Modem</div>
-                    <div class="flx-row field-value">{ device.sta.sta_mod_fw }</div>
+                <div class="flx-row fw">
+                    <div class="flx-row fw-sub-l">
+                        <div class="flx-row field-sub">Logger</div>
+                        <div class="flx-row field-value">{ device.sta.sta_log_fw }</div>
+                    </div>
+
+                    <div class="flx-row fw-sub-r">
+                        <div class="flx-row field-sub">Modem</div>
+                        <div class="flx-row field-value">{ device.sta.sta_mod_fw }</div>
+                    </div>
                 </div>
             </div>
+
+            <div class="flx-row field">
+                <div class="flx-row field-name"><PillButton img={ DESDevConnImage } on:click={ DESDevConnFucn } /></div>
+                <div class="vert-line"/>
+                <div class="flx-row fw-sub-l">{ DESDevConnHint }</div>
+            </div>
+
         </div>
 
-        <div class="flx-row field">
-            <div class="flx-row field-name"><PillButton img={ DESDevConnImage } on:click={ DESDevConnFucn } /></div>
-            <div class="vert-line"/>
-            <div class="flx-row fw-sub-l">{ DESDevConnHint }</div>
+        <div class="flx-col cmd-block">
+
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_files } on:click={ downloadDeviceFiles } />
+                <p>Download device initialization files to default downloads folder</p>
+            </div>
+
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_status } on:click={ device.getReport } />
+                <p>Request device status report: Admin, State, Header, Config</p>
+            </div>
+
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_start } on:click={ device.startJob } />
+                <p>Start a job with a glaring indifference to the current device state</p>
+            </div>
+
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_stop } on:click={ device.endJob } />
+                <p>End a job with an unabashed disregard for the current device state</p>
+            </div>
+
+
+        </div>
+
+
+        <div class="flx-col cmd-block half">
+            
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_cmd_red } on:click={ device.setAdmin } />
+                <p>Send Admin</p>
+            </div>
+            
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_cmd_orange } on:click={ device.setState } />
+                <p>Send State</p>
+            </div>
+            
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_cmd_yellow } on:click={ device.setHeader } />
+                <p>Send Header</p>
+            </div>
+            
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_cmd_green } on:click={ device.setConfig } />
+                <p>Send Config</p>
+            </div>
+
+        </div>
+
+        <div class="flx-col cmd-block half">
+            
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_cmd_red } on:click={ ( ) => { alert( ALERT_CODES.WARNING, "Yet to be implemented") } } />
+                <p>Remove Device</p>
+            </div>
+            
+            <div class="flx-row cmd">
+                <PillButton img={ btn_img_cmd_orange } on:click={ ( ) => { alert( ALERT_CODES.WARNING, "Yet to be implemented") } } />
+                <p>Edit Serial #</p>
+            </div>
+            
+            <div class="flx-row cmd">
+                <PillButton img={ errorLogButton } on:click={ errorLogFunc } />
+                <p>{ errorLogText }</p>
+            </div>
+            
+            <!-- <div class="flx-row cmd">
+                <PillButton img={ btn_img_cmd_green } on:click={ device.setConfig } />
+                <p>Send Config</p>
+            </div> -->
+
         </div>
 
     </div>
-
-
-    <div class="flx-col cmd-block">
-
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_files } on:click={ downloadDeviceFiles } />
-            <p>Download device initialization files to default downloads folder</p>
+    <div class="flx-row { errorCSS }"><h3>DES Log</h3></div>
+    <div class="flx-row { errorCSS }">
+        <div class="flx-col">
+            { #each device.des_errors as err, index ( index ) }
+                <DesErrorBadge bind:err on:err_selected={ ( e ) => {  errorSelected = e.detail } }/>
+            { /each }
         </div>
-
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_status } on:click={ device.getReport } />
-            <p>Request device status report: Admin, State, Header, Config</p>
+        <div class="flx-col err-json-container">
+            <div class="flx-col err-json">
+                <JsonView { json } />
+            </div>
         </div>
-
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_start } on:click={ device.startJob } />
-            <p>Start a job with a glaring indifference to the current device state</p>
-        </div>
-
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_stop } on:click={ device.endJob } />
-            <p>End a job with an unabashed disregard for the current device state</p>
-        </div>
-
-
     </div>
-
-
-    <div class="flx-col cmd-block half">
-        
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_cmd_red } on:click={ device.setAdmin } />
-            <p>Send Admin</p>
-        </div>
-        
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_cmd_orange } on:click={ device.setState } />
-            <p>Send State</p>
-        </div>
-        
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_cmd_yellow } on:click={ device.setHeader } />
-            <p>Send Header</p>
-        </div>
-        
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_cmd_green } on:click={ device.setConfig } />
-            <p>Send Config</p>
-        </div>
-
-    </div>
-
-    <div class="flx-col cmd-block half">
-        
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_cmd_red } on:click={ ( ) => { alert( ALERT_CODES.WARNING, "Yet to be implemented") } } />
-            <p>Remove Device</p>
-        </div>
-        
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_cmd_orange } on:click={ ( ) => { alert( ALERT_CODES.WARNING, "Yet to be implemented") } } />
-            <p>Edit Serial #</p>
-        </div>
-        
-        <div class="flx-row cmd">
-            <PillButton img={ btn_img_cmd_yellow } on:click={ ( ) => { alert( ALERT_CODES.WARNING, "Yet to be implemented") } } />
-            <p>Show Error Log</p>
-        </div>
-        
-        <!-- <div class="flx-row cmd">
-            <PillButton img={ btn_img_cmd_green } on:click={ device.setConfig } />
-            <p>Send Config</p>
-        </div> -->
-
-    </div>
-
 </div>
-
 <style>
     
     .container {
         background-color: var(--light_aa);
         border-bottom: solid 0.05em var(--light_01);
         border-right: solid 0.05em var(--light_01);
-        justify-content: space-between;
         border-radius: 0.5em;
         padding: 1em;
+    }
+    .controls {
+        justify-content: space-between;
     }
     /* .container:hover { background-color: var(--light_003); } */
 
@@ -226,6 +259,26 @@
     .cmd { 
         align-items: center;
         gap: 1em;
+    }
+
+    .errlog-show { 
+        display: flex;
+    }
+    .errlog-hide { 
+        display: none;
+    }
+    .err-json-container {
+		overflow-y: scroll; 
+		overflow-x: hidden;
+        height: 23em;
+    }
+    .err-json {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-bottom: 1rem;
+        width: 100%;
+        --jsonPadding: 0.5em;
+        /* white-space: pre-wrap; */
     }
 
     .field { 

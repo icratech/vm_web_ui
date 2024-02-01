@@ -551,6 +551,21 @@ export const getUserList = async( ) => {
 
 }
 
+export class DESError {
+    constructor( 
+        id = 0,
+        time = 0,
+        msg = "",
+        json = null,
+        ref = ""
+        ) {
+        this. des_err_id = id
+        this.des_err_time = time
+        this.des_err_msg = msg
+        this.des_err_json = json
+        this.des_err_ref = ref
+    }
+}
 
 /* NOT IMPLEMENTED */
 export const API_URL_DES_DB_LIST = `${ HTTP_SERVER }/api/des/db/list`
