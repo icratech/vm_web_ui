@@ -1,6 +1,6 @@
 <script>
 
-    import { UserSignUp, registerUser } from "../lib/des/api"
+    import { UserSignUp, registerUser, AUTH } from "../lib/des/api"
 
     import Modal from "../lib/common/modal/Modal.svelte"
     import PillButton from "../lib/common/button/PillButton.svelte"
@@ -54,6 +54,8 @@
             </div>
         </Modal>
 
+        
+        { #if !$AUTH.logged_in }
         <div class="flx-row register">
 
             Register
@@ -64,6 +66,7 @@
             />
 
         </div>
+        { /if }
 
         <div class="flx-row banner deployed" style="background-image: url( { vent_medic_deployed} );"></div>
         <div class="flx-row banner ship" style="background-image: url( { vent_medic_nested} );"></div>
